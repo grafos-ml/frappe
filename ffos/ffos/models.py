@@ -70,7 +70,7 @@ class Region(models.Model):
     adolescent = models.BooleanField(_('adolescent'))
     
     # I will make this a big number for the same reasons bellow
-    mcc =  models.BigIntegerField(_('mcc'))
+    mcc =  models.BigIntegerField(_('mcc'),null=True,blank=True)
     
     # And this a big string
     name = models.CharField(_('name'),max_length=255)
@@ -84,7 +84,7 @@ class Region(models.Model):
     def __unicode__(self):
         return self.name
         
-class Locales(models.Model):
+class Locale(models.Model):
     '''
     Locales to be assigned to the app support
     '''
@@ -96,6 +96,24 @@ class Locales(models.Model):
         
     def __unicode__(self):
         return self.name
+
+class Preview(models.Model):
+    '''
+    Information about the app previews
+    '''
+    filetype = models.CharField(_('file type'),max_length=255)
+    thumbnail_url = models.URLField(_('thumbnail url'))
+    image_url = models.URLField(_('image url'))
+    ffos_preview_id = models.BigIntegerField(_('firefox preview id'))
+    resource_uri = models.CharField(_('resource id'),max_length=255)
+    
+    class Meta:
+        verbose_name = _('preview')
+        verbose_name_plural = _('previews')
+        
+    def __unicode__(self):
+        return _('%(app)s preview with id %(preview_id)s') % {'app': self.app, 
+            'preview_id': self.ffos_preview_id}
         
 class FFOSApp(models.Model):
     '''
@@ -107,33 +125,34 @@ class FFOSApp(models.Model):
     
     app_type = models.CharField(_('app type'),max_length=255)
     
-    author = models.CharField(_('author'),max_length=255)
+    author = models.CharField(_('author'),max_length=255,null=True,blank=True)
     
-    categories = models.ManyToManyField(FFOSAppCategory,
+    categories = models.ManyToManyField(FFOSAppCategory,blank=True,
         verbose_name=_('categories'),related_name='apps')
     
     content_ratings = models.CharField(_('content rating'),max_length=255,
         null=True,blank=True)
     
-    created = models.DateTimeField(_('created date'))
+    created = models.DateTimeField(_('created date'),null=True,blank=True)
     
-    current_version = models.CharField(_('current version'),max_length=10)
+    current_version = models.CharField(_('current version'),max_length=10,
+        null=True,blank=True)
     
     default_locale = models.CharField(_('default locale'),max_length=5)
     
-    description = models.TextField(_('description'))
+    description = models.TextField(_('description'),null=True,blank=True)
     
-    device_types = models.ManyToManyField(FFOSDeviceType,
+    device_types = models.ManyToManyField(FFOSDeviceType,blank=True,
         verbose_name=_('device types'),related_name='apps')
     
-    home_page = models.URLField(_('home page'))
+    homepage = models.URLField(_('homepage'),null=True,blank=True)
     
     icon = models.ForeignKey(FFOSAppIcon,verbose_name=_('app icon'),
         related_name='app')
     
-    ffos_app_id = models.BigIntegerField(_('firefox app id'))
+    ffos_app_id = models.BigIntegerField(_('firefox app id'),unique=True)
     
-    is_packed = models.BooleanField(_('is packed?'))
+    is_packaged = models.BooleanField(_('is packaged?'))
     
     manifest_url = models.URLField(_('manifest url'))
     
@@ -142,7 +161,14 @@ class FFOSApp(models.Model):
     payment_account = models.CharField(_('payment account'),max_length=255,
         null=True,blank=True)
     
+    payment_required = models.BooleanField(_('is payment required?'))
+    
     price_locale = models.CharField(_('price locale'),max_length=255,null=True,
+        blank=True)
+    
+    price = models.CharField(_('price'),max_length=255,null=True,blank=True)
+    
+    premium_type = models.CharField(_('primium type'),max_length=255,null=True,
         blank=True)
     
     privacy_policy = models.CharField(_('privacy policy'), max_length=255)
@@ -155,19 +181,20 @@ class FFOSApp(models.Model):
     rating_count = models.BigIntegerField(_('rating count'))
     
     regions = models.ManyToManyField(Region,verbose_name=_('regions'),
-        related_name='apps')
+        blank=True,related_name='apps')
     
-    recource_uri = models.CharField(_('recource uri'),max_length=255)
+    resource_uri = models.CharField(_('resource uri'),max_length=255,
+        null=True,blank=True)
     
     slug = models.CharField(_('slug'),max_length=255)
     
     status = models.IntegerField(_('status'),max_length=4)
     
-    support_email = models.EmailField(_('support e-mail'))
+    support_email = models.EmailField(_('support e-mail'),null=True,blank=True)
     
-    support_url = models.URLField(_('support url'))
+    support_url = models.URLField(_('support url'),null=True,blank=True)
     
-    supported_locales = models.ManyToManyField(Locales,
+    supported_locales = models.ManyToManyField(Locale,blank=True,
         verbose_name=_('supported locales'),related_name='apps')
     
     tags = models.TextField(_('tags'))
@@ -179,13 +206,16 @@ class FFOSApp(models.Model):
     weekly_downloads = models.CharField(_('weekly downloads'),max_length=255,
         null=True,blank=True)
     
+    previews = models.ManyToManyField(Preview,verbose_name=_('previews'),
+        blank=True,related_name='app')
+    
     class Meta:
         verbose_name = _('firefox os app')
         verbose_name_plural = _('firefox os apps')
         
     def __unicode__(self):
         return _('%(app_name)s version %(version)s') % {'app_name': self.name,
-                                                        'version': self.version}
+            'version': self.version}
 
 class FFOSUser(models.Model):
     '''
@@ -202,18 +232,16 @@ class FFOSUser(models.Model):
     # Lang or Locale???
     locale = models.CharField(_('locale'),max_length=5,null=True,blank=True)
     
-    # Length is 25, a bit more than 'Santa Cruz de Tenerife', the largest name
-    # in the list of Spanish regions.
-    region = models.CharField(_('region'),max_length=25,null=True,blank=True)
+    region = models.CharField(_('region'),max_length=255,null=True,blank=True)
     
-    # Length is 70, a bit more than the dummy data field send by FireFox. Linas
+    # Length is 255, more than the dummy data field send by FireFox. Linas
     # said it's fine.
     # The documentation defines this has a md5 hash so a 32 hexa digit will be
     # enough?
-    external_id = models.CharField(_('external id'),max_length=70,unique=True)
+    external_id = models.CharField(_('external id'),max_length=255,unique=True)
     
-    installed_apps = models.ManyToManyField(FFOSApp,
-        verbose_name=_('installed apps'),related_name='users')
+    installed_apps = models.ManyToManyField(FFOSApp,blank=True,
+        verbose_name=_('installed apps'),related_name='users',through='Installation')
     
     class Meta:
         verbose_name = _('firefox client')
@@ -224,12 +252,32 @@ class FFOSUser(models.Model):
         Return the word client followed by the client external id
         '''
         return _('client %(external_id)s') % {'external_id': self.external_id}
+
+class Installation(models.Model):
+    '''
+    The connection between the user and the app. It has information about the
+    user and the app such as installation date and eventually the date in which
+    the app was removed.
+    '''
+    user = models.ForeignKey(FFOSUser,verbose_name=_('user'))
+    app = models.ForeignKey(FFOSApp,verbose_name=_('app'))
+    installation_date = models.DateTimeField(_('installation date'))
+    removed_date = models.DateTimeField(_('removed date'),
+        null=True,blank=True)
+    
+    class Meta:
+        verbose_name = _('installation')
+        verbose_name_plural = _('installations')
         
+    def __unicode__(self):
+        return _('%(state)s %(app)s app for user %(user)s') % {
+            'state': _('removed') if self.removed_date else _('installed'),
+            'app': self.app.name, 'user': self.user.external_id}
 
 from django.contrib import admin
 
 admin.site.register([FFOSApp,FFOSUser,FFOSAppCategory,FFOSAppIcon,
-    FFOSDeviceType,Region,Locales])
+    FFOSDeviceType,Region,Locale,Installation])
     
     
     
