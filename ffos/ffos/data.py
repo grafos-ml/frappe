@@ -14,7 +14,7 @@ import os, sys, traceback
 sys.path.append(os.path.dirname(__file__)+'/../')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ffos.settings'
 
-sys.stderr = open('error.log','a')
+sys.stderr = open('error.log','w')
 
 from ffos.models import FFOSUser, FFOSApp, Installation, FFOSAppCategory,\
     FFOSDeviceType, FFOSAppIcon, Region, Locale, Preview
@@ -270,6 +270,10 @@ def load_apps(*apps):
                     '%d-%m-%Y %H:%M:%S'),'error: element', app['id'],
                     'violates the db Integrity','\n']))
                 traceback.print_exc()
+            except Exception:
+                print app,'kjsgdvkjsbjvnxlkhvnisdk'
+                traceback.print_exc()
+                raise
             else:
                 print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
                     'element', app['id'],'added to the db'

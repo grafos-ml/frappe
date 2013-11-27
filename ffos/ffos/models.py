@@ -215,7 +215,7 @@ class FFOSApp(models.Model):
         
     def __unicode__(self):
         return _('%(app_name)s version %(version)s') % {'app_name': self.name,
-            'version': self.version}
+            'version': self.current_version}
 
 class FFOSUser(models.Model):
     '''

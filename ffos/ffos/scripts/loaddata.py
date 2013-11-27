@@ -128,7 +128,7 @@ def parse(directory):
                     json_objects.append(json.load(open(f)))
                 except Exception as e:
                     sys.stderr.write(' '.join([datetime.strftime(datetime.now(),
-                        '%d-%m-%Y %H:%M:%S'),str(e),'\n']))
+                        '%d-%m-%Y %H:%M:%S'),name,str(e),'\n']))
                     traceback.print_exc()
                     print 'failed!'
                 else:
