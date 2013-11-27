@@ -14,7 +14,7 @@ import os, sys, traceback
 sys.path.append(os.path.dirname(__file__)+'/../')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ffos.settings'
 
-sys.stderr = open('error.log','w')
+#sys.stderr = open('error.log','w')
 
 from ffos.models import FFOSUser, FFOSApp, Installation, FFOSAppCategory,\
     FFOSDeviceType, FFOSAppIcon, Region, Locale, Preview
@@ -271,7 +271,6 @@ def load_apps(*apps):
                     'violates the db Integrity','\n']))
                 traceback.print_exc()
             except Exception:
-                print app,'kjsgdvkjsbjvnxlkhvnisdk'
                 traceback.print_exc()
                 raise
             else:
