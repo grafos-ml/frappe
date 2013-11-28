@@ -9,11 +9,12 @@ the django-nose.
 Make sure to install the django_nose in the setting files. An set the settings
 variable like "TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'".
 
-Then use the command:
- $ python manage.py test
- $ python manage.py test -v <level> -> to use verbose, the verbose can be from
-  0 to 3
- $ python manage.py help test -> to check how it work
+Then use the command::
+
+    $ python manage.py test
+    $ python manage.py test -v <level> -> to use verbose, the verbose can be from
+    0 to 3
+    $ python manage.py help test -> to check how it work
 
 
 The tested method will be:
@@ -27,7 +28,7 @@ The tested method will be:
     > ffos.data.load_apps
     > ffos.data.load_users
 
-@author: joaonrb
+.. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 '''
 
 import os, errno

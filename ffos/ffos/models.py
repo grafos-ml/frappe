@@ -7,7 +7,7 @@ All the data structure is based in previous structures from the FRAPPE app. The
 original data was stored using MongoDB so is modeled in Json.
 
 
-@author: joaonrb
+.. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 '''
 
 
@@ -220,11 +220,12 @@ class FFOSApp(models.Model):
 class FFOSUser(models.Model):
     '''
     FireFox OS User/client. Is a model for FFOS experience information. Some id
-    stamp and locale info mostly.
+    stamp and locale info mostly::
     
-    > IMPORTANT: The unique internal id is standard SQL incremented ID. The
-    > implementation it depends on the DBMS type and settings. Maybe is a topic
-    > to discuss.
+        IMPORTANT: The unique internal id is standard SQL incremented ID. The
+        implementation it depends on the DBMS type and settings. Maybe is a topic
+        to discuss.
+
     '''
     
     # Length is 5 not only for 'en' type of lang but also to the 'en_en' kind.

@@ -4,11 +4,12 @@ Created on Nov 26, 2013
  
 Functions to pull the data from the MOZILLA API
 
-It can be used as a script. Usage
+It can be used as a script. Usage::
 
- $ ./ffosdatafetcher.py <option> <arg>
+    $ ./ffosdatafetcher.py <option> <arg>
 
- OPTIONS:
+OPTIONS::
+
     > app: fetch and load to db the app data
     > user: fetch and load to db the user data
     > start: Start a cron job to fetch all data (users and apps)
@@ -17,7 +18,7 @@ It can be used as a script. Usage
     > kill: kill all cron jobs.
  
  
-@author: joaonrb
+.. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 '''
  
 # Tab file for the cron scheduling
@@ -62,10 +63,12 @@ def main(options):
     '''
     Fetch the data file from the mozilla server and load it to database
 
-    @param option: A string with the option of app or user. If app
-    it will try to fetch the apps from the mozilla API. If User the users.
-    If its none of that it writes an error message.
-    @return: True if the data was fetched. False if some problem occurred
+    Args:
+        options (list): A string with the option of app or user. If app
+        it will try to fetch the apps from the mozilla API. If User the users.
+        If its none of that it writes an error message.
+    Returns:
+        bool. True if the data was fetched. False if some problem occurred
     '''
     try:
         if options[0] == 'app':

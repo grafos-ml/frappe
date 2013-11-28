@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ffos.nosetest package &mdash; FireFox OS Store 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ffos-nosetest-package">
+<h1>ffos.nosetest package<a class="headerlink" href="#ffos-nosetest-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ffos.nosetest.test_loaddata">
+<span id="ffos-nosetest-test-loaddata-module"></span><h2>ffos.nosetest.test_loaddata module<a class="headerlink" href="#module-ffos.nosetest.test_loaddata" title="Permalink to this headline">¶</a></h2>
+<p>Created on Nov 25, 2013</p>
+<p>This is a nose test module for the data loader methods and the loaddata.py
+script.</p>
+<p>To USE this test module make sure to have installed the &#8220;nose&#8221; framework and
+the django-nose.
+Make sure to install the django_nose in the setting files. An set the settings
+variable like &#8220;TEST_RUNNER = &#8216;django_nose.NoseTestSuiteRunner&#8217;&#8221;.</p>
+<p>Then use the command:</p>
+<div class="highlight-python"><pre>$ python manage.py test
+$ python manage.py test -v &lt;level&gt; -&gt; to use verbose, the verbose can be from
+0 to 3
+$ python manage.py help test -&gt; to check how it work</pre>
+</div>
+<dl class="docutils">
+<dt>The tested method will be:</dt>
+<dd>&gt; ffos.scripts.loaddata.parse
+&gt; ffos.data.load_categories
+&gt; ffos.data.load_device_type
+&gt; ffos.data.load_app_icon
+&gt; ffos.data.load_region
+&gt; ffos.data.load_locale
+&gt; ffos.data.load_preview
+&gt; ffos.data.load_apps
+&gt; ffos.data.load_users</dd>
+</dl>
+<dl class="class">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry">
+<em class="property">class </em><tt class="descclassname">ffos.nosetest.test_loaddata.</tt><tt class="descname">TestDataEntry</tt><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Test for app loading, from json files into the database. This test depends
+on the parse method tested in previous class.</p>
+<p>There are 2113 valid app json in the package for testing. All the tests will
+use this data.</p>
+<p>All tests assumes that the database is empty in the beginning of each test.</p>
+<dl class="classmethod">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.setup">
+<em class="property">classmethod </em><tt class="descname">setup</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.setup_class">
+<em class="property">classmethod </em><tt class="descname">setup_class</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.setup_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.teardown">
+<em class="property">classmethod </em><tt class="descname">teardown</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.teardown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.test_app">
+<tt class="descname">test_app</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.test_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for app loader database.</p>
+<p>The test will check if the app is well loaded to the database.
+This test assumes that each file in the success app zone has the
+proper format for the ffos app.</p>
+<p>It also test for the app numbers that are loaded to the database
+2113 apps</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.test_app_icon">
+<tt class="descname">test_app_icon</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.test_app_icon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for app icon loader database.</p>
+<p>The test will check if the icon urls is well loaded to the database.
+This test assumes that each file in the success app zone has the
+proper format for the ffos app.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.test_categories">
+<tt class="descname">test_categories</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.test_categories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for categories loader</p>
+<p>The test will check if the category is well loaded to the database.
+This test assumes that each file in the success app zone has the
+proper format for the ffos app.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.test_device_type">
+<tt class="descname">test_device_type</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.test_device_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for device type loaderbase.</p>
+<p>The test will check if the device type is well loaded to the database.
+This test assumes that each file in the success app zone has the
+proper format for the ffos app.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.test_locale">
+<tt class="descname">test_locale</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.test_locale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for locale loaderbase.</p>
+<p>The test will check if the locale is well loaded to the database.
+This test assumes that each file in the success app zone has the
+proper format for the ffos app.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.test_preview">
+<tt class="descname">test_preview</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.test_preview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for preview loader database.</p>
+<p>The test will check if the preview is well loaded to the database.
+This test assumes that each file in the success app zone has the
+proper format for the ffos app.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.test_region">
+<tt class="descname">test_region</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.test_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for regions loader database.</p>
+<p>The test will check if the region is well loaded to the database.
+This test assumes that each file in the success app zone has the
+proper format for the ffos app.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ffos.nosetest.test_loaddata.TestDataEntry.test_user">
+<tt class="descname">test_user</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestDataEntry.test_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for the user loader database</p>
+<p>The test will check if the user is well loaded to the database.
+This test assumes that each file in the success app zone has the
+proper format for the ffos app.</p>
+<p>It also test if the 35 user json files are loaded</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ffos.nosetest.test_loaddata.TestParse">
+<em class="property">class </em><tt class="descclassname">ffos.nosetest.test_loaddata.</tt><tt class="descname">TestParse</tt><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestParse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>The parse method only receive a directory path.</p>
+<p>It walk through the directory parsing .json files into Python dictionaries
+and return them in a Python list.</p>
+<p>This class must ensure that, given a directory, it load every json file to
+a dict dictionary. In this test will be 2148 json files.</p>
+<dl class="classmethod">
+<dt id="ffos.nosetest.test_loaddata.TestParse.setup_class">
+<em class="property">classmethod </em><tt class="descname">setup_class</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestParse.setup_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ffos.nosetest.test_loaddata.TestParse.test_parse_success">
+<tt class="descname">test_parse_success</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.TestParse.test_parse_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for loaddata.parse success</p>
+<p>Try to load a set of 2148 json files, distributed by 2 directories,
+to a list of json dictionaries with length 2148.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ffos.nosetest.test_loaddata.safe_remove">
+<tt class="descclassname">ffos.nosetest.test_loaddata.</tt><tt class="descname">safe_remove</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#ffos.nosetest.test_loaddata.safe_remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ffos.nosetest">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ffos.nosetest" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ffos.nosetest package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-ffos.nosetest.test_loaddata">ffos.nosetest.test_loaddata module</a></li>
+<li><a class="reference internal" href="#module-ffos.nosetest">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ffos.nosetest.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, João Baptista.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>

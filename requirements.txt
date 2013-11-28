@@ -1,0 +1,5 @@
+djando>=1.6
+numpy
+crontab>=1.5.1
+django-crontab
+nose

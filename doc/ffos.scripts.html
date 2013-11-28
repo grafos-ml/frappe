@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ffos.scripts package &mdash; FireFox OS Store 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ffos-scripts-package">
+<h1>ffos.scripts package<a class="headerlink" href="#ffos-scripts-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ffos.scripts.ffosdatafetcher">
+<span id="ffos-scripts-ffosdatafetcher-module"></span><h2>ffos.scripts.ffosdatafetcher module<a class="headerlink" href="#module-ffos.scripts.ffosdatafetcher" title="Permalink to this headline">¶</a></h2>
+<p>Created on Nov 26, 2013</p>
+<p>Functions to pull the data from the MOZILLA API</p>
+<p>It can be used as a script. Usage:</p>
+<div class="highlight-python"><pre>$ ./ffosdatafetcher.py &lt;option&gt; &lt;arg&gt;</pre>
+</div>
+<p>OPTIONS:</p>
+<div class="highlight-python"><pre>&gt; app: fetch and load to db the app data
+&gt; user: fetch and load to db the user data
+&gt; start: Start a cron job to fetch all data (users and apps)
+periodically. I also has a arg for the number of hours interval in witch
+it should execute.
+&gt; kill: kill all cron jobs.</pre>
+</div>
+<dl class="function">
+<dt id="ffos.scripts.ffosdatafetcher.clean">
+<tt class="descclassname">ffos.scripts.ffosdatafetcher.</tt><tt class="descname">clean</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.scripts.ffosdatafetcher.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes all files in tmp</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ffos.scripts.ffosdatafetcher.download_files_app">
+<tt class="descclassname">ffos.scripts.ffosdatafetcher.</tt><tt class="descname">download_files_app</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.scripts.ffosdatafetcher.download_files_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the files to the database</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ffos.scripts.ffosdatafetcher.json_files">
+<tt class="descclassname">ffos.scripts.ffosdatafetcher.</tt><tt class="descname">json_files</tt><big>(</big><em>members</em><big>)</big><a class="headerlink" href="#ffos.scripts.ffosdatafetcher.json_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull .json files only</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ffos.scripts.ffosdatafetcher.main">
+<tt class="descclassname">ffos.scripts.ffosdatafetcher.</tt><tt class="descname">main</tt><big>(</big><em>options</em><big>)</big><a class="headerlink" href="#ffos.scripts.ffosdatafetcher.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the data file from the mozilla server and load it to database</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>options (list): A string with the option of app or user. If app
+it will try to fetch the apps from the mozilla API. If User the users.
+If its none of that it writes an error message.</dd>
+<dt>Returns:</dt>
+<dd>bool. True if the data was fetched. False if some problem occurred</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ffos.scripts.loaddata">
+<span id="ffos-scripts-loaddata-module"></span><h2>ffos.scripts.loaddata module<a class="headerlink" href="#module-ffos.scripts.loaddata" title="Permalink to this headline">¶</a></h2>
+<p>Created on Nov 22, 2013</p>
+<p>Script to load data to the database. It is used to load users, apps and apps
+installed by the user. Make sure that all the apps that user will have installed
+already are in database when user loading time.</p>
+<p>The app will search for json files in all the sub-directories. Make sure that only
+json files with the format from the first option are the the chosen folder.</p>
+<p>&gt; USAGE:</p>
+<div class="highlight-python"><pre>$ loaddata &lt;type&gt; &lt;directory&gt;</pre>
+</div>
+<div class="section" id="type">
+<h3>Type<a class="headerlink" href="#type" title="Permalink to this headline">¶</a></h3>
+<p>Is the type of file it will parse. The two kind of files there is are all json.
+OPTIONS: user, app</p>
+<blockquote>
+<div><p>user: The user option parse the user files. the format of this files are
+defined as:</p>
+<div class="highlight-python"><pre>{
+    'lang': two or five size string in the locale format,
+    'region': Although I think this is just a 2 string code of the region,
+        it allow far more (255 length),
+    'user': Is a big string, documented as a md5 hash with size 35, but the
+        dummy data has far more than that. To play it safe we use 255.
+    'installed_apps': [
+        {
+            'installed': The date when the app was installed in the format
+                "yyyy-mm-ddThh:mm:ss",
+            'id': The id of the installed app. This should be already on
+                the database.
+            'slug': The slug of the app. It'n an important value.
+        },
+        More apps with the same format as the last one...
+    ]
+}</pre>
+</div>
+<p>app: The app fie as much more information. It is defined as:</p>
+<div class="highlight-python"><pre>{
+    "premium_type": String(255),
+    "content_ratings": String(255),
+    "manifest_url": String(url),
+    "current_version": String(10),
+    "upsold": String(255),
+    "id": String(20) or Integer(20),
+    "ratings": {
+        "count": Integer(10),
+        "average": float(10,3)
+    },
+    "app_type": String(255),
+    "author": String(255),
+    "support_url": String(url),
+    "slug": String(255),
+    "regions": [
+        {
+            "mcc": Integer(20),
+            "name": String(255),
+            "adolescent": boolean,
+            "slug": String(5)
+        },...
+    ],
+    "icons": {
+        "16": String(url),
+        "48": String(url),
+        "64": String(url),
+        "128": String(url)
+    },
+    "created": The date when the app was installed in the format
+        "yyyy-mm-ddThh:mm:ss",
+    "homepage": String(url),
+    "support_email": String(255),
+    "public_stats": boolean,
+    "status": integer(4),
+    "privacy_policy": String(255),
+    "is_packaged": boolean,
+    "description": text,
+    "default_locale": String(5),
+    "price": String(255),
+    "previews": [
+        {
+            "filetype": String(255),
+            "thumbnail_url": String(url),
+            "image_url": String(url),
+            "id": String(20) or Integer(20),
+            "resource_uri": String(255)
+        },...
+    ],
+    "payment_account": String(255),
+    "categories": [
+        String(255),
+        ...
+        ],
+    "supported_locales": [
+        String(5),
+        ...
+        ],
+    "price_locale": String(255),
+    "name": "String(255),
+    "versions": {
+        Whatever, this is not going to be use for now
+    },
+    "device_types": [
+        String(255),
+        ...
+    ],
+    "payment_required": boolean,
+    "weekly_downloads": String(255),
+    "upsell": boolean,
+    "resource_uri": String(255)
+}</pre>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="directory">
+<h3>Directory<a class="headerlink" href="#directory" title="Permalink to this headline">¶</a></h3>
+<p>The directory to look for the files. The script will try to search for files
+in all sub-directories.</p>
+<dl class="function">
+<dt id="ffos.scripts.loaddata.parse">
+<tt class="descclassname">ffos.scripts.loaddata.</tt><tt class="descname">parse</tt><big>(</big><em>directory</em><big>)</big><a class="headerlink" href="#ffos.scripts.loaddata.parse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-ffos.scripts">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ffos.scripts" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ffos.scripts package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-ffos.scripts.ffosdatafetcher">ffos.scripts.ffosdatafetcher module</a></li>
+<li><a class="reference internal" href="#module-ffos.scripts.loaddata">ffos.scripts.loaddata module</a><ul>
+<li><a class="reference internal" href="#type">Type</a></li>
+<li><a class="reference internal" href="#directory">Directory</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ffos.scripts">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ffos.scripts.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, João Baptista.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>

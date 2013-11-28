@@ -1,12 +1,15 @@
 '''
+FireFox data management module.
+
 Created on Nov 22, 2013
 
 The data module. This provide methods to manage the FFOS data files and
 connect to the data base. 
 
-Load data is one of the functionalities provided by this module.
+Load data is one of the functionality provided by this module.
 
-@author: joaonrb
+.. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
+
 '''
 
 import os, sys, traceback 
@@ -33,8 +36,11 @@ def load_categories(app):
     
     The type of the elements in app.categories must be string and nothing else.
     
-    @param app: The format of the app is defined in load_app documentation.
-    @return: A Python list with the category.
+    Args:
+        app (dict): The format of the app is defined in load_app documentation.
+
+    Returns:
+        list. A Python list with the category.
     '''
     return [FFOSAppCategory.objects.get_or_create(name=category)[0]
         for category in app['categories']]
@@ -51,8 +57,11 @@ def load_device_type(app):
     The type of the elements in app.device_types must be string and nothing
     else.
     
-    @param app: The format of the app is defined in load_app documentation.
-    @return: A Python list with the type.
+    Args:
+        app (dict): The format of the app is defined in load_app documentation.
+
+    Returns:
+        list. A Python list with the type.
     '''
     return [FFOSDeviceType.objects.get_or_create(name=device_type)[0]
         for device_type in app['device_types']]
@@ -68,8 +77,11 @@ def load_app_icon(app):
     The type of the elements in app.16, app.48, app.64, app.128 must all be
     strings and nothing else.
     
-    @param app: The format of the app is defined in load_app documentation.
-    @return: Return the model object
+    Args:
+        app (dict): The format of the app is defined in load_app documentation.
+
+    Returns:
+        ffos.models.FFOSAppIcon. Return the model object
     '''
     return FFOSAppIcon.objects.create(size16=app['icons']['16'], 
         size48=app['icons']['48'],size64=app['icons']['64'],
@@ -84,14 +96,17 @@ def load_region(app):
     in account.
     
     The type of the elements in app.regions must be a Python dictionary with
-    the keys mcc, name, adolescent and slug.
+    the keys mcc, name, adolescent and slug::
     > mcc must be an integer
     > name must be a string
     > adolescent must be boolean
     > slug must be a string
     
-    @param app: The format of the app is defined in load_app documentation.
-    @return: A Python list with the region.
+    Args:
+        app (dict): The format of the app is defined in load_app documentation.
+
+    Returns:
+        list. A Python list with the region.
     '''
     return [Region.objects.get_or_create(mcc=region['mcc'],name=region['name'],
         adolescent=region['adolescent'],slug=region['slug'])[0]
@@ -109,8 +124,11 @@ def load_locale(app):
     The type of the elements in app.supported_locales must be string and
     nothing else.
     
-    @param app: The format of the app is defined in load_app documentation.
-    @return: A Python list with the locale.
+    Args:
+        app (dict): The format of the app is defined in load_app documentation.
+
+    Returns:
+        list. A Python list with the locale.
     '''
     return [Locale.objects.get_or_create(name=locale)[0]
         for locale in app['supported_locales']]
@@ -124,15 +142,19 @@ def load_preview(app):
     in account.
     
     The type of the elements in app.regions must be a Python dictionary with
-    the keys filetype, thumbnail_url, image_url, id and resource_ur.
-    > filetype must be an string
-    > thumbnail_url must be a string
-    > image_url must be string
-    > id must be a integer or a string of a number
-    > thumbnail_url must be a string
-    
-    @param app: The format of the app is defined in load_app documentation.
-    @return: A Python list with the preview ids mapped to the previews.
+    the keys filetype, thumbnail_url, image_url, id and resource_ur:
+
+        - Filetype must be an string.
+        - Thumbnail_url must be a string.
+        - Image_url must be string.
+        - Id must be a integer or a string of a number.
+        - Thumbnail_url must be a string.
+
+    Args:
+        app (dict): The format of the app is defined in load_app documentation.
+
+    Returns:
+        list. A Python list with the preview ids mapped to the previews.
     '''
     return [Preview.objects.get_or_create(filetype=preview['filetype'],
         thumbnail_url=preview['thumbnail_url'],image_url=preview['image_url'],
@@ -148,80 +170,83 @@ def load_apps(*apps):
     format) this function should ENSURE that, if the execution ends normally,
     in the end all the data is available in the database.
     
-    @param apps: a list of Python dictionaries, each one represents an app. Is
-    required that each app as the following format:
-    {
-        "premium_type": String(255),
-        "content_ratings": String(255),
-        "manifest_url": String(url),
-        "current_version": String(10),
-        "upsold": String(255),
-        "id": String(20) or Integer(20),
-        "ratings": {
-            "count": Integer(10),
-            "average": float(10,3)
-        },
-        "app_type": String(255),
-        "author": String(255),
-        "support_url": String(url),
-        "slug": String(255),
-        "regions": [
-            {
-                "mcc": Integer(20),
-                "name": String(255),
-                "adolescent": boolean,
-                "slug": String(5)
-            },...
-        ],
-        "icons": {
-            "16": String(url),
-            "48": String(url),
-            "64": String(url),
-            "128": String(url)
-        },
-        "created": The date when the app was installed in the format
-            "yyyy-mm-ddThh:mm:ss",
-        "homepage": String(url),
-        "support_email": String(255),
-        "public_stats": boolean,
-        "status": integer(4),
-        "privacy_policy": String(255),
-        "is_packaged": boolean,
-        "description": text,
-        "default_locale": String(5),
-        "price": String(255),
-        "previews": [
-            {
-                "filetype": String(255),
-                "thumbnail_url": String(url),
-                "image_url": String(url),
-                "id": String(20) or Integer(20),
-                "resource_uri": String(255)
-            },...
-        ],
-        "payment_account": String(255),
-        "categories": [
-            String(255),
-            ...
+    Args:
+        apps (list): a list of Python dictionaries, each one represents an app. Is
+    required that each app as the following format::
+
+        {
+            "premium_type": String(255),
+            "content_ratings": String(255),
+            "manifest_url": String(url),
+            "current_version": String(10),
+            "upsold": String(255),
+            "id": String(20) or Integer(20),
+            "ratings": {
+                "count": Integer(10),
+                "average": float(10,3)
+            },
+            "app_type": String(255),
+            "author": String(255),
+            "support_url": String(url),
+            "slug": String(255),
+            "regions": [
+                {
+                    "mcc": Integer(20),
+                    "name": String(255),
+                    "adolescent": boolean,
+                    "slug": String(5)
+                },...
             ],
-        "supported_locales": [
-            String(5),
-            ...
+            "icons": {
+                "16": String(url),
+                "48": String(url),
+                "64": String(url),
+                "128": String(url)
+            },
+            "created": The date when the app was installed in the format
+                "yyyy-mm-ddThh:mm:ss",
+            "homepage": String(url),
+            "support_email": String(255),
+            "public_stats": boolean,
+            "status": integer(4),
+            "privacy_policy": String(255),
+            "is_packaged": boolean,
+            "description": text,
+            "default_locale": String(5),
+            "price": String(255),
+            "previews": [
+                {
+                    "filetype": String(255),
+                    "thumbnail_url": String(url),
+                    "image_url": String(url),
+                    "id": String(20) or Integer(20),
+                    "resource_uri": String(255)
+                },...
             ],
-        "price_locale": String(255),
-        "name": "String(255),
-        "versions": {
-            Whatever, this is not going to be use for now
-        },
-        "device_types": [
-            String(255),
-            ...
-        ],
-        "payment_required": boolean,
-        "weekly_downloads": String(255),
-        "upsell": boolean,
-        "resource_uri": String(255)
-    }
+            "payment_account": String(255),
+            "categories": [
+                String(255),
+                ...
+                ],
+            "supported_locales": [
+                String(5),
+                ...
+                ],
+            "price_locale": String(255),
+            "name": "String(255),
+            "versions": {
+                Whatever, this is not going to be use for now
+            },
+            "device_types": [
+                String(255),
+                ...
+            ],
+            "payment_required": boolean,
+            "weekly_downloads": String(255),
+            "upsell": boolean,
+            "resource_uri": String(255)
+        }
+
     '''
     try:
         for app in apps:
@@ -294,25 +319,27 @@ def load_users(*users):
     database) this function should ENSURE that, if the execution ends normally,
     in the end all the data is available in database.
     
-    @param users: a list with Python dictionaries, each one representing a user.
-    Is required that each user as the following format:
-    {
-        'lang': two or five size string in the locale format,
-        'region': Although I think this is just a 2 string code of the region,
-            it allow far more (255 length),
-        'user': Is a big string, documented as a md5 hash with size 35, but the
-            dummy data has far more than that. To play it safe we use 255.
-        'installed_apps': [
-            {
-                'installed': The date when the app was installed in the format
-                    "yyyy-mm-ddThh:mm:ss",
-                'id': The id of the installed app. This should be already on
-                    the database.
-                'slug': The slug of the app. It'n an important value.
-            },
-            More apps with the same format as the last one...
-        ]
-    }
+    Args:
+        users (dict): A list with Python dictionaries, each one representing a user.
+    Is required that each user as the following format::
+
+        {
+            'lang': two or five size string in the locale format,
+            'region': Although I think this is just a 2 string code of the region,
+                it allow far more (255 length),
+            'user': Is a big string, documented as a md5 hash with size 35, but the
+                dummy data has far more than that. To play it safe we use 255.
+            'installed_apps': [
+                {
+                    'installed': The date when the app was installed in the format
+                        "yyyy-mm-ddThh:mm:ss",
+                    'id': The id of the installed app. This should be already on
+                        the database.
+                    'slug': The slug of the app. It'n an important value.
+                },
+                More apps with the same format as the last one...
+            ]
+        }
     '''
     try:
         for user in users:
