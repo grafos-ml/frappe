@@ -5,8 +5,8 @@ The FireFox OS Store Models for database connection. This first version
 as models for users, apps and every model to support it.
 
 
-Classes
--------
+Module
+------
 
 .. automodule:: ffos.models
     :members:

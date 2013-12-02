@@ -37,7 +37,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_nose',
-    'ffos'
+# Tastypie looks like a very good rest api framework, but for now just simple views
+#    'tastypie',
+    'ffos',
+    'ffos.recommender'
 )
 
 MIDDLEWARE_CLASSES = (

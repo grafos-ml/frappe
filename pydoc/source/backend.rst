@@ -1,5 +1,5 @@
 
-FireFox OS Store Backend API
+Backend API
 ============================
 
 This is the FireFox OS Store backend API documentation. Mostly as
@@ -19,7 +19,7 @@ Django Apps
 -----------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    ffos
    ffos.nosetest

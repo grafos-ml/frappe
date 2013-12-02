@@ -1,5 +1,22 @@
-djando>=1.6
+django>=1.6
 numpy
-crontab>=1.5.1
 django-crontab
 nose
+django-nose
+django-tastypie
+
+#For xml API
+# Also have dependencies. Should do 'apt-get install libxml2-dev libxslt-dev'
+lxml
+defusedxml
+
+# For yalm API
+pyyaml
+
+#For documentation rendering
+sphinx
+
+#Not in pip. Has to be installed manually
+#crontab>=1.6
+#dateutil
+#mimeparse>=0.1.4

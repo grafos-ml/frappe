@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" />
-    <link rel="up" title="FireFox OS Store Django App" href="ffos.html" />
+    <link rel="up" title="ffos - FireFox OS Store" href="ffos.html" />
     <link rel="next" title="ffos.scripts package" href="ffos.scripts.html" />
     <link rel="prev" title="Data Models" href="ffos.models.html" /> 
   </head>
@@ -45,8 +45,8 @@
           <a href="ffos.models.html" title="Data Models"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li>
-          <li><a href="backend.html" >FireFox OS Store Backend API</a> &raquo;</li>
-          <li><a href="ffos.html" accesskey="U">FireFox OS Store Django App</a> &raquo;</li> 
+          <li><a href="backend.html" >Backend API</a> &raquo;</li>
+          <li><a href="ffos.html" accesskey="U">ffos - FireFox OS Store</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -60,7 +60,7 @@
 <p>The FireFox OS Store functions for database connection. Basically this provides
 methods for load the database from json dictionary.</p>
 <div class="section" id="module-ffos.data">
-<span id="classes"></span><h2>Classes<a class="headerlink" href="#module-ffos.data" title="Permalink to this headline">¶</a></h2>
+<span id="module"></span><h2>Module<a class="headerlink" href="#module-ffos.data" title="Permalink to this headline">¶</a></h2>
 <p>FireFox data management module.</p>
 <p>Created on Nov 22, 2013</p>
 <p>The data module. This provide methods to manage the FFOS data files and
@@ -74,11 +74,15 @@ connect to the data base.</p>
 in account.</p>
 <p>The type of the elements in app.16, app.48, app.64, app.128 must all be
 strings and nothing else.</p>
+<p><strong>Args</strong></p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>app (dict): The format of the app is defined in load_app documentation.</dd>
-<dt>Returns:</dt>
-<dd>ffos.models.FFOSAppIcon. Return the model object</dd>
+<dt>app <em>dict</em>:</dt>
+<dd>The format of the app is defined in load_app documentation.</dd>
+</dl>
+<p><strong>Returns</strong></p>
+<dl class="docutils">
+<dt><em>ffos.models.FFOSAppIcon</em>:</dt>
+<dd>Return the model object</dd>
 </dl>
 </dd></dl>
 
@@ -89,12 +93,12 @@ strings and nothing else.</p>
 <p>If the apps parameter is according with the prerequisites (respect the
 format) this function should ENSURE that, if the execution ends normally,
 in the end all the data is available in the database.</p>
+<p><strong>Args</strong></p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>apps (list): a list of Python dictionaries, each one represents an app. Is</dd>
-</dl>
-<p>required that each app as the following format:</p>
-<div class="highlight-python"><pre>{
+<dt>apps <em>list</em>:</dt>
+<dd><p class="first">A list of Python dictionaries, each one represents an app. Is
+required that each app as the following format:</p>
+<div class="last highlight-python"><pre>{
     "premium_type": String(255),
     "content_ratings": String(255),
     "manifest_url": String(url),
@@ -167,6 +171,8 @@ in the end all the data is available in the database.</p>
     "resource_uri": String(255)
 }</pre>
 </div>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -177,11 +183,15 @@ they are created.</p>
 <p>The transaction is set in auto commit for default. If used alone take that
 in account.</p>
 <p>The type of the elements in app.categories must be string and nothing else.</p>
+<p><strong>Args</strong></p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>app (dict): The format of the app is defined in load_app documentation.</dd>
-<dt>Returns:</dt>
-<dd>list. A Python list with the category.</dd>
+<dt>app <em>dict</em>:</dt>
+<dd>The format of the app is defined in load_app documentation.</dd>
+</dl>
+<p><strong>Returns</strong></p>
+<dl class="docutils">
+<dt><em>list</em>:</dt>
+<dd>A Python list with the category.</dd>
 </dl>
 </dd></dl>
 
@@ -194,11 +204,15 @@ they are created.</p>
 in account.</p>
 <p>The type of the elements in app.device_types must be string and nothing
 else.</p>
+<p><strong>Args</strong></p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>app (dict): The format of the app is defined in load_app documentation.</dd>
-<dt>Returns:</dt>
-<dd>list. A Python list with the type.</dd>
+<dt>app <em>dict</em>:</dt>
+<dd>The format of the app is defined in load_app documentation.</dd>
+</dl>
+<p><strong>Returns</strong></p>
+<dl class="docutils">
+<dt><em>list</em>:</dt>
+<dd>A Python list with the type.</dd>
 </dl>
 </dd></dl>
 
@@ -211,11 +225,15 @@ created.</p>
 in account.</p>
 <p>The type of the elements in app.supported_locales must be string and
 nothing else.</p>
+<p><strong>Args</strong></p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>app (dict): The format of the app is defined in load_app documentation.</dd>
-<dt>Returns:</dt>
-<dd>list. A Python list with the locale.</dd>
+<dt>app <em>dict</em>:</dt>
+<dd>The format of the app is defined in load_app documentation.</dd>
+</dl>
+<p><strong>Returns</strong></p>
+<dl class="docutils">
+<dt><em>list</em>:</dt>
+<dd>A Python list with the locale.</dd>
 </dl>
 </dd></dl>
 
@@ -227,21 +245,25 @@ created.</p>
 <p>The transaction is set in auto commit for default. If used alone take that
 in account.</p>
 <p>The type of the elements in app.regions must be a Python dictionary with
-the keys filetype, thumbnail_url, image_url, id and resource_ur:</p>
+the keys file type, thumbnail_url, image_url, id and resource_ur:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Filetype must be an string.</li>
+<li>File type must be an string.</li>
 <li>Thumbnail_url must be a string.</li>
 <li>Image_url must be string.</li>
 <li>Id must be a integer or a string of a number.</li>
 <li>Thumbnail_url must be a string.</li>
 </ul>
 </div></blockquote>
+<p><strong>Args</strong></p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>app (dict): The format of the app is defined in load_app documentation.</dd>
-<dt>Returns:</dt>
-<dd>list. A Python list with the preview ids mapped to the previews.</dd>
+<dt>app <em>dict</em>:</dt>
+<dd>The format of the app is defined in load_app documentation.</dd>
+</dl>
+<p><strong>Returns</strong></p>
+<dl class="docutils">
+<dt><em>list</em>:</dt>
+<dd>A Python list with the preview ids mapped to the previews.</dd>
 </dl>
 </dd></dl>
 
@@ -258,11 +280,15 @@ the keys mcc, name, adolescent and slug::
 &gt; name must be a string
 &gt; adolescent must be boolean
 &gt; slug must be a string</p>
+<p><strong>Args</strong></p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>app (dict): The format of the app is defined in load_app documentation.</dd>
-<dt>Returns:</dt>
-<dd>list. A Python list with the region.</dd>
+<dt>app <em>dict</em>:</dt>
+<dd>The format of the app is defined in load_app documentation.</dd>
+</dl>
+<p><strong>Returns</strong></p>
+<dl class="docutils">
+<dt><em>list</em>:</dt>
+<dd>A Python list with the region.</dd>
 </dl>
 </dd></dl>
 
@@ -275,12 +301,12 @@ connection to the installed apps.</p>
 format and for every installed app that app already is registered in
 database) this function should ENSURE that, if the execution ends normally,
 in the end all the data is available in database.</p>
+<p><strong>Args</strong></p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>users (dict): A list with Python dictionaries, each one representing a user.</dd>
-</dl>
-<p>Is required that each user as the following format:</p>
-<div class="highlight-python"><pre>{
+<dt>users <em>dict</em>:</dt>
+<dd><p class="first">A list with Python dictionaries, each one representing a user.
+Is required that each user as the following format:</p>
+<div class="last highlight-python"><pre>{
     'lang': two or five size string in the locale format,
     'region': Although I think this is just a 2 string code of the region,
         it allow far more (255 length),
@@ -298,6 +324,8 @@ in the end all the data is available in database.</p>
     ]
 }</pre>
 </div>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -312,7 +340,7 @@ in the end all the data is available in database.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Data Loader</a><ul>
-<li><a class="reference internal" href="#module-ffos.data">Classes</a></li>
+<li><a class="reference internal" href="#module-ffos.data">Module</a></li>
 </ul>
 </li>
 </ul>
@@ -361,8 +389,8 @@ in the end all the data is available in database.</p>
           <a href="ffos.models.html" title="Data Models"
              >previous</a> |</li>
         <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li>
-          <li><a href="backend.html" >FireFox OS Store Backend API</a> &raquo;</li>
-          <li><a href="ffos.html" >FireFox OS Store Django App</a> &raquo;</li> 
+          <li><a href="backend.html" >Backend API</a> &raquo;</li>
+          <li><a href="ffos.html" >ffos - FireFox OS Store</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

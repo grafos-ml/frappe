@@ -63,12 +63,17 @@ def main(options):
     '''
     Fetch the data file from the mozilla server and load it to database
 
-    Args:
-        options (list): A string with the option of app or user. If app
+    **Args**
+
+    options *list*:
+        A string with the option of app or user. If app
         it will try to fetch the apps from the mozilla API. If User the users.
         If its none of that it writes an error message.
-    Returns:
-        bool. True if the data was fetched. False if some problem occurred
+
+    **Returns**
+
+    *bool*:
+        True if the data was fetched. False if some problem occurred
     '''
     try:
         if options[0] == 'app':

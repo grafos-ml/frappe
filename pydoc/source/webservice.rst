@@ -1,5 +1,5 @@
-FireFox OS Store Recommendation Webservice
-==========================================
+App Recommendation Webservice
+=============================
 
 About
 -----
@@ -96,23 +96,17 @@ GET Request
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
-| Request.id     | Number        | Identifier number for the user.           |
+| Request.user   | Number        | Identifier number for the user.           |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
-| Request.score  | Number        | Some number for some thing. I'm yet to    |
-|                |               | understand this. I would update this      |
-|                |               | as soon as possible.                      |
+| Request.n      | Number        | Number of recommendation you want.        |
 |                |               |                                           |
-+----------------+-----------+-----------------------------------------------+
++----------------+---------------+-------------------------------------------+
 
 Example::
 
-    Request:
-        {
-            id: 12345,
-            score: 7
-        }
+    http://domain.com/api/recommendation/?user=12345&n=10
 
 GET Response
 ++++++++++++

@@ -23,7 +23,10 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" /> 
+    <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" />
+    <link rel="up" title="ffos - FireFox OS Store" href="ffos.html" />
+    <link rel="next" title="ffos.nosetest package" href="ffos.nosetest.html" />
+    <link rel="prev" title="Data Loader" href="ffos.data.html" /> 
   </head>
   <body>
     <div class="related">
@@ -35,7 +38,15 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+        <li class="right" >
+          <a href="ffos.nosetest.html" title="ffos.nosetest package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ffos.data.html" title="Data Loader"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li>
+          <li><a href="backend.html" >Backend API</a> &raquo;</li>
+          <li><a href="ffos.html" accesskey="U">ffos - FireFox OS Store</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -49,53 +60,8 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-ffos.scripts.ffosdatafetcher">
-<span id="ffos-scripts-ffosdatafetcher-module"></span><h2>ffos.scripts.ffosdatafetcher module<a class="headerlink" href="#module-ffos.scripts.ffosdatafetcher" title="Permalink to this headline">¶</a></h2>
-<p>Created on Nov 26, 2013</p>
-<p>Functions to pull the data from the MOZILLA API</p>
-<p>It can be used as a script. Usage:</p>
-<div class="highlight-python"><pre>$ ./ffosdatafetcher.py &lt;option&gt; &lt;arg&gt;</pre>
-</div>
-<p>OPTIONS:</p>
-<div class="highlight-python"><pre>&gt; app: fetch and load to db the app data
-&gt; user: fetch and load to db the user data
-&gt; start: Start a cron job to fetch all data (users and apps)
-periodically. I also has a arg for the number of hours interval in witch
-it should execute.
-&gt; kill: kill all cron jobs.</pre>
-</div>
-<dl class="function">
-<dt id="ffos.scripts.ffosdatafetcher.clean">
-<tt class="descclassname">ffos.scripts.ffosdatafetcher.</tt><tt class="descname">clean</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.scripts.ffosdatafetcher.clean" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deletes all files in tmp</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="ffos.scripts.ffosdatafetcher.download_files_app">
-<tt class="descclassname">ffos.scripts.ffosdatafetcher.</tt><tt class="descname">download_files_app</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.scripts.ffosdatafetcher.download_files_app" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download the files to the database</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="ffos.scripts.ffosdatafetcher.json_files">
-<tt class="descclassname">ffos.scripts.ffosdatafetcher.</tt><tt class="descname">json_files</tt><big>(</big><em>members</em><big>)</big><a class="headerlink" href="#ffos.scripts.ffosdatafetcher.json_files" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pull .json files only</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="ffos.scripts.ffosdatafetcher.main">
-<tt class="descclassname">ffos.scripts.ffosdatafetcher.</tt><tt class="descname">main</tt><big>(</big><em>options</em><big>)</big><a class="headerlink" href="#ffos.scripts.ffosdatafetcher.main" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fetch the data file from the mozilla server and load it to database</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>options (list): A string with the option of app or user. If app
-it will try to fetch the apps from the mozilla API. If User the users.
-If its none of that it writes an error message.</dd>
-<dt>Returns:</dt>
-<dd>bool. True if the data was fetched. False if some problem occurred</dd>
-</dl>
-</dd></dl>
-
+<div class="section" id="ffos-scripts-ffosdatafetcher-module">
+<h2>ffos.scripts.ffosdatafetcher module<a class="headerlink" href="#ffos-scripts-ffosdatafetcher-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-ffos.scripts.loaddata">
 <span id="ffos-scripts-loaddata-module"></span><h2>ffos.scripts.loaddata module<a class="headerlink" href="#module-ffos.scripts.loaddata" title="Permalink to this headline">¶</a></h2>
@@ -235,7 +201,7 @@ in all sub-directories.</p>
   <ul>
 <li><a class="reference internal" href="#">ffos.scripts package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-ffos.scripts.ffosdatafetcher">ffos.scripts.ffosdatafetcher module</a></li>
+<li><a class="reference internal" href="#ffos-scripts-ffosdatafetcher-module">ffos.scripts.ffosdatafetcher module</a></li>
 <li><a class="reference internal" href="#module-ffos.scripts.loaddata">ffos.scripts.loaddata module</a><ul>
 <li><a class="reference internal" href="#type">Type</a></li>
 <li><a class="reference internal" href="#directory">Directory</a></li>
@@ -246,6 +212,12 @@ in all sub-directories.</p>
 </li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ffos.data.html"
+                        title="previous chapter">Data Loader</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ffos.nosetest.html"
+                        title="next chapter">ffos.nosetest package</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/ffos.scripts.txt"
@@ -277,7 +249,15 @@ in all sub-directories.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+        <li class="right" >
+          <a href="ffos.nosetest.html" title="ffos.nosetest package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ffos.data.html" title="Data Loader"
+             >previous</a> |</li>
+        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li>
+          <li><a href="backend.html" >Backend API</a> &raquo;</li>
+          <li><a href="ffos.html" >ffos - FireFox OS Store</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

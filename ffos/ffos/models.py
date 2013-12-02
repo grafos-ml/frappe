@@ -150,7 +150,7 @@ class FFOSApp(models.Model):
     icon = models.ForeignKey(FFOSAppIcon,verbose_name=_('app icon'),
         related_name='app')
     
-    ffos_app_id = models.BigIntegerField(_('firefox app id'),unique=True)
+    external_id = models.BigIntegerField(_('external id'),unique=True)
     
     is_packaged = models.BooleanField(_('is packaged?'))
     

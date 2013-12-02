@@ -1,5 +1,5 @@
-FireFox OS Store Frontend Mockups
-=================================
+Frontend Mockups
+================
 
 The mockups for the frontend prototype. It will simulate the user interaction
 and recommendation. This is important for presentation purposes.
