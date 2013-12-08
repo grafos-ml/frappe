@@ -40,7 +40,8 @@ INSTALLED_APPS = (
 # Tastypie looks like a very good rest api framework, but for now just simple views
 #    'tastypie',
     'ffos',
-    'ffos.recommender'
+    'ffos.recommender',
+    'debug_toolbar',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -50,7 +51,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.transaction.TransactionMiddleware'
+    'django.middleware.transaction.TransactionMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'ffos.urls'
@@ -62,9 +64,16 @@ WSGI_APPLICATION = 'ffos.wsgi.application'
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 DATABASES = {
+    #'default': {
+    #    'ENGINE': 'django.db.backends.sqlite3',
+    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #}
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'raqksixq_ffosv1',
+        'USER': 'raqksixq_frappe',
+        'PASSWORD': 'sp21o61h4',
+        'HOST': 'joaonrb.net',
     }
 }
 
@@ -91,3 +100,4 @@ STATIC_URL = '/static/'
 # Nose settings
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+DEBUG_TOOLBAR_PATCH_SETTINGS = False

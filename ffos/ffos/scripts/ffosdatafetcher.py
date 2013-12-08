@@ -28,7 +28,8 @@ import os, sys, tarfile, urllib, shutil
 sys.path.append(os.path.dirname(__file__)+'/../../')
 from datetime import datetime
 from ffos.data import load_apps
-from loaddata import parse
+from ffos.util import parseDir
+from ffos.models import FFOSApp
 from crontab import CronTab
  
 def json_files(members):
@@ -77,7 +78,7 @@ def main(options):
     '''
     try:
         if options[0] == 'app':
-            load_apps(*parse(download_files_app()))
+            FFOSApp.load(*parseDir(download_files_app()))
             clean()
             return True
         elif options[0] == 'user':

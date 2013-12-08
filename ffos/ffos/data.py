@@ -186,15 +186,14 @@ def load_preview(app):
         ffos_preview_id=preview['id'],resource_uri=preview['resource_uri'])[0]
         for preview in app['previews']]
 
-@transaction.atomic
 def load_apps(*apps):
     '''
     Load a list of apps to the data model FFOSApp.
-    
+
     If the apps parameter is according with the prerequisites (respect the
     format) this function should ENSURE that, if the execution ends normally,
     in the end all the data is available in the database.
-    
+
     **Args**
 
     apps *list*:
@@ -275,6 +274,15 @@ def load_apps(*apps):
             }
 
     '''
+    #jump = 50
+    #for start in xrange(0,len(apps),jump):
+    #    _load_apps2(*apps[start:start+jump])
+    _load_apps2(*apps)
+
+
+@transaction.atomic
+def _load_apps1(*apps):
+
     try:
         for app in apps:
             try:
@@ -322,9 +330,11 @@ def load_apps(*apps):
                     '%d-%m-%Y %H:%M:%S'),'error: element', app['id'],
                     'violates the db Integrity','\n']))
                 traceback.print_exc()
-            except Exception:
+            except Exception as e:
+                sys.stderr.write(' '.join([datetime.strftime(datetime.now(),
+                    '%d-%m-%Y %H:%M:%S'),'error: element', app['id'],
+                    str(e),'\n']))
                 traceback.print_exc()
-                raise
             else:
                 print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
                     'element', app['id'],'added to the db'
@@ -333,8 +343,57 @@ def load_apps(*apps):
             '%d-%m-%Y %H:%M:%S'),str(e),'\n']))
         traceback.print_exc()
 
-        
-    
+@transaction.atomic
+def _load_apps2(*apps):
+    entries = [FFOSApp(
+                premium_type = app['premium_type'],
+                content_ratings = app['content_ratings'],
+                manifest_url = app['manifest_url'],
+                current_version = app['current_version'],
+                upsold = app['upsold'],
+                external_id = app['id'],
+                rating_count = app['ratings']['count'],
+                rating_average = app['ratings']['average'],
+                app_type = app['app_type'],
+                author = app.get('author',None),
+                support_url = app['support_url'],
+                slug = app['slug'],
+                icon = load_app_icon(app),
+                created = datetime.strptime(app['created'],
+                    '%Y-%m-%dT%H:%M:%S').replace(tzinfo=utc)
+                    if 'created' in app else None,
+                homepage = app['homepage'],
+                support_email = app['support_email'],
+                public_stats = app['public_stats'],
+                status = app['status'],
+                privacy_policy = app['privacy_policy'],
+                is_packaged = app['is_packaged'],
+                description = app['description'],
+                default_locale = app['default_locale'],
+                price = app['price'],
+                payment_account = app['payment_account'],
+                price_locale = app['price_locale'],
+                name = app['name'],
+
+                # Choose false because it looks logical
+                payment_required = app.get('payment_required',False),
+                weekly_downloads = app.get('weekly_downloads',None),
+                upsell = app['upsell'],
+                resource_uri = app['resource_uri'],
+                #categories = load_categories(app),
+                #device_types = load_device_type(app),
+                #regions = load_region(app),
+                #supported_locales = load_locale(app),
+                #previews = load_preview(app)
+            ) for app in apps]
+    print datetime.strftime(datetime.now(), '\n%d-%m-%Y %H:%M:%S'),\
+            'Apps loaded into models'
+    FFOSApp.objects.bulk_create(entries)
+    print datetime.strftime(datetime.now(), '\n%d-%m-%Y %H:%M:%S'),\
+            'Apps in bd'
+
+
+
 @transaction.atomic
 def load_users(*users):
     '''

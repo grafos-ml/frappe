@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 '''
 Created on Nov 22, 2013
 
@@ -123,7 +124,10 @@ in all sub-directories.
 '''
 import sys, os, json, traceback
 sys.path.append(os.path.dirname(__file__)+'/../../')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'ffos.settings'
 from datetime import datetime
+from ffos.models import FFOSApp
+from ffos.util import parseDir
 
 def parse(directory):
     json_objects = []
@@ -132,7 +136,7 @@ def parse(directory):
             if name[-5:].lower() == '.json':
                 f = '/'.join([path,name])
                 print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                    'parsing',name
+                    'parsing',name,
                 try:
                     json_objects.append(json.load(open(f)))
                 except Exception as e:
@@ -142,20 +146,21 @@ def parse(directory):
                     print 'failed!'
                 else:
                     print 'done!'
-    return json_objects
+    return sorted(json_objects,key=lambda x: x['id'])
 
 if __name__ == '__main__':
     from ffos import data
     file_type = sys.argv[1]
     directory = sys.argv[2]
+    silent = bool(sys.argv[3]) if len(sys.argv)>3 else False
     try:
         print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
             'loading files to memory...'
-        objects = parse(directory)
+        objects = parseDir(directory,sillent=silent)
         if file_type == 'app':
             print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
                 'loading apps to database...'
-            data.load_apps(*objects)
+            FFOSApp.load(silent,*objects)
         else:
             print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
                 'loading users to database...'
@@ -163,6 +168,7 @@ if __name__ == '__main__':
     except Exception:
         print 'An error occurred during execution. Check the error.log at',\
             'the package ffos.scripts'
+        raise
         traceback.print_exc()
     else:
         print 'all done!'
