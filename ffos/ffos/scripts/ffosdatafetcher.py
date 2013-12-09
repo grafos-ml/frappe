@@ -23,7 +23,7 @@ OPTIONS::
  
 # Tab file for the cron scheduling
  
-import os, sys, tarfile, urllib, shutil
+import os, sys, tarfile, urllib, shutil, logging
 
 sys.path.append(os.path.dirname(__file__)+'/../../')
 from datetime import datetime
@@ -96,8 +96,7 @@ def main(options):
                 print 'Cron jobs killed'
 
     except tarfile.ReadError:
-        sys.stderr.write(datetime.strftime(datetime.now(),
-            '%d-%m-%Y %H:%M:%S Error: There was no data available'))
+        logging.error('Error: There was no data available')
         return False
     except Exception:
         raise

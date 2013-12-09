@@ -122,7 +122,7 @@ in all sub-directories.
 
 .. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 '''
-import sys, os, json, traceback
+import sys, os, json, traceback, logging
 sys.path.append(os.path.dirname(__file__)+'/../../')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ffos.settings'
 from datetime import datetime
@@ -135,40 +135,33 @@ def parse(directory):
         for name in files:
             if name[-5:].lower() == '.json':
                 f = '/'.join([path,name])
-                print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                    'parsing',name,
+                logging.info('parsing %s' % name)
                 try:
                     json_objects.append(json.load(open(f)))
                 except Exception as e:
-                    sys.stderr.write(' '.join([datetime.strftime(datetime.now(),
-                        '%d-%m-%Y %H:%M:%S'),name,str(e),'\n']))
+                    logging.error(' '.join([name,str(e)]))
+                    logging.info('failed!')
                     traceback.print_exc()
-                    print 'failed!'
                 else:
-                    print 'done!'
+                    logging.info('done!')
     return sorted(json_objects,key=lambda x: x['id'])
 
 if __name__ == '__main__':
     from ffos import data
     file_type = sys.argv[1]
     directory = sys.argv[2]
-    silent = bool(sys.argv[3]) if len(sys.argv)>3 else False
     try:
-        print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-            'loading files to memory...'
-        objects = parseDir(directory,sillent=silent)
+        logging.info('loading files to memory...')
+        objects = parseDir(directory)
         if file_type == 'app':
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'loading apps to database...'
-            FFOSApp.load(silent,*objects)
+            logging.info('loading apps to database...')
+            FFOSApp.load(*objects)
         else:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'loading users to database...'
+            logging.info('loading users to database...')
             data.load_users(*objects)
     except Exception:
-        print 'An error occurred during execution. Check the error.log at',\
-            'the package ffos.scripts'
-        raise
+        logging.info('An error occurred during execution. Check the error.log \
+            at the package ffos.scripts')
         traceback.print_exc()
     else:
         print 'all done!'

@@ -16,7 +16,7 @@ from django.utils.translation import ugettext as _
 from ffos.util import parseDir
 from django.utils.timezone import utc
 from datetime import datetime
-import itertools, collections
+import itertools, collections, logging
 
 BULK_QUERY = 'INSERT INTO %(table)s %(columns)s VALUES %(values)s;'
 
@@ -415,7 +415,7 @@ class FFOSApp(models.Model):
             'version': self.current_version}
 
     @staticmethod
-    def load(silent=True,*apps):
+    def load(*apps):
         '''
         Load all json to the database. It assumes that all the files are in the
         FFOSApp format.
@@ -426,8 +426,8 @@ class FFOSApp(models.Model):
 
         **Args**
 
-        path *str*:
-            A path for the json files. Every json in the file must respect the
+        ''*''apps *list*:
+            A List of dicts with json. Every json in the file must respect the
             following format::
 
                 {
@@ -510,16 +510,12 @@ class FFOSApp(models.Model):
             Locale.prepare(app),Preview.prepare(app))
             for app in apps]
 
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Loading icons'
+        logging.info('Loading icons')
         FFOSAppIcon.objects.bulk_create(FFOSAppIcon.new_to_add())
         icons = {FFOSAppIcon.identify_obj(i): i \
             for i in FFOSAppIcon.objects.all()}
 
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Loading apps'
+        logging.info('Loading apps')
         try:
             FFOSApp.objects.bulk_create([FFOSApp(
                 premium_type = app['premium_type'],
@@ -558,8 +554,7 @@ class FFOSApp(models.Model):
                 resource_uri = app['resource_uri']
             ) for app,_,_,_,_,_,_ in apps])
         except Exception as e:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                str(app['id']),e
+            logging.error('%s %s' % (str(app['id']),e))
 
         # Load all apps to cach. Yet to be improved
         #apps = {a['id']: a for a in zip(*apps)[0]}
@@ -567,43 +562,33 @@ class FFOSApp(models.Model):
         for a in FFOSApp.objects.all():
             apps[str(int(a.external_id))] = apps[str(int(a.external_id))], a
 
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Loading categories'
+        logging.info('Loading categories')
         FFOSAppCategory.objects.bulk_create(FFOSAppCategory.new_to_add())
 
         # Cache all the categories for relation with app. (Yet to be improved)
         categories = {FFOSAppCategory.identify_obj(c): c
             for c in FFOSAppCategory.objects.all()}
 
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Loading device types'
+        logging.info('Loading device types')
         FFOSDeviceType.objects.bulk_create(FFOSDeviceType.new_to_add())
 
         # Cache all the devices for relation with app. (Yet to be improved)
         device_type = {FFOSDeviceType.identify_obj(dt): dt
             for dt in FFOSDeviceType.objects.all()}
 
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Loading regions'
+        logging.info('Loading regions')
         Region.objects.bulk_create(Region.new_to_add())
 
         # Cache all the regions for relation with app. (Yet to be improved)
         regions = {Region.identify_obj(r): r for r in Region.objects.all()}
 
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Loading locales'
+        logging.info('Loading locales')
         Locale.objects.bulk_create(Locale.new_to_add())
 
         # Cache all the locales for relation with app. (Yet to be improved)
         locales = {Locale.identify_obj(l): l for l in Locale.objects.all()}
 
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Loading previews'
+        logging.info('Loading previews')
         Preview.objects.bulk_create(Preview.new_to_add())
 
         # Cache all the previews for relation with app. (Yet to be improved)
@@ -611,9 +596,7 @@ class FFOSApp(models.Model):
 
         # Starting to build a raw query for many to many bulk insertion
 
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Loading relations'
+        logging.info('Loading relations')
         values_cat, values_dev, values_reg, values_loc, values_prev = set([]),\
             set([]), set([]), set([]), set([])
         for a_json, a_obj in apps.values():
@@ -632,9 +615,8 @@ class FFOSApp(models.Model):
             values_prev = itertools.chain(values_prev, set(['(%s,%s)' % \
                 (a_obj.pk,previews[Preview.identify(p)].pk)
                 for p in Preview.get_obj(a_json)]))
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Almost there'
+
+        logging.info('Almost there')
         if values_cat:
             cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_categories',
                 'columns': '(ffosapp_id, ffosappcategory_id)',
@@ -656,9 +638,7 @@ class FFOSApp(models.Model):
             cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_previews',
                 'columns': '(ffosapp_id, preview_id)',
                 'values': ','.join(values_prev)})
-        if not silent:
-            print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                'Done!'
+        logging.info('Done!')
 
 
 class FFOSUser(models.Model):
@@ -698,6 +678,63 @@ class FFOSUser(models.Model):
         Return the word client followed by the client external id
         '''
         return _('client %(external_id)s') % {'external_id': self.external_id}
+
+    def load(*users):
+        '''
+        Load a list of users to the data model FFOSUser. It also make the
+        connection to the installed apps.
+
+        If the users parameter is according with the prerequisites (respects the
+        format and for every installed app that app already is registered in
+        database) this function should ENSURE that, if the execution ends
+        normally, in the end all the data is available in database.
+
+        **Args**
+
+        users *dict*:
+            A list with Python dictionaries, each one representing a user.
+            Is required that each user as the following format::
+
+                {
+                    'lang': two or five size string in the locale format,
+                    'region': Although I think this is just a 2 string code of
+                        the region, it allow far more (255 length),
+                    'user': Is a big string, documented as a md5 hash with size
+                        35, but the dummy data has far more than that. To play
+                        it safe we use 255.
+                    'installed_apps': [
+                        {
+                            'installed': The date when the app was installed in
+                                the format "yyyy-mm-ddThh:mm:ss",
+                            'id': The id of the installed app. This should be
+                                already on the database.
+                            'slug': The slug of the app. It's an important
+                                value.
+                        },
+                        More apps with the same format as the last one...
+                    ]
+                }
+        '''
+        logging.info('Preparing user data')
+        new_users, apps, install = [], [], []
+        for user in users:
+            new_users.append(FFOSUser(locale=user['lang'],region=['region'],
+                external_id=user['user']))
+            for app in user['installed_apps']:
+                apps.append(app['id'])
+                install.append((user['user'],app['id'],
+                    datetime.strptime(app['installed'],"%Y-%m-%dT%H:%M:%S")\
+                    .replace(tzinfo=utc)))
+        logging.info('Loading users')
+        FFOSUser.objects.bulk_create(new_users)
+        users = {u['external_id']: u['pk'] for u in FFOSUser.objects.filter(
+            external_id__in=map(lambda x: x.external_id,new_users)).values('pk',
+                'external_id')}
+        apps = {a['external_id']: a['pk'] for a in FFOSApp.objects.filter(
+            external_id__in=apps).values('pk','external_id')}
+        logging.info('Loading installed apps')
+        Installation.objects.bulk_create([Installation(user=users[i[0]],
+            app=apps[i[1]],installation_date=i[2]) for i in install])
 
 class Installation(models.Model):
     '''

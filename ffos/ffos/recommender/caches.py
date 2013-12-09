@@ -137,8 +137,3 @@ class RecommendationCache(Cache):
         except KeyError:
             return self.get_app(app,force=True)
 
-
-
-
-
-

@@ -13,7 +13,7 @@ Load data is one of the functionality provided by this module.
 
 '''
 
-import os, sys, traceback 
+import os, sys, traceback, logging
 
 sys.path.append(os.path.dirname(__file__)+'/../')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ffos.settings'
@@ -429,30 +429,26 @@ def load_users(*users):
                 ]
             }
     '''
-    try:
-        for user in users:
-            try:
-                db_user = FFOSUser.objects.create(locale=user['lang'],
-                    region=user['region'],external_id=user['user'])
-                for app in user['installed_apps']:
+    for user in users:
+        try:
+            db_user = FFOSUser.objects.create(locale=user['lang'],
+                region=user['region'],external_id=user['user'])
+            for app in user['installed_apps']:
+                try:
                     Installation.objects.create(user=db_user,
                     app=FFOSApp.objects.get(external_id=app['id']),
                     installation_date=datetime.strptime(app['installed'],
                     "%Y-%m-%dT%H:%M:%S").replace(tzinfo=utc))
-            except IntegrityError:
-                sys.stderr.write(' '.join([datetime.strftime(datetime.now(),
-                    '%d-%m-%Y %H:%M:%S'),'error: user', user['user'], 
-                    'violates the db Integrity','\n']))
-                traceback.print_exc()
-            except Exception:
-                sys.stderr.write(' '.join([datetime.strftime(datetime.now(),
-                    '%d-%m-%Y %H:%M:%S'),'error: user', user['user'], 
-                    'throws an unexpected error','\n']))
-                traceback.print_exc()
-            else:
-                print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                    'user', app['id'],'added to the db'
-    except Exception as e:
-        sys.stderr.write(' '.join([datetime.strftime(datetime.now(),
-            '%d-%m-%Y %H:%M:%S'), str(e),'\n']))
-        traceback.print_exc()
+                except FFOSApp.DoesNotExist:
+                    logging.warning('The app %s doesn\'t exist' % app['id'])
+                    pass
+        except IntegrityError:
+            logging.error(' '.join(['error: user', user['user'],
+                'violates the db Integrity']))
+            traceback.print_exc()
+        except Exception:
+            logging.error(' '.join(['error: user', user['user'],
+                'throws an unexpected error']))
+            traceback.print_exc()
+        else:
+            logging.info('user %s added to the db' % app['id'])

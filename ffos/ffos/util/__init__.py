@@ -9,10 +9,10 @@ Classes and functions to help view management.
 
 '''
 
-import sys, os, json, traceback
+import sys, os, json, traceback, logging
 from datetime import datetime
 
-def parseDir(directory,sillent=False):
+def parseDir(directory):
     '''
 
     Parse all the .json files in the directory and subdirectories.
@@ -28,21 +28,11 @@ def parseDir(directory,sillent=False):
         for name in files:
             if name[-5:].lower() == '.json':
                 f = '/'.join([path,name])
-                #if not sillent:
-                #    print datetime.strftime(datetime.now(), '%d-%m-%Y %H:%M:%S'),\
-                #    'parsing',name,
                 try:
                     json_objects.append(json.load(open(f)))
                     i += 1
                 except Exception as e:
-                    sys.stderr.write(' '.join([datetime.strftime(datetime.now(),
-                        '%d-%m-%Y %H:%M:%S'),name,str(e),'\n']))
+                    logging.error(' '.join([name,str(e)]))
                     traceback.print_exc()
-                    if not sillent:
-                        print datetime.strftime(datetime.now(),
-                            '%d-%m-%Y %H:%M:%S'),'failed!'
-                else:
-                    if not sillent:
-                        print datetime.strftime(datetime.now(),
-                            '%d-%m-%Y %H:%M:%S done!'),i, 'files loaded'
+    logging.info('All done! %s files loaded' % i)
     return json_objects

@@ -60,5 +60,4 @@ class Factor(models.Model):
         '''
         matrix = numpy.frombuffer(self.matrix,dtype=numpy.float64)
         matrix.shape = (self.rows,self.columns)
-        print matrix.shape
         return matrix

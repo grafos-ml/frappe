@@ -12,6 +12,7 @@ from ffos.util.views import JSONResponse
 from ffos.models import FFOSUser
 from controller import TestController
 from filters import RepetitionFilter, RandomReranker
+import logging
 
 controller = TestController()
 controller.registerFilter(RepetitionFilter())
@@ -43,11 +44,11 @@ class RecomenderAPI(View, TemplateResponseMixin):
         '''
         Get the request from the user and response a list of recommendations
         '''
-        print dt.strftime(dt.now(), '%d-%m-%Y %H:%M:%S starting')
+        logging.info('starting')
         user = request.GET.get('user',None)
         number = request.GET.get('n',None)
         result = controller.get_recommendation(user,int(number))
-        print dt.strftime(dt.now(), '%d-%m-%Y %H:%M:%S finished')
+        logging.info('%d-%m-%Y %H:%M:%S finished')
         if user and number:
             return JSONResponse(result)
         raise Http404

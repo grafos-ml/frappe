@@ -9,7 +9,7 @@ Created on Nov 29, 2013
 '''
 
 import numpy, random
-from datetime import datetime as dt
+from django.conf.settings import logging
 from ffos import models
 from ffos.recommender.caches import RecommendationCache
 
@@ -174,13 +174,13 @@ class InterfaceController(object):
         '''
         result = self.get_app_significance_list(
             self.get_user_matrix(user),self.get_apps_matrix())
-        print dt.strftime(dt.now(), '%d-%m-%Y %H:%M:%S matrix generated')
+        logging.debug('Matrix generated')
         for _filter in self.filters:
             result = _filter(user,result)
-        print dt.strftime(dt.now(), '%d-%m-%Y %H:%M:%S filters finished')
+        logging.debug('Filters finished')
         for _reranker in self.rerankers:
             result = _reranker(user,result)
-        print dt.strftime(dt.now(), '%d-%m-%Y %H:%M:%S re-rankers finished')
+        logging.debug('Re-rankers finished')
         return [app_id for app_id, _ in sorted(enumerate(result.tolist()),
             cmp=lambda x,y:-1*cmp(x[1],y[1]))[:n]]
 

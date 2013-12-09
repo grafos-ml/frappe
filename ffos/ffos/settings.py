@@ -52,7 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'ffos.urls'
@@ -95,6 +95,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Logging
+
+import logging
+
+FORMAT = '%(asctime)-15s: %(message)s'
+logging.basicConfig(format=FORMAT,level=logging.DEBUG if DEBUG else \
+logging.WARNING,filename='debug.log'
+)
 
 # Testing
 # Nose settings
