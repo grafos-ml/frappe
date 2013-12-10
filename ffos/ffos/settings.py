@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'ffos',
     'ffos.recommender',
     'debug_toolbar',
+    'ffos.gui'
 )
 
 MIDDLEWARE_CLASSES = (

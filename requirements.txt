@@ -4,6 +4,8 @@ django-crontab
 nose
 django-nose
 django-tastypie
+django-debug-toolbar
+mysql-python
 
 #For xml API
 # Also have dependencies. Should do 'apt-get install libxml2-dev libxslt-dev'

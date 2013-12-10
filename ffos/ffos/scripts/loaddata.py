@@ -123,10 +123,11 @@ in all sub-directories.
 .. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 '''
 import sys, os, json, traceback, logging
+
 sys.path.append(os.path.dirname(__file__)+'/../../')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ffos.settings'
 from datetime import datetime
-from ffos.models import FFOSApp
+from ffos.models import FFOSApp, FFOSUser
 from ffos.util import parseDir
 
 def parse(directory):
@@ -155,10 +156,18 @@ if __name__ == '__main__':
         objects = parseDir(directory)
         if file_type == 'app':
             logging.info('loading apps to database...')
+            for app in objects:
+                app['id'] = int(app['id'])
+                for preview in app['previews']:
+                    preview['id'] = int(preview['id'])
             FFOSApp.load(*objects)
         else:
             logging.info('loading users to database...')
-            data.load_users(*objects)
+            for user in objects:
+                for app in user['installed_apps']:
+                    app['id'] = int(app['id'])
+            FFOSUser.load(*objects)
+            #data.load_users(*objects)
     except Exception:
         logging.info('An error occurred during execution. Check the error.log \
             at the package ffos.scripts')

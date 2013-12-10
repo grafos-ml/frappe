@@ -9,9 +9,9 @@ Created on Nov 29, 2013
 '''
 
 import numpy, random
-from django.conf.settings import logging
 from ffos import models
 from ffos.recommender.caches import RecommendationCache
+import logging
 
 class InterfaceController(object):
     '''
