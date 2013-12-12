@@ -9,131 +9,86 @@ Created on Dec 5, 2013
 '''
 
 from django.shortcuts import get_object_or_404
-from ffos.util.caches import Cache
+from django.core.cache import cache
 from ffos.models import FFOSUser, FFOSApp
+from functools import wraps
 
-
-class RecommendationCache(Cache):
+class CacheDecorator(object):
     '''
-    A special Cache for the recommendation controller
+    Decorator for caching something
     '''
 
-    ALL_USERS = 'ALL USERS'
-    ALL_APPS = 'ALL APPS'
-    USER = 'USER %s'
-    APP = 'APP %s'
-
-
-    def get_all_users(self,force=False):
+    def __init__(self,func):
         '''
-        Return all users. If force is passed with True another sql request is
-        made
-
-        **Args**
-
-        force *bool*:
-            If another query should be made or not.
-
-        **Return**
-
-        *list*:
-            A list with all the users.
+        Constructor. It guard the function on self
         '''
-        if force:
-            return self.cache_command(self.ALL_USERS,list,FFOSUser.objects.all)
-        try:
-            return self[self.ALL_USERS]
-        except KeyError:
-            return self.get_all_users(force=True)
+        self.func = func
 
-    @property
-    def all_users(self):
-        '''
-        Return all users in cache
-        '''
-        return self.get_all_users()
+    def __get__(self, instance, klass):
+        if instance is None:
+            # Class method was requested
+            return self.make_unbound(klass)
+        return self.make_bound(instance)
 
-    def get_all_apps(self,force=False):
-        '''
-        Return all apps. If force is passed with True another sql request is
-        made
+    def make_unbound(self, klass):
+        @wraps(self.func)
+        def wrapper(*args, **kwargs):
+            '''This documentation will vanish :)'''
+            raise TypeError(
+                'unbound method {}() must be called with {} instance '
+                'as first argument (got nothing instead)'.format(
+                    self.func.__name__,klass.__name__)
+                )
+        return wrapper
 
-        **Args**
+    def make_bound(self, instance):
+        @wraps(self.func)
+        def wrapper(*args, **kwargs):
+            '''This documentation will disapear :)'''
+            return self.to_func(self.func)(instance,*args,**kwargs)
+        # This instance does not need the descriptor anymore,
+        # let it find the wrapper directly next time:
+        setattr(instance, self.func.__name__, wrapper)
+        return wrapper
 
-        force *bool*:
-            If another query should be made or not.
+class CacheUser(CacheDecorator):
+    '''
+    Allow users to be cached
+    '''
 
-        **Return**
+    USER = 'USER_%s'
 
-        *list*:
-            A list with all the apps.
-        '''
-        if force:
-            return self.cache_command(self.ALL_APPS,list,FFOSApp.objects.all)
-        try:
-            return self[self.ALL_APPS]
-        except KeyError:
-            return self.get_all_apps(force=True)
+    @staticmethod
+    def to_func(f):
+        def wrapper(*args, **kwargs):
+            '''This documentation will disapear :)'''
+            u_id = kwargs['user']
+            if isinstance(u_id,basestring):
+                user = cache.get(CacheUser.USER % u_id)
+                if user == None:
+                    user = get_object_or_404(FFOSUser,external_id=u_id)
+                    cache.set(CacheUser.USER % u_id, user)
+                kwargs['user'] = user
+            return f(*args,**kwargs)
+        return wrapper
 
-    @property
-    def all_apps(self):
-        '''
-        Return all apps in cache
-        '''
-        return self.get_all_apps()
+class CacheApp(CacheDecorator):
+    '''
+    Allow apps to be cached
+    '''
 
+    APP = 'APP_%s'
 
-    def get_user(self,user,force=False):
-        '''
-        Return user with external id. If force is passed with True another sql
-        request is made.
-
-        **Args**
-
-        user *str*:
-            User external id.
-
-        force *bool*:
-            If another query should be made or not.
-
-        **Return**
-
-        *FFOSUser*:
-            The user.
-        '''
-        user_id = self.USER % user
-        if force:
-            return self.cache_command(user_id,get_object_or_404,
-                args=[FFOSUser],kwargs={'external_id': user})
-        try:
-            return self[user_id]
-        except KeyError:
-            return self.get_user(user,force=True)
-
-    def get_app(self,app,force=False):
-        '''
-        Return app. If force is passed with True another sql request is
-        made.
-
-        **Args**
-
-        app *str*:
-            App external id.
-
-        force *bool*:
-            If another query should be made or not.
-
-        **Return**
-
-        *FFOSApp*:
-            The App.
-        '''
-        app_id = self.APP % app
-        if force:
-            return self.cache_command(app_id,get_object_or_404,
-                args=[FFOSApp], kwargs={'external_id': app})
-        try:
-            return self[app_id]
-        except KeyError:
-            return self.get_app(app,force=True)
-
+    @staticmethod
+    def to_func(f):
+        def wrapper(*args, **kwargs):
+            '''This documentation will disapear :)'''
+            a_id = kwargs['app']
+            if isinstance(a_id,basestring):
+                app = cache.get(CacheApp.App % a_id)
+                if app == None:
+                    app = get_object_or_404(FFOSUser,external_id=a_id)
+                    cache.set(CacheApp.APP % a_id, app)
+                kwargs['app'] = app
+            return f(*args,**kwargs)
+        return wrapper

@@ -6,19 +6,12 @@ Created on Nov 28, 2013
 '''
 
 from django.views.generic.base import View, TemplateResponseMixin
-from django.shortcuts import  Http404
-from datetime import datetime as dt
 from ffos.util.views import JSONResponse
 from ffos.models import FFOSUser
-from controller import TestController
-from filters import RepetitionFilter, RandomReranker
 import logging
+from django.conf import settings
 
-controller = TestController()
-controller.registerFilter(RepetitionFilter())
-controller.registerReranker(RandomReranker())
-
-
+controller = settings.CONTROLLER
 
 class RecomenderAPI(View, TemplateResponseMixin):
 
@@ -47,9 +40,7 @@ class RecomenderAPI(View, TemplateResponseMixin):
         logging.info('starting')
         user = request.GET.get('user',None)
         number = request.GET.get('n',None)
-        result = controller.get_recommendation(user,int(number))
-        logging.info('%d-%m-%Y %H:%M:%S finished')
-        if user and number:
-            return JSONResponse(result)
-        raise Http404
+        result = controller.get_recommendation(user=user,n=int(number))
+        logging.info('finished')
+        return JSONResponse(result)
 

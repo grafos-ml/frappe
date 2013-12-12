@@ -53,7 +53,7 @@ class RepetitionFilter(Filter):
         '''
 
         '''
-        for app in self.controller.cache.get_user(user).installed_apps.all():
+        for app in user.installed_apps.all():
             app_score[app.pk] = float('-inf')
         return app_score
 

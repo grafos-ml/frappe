@@ -6,11 +6,12 @@ Created on Dec 9, 2013
 '''
 
 from django.views.generic.base import View, TemplateResponseMixin
-from django.shortcuts import  Http404, render_to_response
-from ffos.models import FFOSUser
+from django.shortcuts import  Http404, render_to_response, get_object_or_404
+from ffos.models import FFOSUser, FFOSApp
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
 
-
+controller = settings.CONTROLLER
 
 class Landing(View, TemplateResponseMixin):
 
@@ -54,3 +55,26 @@ class Landing(View, TemplateResponseMixin):
         page_list = paginator.page_range[min:max]
         return render_to_response(self.template_name, {"users": users,
             'page_list': page_list})
+
+class Recommend(View, TemplateResponseMixin):
+
+    template_name = "recommend.html"
+
+    http_method_names = [
+        'get',
+#        'post',
+#        'put',
+#        'patch',
+#        'delete',
+#        'head',
+#        'options',
+#        'trace'
+        ]
+
+    def get(self,request,user,**kwargs):
+        '''
+
+        '''
+        rec = controller.get_recommendation(user=user,n=4)
+        return render_to_response(self.template_name, {"user": user,
+            'recommended': FFOSApp.objects.filter(pk__in=rec)})

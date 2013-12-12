@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n cache %}
+
+{% block title %}{% trans "Recommendation for" %} {{ user.external_id }}{% endblock title %}
+
+{% block body %}
+    {% cache 900 recommend_header user.external_id %}
+			<div class="row">
+				<div class=".col-xs-12">
+					<div class="bs-docs-section">
+						<div class="page-header">
+							<h3 id="overview">
+								{{ user.external_id }}
+								<br />
+								<small>{{ user.locale }}</small>
+							</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<h4>{% trans "Installed Apps" %}</h4>
+				<hr>
+                {% for app in user.installed_apps.all %}
+				<div class="col-sm-6 col-md-3">
+					<a href="#" class="thumbnail">
+						<img alt="Some Icone" src="{{ app.icon.size128 }}" >
+					</a>
+					<small>{{ app.installation_date }}</small>
+				</div>
+                {% endfor %}
+				<ul class="pagination">
+					<li><a href="#">&laquo;</a></li>
+					<li><a href="#">1</a></li>
+					<li><a href="#">2</a></li>
+					<li><a href="#">&raquo;</a></li>
+				</ul>
+			</div>
+    {% endcache %}
+			<div class="row">
+				<h4>{% trans "Recomendations" %}</h4>
+				<hr>
+                {% for app in recommended %}
+				<div class="col-sm-6 col-md-3">
+					<a href="#" class="thumbnail">
+						<img alt="Some Icone" src="{{ app.icon.size128 }}" >
+					</a>
+				</div>
+                {% endfor %}
+
+				<ul class="pager">
+					<li class="next"><a href="{% url 'recommendfor' user=user.external_id %}">More &rarr;</a></li>
+				</ul>
+			</div>
+{% endblock body %}

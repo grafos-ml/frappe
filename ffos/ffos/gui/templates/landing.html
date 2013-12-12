@@ -11,7 +11,11 @@
 							<!-- for each user -->
                         {% for u in users %}
 							<tr>
-								<td>{{ u.external_id }}</td>
+								<td>
+                                    <a href="{% url 'recommendfor' user=u.external_id %}">
+                                        {{ u.external_id }}
+                                    </a>
+                                </td>
 								<td>
                                     {% for app in u.installed_apps.all %}
                                         <img src="{{ app.icon.size16 }}" alt="{{ app.name }}">

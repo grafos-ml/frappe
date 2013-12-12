@@ -53,6 +53,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
+    #'django.middleware.cache.UpdateCacheMiddleware',
+    #'django.middleware.cache.FetchFromCacheMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
@@ -111,3 +113,25 @@ logging.WARNING,filename='debug.log'
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+# Caching
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        #'LOCATION': '/var/tmp/django_cache',
+        'TIMEOUT': 60,
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
+
+# Recommender controller
+
+from ffos.recommender.controller import TestController
+from ffos.recommender.filters import RepetitionFilter, RandomReranker
+
+CONTROLLER = TestController()
+CONTROLLER.registerFilter(RepetitionFilter())
+CONTROLLER.registerReranker(RandomReranker())

@@ -8,10 +8,11 @@ Created on Nov 29, 2013
 
 '''
 
-import numpy, random
+import numpy
 from ffos import models
-from ffos.recommender.caches import RecommendationCache
+from ffos.recommender.caches import CacheUser, CacheApp
 import logging
+from django.core.cache import cache
 
 class InterfaceController(object):
     '''
@@ -32,7 +33,6 @@ class InterfaceController(object):
         '''
         self._filters = []
         self._rerankers = []
-        self.cache = RecommendationCache()
 
 
     def registerFilter(self,filter):
@@ -96,21 +96,15 @@ class InterfaceController(object):
         '''
         return self._rerankers[:]
 
-    def get_user_matrix(self,user):
+    def get_user_matrix(self):
         '''
         Catch the user matrix from database
-
-        **Args**
-
-        user *str*:
-            User ID
 
         **Returns**
 
         *numpy.matrix*:
             The matrix of users.
         '''
-        user = self.cache.get_user(user)
         if self.__class__ == InterfaceController:
             raise TypeError('InterfaceController shouldn\'t be used directly. '
                 'Create a new class to extend it instead.')
@@ -134,16 +128,20 @@ class InterfaceController(object):
             raise NotImplementedError('get_app_matrix was not overwritten '
                 'by class %s' % self.__class__)
 
-    def get_app_significance_list(self,user,apps):
+    @CacheUser
+    def get_app_significance_list(self,user,u_matrix,a_matrix):
         '''
         Get a List of significance values for each app
 
         **Args**
 
-        user *numpy.matrix*:
-            A one row matrix for one user
+        user *basestring or FFOSUser*:
+            The user to get the recommendation
 
-        apps *numpy.matrix*:
+        u_matrix *numpy.matrix*:
+            A matrix with one row for each user
+
+        a_matrix *numpy.matrix*:
             A matrix with one row for each app in system
 
         **Return**
@@ -151,11 +149,11 @@ class InterfaceController(object):
         *numpy.array*:
             An array with the app scores for that user
         '''
-        m = (user * apps.transpose())
+        m = (u_matrix[user.pk] * a_matrix.transpose())
         return numpy.array(m.tolist()[0])
 
-
-    def get_recommendation(self,user,n):
+    @CacheUser
+    def get_recommendation(self,user,n=10):
         '''
         Method to get recommendation according with some user id
 
@@ -172,17 +170,17 @@ class InterfaceController(object):
         *list*:
             A Python list the recommendation apps ids.
         '''
-        result = self.get_app_significance_list(
-            self.get_user_matrix(user),self.get_apps_matrix())
+        result = self.get_app_significance_list(user=user,
+            u_matrix=self.get_user_matrix(),a_matrix=self.get_apps_matrix())
         logging.debug('Matrix generated')
         for _filter in self.filters:
-            result = _filter(user,result)
+            result = _filter(user=user,app_score=result)
         logging.debug('Filters finished')
         for _reranker in self.rerankers:
-            result = _reranker(user,result)
+            result = _reranker(user=user,app_score=result)
         logging.debug('Re-rankers finished')
-        return [app_id for app_id, _ in sorted(enumerate(result.tolist()),
-            cmp=lambda x,y:-1*cmp(x[1],y[1]))[:n]]
+        return map(lambda x: x[0], sorted(enumerate(result.tolist()),
+            cmp=lambda x,y:-1*cmp(x[1],y[1]))[:n])
 
 
 class TestController(InterfaceController):
@@ -192,7 +190,7 @@ class TestController(InterfaceController):
 
     @see parent
     '''
-    def get_user_matrix(self,user):
+    def get_user_matrix(self):
         '''
         Catch the user matrix from database
 
@@ -206,8 +204,12 @@ class TestController(InterfaceController):
         *numpy.matrix*:
             The matrix of users.
         '''
-        return numpy.matrix([[float(random.randint(1,100))
-            for _ in range(0,9)]])
+        m = cache.get('RAND_USER_MATRIX')
+        if m == None:
+            m = numpy.matrix(numpy.random.random(size=(
+                models.FFOSUser.objects.all().count(), 10)))
+            cache.set('RAND_USER_MATRIX',m)
+        return m
 
     def get_apps_matrix(self):
         '''
@@ -218,9 +220,10 @@ class TestController(InterfaceController):
         *numpy.matrix*:
             The matrix of apps.
         '''
-        return numpy.matrix([[float(random.randint(1,100)) for _ in range(0,9)]
-            for _ in range(0,len(models.FFOSApp.objects.all()))])
-
-
-
+        m = cache.get('RAND_APP_MATRIX')
+        if m == None:
+            m = numpy.matrix(numpy.random.random(size=(
+            models.FFOSApp.objects.all().count(), 10)))
+            cache.set('RAND_APP_MATRIX',m)
+        return m
 
