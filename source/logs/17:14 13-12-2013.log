@@ -1,0 +1,304 @@
+2013-12-13 16:14:27,886: (0.157) SHOW TABLES; args=None
+2013-12-13 16:14:28,305: (0.254) CREATE TABLE `django_admin_log` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `action_time` datetime NOT NULL,
+    `user_id` integer NOT NULL,
+    `content_type_id` integer,
+    `object_id` longtext,
+    `object_repr` varchar(200) NOT NULL,
+    `action_flag` smallint UNSIGNED NOT NULL,
+    `change_message` longtext NOT NULL
+)
+;; args=None
+2013-12-13 16:14:28,534: (0.228) CREATE TABLE `auth_permission` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(50) NOT NULL,
+    `content_type_id` integer NOT NULL,
+    `codename` varchar(100) NOT NULL,
+    UNIQUE (`content_type_id`, `codename`)
+)
+;; args=None
+2013-12-13 16:14:28,717: (0.182) CREATE TABLE `auth_group_permissions` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `group_id` integer NOT NULL,
+    `permission_id` integer NOT NULL,
+    UNIQUE (`group_id`, `permission_id`)
+)
+;; args=None
+2013-12-13 16:14:28,931: (0.213) ALTER TABLE `auth_group_permissions` ADD CONSTRAINT `permission_id_refs_id_6ba0f519` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`);; args=None
+2013-12-13 16:14:29,131: (0.199) CREATE TABLE `auth_group` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(80) NOT NULL UNIQUE
+)
+;; args=None
+2013-12-13 16:14:29,297: (0.166) ALTER TABLE `auth_group_permissions` ADD CONSTRAINT `group_id_refs_id_f4b32aac` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`);; args=None
+2013-12-13 16:14:29,488: (0.190) CREATE TABLE `auth_user_groups` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `user_id` integer NOT NULL,
+    `group_id` integer NOT NULL,
+    UNIQUE (`user_id`, `group_id`)
+)
+;; args=None
+2013-12-13 16:14:29,681: (0.193) ALTER TABLE `auth_user_groups` ADD CONSTRAINT `group_id_refs_id_274b862c` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`);; args=None
+2013-12-13 16:14:29,859: (0.177) CREATE TABLE `auth_user_user_permissions` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `user_id` integer NOT NULL,
+    `permission_id` integer NOT NULL,
+    UNIQUE (`user_id`, `permission_id`)
+)
+;; args=None
+2013-12-13 16:14:30,024: (0.165) ALTER TABLE `auth_user_user_permissions` ADD CONSTRAINT `permission_id_refs_id_35d9ac25` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`);; args=None
+2013-12-13 16:14:30,226: (0.201) CREATE TABLE `auth_user` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `password` varchar(128) NOT NULL,
+    `last_login` datetime NOT NULL,
+    `is_superuser` bool NOT NULL,
+    `username` varchar(30) NOT NULL UNIQUE,
+    `first_name` varchar(30) NOT NULL,
+    `last_name` varchar(30) NOT NULL,
+    `email` varchar(75) NOT NULL,
+    `is_staff` bool NOT NULL,
+    `is_active` bool NOT NULL,
+    `date_joined` datetime NOT NULL
+)
+;; args=None
+2013-12-13 16:14:30,417: (0.191) ALTER TABLE `django_admin_log` ADD CONSTRAINT `user_id_refs_id_c0d12874` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);; args=None
+2013-12-13 16:14:30,600: (0.183) ALTER TABLE `auth_user_groups` ADD CONSTRAINT `user_id_refs_id_40c41112` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);; args=None
+2013-12-13 16:14:30,786: (0.185) ALTER TABLE `auth_user_user_permissions` ADD CONSTRAINT `user_id_refs_id_4dc23c39` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);; args=None
+2013-12-13 16:14:30,965: (0.179) CREATE TABLE `django_content_type` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(100) NOT NULL,
+    `app_label` varchar(100) NOT NULL,
+    `model` varchar(100) NOT NULL,
+    UNIQUE (`app_label`, `model`)
+)
+;; args=None
+2013-12-13 16:14:31,176: (0.210) ALTER TABLE `django_admin_log` ADD CONSTRAINT `content_type_id_refs_id_93d2d1f8` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`);; args=None
+2013-12-13 16:14:31,377: (0.200) ALTER TABLE `auth_permission` ADD CONSTRAINT `content_type_id_refs_id_d043b34a` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`);; args=None
+2013-12-13 16:14:31,564: (0.188) CREATE TABLE `django_session` (
+    `session_key` varchar(40) NOT NULL PRIMARY KEY,
+    `session_data` longtext NOT NULL,
+    `expire_date` datetime NOT NULL
+)
+;; args=None
+2013-12-13 16:14:31,754: (0.189) CREATE TABLE `ffos_ffosappcategory` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(255) NOT NULL
+)
+;; args=None
+2013-12-13 16:14:31,942: (0.187) CREATE TABLE `ffos_devicetype` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(255) NOT NULL
+)
+;; args=None
+2013-12-13 16:14:32,132: (0.190) CREATE TABLE `ffos_ffosappicon` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `size16` varchar(200) NOT NULL,
+    `size48` varchar(200) NOT NULL,
+    `size64` varchar(200) NOT NULL,
+    `size128` varchar(200) NOT NULL
+)
+;; args=None
+2013-12-13 16:14:32,363: (0.230) CREATE TABLE `ffos_region` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `adolescent` bool NOT NULL,
+    `mcc` integer,
+    `name` varchar(255) NOT NULL,
+    `slug` varchar(255)
+)
+;; args=None
+2013-12-13 16:14:32,554: (0.191) CREATE TABLE `ffos_locale` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `name` varchar(5) NOT NULL
+)
+;; args=None
+2013-12-13 16:14:32,750: (0.195) CREATE TABLE `ffos_preview` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `filetype` varchar(255) NOT NULL,
+    `thumbnail_url` varchar(200) NOT NULL,
+    `image_url` varchar(200) NOT NULL,
+    `external_id` integer NOT NULL,
+    `resource_uri` varchar(255) NOT NULL
+)
+;; args=None
+2013-12-13 16:14:32,956: (0.205) CREATE TABLE `ffos_ffosapp_regions` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `ffosapp_id` integer NOT NULL,
+    `region_id` integer NOT NULL,
+    UNIQUE (`ffosapp_id`, `region_id`)
+)
+;; args=None
+2013-12-13 16:14:33,162: (0.206) ALTER TABLE `ffos_ffosapp_regions` ADD CONSTRAINT `region_id_refs_id_3d36ca37` FOREIGN KEY (`region_id`) REFERENCES `ffos_region` (`id`);; args=None
+2013-12-13 16:14:33,351: (0.187) CREATE TABLE `ffos_ffosapp_supported_locales` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `ffosapp_id` integer NOT NULL,
+    `locale_id` integer NOT NULL,
+    UNIQUE (`ffosapp_id`, `locale_id`)
+)
+;; args=None
+2013-12-13 16:14:33,531: (0.180) ALTER TABLE `ffos_ffosapp_supported_locales` ADD CONSTRAINT `locale_id_refs_id_f0fba766` FOREIGN KEY (`locale_id`) REFERENCES `ffos_locale` (`id`);; args=None
+2013-12-13 16:14:33,718: (0.184) CREATE TABLE `ffos_ffosapp_previews` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `ffosapp_id` integer NOT NULL,
+    `preview_id` integer NOT NULL,
+    UNIQUE (`ffosapp_id`, `preview_id`)
+)
+;; args=None
+2013-12-13 16:14:33,942: (0.224) ALTER TABLE `ffos_ffosapp_previews` ADD CONSTRAINT `preview_id_refs_id_aebefd00` FOREIGN KEY (`preview_id`) REFERENCES `ffos_preview` (`id`);; args=None
+2013-12-13 16:14:34,216: (0.274) CREATE TABLE `ffos_ffosapp_categories` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `ffosapp_id` integer NOT NULL,
+    `ffosappcategory_id` integer NOT NULL,
+    UNIQUE (`ffosapp_id`, `ffosappcategory_id`)
+)
+;; args=None
+2013-12-13 16:14:34,418: (0.202) ALTER TABLE `ffos_ffosapp_categories` ADD CONSTRAINT `ffosappcategory_id_refs_id_347c6898` FOREIGN KEY (`ffosappcategory_id`) REFERENCES `ffos_ffosappcategory` (`id`);; args=None
+2013-12-13 16:14:34,652: (0.233) CREATE TABLE `ffos_ffosapp_device_types` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `ffosapp_id` integer NOT NULL,
+    `devicetype_id` integer NOT NULL,
+    UNIQUE (`ffosapp_id`, `devicetype_id`)
+)
+;; args=None
+2013-12-13 16:14:34,845: (0.193) ALTER TABLE `ffos_ffosapp_device_types` ADD CONSTRAINT `devicetype_id_refs_id_3a06a7be` FOREIGN KEY (`devicetype_id`) REFERENCES `ffos_devicetype` (`id`);; args=None
+2013-12-13 16:14:35,033: (0.185) CREATE TABLE `ffos_ffosapp` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `app_type` varchar(255) NOT NULL,
+    `author` varchar(255),
+    `content_ratings` longtext,
+    `created` datetime,
+    `current_version` varchar(255),
+    `default_locale` varchar(5) NOT NULL,
+    `description` longtext,
+    `homepage` varchar(200),
+    `icon_id` integer NOT NULL,
+    `external_id` integer NOT NULL UNIQUE,
+    `is_packaged` bool NOT NULL,
+    `manifest_url` varchar(200) NOT NULL,
+    `name` varchar(255) NOT NULL,
+    `payment_account` varchar(255),
+    `payment_required` bool NOT NULL,
+    `price_locale` varchar(255),
+    `price` varchar(255),
+    `premium_type` varchar(255),
+    `privacy_policy` varchar(255) NOT NULL,
+    `public_stats` bool NOT NULL,
+    `rating_average` numeric(10, 3) NOT NULL,
+    `rating_count` integer NOT NULL,
+    `resource_uri` varchar(255),
+    `slug` varchar(255),
+    `status` integer NOT NULL,
+    `support_email` varchar(75),
+    `support_url` varchar(200),
+    `tags` longtext NOT NULL,
+    `upsell` bool NOT NULL,
+    `upsold` varchar(255),
+    `weekly_downloads` varchar(255)
+)
+;; args=None
+2013-12-13 16:14:35,245: (0.211) ALTER TABLE `ffos_ffosapp` ADD CONSTRAINT `icon_id_refs_id_8261f7cd` FOREIGN KEY (`icon_id`) REFERENCES `ffos_ffosappicon` (`id`);; args=None
+2013-12-13 16:14:35,441: (0.196) ALTER TABLE `ffos_ffosapp_regions` ADD CONSTRAINT `ffosapp_id_refs_id_6efe2d98` FOREIGN KEY (`ffosapp_id`) REFERENCES `ffos_ffosapp` (`id`);; args=None
+2013-12-13 16:14:35,676: (0.234) ALTER TABLE `ffos_ffosapp_supported_locales` ADD CONSTRAINT `ffosapp_id_refs_id_a8df8813` FOREIGN KEY (`ffosapp_id`) REFERENCES `ffos_ffosapp` (`id`);; args=None
+2013-12-13 16:14:35,860: (0.184) ALTER TABLE `ffos_ffosapp_previews` ADD CONSTRAINT `ffosapp_id_refs_id_389c968e` FOREIGN KEY (`ffosapp_id`) REFERENCES `ffos_ffosapp` (`id`);; args=None
+2013-12-13 16:14:36,736: (0.876) ALTER TABLE `ffos_ffosapp_categories` ADD CONSTRAINT `ffosapp_id_refs_id_6f7531b1` FOREIGN KEY (`ffosapp_id`) REFERENCES `ffos_ffosapp` (`id`);; args=None
+2013-12-13 16:14:36,950: (0.214) ALTER TABLE `ffos_ffosapp_device_types` ADD CONSTRAINT `ffosapp_id_refs_id_5c6659f7` FOREIGN KEY (`ffosapp_id`) REFERENCES `ffos_ffosapp` (`id`);; args=None
+2013-12-13 16:14:37,161: (0.210) CREATE TABLE `ffos_ffosuser` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `locale` varchar(5),
+    `region` varchar(255),
+    `external_id` varchar(255) NOT NULL UNIQUE
+)
+;; args=None
+2013-12-13 16:14:37,339: (0.177) CREATE TABLE `ffos_installation` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `user_id` integer NOT NULL,
+    `app_id` integer NOT NULL,
+    `installation_date` datetime NOT NULL,
+    `removed_date` datetime
+)
+;; args=None
+2013-12-13 16:14:37,521: (0.182) ALTER TABLE `ffos_installation` ADD CONSTRAINT `user_id_refs_id_e5945ef4` FOREIGN KEY (`user_id`) REFERENCES `ffos_ffosuser` (`id`);; args=None
+2013-12-13 16:14:37,734: (0.212) ALTER TABLE `ffos_installation` ADD CONSTRAINT `app_id_refs_id_5f59197c` FOREIGN KEY (`app_id`) REFERENCES `ffos_ffosapp` (`id`);; args=None
+2013-12-13 16:14:37,909: (0.175) CREATE TABLE `recommender_factor` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `dimension` integer UNSIGNED NOT NULL,
+    `matrix` longtext NOT NULL,
+    `rows` integer UNSIGNED NOT NULL,
+    `columns` integer UNSIGNED NOT NULL
+)
+;; args=None
+2013-12-13 16:14:38,387: (0.160) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'logentry'  AND `django_content_type`.`app_label` = 'admin' ); args=('logentry', u'admin')
+2013-12-13 16:14:38,703: (0.158) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('log entry', 'admin', 'logentry'); args=[u'log entry', u'admin', 'logentry']
+2013-12-13 16:14:39,181: (0.161) SELECT `auth_permission`.`content_type_id`, `auth_permission`.`codename` FROM `auth_permission` INNER JOIN `django_content_type` ON ( `auth_permission`.`content_type_id` = `django_content_type`.`id` ) WHERE `auth_permission`.`content_type_id` IN (1) ORDER BY `django_content_type`.`app_label` ASC, `django_content_type`.`model` ASC, `auth_permission`.`codename` ASC; args=(1,)
+2013-12-13 16:14:39,499: (0.159) INSERT INTO `auth_permission` (`name`, `content_type_id`, `codename`) VALUES ('Can add log entry', 1, 'add_logentry'), ('Can change log entry', 1, 'change_logentry'), ('Can delete log entry', 1, 'delete_logentry'); args=(u'Can add log entry', 1, u'add_logentry', u'Can change log entry', 1, u'change_logentry', u'Can delete log entry', 1, u'delete_logentry')
+2013-12-13 16:14:40,060: (0.161) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE `django_content_type`.`app_label` = 'admin'  ORDER BY `django_content_type`.`name` ASC; args=(u'admin',)
+2013-12-13 16:14:40,231: (0.170) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'permission'  AND `django_content_type`.`app_label` = 'auth' ); args=('permission', u'auth')
+2013-12-13 16:14:40,563: (0.175) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('permission', 'auth', 'permission'); args=[u'permission', u'auth', 'permission']
+2013-12-13 16:14:41,066: (0.165) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'group'  AND `django_content_type`.`app_label` = 'auth' ); args=('group', u'auth')
+2013-12-13 16:14:41,386: (0.158) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('group', 'auth', 'group'); args=[u'group', u'auth', 'group']
+2013-12-13 16:14:41,892: (0.162) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'user'  AND `django_content_type`.`app_label` = 'auth' ); args=('user', u'auth')
+2013-12-13 16:14:42,227: (0.177) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('user', 'auth', 'user'); args=[u'user', u'auth', 'user']
+2013-12-13 16:14:42,887: (0.172) SELECT `auth_permission`.`content_type_id`, `auth_permission`.`codename` FROM `auth_permission` INNER JOIN `django_content_type` ON ( `auth_permission`.`content_type_id` = `django_content_type`.`id` ) WHERE `auth_permission`.`content_type_id` IN (2, 3, 4) ORDER BY `django_content_type`.`app_label` ASC, `django_content_type`.`model` ASC, `auth_permission`.`codename` ASC; args=(2, 3, 4)
+2013-12-13 16:14:43,219: (0.172) INSERT INTO `auth_permission` (`name`, `content_type_id`, `codename`) VALUES ('Can add permission', 2, 'add_permission'), ('Can change permission', 2, 'change_permission'), ('Can delete permission', 2, 'delete_permission'), ('Can add group', 3, 'add_group'), ('Can change group', 3, 'change_group'), ('Can delete group', 3, 'delete_group'), ('Can add user', 4, 'add_user'), ('Can change user', 4, 'change_user'), ('Can delete user', 4, 'delete_user'); args=(u'Can add permission', 2, u'add_permission', u'Can change permission', 2, u'change_permission', u'Can delete permission', 2, u'delete_permission', u'Can add group', 3, u'add_group', u'Can change group', 3, u'change_group', u'Can delete group', 3, u'delete_group', u'Can add user', 4, u'add_user', u'Can change user', 4, u'change_user', u'Can delete user', 4, u'delete_user')
+2013-12-13 16:14:43,884: (0.171) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE `django_content_type`.`app_label` = 'auth'  ORDER BY `django_content_type`.`name` ASC; args=(u'auth',)
+2013-12-13 16:14:44,048: (0.161) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'contenttype'  AND `django_content_type`.`app_label` = 'contenttypes' ); args=('contenttype', u'contenttypes')
+2013-12-13 16:14:44,381: (0.165) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('content type', 'contenttypes', 'contenttype'); args=[u'content type', u'contenttypes', 'contenttype']
+2013-12-13 16:14:44,898: (0.162) SELECT `auth_permission`.`content_type_id`, `auth_permission`.`codename` FROM `auth_permission` INNER JOIN `django_content_type` ON ( `auth_permission`.`content_type_id` = `django_content_type`.`id` ) WHERE `auth_permission`.`content_type_id` IN (5) ORDER BY `django_content_type`.`app_label` ASC, `django_content_type`.`model` ASC, `auth_permission`.`codename` ASC; args=(5,)
+2013-12-13 16:14:45,220: (0.160) INSERT INTO `auth_permission` (`name`, `content_type_id`, `codename`) VALUES ('Can add content type', 5, 'add_contenttype'), ('Can change content type', 5, 'change_contenttype'), ('Can delete content type', 5, 'delete_contenttype'); args=(u'Can add content type', 5, u'add_contenttype', u'Can change content type', 5, u'change_contenttype', u'Can delete content type', 5, u'delete_contenttype')
+2013-12-13 16:14:45,734: (0.160) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE `django_content_type`.`app_label` = 'contenttypes'  ORDER BY `django_content_type`.`name` ASC; args=(u'contenttypes',)
+2013-12-13 16:14:45,896: (0.161) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'session'  AND `django_content_type`.`app_label` = 'sessions' ); args=('session', u'sessions')
+2013-12-13 16:14:46,213: (0.159) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('session', 'sessions', 'session'); args=[u'session', u'sessions', 'session']
+2013-12-13 16:14:46,737: (0.161) SELECT `auth_permission`.`content_type_id`, `auth_permission`.`codename` FROM `auth_permission` INNER JOIN `django_content_type` ON ( `auth_permission`.`content_type_id` = `django_content_type`.`id` ) WHERE `auth_permission`.`content_type_id` IN (6) ORDER BY `django_content_type`.`app_label` ASC, `django_content_type`.`model` ASC, `auth_permission`.`codename` ASC; args=(6,)
+2013-12-13 16:14:47,062: (0.159) INSERT INTO `auth_permission` (`name`, `content_type_id`, `codename`) VALUES ('Can add session', 6, 'add_session'), ('Can change session', 6, 'change_session'), ('Can delete session', 6, 'delete_session'); args=(u'Can add session', 6, u'add_session', u'Can change session', 6, u'change_session', u'Can delete session', 6, u'delete_session')
+2013-12-13 16:14:47,593: (0.160) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE `django_content_type`.`app_label` = 'sessions'  ORDER BY `django_content_type`.`name` ASC; args=(u'sessions',)
+2013-12-13 16:14:47,761: (0.166) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'ffosappcategory'  AND `django_content_type`.`app_label` = 'ffos' ); args=('ffosappcategory', u'ffos')
+2013-12-13 16:14:48,088: (0.158) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('category', 'ffos', 'ffosappcategory'); args=[u'category', u'ffos', 'ffosappcategory']
+2013-12-13 16:14:48,616: (0.163) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'devicetype'  AND `django_content_type`.`app_label` = 'ffos' ); args=('devicetype', u'ffos')
+2013-12-13 16:14:48,940: (0.164) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('device type', 'ffos', 'devicetype'); args=[u'device type', u'ffos', 'devicetype']
+2013-12-13 16:14:49,458: (0.162) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'ffosappicon'  AND `django_content_type`.`app_label` = 'ffos' ); args=('ffosappicon', u'ffos')
+2013-12-13 16:14:49,777: (0.158) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('app icon', 'ffos', 'ffosappicon'); args=[u'app icon', u'ffos', 'ffosappicon']
+2013-12-13 16:14:50,264: (0.160) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'region'  AND `django_content_type`.`app_label` = 'ffos' ); args=('region', u'ffos')
+2013-12-13 16:14:50,589: (0.163) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('region', 'ffos', 'region'); args=[u'region', u'ffos', 'region']
+2013-12-13 16:14:51,254: (0.161) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'locale'  AND `django_content_type`.`app_label` = 'ffos' ); args=('locale', u'ffos')
+2013-12-13 16:14:51,570: (0.158) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('locale', 'ffos', 'locale'); args=[u'locale', u'ffos', 'locale']
+2013-12-13 16:14:52,048: (0.159) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'preview'  AND `django_content_type`.`app_label` = 'ffos' ); args=('preview', u'ffos')
+2013-12-13 16:14:52,367: (0.158) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('preview', 'ffos', 'preview'); args=[u'preview', u'ffos', 'preview']
+2013-12-13 16:14:52,920: (0.160) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'ffosapp'  AND `django_content_type`.`app_label` = 'ffos' ); args=('ffosapp', u'ffos')
+2013-12-13 16:14:53,245: (0.166) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('firefox os app', 'ffos', 'ffosapp'); args=[u'firefox os app', u'ffos', 'ffosapp']
+2013-12-13 16:14:53,777: (0.160) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'ffosuser'  AND `django_content_type`.`app_label` = 'ffos' ); args=('ffosuser', u'ffos')
+2013-12-13 16:14:54,093: (0.158) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('firefox client', 'ffos', 'ffosuser'); args=[u'firefox client', u'ffos', 'ffosuser']
+2013-12-13 16:14:54,637: (0.163) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'installation'  AND `django_content_type`.`app_label` = 'ffos' ); args=('installation', u'ffos')
+2013-12-13 16:14:54,959: (0.163) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('installation', 'ffos', 'installation'); args=[u'installation', u'ffos', 'installation']
+2013-12-13 16:14:55,462: (0.161) SELECT `auth_permission`.`content_type_id`, `auth_permission`.`codename` FROM `auth_permission` INNER JOIN `django_content_type` ON ( `auth_permission`.`content_type_id` = `django_content_type`.`id` ) WHERE `auth_permission`.`content_type_id` IN (7, 8, 9, 10, 11, 12, 13, 14, 15) ORDER BY `django_content_type`.`app_label` ASC, `django_content_type`.`model` ASC, `auth_permission`.`codename` ASC; args=(7, 8, 9, 10, 11, 12, 13, 14, 15)
+2013-12-13 16:14:55,785: (0.164) INSERT INTO `auth_permission` (`name`, `content_type_id`, `codename`) VALUES ('Can add category', 7, 'add_ffosappcategory'), ('Can change category', 7, 'change_ffosappcategory'), ('Can delete category', 7, 'delete_ffosappcategory'), ('Can add device type', 8, 'add_devicetype'), ('Can change device type', 8, 'change_devicetype'), ('Can delete device type', 8, 'delete_devicetype'), ('Can add app icon', 9, 'add_ffosappicon'), ('Can change app icon', 9, 'change_ffosappicon'), ('Can delete app icon', 9, 'delete_ffosappicon'), ('Can add region', 10, 'add_region'), ('Can change region', 10, 'change_region'), ('Can delete region', 10, 'delete_region'), ('Can add locale', 11, 'add_locale'), ('Can change locale', 11, 'change_locale'), ('Can delete locale', 11, 'delete_locale'), ('Can add preview', 12, 'add_preview'), ('Can change preview', 12, 'change_preview'), ('Can delete preview', 12, 'delete_preview'), ('Can add firefox os app', 13, 'add_ffosapp'), ('Can change firefox os app', 13, 'change_ffosapp'), ('Can delete firefox os app', 13, 'delete_ffosapp'), ('Can add firefox client', 14, 'add_ffosuser'), ('Can change firefox client', 14, 'change_ffosuser'), ('Can delete firefox client', 14, 'delete_ffosuser'), ('Can add installation', 15, 'add_installation'), ('Can change installation', 15, 'change_installation'), ('Can delete installation', 15, 'delete_installation'); args=(u'Can add category', 7, u'add_ffosappcategory', u'Can change category', 7, u'change_ffosappcategory', u'Can delete category', 7, u'delete_ffosappcategory', u'Can add device type', 8, u'add_devicetype', u'Can change device type', 8, u'change_devicetype', u'Can delete device type', 8, u'delete_devicetype', u'Can add app icon', 9, u'add_ffosappicon', u'Can change app icon', 9, u'change_ffosappicon', u'Can delete app icon', 9, u'delete_ffosappicon', u'Can add region', 10, u'add_region', u'Can change region', 10, u'change_region', u'Can delete region', 10, u'delete_region', u'Can add locale', 11, u'add_locale', u'Can change locale', 11, u'change_locale', u'Can delete locale', 11, u'delete_locale', u'Can add preview', 12, u'add_preview', u'Can change preview', 12, u'change_preview', u'Can delete preview', 12, u'delete_preview', u'Can add firefox os app', 13, u'add_ffosapp', u'Can change firefox os app', 13, u'change_ffosapp', u'Can delete firefox os app', 13, u'delete_ffosapp', u'Can add firefox client', 14, u'add_ffosuser', u'Can change firefox client', 14, u'change_ffosuser', u'Can delete firefox client', 14, u'delete_ffosuser', u'Can add installation', 15, u'add_installation', u'Can change installation', 15, u'change_installation', u'Can delete installation', 15, u'delete_installation')
+2013-12-13 16:14:56,269: (0.161) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE `django_content_type`.`app_label` = 'ffos'  ORDER BY `django_content_type`.`name` ASC; args=(u'ffos',)
+2013-12-13 16:14:56,431: (0.161) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE (`django_content_type`.`model` = 'factor'  AND `django_content_type`.`app_label` = 'recommender' ); args=('factor', u'recommender')
+2013-12-13 16:14:56,747: (0.158) INSERT INTO `django_content_type` (`name`, `app_label`, `model`) VALUES ('factor', 'recommender', 'factor'); args=[u'factor', u'recommender', 'factor']
+2013-12-13 16:14:57,224: (0.161) SELECT `auth_permission`.`content_type_id`, `auth_permission`.`codename` FROM `auth_permission` INNER JOIN `django_content_type` ON ( `auth_permission`.`content_type_id` = `django_content_type`.`id` ) WHERE `auth_permission`.`content_type_id` IN (16) ORDER BY `django_content_type`.`app_label` ASC, `django_content_type`.`model` ASC, `auth_permission`.`codename` ASC; args=(16,)
+2013-12-13 16:14:57,546: (0.160) INSERT INTO `auth_permission` (`name`, `content_type_id`, `codename`) VALUES ('Can add factor', 16, 'add_factor'), ('Can change factor', 16, 'change_factor'), ('Can delete factor', 16, 'delete_factor'); args=(u'Can add factor', 16, u'add_factor', u'Can change factor', 16, u'change_factor', u'Can delete factor', 16, u'delete_factor')
+2013-12-13 16:14:58,060: (0.161) SELECT `django_content_type`.`id`, `django_content_type`.`name`, `django_content_type`.`app_label`, `django_content_type`.`model` FROM `django_content_type` WHERE `django_content_type`.`app_label` = 'recommender'  ORDER BY `django_content_type`.`name` ASC; args=(u'recommender',)
+2013-12-13 16:14:58,566: (0.342) CREATE INDEX `django_admin_log_6340c63c` ON `django_admin_log` (`user_id`);; args=None
+2013-12-13 16:14:58,889: (0.323) CREATE INDEX `django_admin_log_37ef4eb4` ON `django_admin_log` (`content_type_id`);; args=None
+2013-12-13 16:14:59,561: (0.197) CREATE INDEX `auth_permission_37ef4eb4` ON `auth_permission` (`content_type_id`);; args=None
+2013-12-13 16:15:00,439: (0.407) CREATE INDEX `auth_group_permissions_5f412f9a` ON `auth_group_permissions` (`group_id`);; args=None
+2013-12-13 16:15:00,655: (0.215) CREATE INDEX `auth_group_permissions_83d7f98b` ON `auth_group_permissions` (`permission_id`);; args=None
+2013-12-13 16:15:01,514: (0.376) CREATE INDEX `auth_user_groups_6340c63c` ON `auth_user_groups` (`user_id`);; args=None
+2013-12-13 16:15:01,824: (0.310) CREATE INDEX `auth_user_groups_5f412f9a` ON `auth_user_groups` (`group_id`);; args=None
+2013-12-13 16:15:02,559: (0.258) CREATE INDEX `auth_user_user_permissions_6340c63c` ON `auth_user_user_permissions` (`user_id`);; args=None
+2013-12-13 16:15:02,780: (0.221) CREATE INDEX `auth_user_user_permissions_83d7f98b` ON `auth_user_user_permissions` (`permission_id`);; args=None
+2013-12-13 16:15:03,542: (0.290) CREATE INDEX `django_session_b7b81f0c` ON `django_session` (`expire_date`);; args=None
+2013-12-13 16:15:04,268: (0.254) CREATE INDEX `ffos_ffosapp_regions_7f57f2d1` ON `ffos_ffosapp_regions` (`ffosapp_id`);; args=None
+2013-12-13 16:15:04,517: (0.249) CREATE INDEX `ffos_ffosapp_regions_55a4ce96` ON `ffos_ffosapp_regions` (`region_id`);; args=None
+2013-12-13 16:15:05,324: (0.332) CREATE INDEX `ffos_ffosapp_supported_locales_7f57f2d1` ON `ffos_ffosapp_supported_locales` (`ffosapp_id`);; args=None
+2013-12-13 16:15:05,567: (0.243) CREATE INDEX `ffos_ffosapp_supported_locales_2e191ab0` ON `ffos_ffosapp_supported_locales` (`locale_id`);; args=None
+2013-12-13 16:15:06,261: (0.215) CREATE INDEX `ffos_ffosapp_previews_7f57f2d1` ON `ffos_ffosapp_previews` (`ffosapp_id`);; args=None
+2013-12-13 16:15:06,671: (0.410) CREATE INDEX `ffos_ffosapp_previews_02e44a7b` ON `ffos_ffosapp_previews` (`preview_id`);; args=None
+2013-12-13 16:15:07,582: (0.439) CREATE INDEX `ffos_ffosapp_categories_7f57f2d1` ON `ffos_ffosapp_categories` (`ffosapp_id`);; args=None
+2013-12-13 16:15:07,836: (0.253) CREATE INDEX `ffos_ffosapp_categories_5bd40631` ON `ffos_ffosapp_categories` (`ffosappcategory_id`);; args=None
+2013-12-13 16:15:08,932: (0.619) CREATE INDEX `ffos_ffosapp_device_types_7f57f2d1` ON `ffos_ffosapp_device_types` (`ffosapp_id`);; args=None
+2013-12-13 16:15:09,231: (0.298) CREATE INDEX `ffos_ffosapp_device_types_4ad84a8d` ON `ffos_ffosapp_device_types` (`devicetype_id`);; args=None
+2013-12-13 16:15:09,957: (0.254) CREATE INDEX `ffos_ffosapp_465cb59b` ON `ffos_ffosapp` (`icon_id`);; args=None
+2013-12-13 16:15:10,733: (0.305) CREATE INDEX `ffos_installation_6340c63c` ON `ffos_installation` (`user_id`);; args=None
+2013-12-13 16:15:10,966: (0.232) CREATE INDEX `ffos_installation_60fc113e` ON `ffos_installation` (`app_id`);; args=None
+2013-12-13 16:15:11,626: (0.157) SET foreign_key_checks=0; args=None
+2013-12-13 16:15:11,792: (0.164) SET foreign_key_checks=1; args=None
