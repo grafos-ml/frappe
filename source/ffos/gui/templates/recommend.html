@@ -45,6 +45,12 @@
 					<a href="#" class="thumbnail">
 						<img alt="Some Icone" src="{{ app.icon.size128 }}" >
 					</a>
+                    <p>{{ app.external_id }} {{ app.name }}</p>
+                    <p>
+                        {% for region in app.regions.all %}
+                            {{ region }}
+                        {% endfor %}
+                    </p>
 				</div>
                 {% endfor %}
 

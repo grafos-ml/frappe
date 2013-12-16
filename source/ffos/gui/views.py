@@ -6,15 +6,15 @@ Created on Dec 9, 2013
 '''
 
 from django.views.generic.base import View, TemplateResponseMixin
-from django.shortcuts import  Http404, render_to_response, get_object_or_404
+from django.shortcuts import render_to_response
 from ffos.models import FFOSUser, FFOSApp
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from ffos.recommender.controller import TestController
 from ffos.recommender.filters import RepetitionFilter, RandomReranker,\
-    RegionReranker
+    RegionReranker, LocaleFilter
 
 controller = TestController()
-controller.registerFilter(RepetitionFilter())
+controller.registerFilter(RepetitionFilter(),LocaleFilter())
 controller.registerReranker(RandomReranker(),RegionReranker())
 
 class Landing(View, TemplateResponseMixin):

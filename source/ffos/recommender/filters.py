@@ -10,7 +10,7 @@ Created on Nov 29, 2013
 
 import random
 from django.core.cache import cache
-from ffos.models import FFOSApp, Region
+from ffos.models import FFOSApp
 
 class Filter(object):
     '''
@@ -56,6 +56,24 @@ class RepetitionFilter(Filter):
 
         '''
         for app in user.installed_apps.all():
+            app_score[app.pk-1] = float('-inf')
+        return app_score
+
+class LocaleFilter(Filter):
+    '''
+    Remove the list scores if the apps doesn't exist in the user language
+    '''
+
+    def get_user_pref(self,user):
+        apps = cache.get('USER_LOCALE_%s' % user.external_id)
+        if apps == None:
+            apps = FFOSApp.objects.exclude(supported_locales__name=user.locale)\
+                .distinct()
+            cache.set('USER_LOCALE_%s' % user.external_id,apps)
+        return apps
+
+    def __call__(self,user,app_score):
+        for app in self.get_user_pref(user):
             app_score[app.pk-1] = float('-inf')
         return app_score
 

@@ -12,10 +12,10 @@ import logging
 
 from ffos.recommender.controller import TestController
 from ffos.recommender.filters import RepetitionFilter, RandomReranker,\
-    RegionReranker
+    RegionReranker, LocaleFilter
 
 controller = TestController()
-controller.registerFilter(RepetitionFilter())
+controller.registerFilter(RepetitionFilter(),LocaleFilter())
 controller.registerReranker(RandomReranker(),RegionReranker())
 
 class RecomenderAPI(View, TemplateResponseMixin):
