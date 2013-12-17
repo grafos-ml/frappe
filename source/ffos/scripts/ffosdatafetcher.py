@@ -26,8 +26,8 @@ OPTIONS::
 import os, sys, tarfile, urllib, shutil, logging
 
 sys.path.append(os.path.dirname(__file__)+'/../../')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'ffos.settings'
 from datetime import datetime
-from ffos.data import load_apps
 from ffos.util import parseDir
 from ffos.models import FFOSApp
 from crontab import CronTab
@@ -52,7 +52,7 @@ def download_files_app():
     tar = tarfile.open('tmp/app.tgz')
     tar.extractall(members=json_files(tar),path='tmp')
     tar.close()
-    return os.path.dirname(__file__)+'/tmp/apps'
+    return 'tmp/'
 
 def clean():
     '''

@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 '''
 Controller system that provides results
 

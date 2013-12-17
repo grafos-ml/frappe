@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 """
 Django settings for ffos project.
 
@@ -74,6 +75,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'raqksixq_ffosv1',
+        'CHARSET': 'utf8',
         'TEST_NAME': 'raqksixq_ffosv1test',
         'TEST_CHARSET': 'utf8',
         'USER': 'raqksixq_frappe',
@@ -108,7 +110,7 @@ from datetime import datetime
 
 FORMAT = '%(asctime)-15s: %(message)s'
 logging.basicConfig(format=FORMAT,level=logging.DEBUG if DEBUG else \
-logging.WARNING,filename=datetime.now().strftime('logs/%H:%M %d-%m-%Y.log')
+logging.WARNING,filename=datetime.now().strftime('logs/%d-%m-%Y %H:%M.log')
     if DEBUG else datetime.now().strftime('logs/%d-%m-%Y.log')
 )
 

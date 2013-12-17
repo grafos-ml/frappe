@@ -1,5 +1,6 @@
 django>=1.6
 numpy
+python-crontab>=1.6
 django-crontab
 nose
 django-nose
@@ -19,6 +20,5 @@ pyyaml
 sphinx
 
 #Not in pip. Has to be installed manually
-#crontab>=1.6
 #dateutil
 #mimeparse>=0.1.4

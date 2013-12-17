@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 '''
 Provide Cache for FireFox OS recommendation webservice
 
