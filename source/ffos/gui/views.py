@@ -7,8 +7,8 @@ Created on Dec 9, 2013
 
 from django.views.generic.base import View, TemplateResponseMixin
 from django.shortcuts import render_to_response
-from ffos.models import FFOSUser, FFOSApp
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from ffos.models import FFOSUser, FFOSApp
 from ffos.recommender.controller import TestController
 from ffos.recommender.filters import RepetitionFilter, RandomReranker,\
     RegionReranker, LocaleFilter
