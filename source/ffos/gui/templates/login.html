@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Login" %}{% endblock title %}
+
+{% block body %}
+			<div class="row">
+				<div class=".col-xs-12">
+                    <form role="form">
+                        {% cr
+                        <div class="form-group">
+                            <label for="username">{% trans "Username" %}</label>
+                            <input type="text" name="username" class="form-control" id="username" placeholder="Enter Username">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">{% trans "Password" %}</label>
+                            <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                        </div>
+                        <button type="submit" class="btn btn-default">{% trans "Submit" %}</button>
+                    </form>
+				</div>
+			</div>
+{% endblock body %}
