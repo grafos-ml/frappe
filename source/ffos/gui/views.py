@@ -6,7 +6,7 @@ Created on Dec 9, 2013
 '''
 
 from django.views.generic.base import View, TemplateResponseMixin
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, RequestContext
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from ffos.models import FFOSUser, FFOSApp
 from ffos.recommender.controller import TestController
@@ -57,8 +57,9 @@ class Landing(View, TemplateResponseMixin):
             else 0,2-p if p < 3 else 0
         min, max = p-(2+min) if p-(2+min) >= 0 else 0,p+3+max
         page_list = paginator.page_range[min:max]
-        return render_to_response(self.template_name, {"users": users,
-            'page_list': page_list})
+        context = RequestContext(request)
+        context.update({"users": users,'page_list': page_list})
+        return render_to_response(self.template_name, context)
 
 class Recommend(View, TemplateResponseMixin):
 
@@ -80,5 +81,6 @@ class Recommend(View, TemplateResponseMixin):
 
         '''
         rec = controller.get_recommendation(user=user,n=4)
-        return render_to_response(self.template_name, {"user": user,
-            'recommended': FFOSApp.objects.filter(pk__in=rec)})
+        context = RequestContext(request)
+        context.update({"ffosuser": user,'recommended': FFOSApp.objects.filter(pk__in=rec)})
+        return render_to_response(self.template_name, context)

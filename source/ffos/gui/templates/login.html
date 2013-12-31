@@ -5,9 +5,9 @@
 
 {% block body %}
 			<div class="row">
-				<div class=".col-xs-12">
-                    <form role="form">
-                        {% cr
+				<div class=".col-xs-6">
+                    <form role="form" method="POST">
+                        {% csrf_token %}
                         <div class="form-group">
                             <label for="username">{% trans "Username" %}</label>
                             <input type="text" name="username" class="form-control" id="username" placeholder="Enter Username">

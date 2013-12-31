@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% load i18n cache %}
 
-{% block title %}{% trans "Recommendation for" %} {{ user.external_id }}{% endblock title %}
+{% block title %}{% trans "Recommendation for" %} {{ ffosuser.external_id }}{% endblock title %}
 
 {% block body %}
-    {% cache 900 recommend_header user.external_id %}
+    {% cache 900 recommend_header ffosuser.external_id %}
 			<div class="row">
 				<div class=".col-xs-12">
 					<div class="bs-docs-section">
 						<div class="page-header">
 							<h3 id="overview">
-								{{ user.external_id }}
+								{{ ffosuser.external_id }}
 								<br />
-								<small>{{ user.locale }}</small>
+								<small>{{ ffosuser.locale }}</small>
 							</h3>
 						</div>
 					</div>
@@ -21,7 +21,7 @@
 			<div class="row">
 				<h4>{% trans "Installed Apps" %}</h4>
 				<hr>
-                {% for app in user.installed_apps.all %}
+                {% for app in ffosuser.installed_apps.all %}
 				<div class="col-sm-6 col-md-3">
 					<a href="#" class="thumbnail">
 						<img alt="Some Icone" src="{{ app.icon.size128 }}" >
@@ -55,7 +55,7 @@
                 {% endfor %}
 
 				<ul class="pager">
-					<li class="next"><a href="{% url 'recommendfor' user=user.external_id %}">More &rarr;</a></li>
+					<li class="next"><a href="{% url 'recommendfor' user=ffosuser.external_id %}">More &rarr;</a></li>
 				</ul>
 			</div>
 {% endblock body %}

@@ -1,0 +1,1 @@
+2013-12-31 11:17:17,616: (0.155) SELECT `django_session`.`session_key`, `django_session`.`session_data`, `django_session`.`expire_date` FROM `django_session` WHERE (`django_session`.`session_key` = 'fnfq5h84ydtmcq2ibwcgjkp2ed2r3o2t'  AND `django_session`.`expire_date` > '2013-12-31 11:17:17' ); args=('fnfq5h84ydtmcq2ibwcgjkp2ed2r3o2t', u'2013-12-31 11:17:17')
