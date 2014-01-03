@@ -11,7 +11,8 @@ Created on Nov 29, 2013
 
 import numpy
 from ffos.models import FFOSApp, FFOSUser
-from ffos.recommender.caches import CacheUser, CacheApp, CacheMatrix
+from ffos.recommender.caches import CacheUser, CacheMatrix
+from ffos.recommender.models import Factor
 import logging
 
 class InterfaceController(object):
@@ -151,7 +152,7 @@ class InterfaceController(object):
         *numpy.array*:
             An array with the app scores for that user
         '''
-        m = (u_matrix[user.pk] * a_matrix.transpose())
+        m = (u_matrix.transpose()[user.pk] * a_matrix)
         return numpy.array(m.tolist()[0])
 
     @CacheUser
@@ -198,18 +199,13 @@ class TestController(InterfaceController):
         '''
         Catch the user matrix from database
 
-        **Args**
-
-        user *str*:
-            User ID
-
         **Returns**
 
         *numpy.matrix*:
             The matrix of users.
         '''
-        return numpy.matrix(numpy.random.random(size=(
-            FFOSUser.objects.all().count(), 10)))
+        return numpy.matrix(numpy.random.random(size=(10,
+            FFOSUser.objects.all().count())))
 
     @CacheMatrix
     def get_apps_matrix(self):
@@ -221,6 +217,36 @@ class TestController(InterfaceController):
         *numpy.matrix*:
             The matrix of apps.
         '''
-        return numpy.matrix(numpy.random.random(size=(
-            FFOSApp.objects.all().count(), 10)))
+        return numpy.matrix(numpy.random.random(size=(10,
+            FFOSApp.objects.all().count())))
 
+class SimpleController(InterfaceController):
+    '''
+    Get the matrix from the Model
+    '''
+
+    @CacheMatrix
+    def get_user_matrix(self):
+        '''
+        Catch the user matrix from database
+
+        **Returns**
+
+        *numpy.matrix*:
+            The matrix of users.
+        '''
+        return Factor.objects.filter(dimension=0).order_by('-id')[0]\
+            .numpy_matrix
+
+    @CacheMatrix
+    def get_apps_matrix(self):
+        '''
+        Cathe matrix from model
+
+        **Returns**
+
+        *numpy.matrix*:
+            The matrix of apps.
+        '''
+        return Factor.objects.filter(dimension=1).order_by('-id')[0]\
+            .numpy_matrix

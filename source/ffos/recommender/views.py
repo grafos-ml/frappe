@@ -8,14 +8,13 @@ Created on Nov 28, 2013
 
 from django.views.generic.base import View, TemplateResponseMixin
 from ffos.util.views import JSONResponse
-from ffos.models import FFOSUser
 import logging
 
-from ffos.recommender.controller import TestController
+from ffos.recommender.controller import SimpleController
 from ffos.recommender.filters import RepetitionFilter, RandomReranker,\
     RegionReranker, LocaleFilter
 
-controller = TestController()
+controller = SimpleController()
 controller.registerFilter(RepetitionFilter(),LocaleFilter())
 controller.registerReranker(RandomReranker(),RegionReranker())
 

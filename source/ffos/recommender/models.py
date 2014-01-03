@@ -30,10 +30,10 @@ class Matrix(models.TextField):
     __metaclass__ = models.SubfieldBase
 
     def get_db_prep_save(self, value, connection):
-        return base64.decodestring(value)
+        return base64.encodestring(value)
 
     def to_python(self,value):
-        return base64.encodestring(value)
+        return base64.decodestring(value)
 
 class Factor(models.Model):
     '''
@@ -52,13 +52,14 @@ class Factor(models.Model):
         verbose_name_plural = _('factors')
 
     def __unicode__(self):
-        return _('factor of %(setup)s') % {'setup': self.setup}
+        return self.matrix
 
-    def get_numpy_matrix(self):
+    @property
+    def numpy_matrix(self):
         '''
         Shape the matrix in to whatever
         TODO
         '''
         matrix = numpy.frombuffer(self.matrix,dtype=numpy.float64)
-        matrix.shape = (self.rows,self.columns)
-        return matrix
+        matrix.shape = self.rows,self.columns
+        return numpy.matrix(matrix)

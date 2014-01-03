@@ -9,11 +9,11 @@ from django.views.generic.base import View, TemplateResponseMixin
 from django.shortcuts import render_to_response, RequestContext
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from ffos.models import FFOSUser, FFOSApp
-from ffos.recommender.controller import TestController
+from ffos.recommender.controller import SimpleController
 from ffos.recommender.filters import RepetitionFilter, RandomReranker,\
     RegionReranker, LocaleFilter
 
-controller = TestController()
+controller = SimpleController()
 controller.registerFilter(RepetitionFilter(),LocaleFilter())
 controller.registerReranker(RandomReranker(),RegionReranker())
 
