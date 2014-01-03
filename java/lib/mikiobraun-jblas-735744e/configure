@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ "$1" == "--keep-options" ]; then
+    shift
+else
+    echo $* >configure.options
+fi
+
+ruby config/configure.rb $*
+

@@ -1,0 +1,221 @@
+Release 1.2.3
+
+New features
+
+- LU decomposition for float
+- Least squares and Pseudo-inverse to Solve.
+- QR decomposition.
+- Removed dependency on external libgfortran for Windows.
+- Now also runs on CentOS and other Linux 2.6 distros out of the box.
+
+Removed features
+
+- Support for SSE2. I don't have access to such processors anymore. Sorry.
+
+Bug fixes
+
+- load and save didn't close the streams.
+- Bug in maxi and mini.
+- Recompiled on Linux 2.6.32 to resolve glibc version dependency
+  problems. Now also runs on centos.
+
+Release 1.2.2
+
+New features
+
+- full SVD for complex matrices
+- Added travis CI support on github
+- recompiled ATLAS for Linux, moved to 3.10.0, lapack 3.4.2
+- upload to central maven repo
+
+Bug fixes
+
+- More meaningful error messages for Linux/64 and Windows
+  when libraries are missing
+- SingularValueDecomposition for complex matrices used transpose()
+  instead of hermitian()
+
+Release 1.2.1
+
+Bug fixes and code side changes.
+
+- Fixed bugs with Range objects
+- Moved test code to JUnit 4.
+- Fixed configure script and code-generation to Ruby 1.9
+
+Release 1.2.0 - January 7, 2011
+
+- Added Generalized Eigenvalues for symmetric matrices (which you
+  need, for example, for Canoncial Correlation Analysis). See
+  org.jblas.Eigen.
+
+- Added pure-LAPACK build to Windows 64. Not as nearly as fast as
+  ATLAS, but still 50% over pure Java implementation (for example, for
+  DGEMM).
+
+- Changed build system to maven. Actually, the build.xml from the ant
+  file still exists and can also be used, but now you also have a
+  pom.xml.
+
+- As a side effect of the change to maven, test suites are now
+  actually run during the build ;)
+
+Some bugs:
+
+- Fortran functions returning floats (e.g. SDOT) returned 0.0. Fixed
+  now.
+
+- Bug in some complex numbers routines.
+
+---------------------------------------------------------------------
+
+Release 1.1.1
+
+Mostly bug fixes
+
+- remove spurious System.out.print in complex eigenvector routine.
+- fixed get with ranges
+- added some more variants of get with ranges
+- added more functions to complex data types (in particular sqrt())
+- added hermitian() to Complex matrices to compute conjugate transposes.
+
+----------------------------------------------------------------------
+
+Release 1.1 - August 16, 2010
+
+Added Singular Value Decomposition, some bugfixes
+
+- fixed bug with complex return values and gfortran vs. g77
+- added --ptatlas flag for compiling against multithreaded ATLAS
+- dropped support for 32bit Mac OS X
+
+The main reason for dropping support for 32bit Mac OS X was that
+the latest versions installs as 64bit by default, and the install
+for the 32bit macports gcc seem to be broken -> no way to compile it.
+
+----------------------------------------------------------------------
+
+Release 1.0.2 - February 26, 2010
+
+Mostly a bug-fix release for the build-process
+
+- fixed utf-8 unicode issues with javadoc
+- fixed issues with parallel make ("make -j3")
+- fixed issues with SSE2/SSE3 config code
+
+No changes to the libraries, you can keep on using the jar file for
+1.0.1.
+
+----------------------------------------------------------------------
+
+Release 1.0.1 - January 14, 2010
+
+Minor fixes, mostly to do with handling spaces in the configure
+scripts under windows, and running also on older processor which do
+not support SSE2 (older Athlon64 processors, for example).
+
+Changes from 1.0:
+
+- jar contains prebuilt ATLAS libraries for SSE2 and SSE3 and selects
+  based on what is supported.
+
+Still no support for 64bit for Windows, mostly because cygwin/mingw
+support for 64bit is quite experimental, and ATLAS doesn't support
+64bit builds under Windows. If you have managed to compile the thing,
+let me know ;)
+
+You can still use the 32bit version on a 64bit Windows, of course.
+
+----------------------------------------------------------------------
+
+Release 1.0 - December 22, 2009
+
+Leo (@thinkberg) conviced me to bump my version number to 1.0 because
+the software itself is stable, and I now cover all platforms I
+originally targeted.
+
+Changes from 0.3:
+
+- expm moved from DoubleMatrix to MatrixFunctions
+
+- Build for Mac OS X
+
+- configure script has been overhauled.
+
+- Matrix classes are now serializable.
+
+----------------------------------------------------------------------
+
+Release v0.3 - September 17, 2009
+
+Release v0.3 adds some features, in particular LU and Cholesky decomposition,
+matrix exponentials, and random permutations. 
+
+Still no Mac OS X support, though :(
+
+
+Changes from version v0.2:
+
+- jar file can now contain dynamic as well as static files
+
+- added LAPACK functions [sdcz]geev, [sd]getrf, [sd]potrf
+
+- Added interfaces ConvertsToDoubleMatrix and ConverstToFloatMatrix
+
+- Added class Decompose which provides LUDecomposition (based on getrf),
+  and Cholesky decomposition (based on potrf)
+
+- Matrix classes: 
+  - Added read-only AbstractList views for elements, rows, and 
+    columns for better interfacing with Java's collection API. 
+  - Added matrix exponentials based on Pade approximation provided 
+    by Jan Saptra Müller. These should be pretty fast!
+  - Added prod() which returns the product of all elements.
+  - Added project() which projects one vector on another.
+  - Added diviRowVector().
+  - Added loadCSVFile().
+
+- Added MatrixFunctions.min() and .max() for integers.
+
+- Added Permutations class for generating random permutations and
+  subsets based on the algorithms from Knuth's "The Art of Computer
+  Programming", Vol. 2.
+
+
+----------------------------------------------------------------------
+
+Release v0.2 - May 8, 2009
+
+Release v0.2 mostly adds features to the build process and renames some
+packages and classes to make the structure simpler. No new significant
+functionality has been added.
+
+Changes from version v0.1:
+
+- fixed a bug in DoubleMatrix.copy()
+- Renamed packages to make structure simpler
+
+  org.jblas.la -> org.jblas
+  org.jblas.la.exceptions -> org.jblas.exceptions
+  org.jblas.la.ranges -> org.jblas.ranges
+  org.jblas.core -> moved content to org.jblas and org.jblas.util
+
+- Renamed classes
+
+  Blas -> NativeBlas
+
+- Build process can now generate different kinds of jar files, and also
+  generate shared libraries which are statically linked against BLAS,
+  LAPACK or ATLAS. You can also generate a multiplatform jar file which
+  contains shared libraries for different platforms.
+
+- Generated wrapper code has been optimized a bit:
+
+  - in the lapack wrapper with automatic workspace allocation, only
+    small dummy arrays are passed in the workspace query, meaning that
+    the real arrays are only passed once, not twice.
+
+  - The wrapper now also parses information whether output variables
+    are input or output and releases the arrays with JNI_ABORT in case
+    they are not output variables. This should also reduce the amount
+    of copying.
