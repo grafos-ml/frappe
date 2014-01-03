@@ -59,92 +59,8 @@
 <h1>Data Models<a class="headerlink" href="#data-models" title="Permalink to this headline">¶</a></h1>
 <p>The FireFox OS Store Models for database connection. This first version
 as models for users, apps and every model to support it.</p>
-<div class="section" id="module-ffos.models">
-<span id="module"></span><h2>Module<a class="headerlink" href="#module-ffos.models" title="Permalink to this headline">¶</a></h2>
-<p>Created on Nov 21, 2013</p>
-<p>Django data models for FFOS Users and APPS.</p>
-<p>All the data structure is based in previous structures from the FRAPPE app. The
-original data was stored using MongoDB so is modeled in Json.</p>
-<dl class="class">
-<dt id="ffos.models.FFOSApp">
-<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSApp</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSApp" title="Permalink to this definition">¶</a></dt>
-<dd><p>FireFox OS App. It keeps the app data of a firefox os application. Some of
-the data types are not clear in the API so it may have to be changed in the
-future. So for many char fields I&#8217;m going to use 255 length. Linas said it
-was fine.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="ffos.models.FFOSAppCategory">
-<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSAppCategory</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSAppCategory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Category of a FireFox OS App. It only has a name.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="ffos.models.FFOSAppIcon">
-<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSAppIcon</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSAppIcon" title="Permalink to this definition">¶</a></dt>
-<dd><p>The FireFox App API is, in the moment that this is being developed and
-documented, using 4 sizes of icons. For beauty purposes I decided not to
-put the in the app model. Instead one model to keep the icons and an
-foreign key in the app.</p>
-<dl class="method">
-<dt id="ffos.models.FFOSAppIcon.__unicode__">
-<tt class="descname">__unicode__</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.models.FFOSAppIcon.__unicode__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the name of the app + the word icon</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="ffos.models.FFOSDeviceType">
-<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSDeviceType</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSDeviceType" title="Permalink to this definition">¶</a></dt>
-<dd><p>A FFOS Device type.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="ffos.models.FFOSUser">
-<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSUser</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSUser" title="Permalink to this definition">¶</a></dt>
-<dd><p>FireFox OS User/client. Is a model for FFOS experience information. Some id
-stamp and locale info mostly:</p>
-<div class="highlight-python"><pre>IMPORTANT: The unique internal id is standard SQL incremented ID. The
-implementation it depends on the DBMS type and settings. Maybe is a topic
-to discuss.</pre>
-</div>
-<dl class="method">
-<dt id="ffos.models.FFOSUser.__unicode__">
-<tt class="descname">__unicode__</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.models.FFOSUser.__unicode__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the word client followed by the client external id</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="ffos.models.Installation">
-<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">Installation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.Installation" title="Permalink to this definition">¶</a></dt>
-<dd><p>The connection between the user and the app. It has information about the
-user and the app such as installation date and eventually the date in which
-the app was removed.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="ffos.models.Locale">
-<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">Locale</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.Locale" title="Permalink to this definition">¶</a></dt>
-<dd><p>Locales to be assigned to the app support</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="ffos.models.Preview">
-<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">Preview</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.Preview" title="Permalink to this definition">¶</a></dt>
-<dd><p>Information about the app previews</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="ffos.models.Region">
-<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">Region</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.Region" title="Permalink to this definition">¶</a></dt>
-<dd><p>A region defined by the FireFox system for the mobile geo system. This is
-the geo information the app can give to the system.</p>
-</dd></dl>
-
+<div class="section" id="module">
+<h2>Module<a class="headerlink" href="#module" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -157,7 +73,7 @@ the geo information the app can give to the system.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Data Models</a><ul>
-<li><a class="reference internal" href="#module-ffos.models">Module</a></li>
+<li><a class="reference internal" href="#module">Module</a></li>
 </ul>
 </li>
 </ul>
