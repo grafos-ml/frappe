@@ -8,6 +8,6 @@ urlpatterns = patterns('',
     # url(r'^$', 'source.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^',include('ffos.gui.urls')),
-    #url(r'^api/recommendation/',include('ffos.recommender.urls')),
+    url(r'^api/recommendation/',include('ffos.recommender.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )

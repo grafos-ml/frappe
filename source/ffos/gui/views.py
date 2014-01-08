@@ -80,7 +80,8 @@ class Recommend(View, TemplateResponseMixin):
         '''
 
         '''
-        rec = controller.get_recommendation(user=user,n=4)
+        rec = controller.get_recommendation(user=user,n=80)
         context = RequestContext(request)
-        context.update({"ffosuser": user,'recommended': FFOSApp.objects.filter(pk__in=rec)})
+        context.update({"ffosuser": user,'recommended': FFOSApp.objects.filter(
+            pk__in=rec)})
         return render_to_response(self.template_name, context)
