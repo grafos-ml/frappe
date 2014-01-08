@@ -7,6 +7,7 @@ django-nose
 django-tastypie
 django-debug-toolbar
 mysql-python
+pytz # For timezone support
 
 #For xml API
 # Also have dependencies. Should do 'apt-get install libxml2-dev libxslt-dev'

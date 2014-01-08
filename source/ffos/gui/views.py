@@ -14,9 +14,14 @@ from ffos.recommender.filters import RepetitionFilter, RandomReranker,\
     RegionReranker, LocaleFilter
 
 controller = SimpleController()
-controller.registerFilter(RepetitionFilter(),LocaleFilter())
-controller.registerReranker(RandomReranker(),RegionReranker())
-
+controller.registerFilter(
+    RepetitionFilter(),
+    LocaleFilter()
+)
+controller.registerReranker(
+    RandomReranker()
+    ,RegionReranker()
+)
 class Landing(View, TemplateResponseMixin):
 
     template_name = "landing.html"
@@ -83,5 +88,5 @@ class Recommend(View, TemplateResponseMixin):
         rec = controller.get_recommendation(user=user,n=80)
         context = RequestContext(request)
         context.update({"ffosuser": user,'recommended': FFOSApp.objects.filter(
-            pk__in=rec)})
+            pk__in=rec).select_related()})
         return render_to_response(self.template_name, context)

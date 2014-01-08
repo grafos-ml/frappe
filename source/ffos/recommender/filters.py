@@ -107,3 +107,15 @@ class RandomReranker(Filter):
         for i in xrange(0,len(app_score)):
             app_score[i] *= random.uniform(1,1.2)
         return app_score
+
+class CategoryReranker(Filter):
+    '''
+    Category Reranker. It associates the user app category profile with app
+    categories.
+    '''
+
+    def __call__(self, user,app_score):
+        pass
+
+    def getUserProfile(self,user):
+        pass
