@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from ffos.models import FFOSUser, FFOSApp
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.filters import RepetitionFilter, RandomReranker,\
-    RegionReranker, LocaleFilter
+    RegionReranker, LocaleFilter, CategoryReranker
 
 controller = SimpleController()
 controller.registerFilter(
@@ -19,8 +19,9 @@ controller.registerFilter(
     LocaleFilter()
 )
 controller.registerReranker(
-    RandomReranker()
-    ,RegionReranker()
+    RandomReranker(),
+    RegionReranker(),
+    CategoryReranker()
 )
 class Landing(View, TemplateResponseMixin):
 

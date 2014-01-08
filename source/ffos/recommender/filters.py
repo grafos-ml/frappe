@@ -9,9 +9,11 @@ Created on Nov 29, 2013
 
 '''
 
-import random
+import random, numpy
+from collections import Counter
 from django.core.cache import cache
 from ffos.models import FFOSApp
+
 
 class Filter(object):
     '''
@@ -114,8 +116,70 @@ class CategoryReranker(Filter):
     categories.
     '''
 
-    def __call__(self, user,app_score):
-        pass
+    PART = 0.33
 
-    def getUserProfile(self,user):
-        pass
+    def __call__(self, user,app_score):
+        print type(app_score)
+        ucp = self.get_user_category_profile(user)
+        soma, prefs = 0, []
+        for cat, mass in ucp:
+            soma += int(mass*4)
+            prefs += [cat] * int(mass*4)
+            if soma > 4 / 2: break
+        sorted_tlist = sorted(enumerate(app_score),cmp=lambda x,y:
+            cmp(y[1],x[1]))
+        acd = self.get_apps_category_dict(sorted_tlist)
+        new = {}
+        for i, (appId, score) in enumerate(sorted_tlist[4-soma:4]):
+            sandl = sorted(acd[prefs[i]].items())
+            for s, l in sandl:
+                flag = False
+                for aid in l:
+                    if aid not in new:
+                        new[aid] = (s,score+1)
+                        flag = True
+                        break
+                if flag:
+                    break
+        for aid,(os,ns) in new.items():
+            sorted_tlist.remove((aid,os))
+            sorted_tlist.append((aid,ns))
+        return numpy.array([x[1] for x in sorted(sorted_tlist)])
+
+    def get_user_category_profile(self,user):
+        ucp = cache.get('USER_CATEGORY_PROFILE_%s' % user.external_id)
+        if ucp == None:
+            appn = user.installed_apps.all().count()
+            ucp = sorted([(key[0],float(value)/appn) for key, value in Counter(
+                user.installed_apps.values_list('categories__name')).items()],
+                cmp=lambda x,y: cmp(y[1],x[1]))
+            cache.set('USER_CATEGORY_PROFILE_%s' % user.external_id,ucp)
+        return ucp
+
+    def get_apps_category_dict(self,sorted_tlist):
+        '''
+
+        Requires sorted_tlist to be a tuple list sorted by the second element of
+        the tuple and the first element to be an app primary key
+
+        **Return**
+
+        *Dict*:
+            A dictionary with categories as keys and more dictionary in values.
+            The younger dictionarys keep the score for keys and app ids for
+            values. Each score can have more than one app associated.
+        '''
+        acd = cache.get('APP_CATEGORY_PROFILE')
+        if acd == None:
+            part = sorted_tlist[:int(len(sorted_tlist)*CategoryReranker.PART)]
+            rs = FFOSApp.objects.filter(id__in=map(lambda x: x[0],part))\
+                .values_list('id','categories__name')
+            acd = {}
+            smDict = {key: value for key, value in part}
+            for appID, cat in rs:
+                if cat not in acd:
+                    acd[cat] = {}
+                acd[cat][smDict[appID]] = acd[cat][smDict[appID]]+[appID] \
+                    if smDict[appID] in acd[cat] else [appID]
+            cache.set('APP_CATEGORY_PROFILE',acd)
+        return acd
