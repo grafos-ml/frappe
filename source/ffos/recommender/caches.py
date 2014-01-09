@@ -66,7 +66,8 @@ class CacheUser(CacheDecorator):
             if isinstance(u_id,basestring):
                 user = cache.get(CacheUser.USER % u_id)
                 if user == None:
-                    user = get_object_or_404(FFOSUser,external_id=u_id)
+                    user = get_object_or_404(FFOSUser.objects.select_related(),
+                        external_id=u_id)
                     cache.set(CacheUser.USER % u_id, user)
                 kwargs['user'] = user
             return f(*args,**kwargs)

@@ -1,1 +1,0 @@
-2013-12-20 18:30:58,375: (0.119) SELECT `django_session`.`session_key`, `django_session`.`session_data`, `django_session`.`expire_date` FROM `django_session` WHERE (`django_session`.`session_key` = 'qiz2kcjlhc2656qrc7tbleialyalfiuk'  AND `django_session`.`expire_date` > '2013-12-20 18:30:58' ); args=('qiz2kcjlhc2656qrc7tbleialyalfiuk', u'2013-12-20 18:30:58')

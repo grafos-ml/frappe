@@ -80,7 +80,13 @@ class LocaleFilter(Filter):
             app_score[app.pk-1] = float('-inf')
         return app_score
 
-class RegionReranker(Filter):
+class ReRanker(Filter):
+    '''
+    Reranker is like a filter but it assumes that the second parameter is a
+    sorted list with the app ID as values
+    '''
+
+class RegionReRanker(ReRanker):
     '''
     Region Filter
 
@@ -99,52 +105,45 @@ class RegionReranker(Filter):
 
 
     def __call__(self, user,app_score):
+        to_add = []
         for a in self.get_user_pref(user):
-            app_score[a.pk-1] /= 2
-        return app_score
+            app_score.remove(a.pk)
+            to_add.append(a.pk)
+        return app_score+to_add
 
-class RandomReranker(Filter):
-
-    def __call__(self, user,app_score):
-        for i in xrange(0,len(app_score)):
-            app_score[i] *= random.uniform(1,1.2)
-        return app_score
-
-class CategoryReranker(Filter):
+class CategoryReRanker(Filter):
     '''
     Category Reranker. It associates the user app category profile with app
     categories.
     '''
 
+    def __init__(self,n=4):
+        self.num_rec = n
+
     PART = 0.33
 
     def __call__(self, user,app_score):
-        print type(app_score)
+        tes = len(app_score)
         ucp = self.get_user_category_profile(user)
         soma, prefs = 0, []
         for cat, mass in ucp:
-            soma += int(mass*4)
-            prefs += [cat] * int(mass*4)
-            if soma > 4 / 2: break
-        sorted_tlist = sorted(enumerate(app_score),cmp=lambda x,y:
-            cmp(y[1],x[1]))
-        acd = self.get_apps_category_dict(sorted_tlist)
-        new = {}
-        for i, (appId, score) in enumerate(sorted_tlist[4-soma:4]):
-            sandl = sorted(acd[prefs[i]].items())
-            for s, l in sandl:
-                flag = False
-                for aid in l:
-                    if aid not in new:
-                        new[aid] = (s,score+1)
-                        flag = True
-                        break
-                if flag:
+            soma += int(mass*self.num_rec)
+            prefs += [cat] * int(mass*self.num_rec)
+            if soma > self.num_rec / 3: break
+        acd = self.get_apps_category_dict(app_score)
+        toadd = []
+        for cat in prefs:
+            for aid in acd[cat]:
+                if aid not in toadd:
+                    toadd.append(aid)
                     break
-        for aid,(os,ns) in new.items():
-            sorted_tlist.remove((aid,os))
-            sorted_tlist.append((aid,ns))
-        return numpy.array([x[1] for x in sorted(sorted_tlist)])
+        for i in toadd:
+            app_score.remove(i)
+        i = self.num_rec - len(toadd)
+        if len(app_score[:i]+toadd+app_score[i:]) != tes:
+            from django.shortcuts import Http404
+            raise Http404
+        return app_score[:i]+toadd+app_score[i:]
 
     def get_user_category_profile(self,user):
         ucp = cache.get('USER_CATEGORY_PROFILE_%s' % user.external_id)
@@ -165,21 +164,15 @@ class CategoryReranker(Filter):
         **Return**
 
         *Dict*:
-            A dictionary with categories as keys and more dictionary in values.
-            The younger dictionarys keep the score for keys and app ids for
-            values. Each score can have more than one app associated.
+            A dictionary with categories as keys and a list of app ids.
         '''
         acd = cache.get('APP_CATEGORY_PROFILE')
         if acd == None:
-            part = sorted_tlist[:int(len(sorted_tlist)*CategoryReranker.PART)]
-            rs = FFOSApp.objects.filter(id__in=map(lambda x: x[0],part))\
-                .values_list('id','categories__name')
+            part = sorted_tlist[:int(len(sorted_tlist)*CategoryReRanker.PART)]
+            rs = FFOSApp.objects.filter(id__in=part).values_list('id',
+                'categories__name')
             acd = {}
-            smDict = {key: value for key, value in part}
             for appID, cat in rs:
-                if cat not in acd:
-                    acd[cat] = {}
-                acd[cat][smDict[appID]] = acd[cat][smDict[appID]]+[appID] \
-                    if smDict[appID] in acd[cat] else [appID]
+                acd[cat] = [] if cat not in acd else acd[cat]+[appID]
             cache.set('APP_CATEGORY_PROFILE',acd)
         return acd

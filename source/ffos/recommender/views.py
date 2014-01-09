@@ -11,13 +11,18 @@ from ffos.util.views import JSONResponse
 import logging
 
 from ffos.recommender.controller import SimpleController
-from ffos.recommender.filters import RepetitionFilter, RandomReranker,\
-    RegionReranker, LocaleFilter
+from ffos.recommender.filters import RepetitionFilter, RegionReRanker, \
+    LocaleFilter, CategoryReRanker
 
 controller = SimpleController()
-controller.registerFilter(RepetitionFilter(),LocaleFilter())
-controller.registerReranker(RandomReranker(),RegionReranker())
-
+controller.registerFilter(
+    RepetitionFilter(),
+    LocaleFilter()
+)
+controller.registerReranker(
+    RegionReRanker(),
+    CategoryReRanker()
+)
 class RecomenderAPI(View, TemplateResponseMixin):
 
 #    template_name = "SomeTemplate.html"

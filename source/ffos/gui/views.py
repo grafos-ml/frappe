@@ -10,8 +10,8 @@ from django.shortcuts import render_to_response, RequestContext
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from ffos.models import FFOSUser, FFOSApp
 from ffos.recommender.controller import SimpleController
-from ffos.recommender.filters import RepetitionFilter, RandomReranker,\
-    RegionReranker, LocaleFilter, CategoryReranker
+from ffos.recommender.filters import RepetitionFilter, RegionReRanker, \
+    LocaleFilter, CategoryReRanker
 
 controller = SimpleController()
 controller.registerFilter(
@@ -19,9 +19,8 @@ controller.registerFilter(
     LocaleFilter()
 )
 controller.registerReranker(
-    RandomReranker(),
-    RegionReranker(),
-    CategoryReranker()
+    RegionReRanker(),
+    CategoryReRanker()
 )
 class Landing(View, TemplateResponseMixin):
 
