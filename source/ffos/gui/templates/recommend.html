@@ -22,7 +22,7 @@
 				<h4>{% trans "Installed Apps" %}</h4>
 				<hr>
                 <div id="installedApps" class="col-xs-12 col-dm-12">
-                {% for app in ffosuser.installed_apps.all %}
+                {% for app in ffosuser.installed_apps.all.select_related %}
                     <div class="col-sm-6 col-md-3">
                         <a href="#" class="thumbnail">
                             <img alt="Some Icone" src="{{ app.icon.size128 }}" >
@@ -104,20 +104,18 @@
 				<h4>{% trans "Recomendations" %}</h4>
 				<hr>
                 <div id="recommendedApps" class="col-xs-12">
-                {% for app in recommended %}
-                    {% cache 900 recommender_thumblenail app.external_id %}
+                {% for app, regions in recommended %}
                     <div class="col-sm-6 col-md-3">
                         <a href="#" class="thumbnail">
                             <img alt="Some Icone" src="{{ app.icon.size128 }}" >
                         </a>
-                        <p>{{ app.external_id }} {{ app.name }}</p>
+                        <p>{{app.pk}} {{ app.external_id }} {{ app.name }}</p>
                         <p>
-                            {% for region in app.regions.all %}
+                            {% for region in regions %}
                                 {{ region }}
                             {% endfor %}
                         </p>
                     </div>
-                    {% endcache %}
                 {% endfor %}
                 </div>
                 <div class="col-xs-12 pull-left">

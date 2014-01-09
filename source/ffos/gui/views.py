@@ -20,7 +20,7 @@ controller.registerFilter(
 )
 controller.registerReranker(
     RegionReRanker(),
-    CategoryReRanker()
+    CategoryReRanker(n=12)
 )
 class Landing(View, TemplateResponseMixin):
 
@@ -49,7 +49,7 @@ class Landing(View, TemplateResponseMixin):
         page = int(page)
         p = page-1
         users_list = FFOSUser.objects.all()
-        paginator = Paginator(users_list, 15) # Show 10 users per page
+        paginator = Paginator(users_list, 15) # Show 15 users per page
         try:
             users = paginator.page(page)
         except PageNotAnInteger:
@@ -87,6 +87,12 @@ class Recommend(View, TemplateResponseMixin):
         '''
         rec = controller.get_recommendation(user=user,n=80)
         context = RequestContext(request)
-        context.update({"ffosuser": user,'recommended': FFOSApp.objects.filter(
-            pk__in=rec).select_related()})
+        apps = {o.pk: o for o in FFOSApp.objects.filter(pk__in=rec)
+            .select_related()}
+        reg, regions = {}, FFOSApp.objects.filter(pk__in=rec).values_list(
+            'pk', 'regions__name')
+        for pk, name in regions:
+            reg[pk] = reg[pk]+[name] if pk in reg else [name]
+        context.update({"ffosuser": user,'recommended': [(apps[i],reg[i])
+            for i in rec]})
         return render_to_response(self.template_name, context)
