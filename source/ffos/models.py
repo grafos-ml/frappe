@@ -517,9 +517,9 @@ class FFOSApp(models.Model):
             for i in FFOSAppIcon.objects.all()}
 
         logging.info('Loading apps')
-        already_in_db = map(lambda x: x['external_id'],
-            FFOSApp.objects.filter(external_id__in=[app[0]['id'] \
-            for app in apps]).values('external_id'))
+        already_in_db = [x['external_id'] for x in FFOSApp.objects
+            .filter(external_id__in=[app[0]['id'] for app in apps])
+            .values('external_id')]
         try:
             FFOSApp.objects.bulk_create([FFOSApp(
                 premium_type = app['premium_type'],
@@ -564,7 +564,7 @@ class FFOSApp(models.Model):
         # Load all apps to cach. Yet to be improved
         #apps = {a['id']: a for a in zip(*apps)[0]}
         _apps, _icons, _cat, _dt, _reg, _loc, _prev = zip(*apps)
-        apps = dict(map(lambda x: (int(x['id']),x),_apps))
+        apps = {int(x['id']):x for x in _apps}
         for a in FFOSApp.objects.filter(external_id__in=apps.keys()):
             apps[a.external_id] = apps[a.external_id], a
 
@@ -572,41 +572,37 @@ class FFOSApp(models.Model):
         FFOSAppCategory.objects.bulk_create(FFOSAppCategory.new_to_add())
 
         # Cache all the categories for relation with app. (Yet to be improved)
-        categories = dict(map(lambda x: (FFOSAppCategory.identify_obj(x), x),
-            FFOSAppCategory.objects.filter(name__in=map(lambda x: x.name,
-            itertools.chain(*_cat)))))
+        categories = {FFOSAppCategory.identify_obj(x): x
+            for x in FFOSAppCategory.objects.filter(name__in=[x.name
+            for x in itertools.chain(*_cat)])}
 
         logging.info('Loading device types')
         DeviceType.objects.bulk_create(DeviceType.new_to_add())
 
         # Cache all the devices for relation with app. (Yet to be improved)
-        device_type = dict(map(lambda x: (DeviceType.identify_obj(x), x),
-            DeviceType.objects.filter(name__in=map(lambda x: x.name,
-            itertools.chain(*_dt)))))
+        device_type = {DeviceType.identify_obj(x): x for x in DeviceType
+            .objects.filter(name__in=[x.name for x in itertools.chain(*_dt)])}
 
         logging.info('Loading regions')
         Region.objects.bulk_create(Region.new_to_add())
 
         # Cache all the regions for relation with app. (Yet to be improved)
-        regions = dict(map(lambda x: (Region.identify_obj(x), x),
-            Region.objects.filter(name__in=map(lambda x: x.name,
-            itertools.chain(*_reg)))))
+        regions = {Region.identify_obj(x): x for x in Region.objects.filter(
+            name__in=[x.name for x in itertools.chain(*_reg)])}
 
         logging.info('Loading locales')
         Locale.objects.bulk_create(Locale.new_to_add())
 
         # Cache all the locales for relation with app. (Yet to be improved)
-        locales = dict(map(lambda x: (Locale.identify_obj(x), x),
-            Locale.objects.filter(name__in=map(lambda x: x.name,
-            itertools.chain(*_loc)))))
+        locales = {Locale.identify_obj(x): x for x in Locale.objects.filter(
+            name__in=[x.name for x in itertools.chain(*_loc)])}
 
         logging.info('Loading previews')
         Preview.objects.bulk_create(Preview.new_to_add())
 
         # Cache all the previews for relation with app. (Yet to be improved)
-        previews = dict(map(lambda x: (Preview.identify_obj(x),x),
-            Preview.objects.filter(external_id__in=map(lambda x: x.external_id,
-                itertools.chain(*_prev)))))
+        previews = {Preview.identify_obj(x): x for x in Preview.objects.filter(
+            external_id__in=[x.external_id for x in itertools.chain(*_prev)])}
 
         # Starting to build a raw query for many to many bulk insertion
 
@@ -732,13 +728,12 @@ class FFOSUser(models.Model):
         '''
         logging.info('Preparing user data')
         new_users, apps, install = [], set([]), []
-        old_users = map(lambda x: x['external_id'],FFOSUser.objects.filter(
-            external_id__in=map(lambda x: x['user'], users))\
-            .values('external_id'))
+        old_users = [x['external_id'] for x in FFOSUser.objects.filter(
+            external_id__in=[x['user'] for x in users]).values('external_id')]
         for user in users:
             if user['user'] not in old_users:
-                new_users.append(FFOSUser(locale=user['lang'],region=user['region'],
-                    external_id=user['user']))
+                new_users.append(FFOSUser(locale=user['lang'],
+                    region=user['region'],external_id=user['user']))
             for app in user['installed_apps']:
                 apps.add(app['id'])
                 install.append((user['user'],app['id'],
@@ -751,7 +746,7 @@ class FFOSUser(models.Model):
             logging.info('Already in the database')
 
         users = {u['external_id']: u['pk'] for u in FFOSUser.objects.filter(
-            external_id__in=map(lambda x: x['user'],users)).values('pk',
+            external_id__in=[x['user'] for x in users]).values('pk',
                 'external_id')}
         apps = {a['external_id']: a['pk'] for a in FFOSApp.objects.filter(
             external_id__in=apps).values('pk','external_id')}

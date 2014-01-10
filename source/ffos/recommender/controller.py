@@ -179,7 +179,7 @@ class InterfaceController(object):
         for _filter in self.filters:
             result = _filter(user=user,app_score=result)
         logging.debug('Filters finished')
-        result = [aid for aid, _ in sorted(enumerate(result.tolist()),
+        result = [aid+1 for aid, _ in sorted(enumerate(result.tolist()),
             cmp=lambda x,y:cmp(y[1],x[1]))]
         for _reranker in self.rerankers:
             result = _reranker(user=user,app_score=result)

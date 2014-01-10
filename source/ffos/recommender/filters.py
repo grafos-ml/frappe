@@ -111,7 +111,7 @@ class RegionReRanker(ReRanker):
             to_add.append(a.pk)
         return app_score+to_add
 
-class CategoryReRanker(Filter):
+class CategoryReRanker(ReRanker):
     '''
     Category Reranker. It associates the user app category profile with app
     categories.
@@ -124,14 +124,12 @@ class CategoryReRanker(Filter):
 
     def __call__(self, user,app_score):
         #tes = len(app_score)
-        print app_score[:10]
         ucp = self.get_user_category_profile(user)
         soma, prefs = 0, []
         for cat, mass in ucp:
             soma += int(mass*self.num_rec)
             prefs += [cat] * int(mass*self.num_rec)
             if soma > self.num_rec / 2.0: break
-        print prefs
         acd = self.get_apps_category_dict(app_score)
         toadd = []
         for cat in prefs:
@@ -145,9 +143,6 @@ class CategoryReRanker(Filter):
         #if len(app_score[:i]+toadd+app_score[i:]) != tes:
         #    from django.shortcuts import Http404
         #    raise Http404
-        print i
-        print app_score[:10]
-        print (app_score[:i]+toadd+app_score[i:])[:10]
         return app_score[:i]+toadd+app_score[i:]
 
     def get_user_category_profile(self,user):

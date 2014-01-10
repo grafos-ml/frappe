@@ -39,11 +39,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_nose',
 # Tastypie looks like a very good rest api framework, but for now just simple views
-#    'tastypie',
+    'tastypie',
     'ffos',
     'ffos.recommender',
+    'ffos.gui',
     'debug_toolbar',
-    'ffos.gui'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -80,7 +80,7 @@ DATABASES = {
         'TEST_CHARSET': 'utf8',
         'USER': 'raqksixq_frappe',
         'PASSWORD': 'sp21o61h4',
-        'HOST': 'joaonrb.net',
+        'HOST': '192.168.188.128',
     }
 }
 
