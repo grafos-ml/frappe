@@ -50,7 +50,8 @@ class RecomenderAPI(View, TemplateResponseMixin):
         logging.info('starting')
         user = request.GET.get('user',None)
         number = request.GET.get('n',None)
-        result = controller.get_recommendation(user=user,n=int(number))
+        result = controller.get_external_id_recommendations(
+            user=user,n=int(number))
         logging.info('finished')
         return JSONResponse(result)
 
