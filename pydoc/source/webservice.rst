@@ -1,4 +1,4 @@
-App Recommendation Webservice
+App Recommendation Webservice Version 1.0
 =============================
 
 About

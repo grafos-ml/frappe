@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>App Recommendation Webservice Version 1.0 &mdash; FireFox OS Store 1.0 documentation</title>
+    <title>App Recommendation Webservice Version 1.1 &mdash; FireFox OS Store 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -23,9 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" />
-    <link rel="next" title="App Recommendation Webservice Version 1.1" href="webservice.v1.html" />
-    <link rel="prev" title="ffos.nosetest package" href="ffos.nosetest.html" /> 
+    <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,12 +35,6 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="webservice.v1.html" title="App Recommendation Webservice Version 1.1"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="ffos.nosetest.html" title="ffos.nosetest package"
-             accesskey="P">previous</a> |</li>
         <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -52,8 +44,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="app-recommendation-webservice-version-1-0">
-<h1>App Recommendation Webservice Version 1.0<a class="headerlink" href="#app-recommendation-webservice-version-1-0" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="app-recommendation-webservice-version-1-1">
+<h1>App Recommendation Webservice Version 1.1<a class="headerlink" href="#app-recommendation-webservice-version-1-1" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="about">
 <h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
 <p>FireFox OS Store Recommendation webservice is a way to get apps recommendations
@@ -61,8 +53,12 @@ considering some user experience. The system is simple, the user send some data
 its experience and receive a set of recommended apps to his profile. This
 experience can be apps already installed, apps rejected, user location, time,
 season, etc...</p>
-<p>For the first implementation its something simple , just installed apps and few
-more.</p>
+<p>This new version has little difference from his previous one. Mainly now you can
+use a bunch of formats for response. JSON is maintained as the default but you
+always get XML and YAML. HTML format and other just depend on plugins. I will
+research witch may needed an write them on the requirements.txt on the repo.
+In the back-end there was a huge change. All the ReST API system was imported to
+TastyPie Framework. That&#8217;s way so many things are possible now.</p>
 </div>
 <div class="section" id="recommendation-api">
 <h2>Recommendation API<a class="headerlink" href="#recommendation-api" title="Permalink to this headline">¶</a></h2>
@@ -133,10 +129,13 @@ type described in this table.</td>
 </div>
 <div class="section" id="request-recommendations">
 <h2>Request Recommendations<a class="headerlink" href="#request-recommendations" title="Permalink to this headline">¶</a></h2>
-<p>The request recommendation method work over ReST request in a JSON. The
-response come as a JSON list of app IDS.</p>
+<p>The request recommendation method work over ReST request in a JSON, XML or YAML.
+The response come as has a list of app IDS.</p>
 <div class="section" id="get-request">
 <h3>GET Request<a class="headerlink" href="#get-request" title="Permalink to this headline">¶</a></h3>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><pre>http://domain.com/api/v1/recommendation/&lt;external_id&gt;_&lt;recommendation_number&gt;.&lt;format&gt;</pre>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="22%" />
@@ -154,18 +153,32 @@ response come as a JSON list of app IDS.</p>
 <td>Object</td>
 <td>User information.</td>
 </tr>
-<tr class="row-odd"><td>Request.user</td>
-<td>Number</td>
+<tr class="row-odd"><td><dl class="first last docutils">
+<dt>Request.</dt>
+<dd>external_id</dd>
+</dl>
+</td>
+<td>String</td>
 <td>Identifier number for the user.</td>
 </tr>
-<tr class="row-even"><td>Request.n</td>
+<tr class="row-even"><td><dl class="first last docutils">
+<dt>Request.</dt>
+<dd>recommendation
+_number</dd>
+</dl>
+</td>
 <td>Number</td>
 <td>Number of recommendation you want.</td>
+</tr>
+<tr class="row-odd"><td>Request.format</td>
+<td>String</td>
+<td>The format of the response (json, xml or
+yaml.</td>
 </tr>
 </tbody>
 </table>
 <p>Example:</p>
-<div class="highlight-python"><pre>http://domain.com/api/recommendation/?user=12345&amp;n=10</pre>
+<div class="highlight-python"><pre>http://domain.com/api/v1/recommendation/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173_120.xml</pre>
 </div>
 </div>
 <div class="section" id="get-response">
@@ -184,6 +197,14 @@ response come as a JSON list of app IDS.</p>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>Response</td>
+<td>Object</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>external_id</td>
+<td>String</td>
+<td>The identifier of the user</td>
+</tr>
+<tr class="row-even"><td>recommendations</td>
 <td>List&lt;Number&gt;</td>
 <td>A list with suggested apps ids.</td>
 </tr>
@@ -191,7 +212,16 @@ response come as a JSON list of app IDS.</p>
 </table>
 <p>Example:</p>
 <div class="highlight-python"><pre>Response:
-    [334644,000002,576868,775332,244250,218923,534475]</pre>
+    &lt;object&gt;
+        &lt;external_id&gt;
+            006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173
+        &lt;/external_id&gt;
+        &lt;recommendations type="list"&gt;
+            &lt;value type="integer"&gt;371208&lt;/value&gt;
+            ...
+            &lt;value type="integer"&gt;372579&lt;/value&gt;
+        &lt;/recommendations&gt;
+    &lt;/object&gt;</pre>
 </div>
 </div>
 </div>
@@ -205,7 +235,7 @@ response come as a JSON list of app IDS.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">App Recommendation Webservice Version 1.0</a><ul>
+<li><a class="reference internal" href="#">App Recommendation Webservice Version 1.1</a><ul>
 <li><a class="reference internal" href="#about">About</a></li>
 <li><a class="reference internal" href="#recommendation-api">Recommendation API</a></li>
 <li><a class="reference internal" href="#data-types">Data Types</a></li>
@@ -218,15 +248,9 @@ response come as a JSON list of app IDS.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="ffos.nosetest.html"
-                        title="previous chapter">ffos.nosetest package</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="webservice.v1.html"
-                        title="next chapter">App Recommendation Webservice Version 1.1</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/webservice.txt"
+    <li><a href="_sources/webservice.v1.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -255,12 +279,6 @@ response come as a JSON list of app IDS.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="webservice.v1.html" title="App Recommendation Webservice Version 1.1"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="ffos.nosetest.html" title="ffos.nosetest package"
-             >previous</a> |</li>
         <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>

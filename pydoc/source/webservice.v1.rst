@@ -1,4 +1,4 @@
-App Recommendation Webservice Version 1.0
+App Recommendation Webservice Version 1.1
 =============================
 
 About
@@ -10,8 +10,12 @@ its experience and receive a set of recommended apps to his profile. This
 experience can be apps already installed, apps rejected, user location, time,
 season, etc...
 
-For the first implementation its something simple , just installed apps and few
-more.
+This new version has little difference from his previous one. Mainly now you can
+use a bunch of formats for response. JSON is maintained as the default but you
+always get XML and YAML. HTML format and other just depend on plugins. I will
+research witch may needed an write them on the requirements.txt on the repo.
+In the back-end there was a huge change. All the ReST API system was imported to
+TastyPie Framework. That's way so many things are possible now.
 
 Recommendation API
 ------------------
@@ -79,12 +83,17 @@ following table.
 Request Recommendations
 -----------------------
 
-The request recommendation method work over ReST request in a JSON. The
-response come as a JSON list of app IDS.
+The request recommendation method work over ReST request in a JSON, XML or YAML.
+The response come as has a list of app IDS.
 
 
 GET Request
 +++++++++++
+
+*URL*::
+
+    http://domain.com/api/v1/recommendation/<external_id>_<recommendation_number>.<format>
+
 
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
@@ -96,17 +105,25 @@ GET Request
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
-| Request.user   | Number        | Identifier number for the user.           |
+| Request.       | String        | Identifier number for the user.           |
+|  external_id   |               |                                           |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
-| Request.n      | Number        | Number of recommendation you want.        |
+| Request.       | Number        | Number of recommendation you want.        |
+|  recommendation|               |                                           |
+|  _number       |               |                                           |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Request.format | String        | The format of the response (json, xml or  |
+|                |               | yaml.                                     |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 
 Example::
 
-    http://domain.com/api/recommendation/?user=12345&n=10
+    http://domain.com/api/v1/recommendation/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173_120.xml
 
 GET Response
 ++++++++++++
@@ -117,12 +134,29 @@ GET Response
 |                |               |                                           |
 +================+===============+===========================================+
 |                |               |                                           |
-| Response       | List<Number>  | A list with suggested apps ids.           |
+| Response       | Object        |                                           |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| external_id    | String        | The identifier of the user                |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| recommendations| List<Number>  | A list with suggested apps ids.           |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 
 Example::
 
     Response:
-        [334644,000002,576868,775332,244250,218923,534475]
+        <object>
+            <external_id>
+                006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173
+            </external_id>
+            <recommendations type="list">
+                <value type="integer">371208</value>
+                ...
+                <value type="integer">372579</value>
+            </recommendations>
+        </object>
 
