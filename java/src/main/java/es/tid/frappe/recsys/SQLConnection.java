@@ -7,8 +7,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Abstract class to manage SQL connection more easily.
@@ -116,10 +114,14 @@ public abstract class SQLConnection {
      */
     public ResultSet executeQuery(String query) throws SQLException {
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(SQLConnection.class.getName()).log(Level.SEVERE, null, ex);
-        }
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
         //System.out.println(this.getUrl());
         if(this.connection == null)
             this.connection = DriverManager.getConnection(this.getUrl(),
@@ -141,11 +143,14 @@ public abstract class SQLConnection {
      */
     public boolean executeUpdate(String query) throws SQLException {
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(SQLConnection.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        //System.out.println(this.getUrl());
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
         if(this.connection == null)
             this.connection = DriverManager.getConnection(this.getUrl(),
                     this.user,this.password);

@@ -44,7 +44,7 @@ public class MySQLDataReader extends SQLConnection implements DataReader {
     @Override
     public FloatMatrix getData() {
         ResultSet rs;
-        List<float[]> fs = new ArrayList<>();
+        List<float[]> fs = new ArrayList<float[]>();
         //FloatMatrix ctxt_data = new FloatMatrix();
         try {
             rs = this.executeQuery("SELECT * FROM ffos_installation " +

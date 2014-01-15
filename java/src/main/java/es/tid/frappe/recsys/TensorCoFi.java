@@ -30,8 +30,8 @@ public class TensorCoFi implements Predictor {
         this.lambda = lambda;
         this.iter = iter;
 
-        this.Factors = new ArrayList<>();
-        this.Counts = new ArrayList<>();
+        this.Factors = new ArrayList<FloatMatrix>();
+        this.Counts = new ArrayList<FloatMatrix>();
         this.p = p;
 
         for (int i = 0; i < this.dimensions.length; i++) {
@@ -61,7 +61,7 @@ public class TensorCoFi implements Predictor {
         FloatMatrix one = FloatMatrix.eye(this.d);
         FloatMatrix invertible = FloatMatrix.zeros(this.d, this.d);
         FloatMatrix base = FloatMatrix.ones(this.d, this.d);
-        List<Map<Integer, List<Integer>>> tensor = new ArrayList<>();
+        List<Map<Integer, List<Integer>>> tensor = new ArrayList<Map<Integer, List<Integer>>>();
 //        ArrayList<Integer> tmp = new ArrayList<Integer>();
         
         List<Integer> dataRowList;

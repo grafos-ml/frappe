@@ -19,8 +19,8 @@ import org.jblas.FloatMatrix;
 public class ModelBuilder {
 
     DataReader reader;
-    Map<String, DataWriter> writers = new HashMap<>();
-    Map<String, Predictor> predictors= new HashMap<>();
+    Map<String, DataWriter> writers = new HashMap<String, DataWriter>();
+    Map<String, Predictor> predictors= new HashMap<String, Predictor>();
 
     public DataReader getReader() {
         return reader;
