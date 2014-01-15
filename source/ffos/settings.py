@@ -80,7 +80,6 @@ DATABASES = {
         'TEST_CHARSET': 'utf8',
         'USER': 'raqksixq_frappe',
         'PASSWORD': 'sp21o61h4',
-        'HOST': '192.168.188.128',
     }
 }
 
