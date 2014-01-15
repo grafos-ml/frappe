@@ -1,0 +1,5 @@
+Database
+
+In order to the tests and all the system to work well is best to the database to
+work with utf-8 coding. If not, some data characters may fail in the db
+insertion.

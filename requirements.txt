@@ -1,0 +1,25 @@
+django>=1.6
+numpy
+python-crontab>=1.6
+django-crontab
+nose
+django-nose
+django-tastypie
+django-debug-toolbar
+mysql-python
+pytz # For timezone support
+
+#For xml API
+# Also have dependencies. Should do 'apt-get install libxml2-dev libxslt-dev'
+lxml
+defusedxml
+
+# For yalm API
+pyyaml
+
+#For documentation rendering
+sphinx
+
+#Not in pip. Has to be installed manually
+#dateutil
+#mimeparse>=0.1.4
