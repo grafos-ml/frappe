@@ -50,8 +50,8 @@ class RecommendationResource(ModelResource):
 
     def prepend_urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/(?P<external_id>\w[\w/-]*)_(?P<n>[0-"
-                r"9]+).(?P<format>\w+)$" % self._meta.resource_name,
+            url(r"^(?P<resource_name>%s)/(?P<n>[0-9]+)/(?P<external_id>\w[\w/-]"
+                r"*).(?P<format>\w+)$" % self._meta.resource_name,
                 self.wrap_view('dispatch_detail'),name="api_dispatch_detail")]
 
     def determine_format(self, request):

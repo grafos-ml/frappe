@@ -37,9 +37,6 @@ import os
 from ffos.models import *
 from ffos import tests
 import itertools
-from datetime import datetime
-from django.utils.timezone import utc
-from django.db import connection
 from ffos.util import parseDir
 from collections import Counter
 
