@@ -67,6 +67,12 @@ WSGI_APPLICATION = 'ffos.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+import socket
+HOSTS = {
+    'diana': '172.16.95.128',
+    'chronos': '192.168.188.128',
+}
+
 DATABASES = {
     #'default': {
     #    'ENGINE': 'django.db.backends.sqlite3',
@@ -80,7 +86,7 @@ DATABASES = {
         'TEST_CHARSET': 'utf8',
         'USER': 'raqksixq_frappe',
         'PASSWORD': 'sp21o61h4',
-        'HOST': '192.168.188.128',
+        'HOST': HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS else 'localhost',
     }
 }
 

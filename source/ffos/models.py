@@ -272,7 +272,7 @@ class Preview(models.Model, Filterble):
     thumbnail_url = models.URLField(_('thumbnail url'))
     image_url = models.URLField(_('image url'))
     external_id = models.IntegerField(_('external id'))
-    resource_uri = models.CharField(_('resource id'),max_length=255)
+    resource_uri = models.CharField(_('resource id'),null=True, blank=True, max_length=255)
     
     class Meta:
         verbose_name = _('preview')
@@ -343,7 +343,7 @@ class FFOSApp(models.Model):
     device_types = models.ManyToManyField(DeviceType,blank=True,
         verbose_name=_('device types'),related_name='apps')
     
-    homepage = models.URLField(_('homepage'),null=True,blank=True)
+    homepage = models.TextField(_('homepage'),null=True,blank=True)
     
     icon = models.ForeignKey(FFOSAppIcon,verbose_name=_('app icon'),
         related_name='app',blank=True)
@@ -352,9 +352,9 @@ class FFOSApp(models.Model):
     
     is_packaged = models.BooleanField(_('is packaged?'))
     
-    manifest_url = models.URLField(_('manifest url'))
+    manifest_url = models.URLField(_('manifest url'), null=True, blank=True)
     
-    name = models.CharField(_('name'),max_length=255)
+    name = models.TextField(_('name'), null=True, blank=True)
     
     payment_account = models.CharField(_('payment account'),max_length=255,
         null=True,blank=True)
@@ -381,14 +381,13 @@ class FFOSApp(models.Model):
     regions = models.ManyToManyField(Region,verbose_name=_('regions'),
         blank=True,related_name='apps')
     
-    resource_uri = models.CharField(_('resource uri'),max_length=255,
-        null=True,blank=True)
+    resource_uri = models.TextField(_('resource uri'),null=True,blank=True)
     
     slug = models.CharField(_('slug'),max_length=255,null=True,blank=True)
     
     status = models.IntegerField(_('status'),max_length=4)
     
-    support_email = models.EmailField(_('support e-mail'),null=True,blank=True)
+    support_email = models.TextField(_('support e-mail'),null=True,blank=True)
     
     support_url = models.URLField(_('support url'),null=True,blank=True)
     
@@ -555,7 +554,7 @@ class FFOSApp(models.Model):
                 payment_required = app.get('payment_required',False),
                 weekly_downloads = app.get('weekly_downloads',None),
                 upsell = app['upsell'],
-                resource_uri = app['resource_uri']
+                resource_uri = app.get('resource_uri', "")
             ) for app,_,_,_,_,_,_ in apps if app['id'] not in already_in_db])
         except Exception as e:
             logging.error('%s %s' % (str(app['id']),e))
@@ -665,7 +664,7 @@ class FFOSUser(models.Model):
     # Length is 5 not only for 'en' type of lang but also to the 'en_en' kind.
     # Can lang be null???
     # Lang or Locale???
-    locale = models.CharField(_('locale'),max_length=5,null=True,blank=True)
+    locale = models.CharField(_('locale'),max_length=255,null=True,blank=True)
     
     region = models.CharField(_('region'),max_length=255,null=True,blank=True)
     
@@ -693,6 +692,7 @@ class FFOSUser(models.Model):
     def load(*users):
         '''
         Load a list of users to the data model FFOSUser. It also make the
+            logging.info('Already in the database')
         connection to the installed apps.
 
         If the users parameter is according with the prerequisites (respects the
@@ -740,10 +740,7 @@ class FFOSUser(models.Model):
                     datetime.strptime(app['installed'],"%Y-%m-%dT%H:%M:%S")\
                     .replace(tzinfo=utc)))
         logging.info('Loading users')
-        try:
-            FFOSUser.objects.bulk_create(new_users)
-        except Exception:
-            logging.info('Already in the database')
+        FFOSUser.objects.bulk_create(new_users)
 
         users = {u['external_id']: u['pk'] for u in FFOSUser.objects.filter(
             external_id__in=[x['user'] for x in users]).values('pk',
@@ -753,7 +750,7 @@ class FFOSUser(models.Model):
         logging.info('Loading installed apps')
         Installation.objects.bulk_create([Installation(
             user_id=users[i[0]],app_id=apps[i[1]],installation_date=i[2])
-            for i in install if i[1] in apps])
+            for i in install if i[1] in apps ])
 
 class Installation(models.Model):
     '''

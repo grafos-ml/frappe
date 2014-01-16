@@ -1,9 +1,0 @@
-# maven target repo
-
-target/
-
-# idea files
-.idea/
-*.ipr
-*.iml
-*.iws
