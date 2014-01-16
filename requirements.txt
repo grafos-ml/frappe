@@ -1,4 +1,6 @@
 django>=1.6
+
+# Make sure to have the python-dev installed.
 numpy
 python-crontab>=1.6
 django-crontab
@@ -6,8 +8,12 @@ nose
 django-nose
 django-tastypie
 django-debug-toolbar
+
+# Mus have a mysql-client installed. Do 'apt-get install mysql-client libmysqlclient-dev'
 mysql-python
-pytz # For timezone support
+
+# For timezone support
+pytz
 
 #For xml API
 # Also have dependencies. Should do 'apt-get install libxml2-dev libxslt-dev'
