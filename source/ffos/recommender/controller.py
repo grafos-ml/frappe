@@ -152,7 +152,9 @@ class InterfaceController(object):
         *numpy.array*:
             An array with the app scores for that user
         '''
-        m = (u_matrix.transpose()[user.pk] * a_matrix)
+        # Fix user.pk -> user.pk-1: The model was giving recomendations for the
+        # previous user.
+        m = (u_matrix.transpose()[user.pk-1] * a_matrix)
         return numpy.array(m.tolist()[0])
 
     @CacheUser

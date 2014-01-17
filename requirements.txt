@@ -29,3 +29,6 @@ sphinx
 #Not in pip. Has to be installed manually
 #dateutil
 #mimeparse>=0.1.4
+
+cython
+py4j
