@@ -31,4 +31,4 @@ sphinx
 #mimeparse>=0.1.4
 
 cython
-py4j
+pyjnius
