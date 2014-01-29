@@ -48,7 +48,8 @@ class RecommendationResource(ModelResource):
         include_resource_uri = False
         #exclude = ['resource_uri']
 
-    def prepend_urls(self):
+    @property
+    def urls(self):
         return [
             url(r"^(?P<resource_name>%s)/(?P<n>[0-9]+)/(?P<external_id>\w[\w/-]"
                 r"*).(?P<format>\w+)$" % self._meta.resource_name,
