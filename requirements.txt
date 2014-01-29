@@ -30,5 +30,5 @@ sphinx
 #dateutil
 #mimeparse>=0.1.4
 
-cython
-pyjnius
+#cython
+#pyjnius

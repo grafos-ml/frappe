@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" />
     <link rel="up" title="ffos - FireFox OS Store" href="ffos.html" />
-    <link rel="next" title="Data Loader" href="ffos.data.html" />
+    <link rel="next" title="App Recommendation Webservice Version 1.0" href="webservice.html" />
     <link rel="prev" title="ffos - FireFox OS Store" href="ffos.html" /> 
   </head>
   <body>
@@ -39,7 +39,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ffos.data.html" title="Data Loader"
+          <a href="webservice.html" title="App Recommendation Webservice Version 1.0"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="ffos.html" title="ffos - FireFox OS Store"
@@ -59,8 +59,289 @@
 <h1>Data Models<a class="headerlink" href="#data-models" title="Permalink to this headline">¶</a></h1>
 <p>The FireFox OS Store Models for database connection. This first version
 as models for users, apps and every model to support it.</p>
-<div class="section" id="module">
-<h2>Module<a class="headerlink" href="#module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-ffos.models">
+<span id="module"></span><h2>Module<a class="headerlink" href="#module-ffos.models" title="Permalink to this headline">¶</a></h2>
+<p>Created on Nov 21, 2013</p>
+<p>Django data models for FFOS Users and APPS.</p>
+<p>All the data structure is based in previous structures from the FRAPPE app. The
+original data was stored using MongoDB so is modeled in Json.</p>
+<dl class="class">
+<dt id="ffos.models.DeviceType">
+<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">DeviceType</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.DeviceType" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Device type.</p>
+<dl class="classmethod">
+<dt id="ffos.models.DeviceType.identify">
+<em class="property">classmethod </em><tt class="descname">identify</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#ffos.models.DeviceType.identify" title="Permalink to this definition">¶</a></dt>
+<dd><p>An identifier for the object. May be a str or a tuple with str.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ffos.models.DeviceType.prepare_to_db">
+<em class="property">classmethod </em><tt class="descname">prepare_to_db</tt><big>(</big><em>ident</em><big>)</big><a class="headerlink" href="#ffos.models.DeviceType.prepare_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares the object to db based on its identifier</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ffos.models.FFOSApp">
+<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSApp</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSApp" title="Permalink to this definition">¶</a></dt>
+<dd><p>FireFox OS App. It keeps the app data of a firefox os application. Some of
+the data types are not clear in the API so it may have to be changed in the
+future. So for many char fields I&#8217;m going to use 255 length. Linas said it
+was fine.</p>
+<dl class="staticmethod">
+<dt id="ffos.models.FFOSApp.load">
+<em class="property">static </em><tt class="descname">load</tt><big>(</big><em>*apps</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSApp.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load all json to the database. It assumes that all the files are in the
+FFOSApp format.</p>
+<p>If the apps parameter is according with the prerequisites (respect the
+format) this function should ENSURE that, if the execution ends
+normally, in the end all the data is available in the database.</p>
+<p><strong>Args</strong></p>
+<dl class="docutils">
+<dt>&#8216;&#8217;*&#8217;&#8216;apps <em>list</em>:</dt>
+<dd><p class="first">A List of dicts with json. Every json in the file must respect the
+following format:</p>
+<div class="last highlight-python"><pre>{
+    "premium_type": String(255),
+    "content_ratings": String(255),
+    "manifest_url": String(url),
+    "current_version": String(10),
+    "upsold": String(255),
+    "id": String(20) or Integer(20),
+    "ratings": {
+        "count": Integer(10),
+        "average": float(10,3)
+    },
+    "app_type": String(255),
+    "author": String(255),
+    "support_url": String(url),
+    "slug": String(255),
+    "regions": [
+        {
+            "mcc": Integer(20),
+            "name": String(255),
+            "adolescent": boolean,
+            "slug": String(5)
+        },...
+    ],
+    "icons": {
+        "16": String(url),
+        "48": String(url),
+        "64": String(url),
+        "128": String(url)
+    },
+    "created": The date when the app was installed in the format
+        "yyyy-mm-ddThh:mm:ss",
+    "homepage": String(url),
+    "support_email": String(255),
+    "public_stats": boolean,
+    "status": integer(4),
+    "privacy_policy": String(255),
+    "is_packaged": boolean,
+    "description": text,
+    "default_locale": String(5),
+    "price": String(255),
+    "previews": [
+        {
+            "filetype": String(255),
+            "thumbnail_url": String(url),
+            "image_url": String(url),
+            "id": String(20) or Integer(20),
+            "resource_uri": String(255)
+        },...
+    ],
+    "payment_account": String(255),
+    "categories": [
+        String(255),
+        ...
+        ],
+    "supported_locales": [
+        String(5),
+        ...
+        ],
+    "price_locale": String(255),
+    "name": "String(255),
+    "versions": {
+        Whatever, this is not going to be use for now
+    },
+    "device_types": [
+        String(255),
+        ...
+    ],
+    "payment_required": boolean,
+    "weekly_downloads": String(255),
+    "upsell": boolean,
+    "resource_uri": String(255)
+}</pre>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ffos.models.FFOSAppCategory">
+<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSAppCategory</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSAppCategory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Category of a FireFox OS App. It only has a name.</p>
+<dl class="classmethod">
+<dt id="ffos.models.FFOSAppCategory.prepare_to_db">
+<em class="property">classmethod </em><tt class="descname">prepare_to_db</tt><big>(</big><em>ident</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSAppCategory.prepare_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares the object to db based on its identifier</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ffos.models.FFOSAppIcon">
+<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSAppIcon</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSAppIcon" title="Permalink to this definition">¶</a></dt>
+<dd><p>The FireFox App API is, in the moment that this is being developed and
+documented, using 4 sizes of icons. For beauty purposes I decided not to
+put the in the app model. Instead one model to keep the icons and an
+foreign key in the app.</p>
+<dl class="method">
+<dt id="ffos.models.FFOSAppIcon.__unicode__">
+<tt class="descname">__unicode__</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.models.FFOSAppIcon.__unicode__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the name of the app + the word icon</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ffos.models.FFOSAppIcon.identify">
+<em class="property">classmethod </em><tt class="descname">identify</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSAppIcon.identify" title="Permalink to this definition">¶</a></dt>
+<dd><p>An identifier for the object. May be a str or a tuple with str.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ffos.models.FFOSAppIcon.prepare_to_db">
+<em class="property">classmethod </em><tt class="descname">prepare_to_db</tt><big>(</big><em>ident</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSAppIcon.prepare_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares the object to db based on its identifier</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ffos.models.FFOSUser">
+<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSUser</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSUser" title="Permalink to this definition">¶</a></dt>
+<dd><p>FireFox OS User/client. Is a model for FFOS experience information. Some id
+stamp and locale info mostly:</p>
+<div class="highlight-python"><pre>IMPORTANT: The unique internal id is standard SQL incremented ID. The
+implementation it depends on the DBMS type and settings. Maybe is a
+topic to discuss.</pre>
+</div>
+<dl class="method">
+<dt id="ffos.models.FFOSUser.__unicode__">
+<tt class="descname">__unicode__</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.models.FFOSUser.__unicode__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the word client followed by the client external id</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="ffos.models.FFOSUser.load">
+<em class="property">static </em><tt class="descname">load</tt><big>(</big><em>*users</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSUser.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Load a list of users to the data model FFOSUser. It also make the</dt>
+<dd>logging.info(&#8216;Already in the database&#8217;)</dd>
+</dl>
+<p>connection to the installed apps.</p>
+<p>If the users parameter is according with the prerequisites (respects the
+format and for every installed app that app already is registered in
+database) this function should ENSURE that, if the execution ends
+normally, in the end all the data is available in database.</p>
+<p><strong>Args</strong></p>
+<dl class="docutils">
+<dt>users <em>dict</em>:</dt>
+<dd><p class="first">A list with Python dictionaries, each one representing a user.
+Is required that each user as the following format:</p>
+<div class="last highlight-python"><pre>{
+    'lang': two or five size string in the locale format,
+    'region': Although I think this is just a 2 string code of
+        the region, it allow far more (255 length),
+    'user': Is a big string, documented as a md5 hash with size
+        35, but the dummy data has far more than that. To play
+        it safe we use 255.
+    'installed_apps': [
+        {
+            'installed': The date when the app was installed in
+                the format "yyyy-mm-ddThh:mm:ss",
+            'id': The id of the installed app. This should be
+                already on the database.
+            'slug': The slug of the app. It's an important
+                value.
+        },
+        More apps with the same format as the last one...
+    ]
+}</pre>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ffos.models.Installation">
+<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">Installation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.Installation" title="Permalink to this definition">¶</a></dt>
+<dd><p>The connection between the user and the app. It has information about the
+user and the app such as installation date and eventually the date in which
+the app was removed.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ffos.models.Locale">
+<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">Locale</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.Locale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Locales to be assigned to the app support</p>
+<dl class="classmethod">
+<dt id="ffos.models.Locale.identify">
+<em class="property">classmethod </em><tt class="descname">identify</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#ffos.models.Locale.identify" title="Permalink to this definition">¶</a></dt>
+<dd><p>An identifier for the object. May be a str or a tuple with str.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ffos.models.Locale.prepare_to_db">
+<em class="property">classmethod </em><tt class="descname">prepare_to_db</tt><big>(</big><em>ident</em><big>)</big><a class="headerlink" href="#ffos.models.Locale.prepare_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares the object to db based on its identifier</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ffos.models.Preview">
+<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">Preview</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.Preview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Information about the app previews</p>
+<dl class="classmethod">
+<dt id="ffos.models.Preview.identify">
+<em class="property">classmethod </em><tt class="descname">identify</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#ffos.models.Preview.identify" title="Permalink to this definition">¶</a></dt>
+<dd><p>An identifier for the object. May be a str or a tuple with str.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ffos.models.Preview.prepare_to_db">
+<em class="property">classmethod </em><tt class="descname">prepare_to_db</tt><big>(</big><em>ident</em><big>)</big><a class="headerlink" href="#ffos.models.Preview.prepare_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares the object to db based on its identifier</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ffos.models.Region">
+<em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">Region</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.Region" title="Permalink to this definition">¶</a></dt>
+<dd><p>A region defined by the FireFox system for the mobile geo system. This is
+the geo information the app can give to the system.</p>
+<dl class="classmethod">
+<dt id="ffos.models.Region.identify">
+<em class="property">classmethod </em><tt class="descname">identify</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#ffos.models.Region.identify" title="Permalink to this definition">¶</a></dt>
+<dd><p>An identifier for the object. May be a str or a tuple with str.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="ffos.models.Region.prepare_to_db">
+<em class="property">classmethod </em><tt class="descname">prepare_to_db</tt><big>(</big><em>ident</em><big>)</big><a class="headerlink" href="#ffos.models.Region.prepare_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares the object to db based on its identifier</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 
@@ -73,7 +354,7 @@ as models for users, apps and every model to support it.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Data Models</a><ul>
-<li><a class="reference internal" href="#module">Module</a></li>
+<li><a class="reference internal" href="#module-ffos.models">Module</a></li>
 </ul>
 </li>
 </ul>
@@ -82,8 +363,8 @@ as models for users, apps and every model to support it.</p>
   <p class="topless"><a href="ffos.html"
                         title="previous chapter">ffos - FireFox OS Store</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="ffos.data.html"
-                        title="next chapter">Data Loader</a></p>
+  <p class="topless"><a href="webservice.html"
+                        title="next chapter">App Recommendation Webservice Version 1.0</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/ffos.models.txt"
@@ -116,7 +397,7 @@ as models for users, apps and every model to support it.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ffos.data.html" title="Data Loader"
+          <a href="webservice.html" title="App Recommendation Webservice Version 1.0"
              >next</a> |</li>
         <li class="right" >
           <a href="ffos.html" title="ffos - FireFox OS Store"

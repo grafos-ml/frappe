@@ -12,7 +12,6 @@ Modules
     :maxdepth: 1
 
     ffos.models
-    ffos.data
 
 Packages
 --------
@@ -20,7 +19,7 @@ Packages
 .. toctree::
     :maxdepth: 1
 
-    ffos.tests
-    ffos.scripts
+    ffos.gui
+    ffos.recommend
 
 

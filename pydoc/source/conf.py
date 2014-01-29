@@ -14,7 +14,10 @@
 
 import sys
 import os
-sys.path.append('/home/joaonrb/Dropbox/frappe/pycharmWS/source/source/')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ffos.settings")
+sys.path.append('/home/joaonrb/Dropbox/Telefonica/Mozilla/workspaces/repository'
+    '/ffos-recommender/source/')
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

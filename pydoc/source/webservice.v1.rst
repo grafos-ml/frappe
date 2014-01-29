@@ -1,5 +1,5 @@
 App Recommendation Webservice Version 1.1
-=============================
+=========================================
 
 About
 -----
@@ -92,7 +92,7 @@ GET Request
 
 *URL*::
 
-    http://domain.com/api/v1/recommendation/<external_id>_<recommendation_number>.<format>
+    http://domain.com/api/v1/recommendation/<recommendation_number>/<user_id>.<format>
 
 
 +----------------+---------------+-------------------------------------------+
@@ -106,7 +106,7 @@ GET Request
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
 | Request.       | String        | Identifier number for the user.           |
-|  external_id   |               |                                           |
+|  user_id       |               |                                           |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
@@ -123,7 +123,7 @@ GET Request
 
 Example::
 
-    http://domain.com/api/v1/recommendation/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173_120.xml
+    http://domain.com/api/v1/recommendation/120/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173.xml
 
 GET Response
 ++++++++++++

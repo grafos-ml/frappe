@@ -1,6 +1,6 @@
 
 Backend API
-============================
+===========
 
 This is the FireFox OS Store backend API documentation. Mostly as
 documentation about django related features, such as models, urls, settings,
@@ -22,6 +22,6 @@ Django Apps
    :maxdepth: 1
 
    ffos
-   ffos.nosetest
-   ffos.scritps
+   ffos.gui
+   ffos.recommend
 

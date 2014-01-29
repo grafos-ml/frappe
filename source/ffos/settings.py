@@ -115,9 +115,11 @@ import logging
 from datetime import datetime
 
 FORMAT = '%(asctime)-15s: %(message)s'
+path = os.path.dirname(__file__)
 logging.basicConfig(format=FORMAT,level=logging.DEBUG if DEBUG else \
-logging.WARNING,filename=datetime.now().strftime('logs/%d-%m-%Y %H:%M.log')
-    if DEBUG else datetime.now().strftime('logs/%d-%m-%Y.log')
+logging.WARNING,filename=datetime.now().strftime(path+
+    '/logs/%d-%m-%Y %H:%M.log')
+    if DEBUG else datetime.now().strftime(path+'/logs/%d-%m-%Y.log')
 )
 
 # Testing
