@@ -27,7 +27,7 @@ class TestCategoryReRanker(object):
         FFOSApp.load(*parseDir(TestLoad.__class__.apps))
         FFOSUser.load(*parseDir(TestLoad.__class__.users))
 
-
+    """
     def test_getUserCategoryProfile(self):
         '''
         I need some benchmark data to make good tests
@@ -36,6 +36,6 @@ class TestCategoryReRanker(object):
         user = FFOSUser.objects.get(external_id='006a508fe63e87619db5c3db21da2c'
             '536f24e296c29d885e4b48d0b5aa561173')
         assert(isinstance(rr.get_user_category_profile(user), dict))
-
+    """
 
 

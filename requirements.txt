@@ -1,13 +1,18 @@
 django>=1.6
 
 # Make sure to have the python-dev installed.
-numpy
 python-crontab>=1.6
 django-crontab
 nose
 django-nose
+coverage
 django-tastypie
 django-debug-toolbar
+numpy==1.8.0
+pandas==0.12.0
+
+# for testing the tensor
+#test.fm
 
 # Mus have a mysql-client installed. Do 'apt-get install mysql-client libmysqlclient-dev'
 mysql-python
@@ -32,3 +37,4 @@ sphinx
 
 #cython
 #pyjnius
+
