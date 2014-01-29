@@ -9,7 +9,7 @@ Created on Nov 29, 2013
 
 '''
 
-import numpy
+import numpy as np
 from ffos.models import FFOSApp, FFOSUser
 from ffos.recommender.caches import CacheUser, CacheMatrix
 from ffos.recommender.models import Factor
@@ -154,8 +154,8 @@ class InterfaceController(object):
         '''
         # Fix user.pk -> user.pk-1: The model was giving recomendations for the
         # previous user.
-        m = (u_matrix.transpose()[user.pk-1] * a_matrix)
-        return numpy.array(m.tolist()[0])
+        return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] *
+            a_matrix)))
 
     @CacheUser
     def get_recommendation(self,user,n=10):
@@ -224,7 +224,7 @@ class TestController(InterfaceController):
         *numpy.matrix*:
             The matrix of users.
         '''
-        return numpy.matrix(numpy.random.random(size=(10,
+        return np.matrix(np.random.random(size=(10,
             FFOSUser.objects.all().count())))
 
     @CacheMatrix
@@ -237,7 +237,7 @@ class TestController(InterfaceController):
         *numpy.matrix*:
             The matrix of apps.
         '''
-        return numpy.matrix(numpy.random.random(size=(10,
+        return np.matrix(np.random.random(size=(10,
             FFOSApp.objects.all().count())))
 
 class SimpleController(InterfaceController):
