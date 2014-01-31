@@ -29,11 +29,15 @@ class Matrix(models.TextField):
         sugestions"""
     __metaclass__ = models.SubfieldBase
 
-    def get_db_prep_save(self, value, connection):
-        return base64.encodestring(value)
+    def to_python(self, value):
+        if isinstance(value,basestring):
+            value = value.decode('utf8')
+            return numpy.frombuffer(base64.decodestring(value),
+                dtype=numpy.float64)
+        return value
 
-    def to_python(self,value):
-        return base64.decodestring(value)
+    def get_prep_value(self, value):
+        return base64.b64encode(value).encode('utf8')
 
 class Factor(models.Model):
     '''
@@ -60,9 +64,10 @@ class Factor(models.Model):
         Shape the matrix in to whatever
         TODO
         '''
-        matrix = numpy.frombuffer(self.matrix,dtype=numpy.float64)
-        matrix.shape = self.rows,self.columns
-        return numpy.matrix(matrix)
+        print self.matrix, type(self.matrix)
+        self.matrix.shape = self.rows,self.columns
+        return numpy.matrix(self.matrix)
+
 
 from django.contrib import admin
 admin.site.register([Factor])

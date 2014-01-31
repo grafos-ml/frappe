@@ -3,7 +3,6 @@ package es.tid.frappe.recsys;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.jblas.FloatMatrix;
@@ -69,7 +68,7 @@ public class TensorCoFi implements Predictor {
         float weight;
         Map<Integer, List<Integer>> t;
         
-	System.out.println("\tBUILDING TENSOR INDICES...");
+	//System.out.println("\tBUILDING TENSOR INDICES...");
         //System.out.print("\n"+" Starting Tensor index Datastructure build"+"\n");
         //Build Tensor indices with HashMaps looping over the dimensions
         for (int i = 0; i < this.dimensions.length; i++) {
@@ -77,18 +76,20 @@ public class TensorCoFi implements Predictor {
             tensor.add(new HashMap<Integer, List<Integer>>());
             
             //for each entry in dimension add an arraylist
-            for (int j = 0; j < this.dimensions[i]; j++)
+            for (int j = 0; j < this.dimensions[i]; j++){
                 // original
                 // tensor.get(i).put(j, new ArrayList<Integer>());
                 
                 //João Nuno version(Correction for MySQL) The indexes there 
                 //start at 1
                 tensor.get(i).put(j+1, new ArrayList<Integer>());
+                }
+            	
             
             
             for (int dataRow = 0; dataRow < dataArray.rows; dataRow++){
-//                System.out.println(dataArray.columns + " " + dataArray.rows + " " + i + " " + dataRow);
-//                System.out.println(dataArray.get(dataRow, i) + " " + tensor.get(i).get((int) dataArray.get(dataRow, i)));
+                //System.out.println(dataArray.columns + " " + dataArray.rows + " " + i + " " + dataRow);
+                //System.out.println(dataArray.get(dataRow, i) + " " + tensor.get(i).get((int) dataArray.get(dataRow, i)));
                 index = (int) dataArray.get(dataRow, i);
                 t = tensor.get(i);
                 try {
@@ -102,12 +103,12 @@ public class TensorCoFi implements Predictor {
             }
         }
 
-	System.out.println("\tTRAINING TENSOR...");
+	//System.out.println("\tTRAINING TENSOR...");
         //Outer loop defines the number of epochs
         for (int iter = 0; iter < this.iter; iter++) {
-            if (printError)
-                System.out.println("Iteration: " + iter + " RMSE:" +
-                        getError(dataArray));
+            //if (printError)
+            //    System.out.println("Iteration: " + iter + " RMSE:" +
+            //            getError(dataArray));
             //Iterate over each Factor Matrix (U,M,C_i...)
             for (int currentDimension = 0; currentDimension < 
                     this.dimensions.length; currentDimension++) {
@@ -218,10 +219,10 @@ public class TensorCoFi implements Predictor {
 
         FloatMatrix ret = FloatMatrix.ones(this.d, 1);
         for (int i = 0; i < position.columns ; i++) {
-            if (position.get(0,i) >= dimensions[i]){
-                System.out.println(position.toString());
-                System.out.println(Arrays.toString(dimensions));
-            }
+            //if (position.get(0,i) >= dimensions[i]){
+            //    System.out.println(position.toString());
+            //    System.out.println(Arrays.toString(dimensions));
+            //}
 
             assert((int) position.get(0,i) < dimensions[i]);
             
@@ -249,7 +250,6 @@ public class TensorCoFi implements Predictor {
 
     private double getError(FloatMatrix dataArray) {
         double sum = 0.0;
-        int negs = 0;
         for (int dataRow = 0; dataRow < dataArray.rows; ++dataRow) {
             FloatMatrix tupple = dataArray.getRow(dataRow);
             
@@ -261,8 +261,6 @@ public class TensorCoFi implements Predictor {
                 copy.put(i, tupple.get(i));
             }
             float pred = this.decision(copy);
-            if (pred < 0)
-                negs ++;
             double err = Math.pow(score-pred, 2);
             sum += err;
         }

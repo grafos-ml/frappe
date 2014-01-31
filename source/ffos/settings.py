@@ -10,10 +10,10 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os, sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
+TESTING = 'test' in sys.argv
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -23,7 +23,7 @@ SECRET_KEY = '(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = []
 
@@ -70,14 +70,10 @@ WSGI_APPLICATION = 'ffos.wsgi.application'
 import socket
 HOSTS = {
     'diana': '172.16.95.128',
-    'chronos': 'joaonrb.net', #192.168.188.128',
+    'chronos': '192.168.188.128',
 }
 
 DATABASES = {
-    #'default': {
-    #    'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    #}
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'raqksixq_ffosv1',
@@ -86,7 +82,18 @@ DATABASES = {
         'TEST_CHARSET': 'utf8',
         'USER': 'raqksixq_frappe',
         'PASSWORD': 'sp21o61h4',
-        'HOST': HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS else 'localhost',
+        'HOST': HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS
+            else 'localhost',
+    } if not TESTING else {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'raqksixq_ffosv1',
+        'CHARSET': 'utf8',
+        'TEST_NAME': 'test_ffosv1',
+        'TEST_CHARSET': 'utf8',
+        'USER': 'root',
+        'PASSWORD': 'Sp21o61H4',
+        'HOST': HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS
+            else 'localhost',
     }
 }
 
@@ -126,7 +133,7 @@ logging.WARNING,filename=datetime.now().strftime(path+
 # Nose settings
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
+DEBUG_TOOLBAR_PATCH_SETTINGS = DEBUG
 
 # Caching
 

@@ -10,9 +10,11 @@ import org.jblas.FloatMatrix;
  * @author mumas
  */
 public interface Predictor {
+	
     /**
-     * returns a rating or ranking prediction for a user,item,context1,context2,context3
-     * In case there is no context, the format is row vector: (userId,itemId)
+     * returns a rating or ranking prediction for a user,item,context1,context2,
+     * context3. In case there is no context, the format is row vector: (userId,
+     * itemId)
      * @param tupple - row vector of ids: user, item, contex1, ..., contextn
      * @return evaluation score
      */
@@ -26,8 +28,10 @@ public interface Predictor {
 
     /**
      * Method that trains the model, given the data.
-     * @param data - A matrix, where each row is of format user,item,context1,context2,context3, count
-     * @param dims - an integer array with the number of entries in each dimension. dims.lengh == data.columns-1 as there is no count.
+     * @param data - A matrix, where each row is of format user,item,context1,
+     * 	context2,context3, count.
+     * @param dims - an integer array with the number of entries in each 
+     * 	dimension. dims.lengh == data.columns-1 as there is no count.
      * 
      */
     public void train(FloatMatrix data);

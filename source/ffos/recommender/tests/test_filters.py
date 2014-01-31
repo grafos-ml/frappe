@@ -7,7 +7,6 @@ Tests for filters and re-rankers
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 '''
 
-from ffos.tests.test_models import TestLoad
 from ffos.models import FFOSUser, FFOSApp
 from ffos.util import parseDir
 from ffos.recommender.filters import CategoryReRanker
@@ -23,9 +22,10 @@ class TestCategoryReRanker(object):
 
     @classmethod
     def setup_class(cls):
-        TestLoad.setup()
-        FFOSApp.load(*parseDir(TestLoad.__class__.apps))
-        FFOSUser.load(*parseDir(TestLoad.__class__.users))
+        #TestLoad.setup()
+        #FFOSApp.load(*parseDir(TestLoad.__class__.apps))
+        #FFOSUser.load(*parseDir(TestLoad.__class__.users))
+        pass
 
     """
     def test_getUserCategoryProfile(self):
