@@ -12,7 +12,7 @@ Created on Nov 29, 2013
 import numpy as np
 from ffos.models import FFOSApp, FFOSUser
 from ffos.recommender.caches import CacheUser, CacheMatrix
-from ffos.recommender.models import Factor
+from ffos.recommender.models import TensorModel
 import logging
 
 class InterfaceController(object):
@@ -105,7 +105,7 @@ class InterfaceController(object):
 
         **Returns**
 
-        *numpy.matrix*:
+        *np.matrix*:
             The matrix of users.
         '''
         if self.__class__ == InterfaceController:
@@ -121,7 +121,7 @@ class InterfaceController(object):
 
         **Returns**
 
-        *numpy.matrix*:
+        *np.matrix*:
             The matrix of apps.
         '''
         if self.__class__ == InterfaceController:
@@ -141,15 +141,15 @@ class InterfaceController(object):
         user *basestring or FFOSUser*:
             The user to get the recommendation
 
-        u_matrix *numpy.matrix*:
+        u_matrix *np.matrix*:
             A matrix with one row for each user
 
-        a_matrix *numpy.matrix*:
+        a_matrix *np.matrix*:
             A matrix with one row for each app in system
 
         **Return**
 
-        *numpy.array*:
+        *np.array*:
             An array with the app scores for that user
         '''
         # Fix user.pk -> user.pk-1: The model was giving recomendations for the
@@ -221,7 +221,7 @@ class TestController(InterfaceController):
 
         **Returns**
 
-        *numpy.matrix*:
+        *np.matrix*:
             The matrix of users.
         '''
         return np.matrix(np.random.random(size=(10,
@@ -234,7 +234,7 @@ class TestController(InterfaceController):
 
         **Returns**
 
-        *numpy.matrix*:
+        *np.matrix*:
             The matrix of apps.
         '''
         return np.matrix(np.random.random(size=(10,
@@ -252,11 +252,15 @@ class SimpleController(InterfaceController):
 
         **Returns**
 
-        *numpy.matrix*:
+        *np.matrix*:
             The matrix of users.
         '''
-        return Factor.objects.filter(dimension=0).order_by('-id')[0]\
+        try:
+            return TensorModel.objects.filter(dim=0).order_by('-id')[0]\
             .numpy_matrix
+        except IndexError:
+            TensorModel.train()
+            return  self.get_user_matrix()
 
     @CacheMatrix
     def get_apps_matrix(self):
@@ -265,8 +269,12 @@ class SimpleController(InterfaceController):
 
         **Returns**
 
-        *numpy.matrix*:
+        *np.matrix*:
             The matrix of apps.
         '''
-        return Factor.objects.filter(dimension=1).order_by('-id')[0]\
+        try:
+            return TensorModel.objects.filter(dim=1).order_by('-id')[0]\
             .numpy_matrix
+        except IndexError:
+            TensorModel.train()
+            return  self.get_apps_matrix()

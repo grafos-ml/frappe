@@ -77,11 +77,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'raqksixq_ffosv1',
-        'CHARSET': 'utf8',
-        'TEST_NAME': 'raqksixq_ffosv1test',
-        'TEST_CHARSET': 'utf8',
         'USER': 'raqksixq_frappe',
-        'PASSWORD': 'sp21o61h4',
+        'PASSWORD': 'Sp21o61H4',
         'HOST': HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS
             else 'localhost',
     } if not TESTING else {
