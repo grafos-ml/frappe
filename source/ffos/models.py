@@ -414,6 +414,10 @@ class FFOSApp(models.Model):
         return _('%(app_name)s version %(version)s') % {'app_name': self.name,
             'version': self.current_version}
 
+    @property
+    def store_url(self):
+        return u"https://marketplace.firefox.com/app/%s/" % self.slug
+
     @staticmethod
     def load(*apps):
         '''

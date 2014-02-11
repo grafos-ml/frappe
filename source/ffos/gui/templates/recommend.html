@@ -24,7 +24,7 @@
                 <div id="installedApps" class="col-xs-12 col-dm-12">
                 {% for app in ffosuser.installed_apps.all.select_related %}
                     <div class="col-sm-6 col-md-3">
-                        <a href="https://marketplace.firefox.com/app/{{ app.slug }}/" class="thumbnail">
+                        <a href="{{ app.store_url }}" class="thumbnail">
                             <img alt="Some Icone" src="{{ app.icon.size128 }}" >
                         </a>
                         <small>{{ app.installation_date }}</small>
@@ -106,7 +106,7 @@
                 <div id="recommendedApps" class="col-xs-12">
                 {% for app, regions in recommended %}
                     <div class="col-sm-6 col-md-3">
-                        <a href="https://marketplace.firefox.com/app/{{ app.slug }}/" class="thumbnail">
+                        <a href="{{ app.store_url }}" class="thumbnail">
                             <img alt="Some Icone" src="{{ app.icon.size128 }}" >
                         </a>
                         <p>{{app.pk}} {{ app.external_id }} {{ app.name }}</p>
