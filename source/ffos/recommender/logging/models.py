@@ -54,3 +54,11 @@ class Log(models.Model):
             "type": Log.TYPES[self.type],
             "item": str(self.item.external_id)
         }
+
+    @staticmethod
+    def click(user, app, score=1.):
+        """
+        Puts a click log into database
+        """
+        Log.objects.create(user__external_id=user, item__external_id=app,
+                           value=score, type=Log.CLICK)
