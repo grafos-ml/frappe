@@ -12,6 +12,7 @@ __author__ = {
     'e-mail': 'joaonrb@gmail.com'
 }
 
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.db import models
 from ffos.models import FFOSApp, FFOSUser
@@ -33,7 +34,7 @@ class Log(models.Model):
 
     user = models.ForeignKey(FFOSUser, to_field="external_id",
                              verbose_name=_("user"))
-    item = models.ForeignKey(FFOSApp, related_name="external_id",
+    item = models.ForeignKey(FFOSApp, to_field="external_id",
                              verbose_name=_("item"))
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
     value = models.DecimalField(_("value"), max_digits=6, decimal_places=4,
@@ -45,7 +46,7 @@ class Log(models.Model):
         verbose_name = _("log")
         verbose_name_plural = _("logs")
         order_with_respect_to = "user"
-        ordering = ['-timestamp', 'user']
+        ordering = ["-timestamp", "user"]
 
     def __unicode__(self):
         return _("%(date)s: user %(user)s as %(type)s item %(item)s") % {
@@ -60,5 +61,8 @@ class Log(models.Model):
         """
         Puts a click log into database
         """
-        Log.objects.create(user__external_id=user, item__external_id=app,
+        app = get_object_or_404(FFOSApp, external_id=app)
+        Log.objects.create(user=get_object_or_404(FFOSUser, external_id=user),
+                           item=app,
                            value=score, type=Log.CLICK)
+        return app.store_url

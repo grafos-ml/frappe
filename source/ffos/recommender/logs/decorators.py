@@ -12,7 +12,7 @@ __author__ = {
     'e-mail': 'joaonrb'
 }
 
-from ffos.recommender.logging.models import Log
+from ffos.recommender.logs.models import Log
 
 
 class ClickApp(object):
@@ -30,9 +30,9 @@ class ClickApp(object):
         """
         The call of the view.
         """
-        user_external_id = request.GET.get("clicker")
-        app_external_id = request.GET.get("clicked_app")
-        Log.click(user_external_id, app_external_id,
-                  score=request.GET.get("score", 1.))
+        user_external_id = request.GET["clicker"]
+        app_external_id = request.GET["clicked_app"]
+        request.go_to = Log.click(user_external_id, app_external_id,
+                                  score=request.GET.get("score", 1.))
         return self._view(request, *args, **kwargs)
 

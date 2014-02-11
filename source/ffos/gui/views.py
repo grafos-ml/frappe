@@ -1,9 +1,10 @@
-'''
+"""
 Created on Dec 9, 2013
 
 .. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 
-'''
+"""
+
 
 from django.views.generic.base import View, TemplateResponseMixin
 from django.shortcuts import render_to_response, RequestContext
@@ -22,6 +23,8 @@ controller.registerReranker(
     RegionReRanker(),
     CategoryReRanker(n=12)
 )
+
+
 class Landing(View, TemplateResponseMixin):
 
     template_name = "landing.html"
@@ -42,10 +45,9 @@ class Landing(View, TemplateResponseMixin):
     #    context.update({'settings': settings})
     #    return context
 
-    def get(self,request,page=1,**kwargs):
-        '''
-
-        '''
+    def get(self,request, page=1, **kwargs):
+        """
+        """
         page = int(page)
         p = page-1
         users_list = FFOSUser.objects.all()
@@ -81,10 +83,10 @@ class Recommend(View, TemplateResponseMixin):
 #        'trace'
         ]
 
-    def get(self,request,user,**kwargs):
-        '''
+    def get(self, request, user, **kwargs):
+        """
 
-        '''
+        """
         rec = controller.get_recommendation(user=user,n=80)
         context = RequestContext(request)
         apps = {o.pk: o for o in FFOSApp.objects.filter(pk__in=rec)

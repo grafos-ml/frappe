@@ -34,7 +34,7 @@ class CacheDecorator(object):
     def make_unbound(self, klass):
         @wraps(self.func)
         def wrapper(*args, **kwargs):
-            '''This documentation will vanish :)'''
+            """This documentation will vanish :)"""
             raise TypeError(
                 'unbound method {}() must be called with {} instance '
                 'as first argument (got nothing instead)'.format(
@@ -45,7 +45,7 @@ class CacheDecorator(object):
     def make_bound(self, instance):
         @wraps(self.func)
         def wrapper(*args, **kwargs):
-            '''This documentation will disapear :)'''
+            """This documentation will disapear :)"""
             return self.decorator(self.func)(instance,*args,**kwargs)
         # This instance does not need the descriptor anymore,
         # let it find the wrapper directly next time:

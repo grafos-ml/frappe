@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-'''
+"""
 Controller system that provides results
 
 Created on Nov 29, 2013
@@ -7,7 +7,7 @@ Created on Nov 29, 2013
 
 .. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 
-'''
+"""
 
 import numpy as np
 from ffos.models import FFOSApp, FFOSUser
@@ -20,7 +20,7 @@ class InterfaceController(object):
     An abstract controller
     '''
 
-    def __init__(self,*args,**kwargs):
+    def __init__(self, *args, **kwargs):
         '''
         The constructor method.
 
@@ -36,7 +36,7 @@ class InterfaceController(object):
         self._rerankers = []
 
 
-    def registerFilter(self,*filters):
+    def registerFilter(self, *filters):
         '''
         Register a filter in this controller queue
 

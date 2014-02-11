@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-
+from ffos.recommender.logs.views import goto
 from tastypie.api import Api
 from ffos.recommender.api import RecommendationResource
 v1_api = Api(api_name='v1')
@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'source.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
+    url(r"^go/$", goto, name="click_app"),
     url(r'^',include('ffos.gui.urls')),
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/recommendation/',include('ffos.recommender.urls')),

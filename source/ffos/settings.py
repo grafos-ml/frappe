@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'ffos',
     'ffos.recommender',
     'ffos.gui',
+    "ffos.recommender.logs",
     'debug_toolbar',
 )
 
@@ -135,11 +136,13 @@ DEBUG_TOOLBAR_PATCH_SETTINGS = DEBUG
 
 CACHES = {
     'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    } if DEBUG else {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        #'LOCATION': '/var/tmp/django_cache',
+        'LOCATION': '/var/tmp/django_cache',
         'TIMEOUT': 60,
         'OPTIONS': {
             'MAX_ENTRIES': 1000
-        }
+        },
     }
 }

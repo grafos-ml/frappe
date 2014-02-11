@@ -106,7 +106,7 @@
                 <div id="recommendedApps" class="col-xs-12">
                 {% for app, regions in recommended %}
                     <div class="col-sm-6 col-md-3">
-                        <a href="{{ app.store_url }}" class="thumbnail">
+                        <a href="{% url 'click_app' %}?clicker={{ ffosuser.external_id }}&clicked_app={{ app.external_id }}" class="thumbnail">
                             <img alt="Some Icone" src="{{ app.icon.size128 }}" >
                         </a>
                         <p>{{app.pk}} {{ app.external_id }} {{ app.name }}</p>
