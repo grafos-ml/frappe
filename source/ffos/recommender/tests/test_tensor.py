@@ -77,19 +77,4 @@ class TestTensorCoFi(object):
 
 
 
-    def _float_matrix2numpy(self, java_float_matrix):
-        '''
-        Java Float Matrix is a 1-D array writen column after column.
-        Numpy reads row after row, therefore, we need a conversion.
-        '''
-        columns_input = java_float_matrix.toArray()
-        split = lambda lst, sz: [np.fromiter(lst[i:i+sz],dtype=np.float)
-            for i in xrange(0, len(lst), sz)]
-        cols = split(columns_input, java_float_matrix.rows)
-        matrix = np.ma.column_stack(cols)
-        return matrix
-
-
-
-
 

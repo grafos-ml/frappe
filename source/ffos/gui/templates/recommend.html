@@ -24,7 +24,7 @@
                 <div id="installedApps" class="col-xs-12 col-dm-12">
                 {% for app in ffosuser.installed_apps.all.select_related %}
                     <div class="col-sm-6 col-md-3">
-                        <a href="#" class="thumbnail">
+                        <a href="https://marketplace.firefox.com/app/{{ app.slug }}/" class="thumbnail">
                             <img alt="Some Icone" src="{{ app.icon.size128 }}" >
                         </a>
                         <small>{{ app.installation_date }}</small>
@@ -35,7 +35,7 @@
                     <ul class="pagination" id="installedPager"></ul>
                 </div>
                 <script>
-                    perPage = 4;
+                    var perPage = 4;
                     function goTo(page,pager,listElement){
                           if(page >= 0 && page < listElement.children().size()/
                             perPage){
@@ -106,7 +106,7 @@
                 <div id="recommendedApps" class="col-xs-12">
                 {% for app, regions in recommended %}
                     <div class="col-sm-6 col-md-3">
-                        <a href="#" class="thumbnail">
+                        <a href="https://marketplace.firefox.com/app/{{ app.slug }}/" class="thumbnail">
                             <img alt="Some Icone" src="{{ app.icon.size128 }}" >
                         </a>
                         <p>{{app.pk}} {{ app.external_id }} {{ app.name }}</p>
