@@ -69,7 +69,6 @@ WSGI_APPLICATION = 'ffos.wsgi.application'
 
 import socket
 HOSTS = {
-    'diana': '172.16.95.128',
     'chronos': '192.168.188.128',
 }
 
