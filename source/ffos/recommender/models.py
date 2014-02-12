@@ -18,6 +18,7 @@ from ffos.models import FFOSUser, FFOSApp
 from pkg_resources import resource_filename
 os.environ['CLASSPATH'] = resource_filename(recommender.__name__,
                                             'lib/algorithm-1.0-SNAPSHOT-jar-with-dependencies.jar')
+# os.environ["JAVA_OPTS"] = "-Xmx4096M"
 from django.db import models
 from django.utils.translation import ugettext as _
 import base64
@@ -84,7 +85,8 @@ class TensorModel(models.Model):
                                  settings.DATABASES['default']['TEST_NAME' if settings.TESTING else 'NAME'],
                                  settings.DATABASES['default']['USER'], settings.DATABASES['default']['PASSWORD'])
         tensor = JavaTensorCoFi(20, 5, 0.05, 40, [len(FFOSUser.objects.all()), len(FFOSApp.objects.all())])
-        tensor.train(reader.getData())
+        data = reader.getData()
+        tensor.train(data)
 
         # Put model in database
         final_model = tensor.getModel()
@@ -106,8 +108,6 @@ class TensorModel(models.Model):
         cols = split(columns_input, java_float_matrix.rows)
         matrix = np.ma.column_stack(cols)
         return matrix
-
-
 
 from django.contrib import admin
 admin.site.register([TensorModel])

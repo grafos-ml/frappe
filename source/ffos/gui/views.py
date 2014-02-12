@@ -51,7 +51,7 @@ class Landing(View, TemplateResponseMixin):
         page = int(page)
         p = page-1
         users_list = FFOSUser.objects.all()
-        paginator = Paginator(users_list, 15) # Show 15 users per page
+        paginator = Paginator(users_list, 15)  # Show 15 users per page
         try:
             users = paginator.page(page)
         except PageNotAnInteger:

@@ -183,7 +183,7 @@ class InterfaceController(object):
         return result[:n]
 
     def get_external_id_recommendations(self,user,n=10):
-        '''
+        """
         Returns the recommendations with a list of external_is's
 
         **Args**
@@ -194,19 +194,20 @@ class InterfaceController(object):
 
             *list*:
                 FFOSApp external id list
-        '''
-        result = self.get_recommendation(user=user,n=n)
-        rs = {app_id: app_eid for app_id,app_eid in FFOSApp.objects.filter(
-            pk__in=result).values_list('pk','external_id')}
+        """
+        result = self.get_recommendation(user=user, n=n)
+        rs = {app_id: app_eid for app_id, app_eid in FFOSApp.objects.filter(
+            pk__in=result).values_list('pk', 'external_id')}
         return [rs[r] for r in result]
 
+
 class TestController(InterfaceController):
-    '''
+    """
     A testing controller. It fetch the matrix and decompose it in to
     app matrix and user matrix.
 
     @see parent
-    '''
+    """
 
     @CacheMatrix
     def get_user_matrix(self):
