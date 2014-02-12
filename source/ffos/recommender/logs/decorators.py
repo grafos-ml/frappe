@@ -33,6 +33,6 @@ class ClickApp(object):
         user_external_id = request.GET["clicker"]
         app_external_id = request.GET["clicked_app"]
         request.go_to = Log.click(user_external_id, app_external_id,
-                                  score=request.GET.get("score", 1.))
+                                  rank=request.GET.get("rank", 0.))
         return self._view(request, *args, **kwargs)
 

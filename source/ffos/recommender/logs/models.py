@@ -57,12 +57,12 @@ class Log(models.Model):
         }
 
     @staticmethod
-    def click(user, app, score=1.):
+    def click(user, app, rank=0.):
         """
         Puts a click log into database
         """
         app = get_object_or_404(FFOSApp, external_id=app)
         Log.objects.create(user=get_object_or_404(FFOSUser, external_id=user),
                            item=app,
-                           value=score, type=Log.CLICK)
+                           value=rank, type=Log.CLICK)
         return app.store_url

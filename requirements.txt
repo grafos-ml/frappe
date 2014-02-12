@@ -36,5 +36,5 @@ sphinx
 #mimeparse>=0.1.4
 
 cython
-jnius
 
+https://github.com/kivy/pyjnius/archive/1.0.3.tar.gz

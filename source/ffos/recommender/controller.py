@@ -50,7 +50,7 @@ class InterfaceController(object):
             self._filters.append(filter)
 
 
-    def unregisterFilter(self,*filters):
+    def unregisterFilter(self, *filters):
         '''
         Removes a filter from the queue
 
@@ -59,7 +59,7 @@ class InterfaceController(object):
         fi *Filter*:
             A filter or filter id to remove from the controller
         '''
-        self._filters = filter(lambda x: x not in filters, self._filters)
+        self._filters = [x for x in self._filters if x not in filters]
 
     @property
     def filters(self):
@@ -81,16 +81,16 @@ class InterfaceController(object):
             reranker.controller = self
             self._rerankers.append(reranker)
 
-    def unregisterReranker(self,*rerankers):
-        '''
+    def unregisterReranker(self, *rerankers):
+        """
         Removes a reranker from the queue
 
         **Args**
 
         reranker *Reranker*:
             A reranker or reranker id to remove from the controller
-        '''
-        self._rerankers = filter(lambda x: x not in rerankers, self._rerankers)
+        """
+        self._rerankers = [x for x in self._rerankers if x not in rerankers]
 
     @property
     def rerankers(self):
@@ -132,7 +132,7 @@ class InterfaceController(object):
                 'by class %s' % self.__class__)
 
     @CacheUser
-    def get_app_significance_list(self,user,u_matrix,a_matrix):
+    def get_app_significance_list(self, user, u_matrix, a_matrix):
         '''
         Get a List of significance values for each app
 
@@ -158,8 +158,8 @@ class InterfaceController(object):
             a_matrix)))
 
     @CacheUser
-    def get_recommendation(self,user,n=10):
-        '''
+    def get_recommendation(self, user, n=10):
+        """
         Method to get recommendation according with some user id
 
         **Args**
@@ -174,17 +174,17 @@ class InterfaceController(object):
 
         *list*:
             A Python list the recommendation apps ids.
-        '''
+        """
         result = self.get_app_significance_list(user=user,
-            u_matrix=self.get_user_matrix(),a_matrix=self.get_apps_matrix())
+            u_matrix=self.get_user_matrix(), a_matrix=self.get_apps_matrix())
         logging.debug('Matrix generated')
         for _filter in self.filters:
-            result = _filter(user=user,app_score=result)
+            result = _filter(user=user, app_score=result)
         logging.debug('Filters finished')
         result = [aid+1 for aid, _ in sorted(enumerate(result.tolist()),
-            cmp=lambda x,y:cmp(y[1],x[1]))]
+            cmp=lambda x,y:cmp(y[1], x[1]))]
         for _reranker in self.rerankers:
-            result = _reranker(user=user,app_score=result)
+            result = _reranker(user=user, app_score=result)
         logging.debug('Re-rankers finished')
         return result[:n]
 

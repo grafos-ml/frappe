@@ -31,21 +31,21 @@ class Landing(View, TemplateResponseMixin):
 
     http_method_names = [
         'get',
-#        'post',
-#        'put',
-#        'patch',
-#        'delete',
-#        'head',
-#        'options',
-#        'trace'
-        ]
+        #'post',
+        #'put',
+        #'patch',
+        #'delete',
+        #'head',
+        #'options',
+        #'trace'
+    ]
 
     #def get_context_data(self,request,**kwargs):
     #    context = RequestContext(request)
     #    context.update({'settings': settings})
     #    return context
 
-    def get(self,request, page=1, **kwargs):
+    def get(self, request, page=1, **kwargs):
         """
         """
         page = int(page)
@@ -62,10 +62,10 @@ class Landing(View, TemplateResponseMixin):
             users = paginator.page(paginator.num_pages)
         min, max = 2-(paginator.num_pages-p) if p+3 > paginator.num_pages \
             else 0,2-p if p < 3 else 0
-        min, max = p-(2+min) if p-(2+min) >= 0 else 0,p+3+max
+        min, max = p-(2+min) if p-(2+min) >= 0 else 0, p+3+max
         page_list = paginator.page_range[min:max]
         context = RequestContext(request)
-        context.update({"users": users,'page_list': page_list})
+        context.update({"users": users, 'page_list': page_list})
         return render_to_response(self.template_name, context)
 
 class Recommend(View, TemplateResponseMixin):
@@ -74,14 +74,14 @@ class Recommend(View, TemplateResponseMixin):
 
     http_method_names = [
         'get',
-#        'post',
-#        'put',
-#        'patch',
-#        'delete',
-#        'head',
-#        'options',
-#        'trace'
-        ]
+        #'post',
+        #'put',
+        #'patch',
+        #'delete',
+        #'head',
+        #'options',
+        #'trace'
+    ]
 
     def get(self, request, user, **kwargs):
         """
@@ -95,6 +95,6 @@ class Recommend(View, TemplateResponseMixin):
             'pk', 'regions__name')
         for pk, name in regions:
             reg[pk] = reg[pk]+[name] if pk in reg else [name]
-        context.update({"ffosuser": user,'recommended': [(apps[i],reg[i])
+        context.update({"ffosuser": user, 'recommended': [(apps[i], reg[i])
             for i in rec]})
         return render_to_response(self.template_name, context)
