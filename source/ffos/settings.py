@@ -71,7 +71,7 @@ WSGI_APPLICATION = 'ffos.wsgi.application'
 
 import socket
 HOSTS = {
-    'chronos': '192.168.188.128',
+    'chronos': '192.168.228.128',
 }
 
 DATABASES = {
@@ -117,15 +117,16 @@ STATIC_URL = '/static/'
 # Logging
 
 import logging
+import os
 from datetime import datetime
 
 FORMAT = '%(asctime)-15s: %(message)s'
-path = os.path.dirname(__file__)
-logging.basicConfig(format=FORMAT,level=logging.DEBUG if DEBUG else \
-logging.WARNING,filename=datetime.now().strftime(path+
-    '/logs/%d-%m-%Y %H:%M.log')
-    if DEBUG else datetime.now().strftime(path+'/logs/%d-%m-%Y.log')
-)
+path = os.path.dirname(__file__) + "/djangologs/"
+if not os.path.exists(path):
+    os.makedirs(path)
+logging.basicConfig(format=FORMAT, level=logging.DEBUG if DEBUG else logging.WARNING,
+                    filename=datetime.now().strftime(path + '%d-%m-%Y %H:%M.log')
+                    if DEBUG else datetime.now().strftime(path+'/logs/%d-%m-%Y.log'))
 
 # Testing
 # Nose settings

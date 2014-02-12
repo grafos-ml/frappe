@@ -4,12 +4,12 @@ Created on 11 February 2014
 
 A decorator to register events into log
 
-.. moduleauthor:: joaonrb <joaonrb>
+.. moduleauthor:: joaonrb <joaonrb@gmail.com>
 """
 
 __author__ = {
     'name': 'joaonrb',
-    'e-mail': 'joaonrb'
+    'e-mail': 'joaonrb@gmail.com'
 }
 
 from ffos.recommender.logs.models import Log
@@ -35,4 +35,3 @@ class ClickApp(object):
         request.go_to = Log.click(user_external_id, app_external_id,
                                   rank=request.GET.get("rank", 0.))
         return self._view(request, *args, **kwargs)
-

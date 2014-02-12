@@ -68,6 +68,7 @@ class Landing(View, TemplateResponseMixin):
         context.update({"users": users, 'page_list': page_list})
         return render_to_response(self.template_name, context)
 
+
 class Recommend(View, TemplateResponseMixin):
 
     template_name = "recommend.html"
@@ -87,14 +88,14 @@ class Recommend(View, TemplateResponseMixin):
         """
 
         """
-        rec = controller.get_recommendation(user=user,n=80)
+        rec = controller.get_recommendation(user=user, n=80)
         context = RequestContext(request)
-        apps = {o.pk: o for o in FFOSApp.objects.filter(pk__in=rec)
-            .select_related()}
-        reg, regions = {}, FFOSApp.objects.filter(pk__in=rec).values_list(
-            'pk', 'regions__name')
+        apps = {o.pk: o for o in FFOSApp.objects.filter(pk__in=rec).select_related()}
+        reg, regions = {}, FFOSApp.objects.filter(pk__in=rec).values_list('pk', 'regions__name')
         for pk, name in regions:
-            reg[pk] = reg[pk]+[name] if pk in reg else [name]
-        context.update({"ffosuser": user, 'recommended': [(apps[i], reg[i])
-            for i in rec]})
+            try:
+                reg[pk] = reg[pk]+[name]
+            except KeyError:
+                reg[pk] = [name]
+        context.update({"ffosuser": user, 'recommended': [(apps[i], reg[i])for i in rec]})
         return render_to_response(self.template_name, context)
