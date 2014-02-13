@@ -35,13 +35,14 @@ controller.registerReranker(
     CategoryReRanker(n=12)
 )
 
+
 class RecommendationResource(ModelResource):
     class Meta:
         queryset = FFOSUser.objects.all()
         resource_name = 'recommendation'
         detail_uri_name = 'external_id'
         #authentication = ApiKeyAuthentication()
-        authorization= Authorization()
+        authorization = Authorization()
         list_allowed_methods = []
         detail_allowed_methods = ['get']
         fields = ['external_id']
@@ -52,16 +53,15 @@ class RecommendationResource(ModelResource):
     def urls(self):
         return [
             url(r"^(?P<resource_name>%s)/(?P<n>[0-9]+)/(?P<external_id>\w[\w/-]"
-                r"*).(?P<format>\w+)$" % self._meta.resource_name,
-                self.wrap_view('dispatch_detail'),name="api_dispatch_detail")]
+                r"*).(?P<format>\w+)$" % self._meta.resource_name, self.wrap_view('dispatch_detail'),
+                name="api_dispatch_detail")]
 
     def determine_format(self, request):
         """
         Used to determine the desired format from the request.format
         attribute.
         """
-        if(hasattr(request, 'format') and
-                request.format in self._meta.serializer.formats):
+        if hasattr(request, 'format') and request.format in self._meta.serializer.formats:
             return self._meta.serializer.get_mime_for_format(request.format)
         return super(RecommendationResource, self).determine_format(request)
 
@@ -74,14 +74,12 @@ class RecommendationResource(ModelResource):
             return wrapped_view(request, *args, **kwargs)
         return wrapper
 
-
     def dehydrate(self, bundle):
-        '''
+        """
         Calculate the recommendations to the recommendation fields
-        '''
-        bundle.data['recommendations'] = controller\
-            .get_external_id_recommendations(user=bundle.data['external_id'],
-            n=bundle.request.recommendation_len)
+        """
+        bundle.data['recommendations'] = controller.get_external_id_recommendations(user=bundle.data['external_id'],
+                                                                                    n=bundle.request.recommendation_len)
         return bundle
     '''
     def dispatch_list(self, request, **kwargs):

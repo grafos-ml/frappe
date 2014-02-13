@@ -44,7 +44,7 @@ INSTALLED_APPS = (
     'ffos',
     'ffos.recommender',
     'ffos.gui',
-    "ffos.recommender.logs",
+    "ffos.recommender.rlogging",
     'debug_toolbar',
 )
 
@@ -126,7 +126,7 @@ if not os.path.exists(path):
     os.makedirs(path)
 logging.basicConfig(format=FORMAT, level=logging.DEBUG if DEBUG else logging.WARNING,
                     filename=datetime.now().strftime(path + '%d-%m-%Y %H:%M.log')
-                    if DEBUG else datetime.now().strftime(path+'/logs/%d-%m-%Y.log'))
+                    if DEBUG else datetime.now().strftime(path+'/rlogging/%d-%m-%Y.log'))
 
 # Testing
 # Nose settings

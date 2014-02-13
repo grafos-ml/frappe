@@ -9,9 +9,9 @@ Created on 11 February 2014
 __author__ = 'joaonrb'
 
 from django.http import HttpResponseRedirect
-from ffos.recommender.logs.decorators import ClickApp
+from ffos.recommender.rlogging.decorators import ClickApp
 
-@ClickApp
+@ClickApp()
 def goto(request):
     """
     Redirect to the following app store url

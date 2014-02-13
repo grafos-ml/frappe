@@ -60,10 +60,9 @@ class Landing(View, TemplateResponseMixin):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             users = paginator.page(paginator.num_pages)
-        min, max = 2-(paginator.num_pages-p) if p+3 > paginator.num_pages \
-            else 0,2-p if p < 3 else 0
-        min, max = p-(2+min) if p-(2+min) >= 0 else 0, p+3+max
-        page_list = paginator.page_range[min:max]
+        mn, mx = 2-(paginator.num_pages-p) if p+3 > paginator.num_pages else 0, 2-p if p < 3 else 0
+        mn, mx = p-(2+mn) if p-(2+mn) >= 0 else 0, p+3+mx
+        page_list = paginator.page_range[mn:mx]
         context = RequestContext(request)
         context.update({"users": users, 'page_list': page_list})
         return render_to_response(self.template_name, context)

@@ -1,9 +1,8 @@
 #-*- coding: utf-8 -*-
 """
-Controller system that provides results
-
-Created on Nov 29, 2013
-
+.. py:module:: controller
+    :platform: Unix, Windows
+    :synopsis: Controller system that provides results. Created on Nov 29, 2013
 
 .. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 
@@ -13,6 +12,7 @@ import numpy as np
 from ffos.models import FFOSApp, FFOSUser
 from ffos.recommender.caches import CacheUser, CacheMatrix
 from ffos.recommender.models import TensorModel
+from ffos.recommender.rlogging.decorators import LogRecommendedApps
 import logging
 
 
@@ -25,13 +25,8 @@ class InterfaceController(object):
         """
         The constructor method.
 
-        **Args**
-
-        args *list*:
-            Generic anonymous arguments
-
-        kwargs *dict*:
-            Generic arguments
+        :param args: Generic anonymous arguments
+        :param kwargs: Generic arguments
         """
         self._filters = []
         self._rerankers = []
@@ -126,7 +121,7 @@ class InterfaceController(object):
         else:
             raise NotImplementedError('get_app_matrix was not overwritten by class %s' % self.__class__)
 
-    @CacheUser
+    @CacheUser()
     def get_app_significance_list(self, user, u_matrix, a_matrix):
         """
         Get a List of significance values for each app
@@ -151,7 +146,8 @@ class InterfaceController(object):
         # previous user.
         return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] * a_matrix)))
 
-    @CacheUser
+    @LogRecommendedApps()
+    @CacheUser()
     def get_recommendation(self, user, n=10):
         """
         Method to get recommendation according with some user id
@@ -175,14 +171,13 @@ class InterfaceController(object):
         for _filter in self.filters:
             result = _filter(user=user, app_score=result)
         logging.debug('Filters finished')
-        result = [aid+1 for aid, _ in sorted(enumerate(result.tolist()),
-            cmp=lambda x,y:cmp(y[1], x[1]))]
+        result = [aid+1 for aid, _ in sorted(enumerate(result.tolist()), cmp=lambda x, y: cmp(y[1], x[1]))]
         for _reranker in self.rerankers:
             result = _reranker(user=user, app_score=result)
         logging.debug('Re-rankers finished')
         return result[:n]
 
-    def get_external_id_recommendations(self,user,n=10):
+    def get_external_id_recommendations(self, user, n=10):
         """
         Returns the recommendations with a list of external_is's
 
@@ -209,20 +204,19 @@ class TestController(InterfaceController):
     @see parent
     """
 
-    @CacheMatrix
+    @CacheMatrix()
     def get_user_matrix(self):
-        '''
+        """
         Catch the user matrix from database
 
         **Returns**
 
         *np.matrix*:
             The matrix of users.
-        '''
-        return np.matrix(np.random.random(size=(10,
-            FFOSUser.objects.all().count())))
+        """
+        return np.matrix(np.random.random(size=(10, FFOSUser.objects.all().count())))
 
-    @CacheMatrix
+    @CacheMatrix()
     def get_apps_matrix(self):
         """
         Generate a random
@@ -232,8 +226,7 @@ class TestController(InterfaceController):
         *np.matrix*:
             The matrix of apps.
         """
-        return np.matrix(np.random.random(size=(10,
-            FFOSApp.objects.all().count())))
+        return np.matrix(np.random.random(size=(10, FFOSApp.objects.all().count())))
 
 
 class SimpleController(InterfaceController):
@@ -241,7 +234,7 @@ class SimpleController(InterfaceController):
     Get the matrix from the Model
     """
 
-    @CacheMatrix
+    @CacheMatrix()
     def get_user_matrix(self):
         """
         Catch the user matrix from database
@@ -257,7 +250,7 @@ class SimpleController(InterfaceController):
             TensorModel.train()
             return self.get_user_matrix()
 
-    @CacheMatrix
+    @CacheMatrix()
     def get_apps_matrix(self):
         """
         Cathe matrix from model
