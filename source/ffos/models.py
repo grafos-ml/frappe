@@ -420,7 +420,7 @@ class FFOSApp(models.Model):
 
     @staticmethod
     def load(*apps):
-        '''
+        """
         Load all json to the database. It assumes that all the files are in the
         FFOSApp format.
 
@@ -507,67 +507,60 @@ class FFOSApp(models.Model):
                     "resource_uri": String(255)
                 }
 
-        '''
+        """
         cursor = connection.cursor()
-        apps = [(app,FFOSAppIcon.prepare(app),FFOSAppCategory.prepare(app),
-            DeviceType.prepare(app),Region.prepare(app),
-            Locale.prepare(app),Preview.prepare(app))
-            for app in apps]
+        apps = [(app, FFOSAppIcon.prepare(app), FFOSAppCategory.prepare(app), DeviceType.prepare(app),
+                 Region.prepare(app), Locale.prepare(app), Preview.prepare(app)) for app in apps]
 
         logging.info('Loading icons')
         FFOSAppIcon.objects.bulk_create(FFOSAppIcon.new_to_add())
-        icons = {FFOSAppIcon.identify_obj(i): i \
-            for i in FFOSAppIcon.objects.all()}
+        icons = {FFOSAppIcon.identify_obj(i): i for i in FFOSAppIcon.objects.all()}
 
         logging.info('Loading apps')
-        already_in_db = [x['external_id'] for x in FFOSApp.objects
-            .filter(external_id__in=[app[0]['id'] for app in apps])
-            .values('external_id')]
+        already_in_db = [x['external_id'] for x in FFOSApp.objects.filter(
+            external_id__in=[app[0]['id'] for app in apps]).values('external_id')]
         try:
             FFOSApp.objects.bulk_create([FFOSApp(
-                premium_type = app['premium_type'],
-                content_ratings = app['content_ratings'],
-                manifest_url = app['manifest_url'],
-                current_version = app['current_version'],
-                upsold = app['upsold'],
-                external_id = app['id'],
-                rating_count = app['ratings']['count'],
-                rating_average = app['ratings']['average'],
-                app_type = app['app_type'],
-                author = app.get('author',None),
-                support_url = app['support_url'],
-                slug = app['slug'],
+                premium_type=app['premium_type'],
+                content_ratings=app['content_ratings'],
+                manifest_url=app['manifest_url'],
+                current_version=app['current_version'],
+                upsold=app['upsold'],
+                external_id=app['id'],
+                rating_count=app['ratings']['count'],
+                rating_average=app['ratings']['average'],
+                app_type=app['app_type'],
+                author=app.get('author', None),
+                support_url=app['support_url'],
+                slug=app['slug'],
                 icon=icons[FFOSAppIcon.identify(app['icons'])],
-                created = datetime.strptime(app['created'],
-                    '%Y-%m-%dT%H:%M:%S').replace(tzinfo=utc)
-                    if 'created' in app else None,
-                homepage = app['homepage'],
-                support_email = app['support_email'],
-                public_stats = app['public_stats'],
-                status = app['status'],
-                privacy_policy = app['privacy_policy'],
-                is_packaged = app['is_packaged'],
-                description = app['description'],
-                default_locale = app['default_locale'],
-                price = app['price'],
-                payment_account = app['payment_account'],
-                price_locale = app['price_locale'],
-                name = app['name'],
+                created=datetime.strptime(app['created'], b'%Y-%m-%dT%H:%M:%S').replace(tzinfo=utc)
+                if 'created' in app else None,
+                homepage=app['homepage'],
+                support_email=app['support_email'],
+                public_stats=app['public_stats'],
+                status=app['status'],
+                privacy_policy=app['privacy_policy'],
+                is_packaged=app['is_packaged'],
+                description=app['description'],
+                default_locale=app['default_locale'],
+                price=app['price'],
+                payment_account=app['payment_account'],
+                price_locale=app['price_locale'],
+                name=app['name'],
 
                 # Choose false because it looks logical
-                payment_required = app.get('payment_required',False),
-                weekly_downloads = app.get('weekly_downloads',None),
-                upsell = app['upsell'],
-                resource_uri = app.get('resource_uri', "")
-            ) for app,_,_,_,_,_,_ in apps if app['id'] not in already_in_db])
+                payment_required=app.get('payment_required',False),
+                weekly_downloads=app.get('weekly_downloads',None),
+                upsell=app['upsell'],
+                resource_uri=app.get('resource_uri', "")
+            ) for app, _, _, _, _, _, _ in apps if app['id'] not in already_in_db])
         except Exception as e:
-            logging.error('%s %s' % (str(app['id']),e))
+            logging.error('%s %s' % (str(app['id']), e))
             raise
 
-        # Load all apps to cach. Yet to be improved
-        #apps = {a['id']: a for a in zip(*apps)[0]}
         _apps, _icons, _cat, _dt, _reg, _loc, _prev = zip(*apps)
-        apps = {int(x['id']):x for x in _apps}
+        apps = {int(x['id']): x for x in _apps}
         for a in FFOSApp.objects.filter(external_id__in=apps.keys()):
             apps[a.external_id] = apps[a.external_id], a
 
@@ -575,16 +568,15 @@ class FFOSApp(models.Model):
         FFOSAppCategory.objects.bulk_create(FFOSAppCategory.new_to_add())
 
         # Cache all the categories for relation with app. (Yet to be improved)
-        categories = {FFOSAppCategory.identify_obj(x): x
-            for x in FFOSAppCategory.objects.filter(name__in=[x.name
-            for x in itertools.chain(*_cat)])}
+        categories = {FFOSAppCategory.identify_obj(x): x for x in FFOSAppCategory.objects.filter(
+            name__in=[x.name for x in itertools.chain(*_cat)])}
 
         logging.info('Loading device types')
         DeviceType.objects.bulk_create(DeviceType.new_to_add())
 
         # Cache all the devices for relation with app. (Yet to be improved)
-        device_type = {DeviceType.identify_obj(x): x for x in DeviceType
-            .objects.filter(name__in=[x.name for x in itertools.chain(*_dt)])}
+        device_type = {DeviceType.identify_obj(x): x for x in DeviceType.objects.filter(
+            name__in=[x.name for x in itertools.chain(*_dt)])}
 
         logging.info('Loading regions')
         Region.objects.bulk_create(Region.new_to_add())
@@ -610,52 +602,42 @@ class FFOSApp(models.Model):
         # Starting to build a raw query for many to many bulk insertion
 
         logging.info('Loading relations')
-        values_cat, values_dev, values_reg, values_loc, values_prev = set([]),\
-            set([]), set([]), set([]), set([])
+        values_cat, values_dev, values_reg, values_loc, values_prev = set([]), set([]), set([]), set([]), set([])
         for a_json, a_obj in apps.values():
-            values_cat = itertools.chain(values_cat,set(['(%s, %s)' % \
-                (a_obj.pk,categories[FFOSAppCategory.identify(c)].pk)
-                for c in FFOSAppCategory.get_obj(a_json)]))
-            values_dev = itertools.chain(values_dev, set(['(%s, %s)' % \
-                (a_obj.pk,device_type[DeviceType.identify(dt)].pk)
-                for dt in DeviceType.get_obj(a_json)]))
-            values_reg = itertools.chain(values_reg, set(['(%s,%s)' % \
-                (a_obj.pk,regions[Region.identify(r)].pk)
-                for r in Region.get_obj(a_json)]))
-            values_loc = itertools.chain(values_loc, set(['(%s,%s)' % \
-                (a_obj.pk,locales[Locale.identify(l)].pk)
-                for l in Locale.get_obj(a_json)]))
-            values_prev = itertools.chain(values_prev, set(['(%s,%s)' % \
-                (a_obj.pk,previews[Preview.identify(p)].pk)
-                for p in Preview.get_obj(a_json)]))
+            values_cat = itertools.chain(values_cat, set(['(%s, %s)' % (a_obj.pk,
+                                                                        categories[FFOSAppCategory.identify(c)].pk)
+                                                          for c in FFOSAppCategory.get_obj(a_json)]))
+            values_dev = itertools.chain(values_dev, set(['(%s, %s)' % (a_obj.pk,
+                                                                        device_type[DeviceType.identify(dt)].pk)
+                                                          for dt in DeviceType.get_obj(a_json)]))
+            values_reg = itertools.chain(values_reg, set(['(%s,%s)' % (a_obj.pk, regions[Region.identify(r)].pk)
+                                                          for r in Region.get_obj(a_json)]))
+            values_loc = itertools.chain(values_loc, set(['(%s,%s)' % (a_obj.pk, locales[Locale.identify(l)].pk)
+                                                          for l in Locale.get_obj(a_json)]))
+            values_prev = itertools.chain(values_prev, set(['(%s,%s)' % (a_obj.pk, previews[Preview.identify(p)].pk)
+                                                            for p in Preview.get_obj(a_json)]))
 
         logging.info('Almost there')
         if values_cat:
             cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_categories',
-                'columns': '(ffosapp_id, ffosappcategory_id)',
-                'values': ','.join(values_cat)})
+                                         'columns': '(ffosapp_id, ffosappcategory_id)', 'values': ','.join(values_cat)})
         if values_dev:
-            cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_device_types',
-                'columns': '(ffosapp_id, devicetype_id)',
-                'values': ','.join(values_dev)})
+            cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_device_types', 'columns': '(ffosapp_id, devicetype_id)',
+                                         'values': ','.join(values_dev)})
         if values_reg:
-            cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_regions',
-                'columns': '(ffosapp_id, region_id)',
-                'values': ','.join(values_reg)})
+            cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_regions', 'columns': '(ffosapp_id, region_id)',
+                                         'values': ','.join(values_reg)})
         if values_loc:
-            cursor.execute(BULK_QUERY % {'table':
-                'ffos_ffosapp_supported_locales',
-                'columns': '(ffosapp_id, locale_id)',
-                'values': ','.join(values_loc)})
+            cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_supported_locales',
+                                         'columns': '(ffosapp_id, locale_id)', 'values': ','.join(values_loc)})
         if values_prev:
-            cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_previews',
-                'columns': '(ffosapp_id, preview_id)',
-                'values': ','.join(values_prev)})
+            cursor.execute(BULK_QUERY % {'table': 'ffos_ffosapp_previews', 'columns': '(ffosapp_id, preview_id)',
+                                         'values': ','.join(values_prev)})
         logging.info('Done!')
 
 
 class FFOSUser(models.Model):
-    '''
+    """
     FireFox OS User/client. Is a model for FFOS experience information. Some id
     stamp and locale info mostly::
     
@@ -663,7 +645,7 @@ class FFOSUser(models.Model):
         implementation it depends on the DBMS type and settings. Maybe is a
         topic to discuss.
 
-    '''
+    """
     
     # Length is 5 not only for 'en' type of lang but also to the 'en_en' kind.
     # Can lang be null???

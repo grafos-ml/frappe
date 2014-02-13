@@ -45,7 +45,7 @@ class RLog(models.Model):
         verbose_name = _("recommendation log")
         verbose_name_plural = _("recommendation logs")
         #order_with_respect_to = "user"
-        #ordering = ["-timestamp", "user"]
+        ordering = ["-timestamp", "user"]
 
     def __unicode__(self):
         return _("%(date)s: user %(user)s as %(type)s item %(item)s") % {
