@@ -11,6 +11,7 @@ __author__ = 'joaonrb'
 from django.http import HttpResponseRedirect
 from ffos.recommender.rlogging.decorators import ClickApp
 
+
 @ClickApp()
 def goto(request):
     """

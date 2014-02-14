@@ -73,6 +73,6 @@ class RLog(models.Model):
         """
         apps = {app.pk: app for app in FFOSApp.objects.filter(pk__in=recommended)}
         logs = [RLog(user=user, item=apps[e_id], value=rank) for rank, e_id in enumerate(recommended, start=1)]
-        print RLog.objects.bulk_create(logs)
+        RLog.objects.bulk_create(logs)
 
 site.register([RLog])

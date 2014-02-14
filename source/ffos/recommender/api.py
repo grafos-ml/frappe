@@ -23,7 +23,9 @@ from tastypie.resources import ModelResource #, ALL, ALL_WITH_RELATIONS,Resource
 
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.filters import RepetitionFilter, RegionReRanker, \
-    LocaleFilter, CategoryReRanker
+    LocaleFilter, CategoryReRanker, RepetitionReRanker
+
+from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
 
 controller = SimpleController()
 controller.registerFilter(
@@ -32,7 +34,9 @@ controller.registerFilter(
 )
 controller.registerReranker(
     RegionReRanker(),
-    CategoryReRanker(n=12)
+    CategoryReRanker(n=12),
+    SimpleLogReRanker(),
+    RepetitionReRanker()
 )
 
 

@@ -136,7 +136,8 @@ class CategoryReRanker(ReRanker):
         for i in to_add:
             app_score.remove(i)
         i = self.num_rec - len(to_add)
-        assert len(app_score[:i]+to_add+app_score[i:]) != tes
+        assert len(app_score[:i]+to_add+app_score[i:]) == tes, "Len size don't match(old:%s != new:%s)" % \
+                                                               (tes, len(app_score[:i]+to_add+app_score[i:]))
         #    from django.shortcuts import Http404
         #    raise Http404
         return app_score[:i]+to_add+app_score[i:]
@@ -168,5 +169,20 @@ class CategoryReRanker(ReRanker):
             acd = {}
             for appID, cat in rs:
                 acd[cat] = [] if cat not in acd else acd[cat]+[appID]
-            cache.set('APP_CATEGORY_PROFILE',acd)
+            cache.set('APP_CATEGORY_PROFILE', acd)
         return acd
+
+
+class RepetitionReRanker(ReRanker):
+    """
+    A re ranker to push installed aps to the end
+    """
+
+    def __call__(self, user, app_score):
+        """
+
+        """
+        user_apps = [app_id for app_id, in user.installed_apps.all().values_list("id")]
+        for app_id in user_apps:
+            app_score.remove(app_id)
+        return app_score + user_apps
