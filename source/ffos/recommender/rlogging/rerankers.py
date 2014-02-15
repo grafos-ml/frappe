@@ -128,19 +128,18 @@ class SimpleLogReRanker(ReRanker):
         # Lets start by making a proper query that receive a list of tuples with:
         # (item id, type of log, sum(values), count, count_type)... This should be enough to a good re-ranker
         logs = RLog.objects.filter(item__id__in=early_recommendation, user=user, type=RLog.RECOMMEND)
-        logs = logs.values("item__pk", "type")
-        logs = logs.annotate(count=Count("item__pk"), sum=Sum("value")).order_by("type")
+        logs = logs.values("item__pk")
+        logs = logs.annotate(count=Count("item__pk"), sum=Sum("value"))
 
         # Just make a quick mapping for the items
         mapped_items = {}
-        mapped_types = {}
         for log_info in logs:
             item_pk, count, sum_value = log_info["item__pk"], log_info["count"], log_info["sum"]
             mapped_items[item_pk] = count, float(sum_value)
 
         # Now get the variables ranks
-        ranked_variables = enumerate(((app_id, mapped_items.get(app_id) or (rank, float(rank)))
-                                      for rank, app_id in enumerate(early_recommendation, start=1)), start=1)
+        ranked_variables = enumerate(((app_id, mapped_items.get(app_id) or (0, 0))
+                                      for app_id in early_recommendation), start=1)
 
         # And Get the new scores
         #new_scores = (((len(early_recommendation)/(sum_value/count))**count, item)
@@ -148,11 +147,14 @@ class SimpleLogReRanker(ReRanker):
         new_scores = []
         number_of_apps = len(early_recommendation)
         for rank, (item, (count, sum_value)) in ranked_variables:
-            mean = sum_value/count
-            print item, number_of_apps, mean, count
-            new_rank = (number_of_apps / mean) ** count
-            print new_rank
-            new_scores.append(new_rank)
+            try:
+                mean = sum_value/count
+                #print item, number_of_apps, mean, count
+                new_rank = (number_of_apps / mean) ** count
+            except ZeroDivisionError:
+                new_rank = rank
+            #print new_rank
+            new_scores.append((new_rank, item))
 
         # We just need to sort
         result = [item_id for _, item_id in sorted(new_scores, cmp=lambda x, y: cmp(x[0], y[0]))]
