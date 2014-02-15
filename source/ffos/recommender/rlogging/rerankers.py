@@ -42,8 +42,9 @@ class SimpleLogReRanker(ReRanker):
         """
         Constructor
 
-        :param rank_calculator: A callable object to calculate the gravity point. It should receive an array of numbers
-         and return a gravity point.
+        :param constant: Gravity point.
+        :param rank_calculator: A callable object to calculate the new rank. Must receive rank, rank mean, number of
+        recommendations and gravity point
         :type rank_calculator: collections.Callable.
         """
         self._rank_calculator = rank_calculator
