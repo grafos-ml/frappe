@@ -149,8 +149,8 @@ class SimpleLogReRanker(ReRanker):
         for rank, (item, (count, sum_value)) in ranked_variables:
             try:
                 mean = sum_value/count
-                #print item, number_of_apps, mean, count
-                new_rank = (number_of_apps / mean) ** count
+                #new_rank = (number_of_apps / mean) ** count
+                new_rank = rank - mean ** count
             except ZeroDivisionError:
                 new_rank = rank
             #print new_rank
