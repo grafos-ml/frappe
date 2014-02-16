@@ -17,14 +17,14 @@ from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
 
 controller = SimpleController()
 controller.registerFilter(
-    RepetitionFilter(),
-    LocaleFilter()
+    #RepetitionFilter(),
+    #LocaleFilter()
 )
 controller.registerReranker(
-    RegionReRanker(),
-    CategoryReRanker(n=12),
+    #RegionReRanker(),
+    #CategoryReRanker(n=12),
     SimpleLogReRanker(),
-    RepetitionReRanker()
+    #RepetitionReRanker()
 )
 
 

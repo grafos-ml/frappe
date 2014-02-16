@@ -14,6 +14,8 @@ from ffos.recommender.rlogging.models import RLog
 from django.db.models import Count, Sum
 
 MAX_LOG = 120000
+SIMPLE_RANK_CALCULATOR = lambda rank, mean, count, size: rank + ((size - mean) ** count)
+CONSTANT = 10
 
 
 class SimpleLogReRanker(ReRanker):
@@ -38,7 +40,7 @@ class SimpleLogReRanker(ReRanker):
     way the changes will be smother.
     """
 
-    def __init__(self, constant=10, rank_calculator=lambda rank, mean, count, size: rank + ((size - mean) ** count)):
+    def __init__(self, constant=None, rank_calculator=None):
         """
         Constructor
 
@@ -47,8 +49,8 @@ class SimpleLogReRanker(ReRanker):
         recommendations and gravity point
         :type rank_calculator: collections.Callable.
         """
-        self._rank_calculator = rank_calculator
-        self._constant = constant
+        self._rank_calculator = rank_calculator or SIMPLE_RANK_CALCULATOR
+        self._constant = constant or CONSTANT
 
     def __call__(self, user, early_recommendation):
         """
@@ -75,6 +77,10 @@ class SimpleLogReRanker(ReRanker):
             item_pk, count, sum_value = log_info["item__pk"], log_info["count"], log_info["sum"]
             mapped_items[item_pk] = count, float(sum_value)
 
+        # Push the installed app to the back. This is needed because this algorithm rearrange rank values
+        for app in user.installed_apps.all().values("pk"):
+            mapped_items[app["pk"]] = 1, float("inf")
+
         # Now get the variables ranks
         ranked_variables = enumerate(((app_id, mapped_items.get(app_id) or (0, 0))
                                       for app_id in early_recommendation), start=1)
@@ -83,12 +89,13 @@ class SimpleLogReRanker(ReRanker):
         #new_scores = (((len(early_recommendation)/(sum_value/count))**count, item)
         #              for rank, (item, (count, sum_value)) in ranked_variables)
         new_scores = []
-        number_of_apps = len(early_recommendation)
+        #number_of_apps = len(early_recommendation)
         for rank, (item, (count, sum_value)) in ranked_variables:
             try:
                 mean = sum_value/count
                 #new_rank = (number_of_apps / mean) ** count
-                new_rank = self._rank_calculator(rank, mean, count, self._constant if mean < self._constant else mean)
+                new_rank = \
+                    self._rank_calculator(rank, mean, count, self._constant if mean+1 < self._constant else (mean+2))
             except ZeroDivisionError:
                 new_rank = rank
             #print new_rank
