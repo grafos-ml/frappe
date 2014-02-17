@@ -1,20 +1,21 @@
-#-*- coding: utf-8 -*-
-'''
+# -*- coding: utf-8 -*-
+"""
 Created on 8 Jan 2014
 
 Tests for filters and re-rankers
 
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
-'''
+"""
 
 from ffos.models import FFOSUser, FFOSApp
 from ffos.util import parseDir
 from ffos.recommender.filters import CategoryReRanker
 
+
 class TestCategoryReRanker(object):
-    '''
-    Test the category reranker
-    '''
+    """
+    Test the category re ranker
+    """
 
     @classmethod
     def teardown(cls):
