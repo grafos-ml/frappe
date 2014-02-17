@@ -88,7 +88,7 @@ DATABASES = {
         'CHARSET': 'utf8',
         'TEST_NAME': 'test_ffosv1',
         'TEST_CHARSET': 'utf8',
-        'USER': 'root',
+        'USER': 'raqksixq_frappe',
         'PASSWORD': 'Sp21o61H4',
         'HOST': HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS
             else 'localhost',

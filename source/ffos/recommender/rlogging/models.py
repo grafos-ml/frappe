@@ -7,10 +7,7 @@ Models for the logging system
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 """
 
-__author__ = {
-    'name': 'joaonrb',
-    'e-mail': 'joaonrb@gmail.com'
-}
+__author__ = "joaonrb"
 
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
@@ -38,7 +35,7 @@ class RLog(models.Model):
     user = models.ForeignKey(FFOSUser, to_field="external_id", verbose_name=_("user"))
     item = models.ForeignKey(FFOSApp, to_field="external_id", verbose_name=_("item"))
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
-    value = models.DecimalField(_("value"), max_digits=6, decimal_places=4, null=True, default=None)
+    value = models.FloatField(_("value"), null=True, default=None)
     type = models.SmallIntegerField(_("type"), choices=TYPES.items(), default=RECOMMEND)
 
     class Meta:

@@ -9,7 +9,7 @@
 """
 
 import numpy as np
-from ffos.models import FFOSApp, FFOSUser
+from ffos.models import FFOSApp
 from ffos.recommender.caches import CacheUser, CacheMatrix
 from ffos.recommender.models import TensorModel
 from ffos.recommender.rlogging.decorators import LogRecommendedApps
@@ -44,17 +44,6 @@ class InterfaceController(object):
             filter.controller = self
             self._filters.append(filter)
 
-    def unregisterFilter(self, *filters):
-        """
-        Removes a filter from the queue
-
-        **Args**
-
-        fi *Filter*:
-            A filter or filter id to remove from the controller
-        """
-        self._filters = [x for x in self._filters if x not in filters]
-
     @property
     def filters(self):
         """
@@ -75,17 +64,6 @@ class InterfaceController(object):
             reranker.controller = self
             self._rerankers.append(reranker)
 
-    def unregisterReranker(self, *rerankers):
-        """
-        Removes a reranker from the queue
-
-        **Args**
-
-        reranker *Reranker*:
-            A reranker or reranker id to remove from the controller
-        """
-        self._rerankers = [x for x in self._rerankers if x not in rerankers]
-
     @property
     def rerankers(self):
         """
@@ -102,10 +80,6 @@ class InterfaceController(object):
         *np.matrix*:
             The matrix of users.
         """
-        if self.__class__ == InterfaceController:
-            raise TypeError('InterfaceController shouldn\'t be used directly. Create a new class to extend it instead.')
-        else:
-            raise NotImplementedError('get_user_matrix was not overwritten  by class %s' % self.__class__)
 
     def get_apps_matrix(self):
         """
@@ -116,10 +90,7 @@ class InterfaceController(object):
         *np.matrix*:
             The matrix of apps.
         """
-        if self.__class__ == InterfaceController:
-            raise TypeError('InterfaceController shouldn\'t be used directly. reate a new class to extend it instead.')
-        else:
-            raise NotImplementedError('get_app_matrix was not overwritten by class %s' % self.__class__)
+
 
     @CacheUser()
     def get_app_significance_list(self, user, u_matrix, a_matrix):
@@ -191,42 +162,9 @@ class InterfaceController(object):
                 FFOSApp external id list
         """
         result = self.get_recommendation(user=user, n=n)
-        rs = {app_id: app_eid for app_id, app_eid in FFOSApp.objects.filter(
-            pk__in=result).values_list('pk', 'external_id')}
+        rs = {app_id: app_eid for app_id, app_eid in FFOSApp.objects.filter(pk__in=result).values_list('pk',
+                                                                                                       'external_id')}
         return [rs[r] for r in result]
-
-
-class TestController(InterfaceController):
-    """
-    A testing controller. It fetch the matrix and decompose it in to
-    app matrix and user matrix.
-
-    @see parent
-    """
-
-    @CacheMatrix()
-    def get_user_matrix(self):
-        """
-        Catch the user matrix from database
-
-        **Returns**
-
-        *np.matrix*:
-            The matrix of users.
-        """
-        return np.matrix(np.random.random(size=(10, FFOSUser.objects.all().count())))
-
-    @CacheMatrix()
-    def get_apps_matrix(self):
-        """
-        Generate a random
-
-        **Returns**
-
-        *np.matrix*:
-            The matrix of apps.
-        """
-        return np.matrix(np.random.random(size=(10, FFOSApp.objects.all().count())))
 
 
 class SimpleController(InterfaceController):

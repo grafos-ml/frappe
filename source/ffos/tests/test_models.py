@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-'''
+"""
 Created on Dec 5, 2013
 
 This is a nose test module for the data loader methods and the loaddata.py
@@ -23,6 +23,10 @@ Then use the command::
 
     $ python manage.py help test -> to check how it work
 
+    $ python manage.py test -v2 --with-coverage --cover-html --cover-package=ffos ffos/tests/test_models.py
+    ffos/recommender/tests/ ffos/recommender/rlogging/tests.py
+
+
 
 The tested method will be:
     > ffos.util.parseDir
@@ -31,7 +35,7 @@ The tested method will be:
 
 
 .. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
-'''
+"""
 
 import os
 from ffos.models import *
@@ -42,6 +46,7 @@ from collections import Counter
 
 APP_FILE_NUM = 2559
 USER_FILE_NUM = 35
+
 
 class TestParse(object):
     '''
@@ -186,6 +191,9 @@ class TestLoad(object):
                 assert Preview.identify_obj(obj) in sorted_prev
 
     def test_user(self):
+        """
+        Test for users loading
+        """
         # Test if the tables are empty, same has before.
         assert len(FFOSUser.objects.all()) == 0
         assert len(Installation.objects.all()) == 0
@@ -208,8 +216,7 @@ class TestLoad(object):
 
         for user in users:
             assert user.external_id in sorted_user.keys()
-            app_ids = map(lambda x: x['id'],sorted_user[user.external_id]
-                ['installed_apps'])
+            app_ids = map(lambda x: x['id'], sorted_user[user.external_id]['installed_apps'])
             # This may not assert if user have installed apps that no longer exist
             #assert len(app_ids) == len(user.installed_apps.all())
             for app in user.installed_apps.all():
