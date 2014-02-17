@@ -14,7 +14,6 @@ Dome django fields are also defined here.
 """
 import os
 from ffos import recommender
-from ffos.models import FFOSUser, FFOSApp
 from pkg_resources import resource_filename
 os.environ['CLASSPATH'] = resource_filename(recommender.__name__,
                                             'lib/algorithm-1.0-SNAPSHOT-jar-with-dependencies.jar')
@@ -23,11 +22,8 @@ from django.db import models
 from django.utils.translation import ugettext as _
 import base64
 import numpy as np
-from jnius import autoclass
 from django.conf import settings
-JavaTensorCoFi = autoclass('es.tid.frappe.recsys.TensorCoFi')
-FloatMatrix = autoclass('org.jblas.FloatMatrix')
-MySQLDataReader = autoclass('es.tid.frappe.mysql.MySQLDataReader')
+from ffos.models import FFOSUser, FFOSApp
 
 
 class Matrix(models.TextField):
@@ -81,15 +77,20 @@ class TensorModel(models.Model):
 
     @staticmethod
     def train():
+        from jnius import autoclass
+        JavaTensorCoFi = autoclass('es.tid.frappe.recsys.TensorCoFi')
+        MySQLDataReader = autoclass('es.tid.frappe.mysql.MySQLDataReader')
         reader = MySQLDataReader(settings.DATABASES['default']['HOST'], 3306,
                                  settings.DATABASES['default']['TEST_NAME' if settings.TESTING else 'NAME'],
                                  settings.DATABASES['default']['USER'], settings.DATABASES['default']['PASSWORD'])
+
         tensor = JavaTensorCoFi(20, 5, 0.05, 40, [len(FFOSUser.objects.all()), len(FFOSApp.objects.all())])
         data = reader.getData()
         tensor.train(data)
 
         # Put model in database
         final_model = tensor.getModel()
+
         users = TensorModel._float_matrix2numpy(final_model.get(0))
         items = TensorModel._float_matrix2numpy(final_model.get(1))
 

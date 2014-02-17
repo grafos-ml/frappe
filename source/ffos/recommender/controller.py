@@ -172,7 +172,6 @@ class SimpleController(InterfaceController):
     Get the matrix from the Model
     """
 
-    @CacheMatrix()
     def get_user_matrix(self):
         """
         Catch the user matrix from database

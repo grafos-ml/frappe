@@ -14,22 +14,23 @@ original data was stored using MongoDB so is modeled in Json.
 
 from django.db import models, connection
 from django.utils.translation import ugettext as _
-from ffos.util import parseDir
 from django.utils.timezone import utc
 from datetime import datetime
-import itertools, collections, logging
+import itertools
+import collections
+import logging
 
-BULK_QUERY = 'INSERT INTO %(table)s %(columns)s VALUES %(values)s;'
+BULK_QUERY = "INSERT INTO %(table)s %(columns)s VALUES %(values)s;"
 
 class Filterble(object):
 
 
     @classmethod
-    def in_db(cls,obj):
-        '''
+    def in_db(cls, obj):
+        """
         Filter the enter queue so don't have any repetitions or
         crash database query
-        '''
+        """
         if not hasattr(cls,'olds'):
             cls.olds = cls.already_in_db()
         if not hasattr(cls,'news'):
@@ -38,13 +39,13 @@ class Filterble(object):
 
     @classmethod
     def already_in_db(cls):
-        '''
+        """
         Return a list o identifiers of the categories in db
-        '''
+        """
         return {cls.identify_obj(obj): obj for obj in cls.objects.all()}
 
     @classmethod
-    def prepare(cls,app):
+    def prepare(cls, app):
         objs = [cls.get_obj(app)] if not cls.has_many(cls.get_obj(app)) \
             else cls.get_obj(app)
         result = []
@@ -59,21 +60,19 @@ class Filterble(object):
         return result if cls.has_many(cls.get_obj(app)) else result[0]
 
     @classmethod
-    def has_many(cls,obj):
-        return isinstance(obj,collections.Iterable) and \
-            not isinstance(obj,dict)
+    def has_many(cls, obj):
+        return isinstance(obj, collections.Iterable) and not isinstance(obj, dict)
 
     @classmethod
     def new_to_add(cls):
         return cls.news[1]
 
 
-
 class FFOSAppCategory(models.Model, Filterble):
-    '''
+    """
     Category of a FireFox OS App. It only has a name.
-    '''
-    name = models.CharField(_('category name'),max_length=255)
+    """
+    name = models.CharField(_('category name'), max_length=255)
     
     class Meta:
         verbose_name = _('category')
@@ -83,30 +82,30 @@ class FFOSAppCategory(models.Model, Filterble):
         return self.name
 
     @classmethod
-    def identify(cls,obj):
+    def identify(cls, obj):
         return obj
 
     @classmethod
-    def identify_obj(cls,obj):
+    def identify_obj(cls, obj):
         return obj.name
 
     @classmethod
-    def prepare_to_db(cls,ident):
-        '''
+    def prepare_to_db(cls, ident):
+        """
         Prepares the object to db based on its identifier
-        '''
+        """
         return FFOSAppCategory(name=ident)
 
     @classmethod
-    def get_obj(cls,app):
+    def get_obj(cls, app):
         return app['categories']
 
         
 class DeviceType(models.Model, Filterble):
-    '''
+    """
     A Device type.
-    '''
-    name = models.CharField(_('device type'),max_length=255)
+    """
+    name = models.CharField(_('device type'), max_length=255)
     
     class Meta:
         verbose_name = _('device type')
@@ -116,34 +115,35 @@ class DeviceType(models.Model, Filterble):
         return self.name
 
     @classmethod
-    def identify(cls,obj):
-        '''
+    def identify(cls, obj):
+        """
         An identifier for the object. May be a str or a tuple with str.
-        '''
+        """
         return obj
 
     @classmethod
-    def identify_obj(cls,obj):
+    def identify_obj(cls, obj):
         return obj.name
 
     @classmethod
-    def prepare_to_db(cls,ident):
-        '''
+    def prepare_to_db(cls, ident):
+        """
         Prepares the object to db based on its identifier
-        '''
+        """
         return DeviceType(name=ident)
 
     @classmethod
-    def get_obj(cls,app):
+    def get_obj(cls, app):
         return app['device_types']
 
+
 class FFOSAppIcon(models.Model, Filterble):
-    '''
+    """
     The FireFox App API is, in the moment that this is being developed and
     documented, using 4 sizes of icons. For beauty purposes I decided not to
     put the in the app model. Instead one model to keep the icons and an
     foreign key in the app.
-    '''
+    """
     size16 = models.URLField(_('icon 16x16'))
     size48 = models.URLField(_('icon 48x48'))
     size64 = models.URLField(_('icon 64x64'))
@@ -154,50 +154,50 @@ class FFOSAppIcon(models.Model, Filterble):
         verbose_name_plural = _('app icons')
         
     def __unicode__(self):
-        '''
+        """
         Return the name of the app + the word icon
-        '''
+        """
         #return _('%(app_name)s icon') % {'app_name': self.app.name}
         return self.size16
 
     @classmethod
-    def identify(cls,obj):
-        '''
+    def identify(cls, obj):
+        """
         An identifier for the object. May be a str or a tuple with str.
-        '''
-        return obj['16'],obj['48'],obj['64'],obj['128']
+        """
+        return obj['16'], obj['48'], obj['64'], obj['128']
 
     @classmethod
-    def identify_obj(cls,obj):
-        return obj.size16,obj.size48,obj.size64,obj.size128
+    def identify_obj(cls, obj):
+        return obj.size16, obj.size48, obj.size64, obj.size128
 
     @classmethod
-    def prepare_to_db(cls,ident):
-        '''
+    def prepare_to_db(cls, ident):
+        """
         Prepares the object to db based on its identifier
-        '''
+        """
         return FFOSAppIcon(size16=ident[0],size48=ident[1],size64=ident[2],
             size128=ident[3])
 
     @classmethod
-    def get_obj(cls,app):
+    def get_obj(cls, app):
         return app['icons']
 
         
 class Region(models.Model, Filterble):
-    '''
+    """
     A region defined by the FireFox system for the mobile geo system. This is
     the geo information the app can give to the system.
-    '''
+    """
     adolescent = models.BooleanField(_('adolescent'))
     
     # I will make this a big number for the same reasons bellow
-    mcc =  models.IntegerField(_('mcc'),null=True,blank=True)
+    mcc = models.IntegerField(_('mcc'), null=True, blank=True)
     
     # And this a big string
-    name = models.CharField(_('name'),max_length=255)
+    name = models.CharField(_('name'), max_length=255)
     
-    slug = models.CharField(_('slug'),max_length=255,null=True,blank=True)
+    slug = models.CharField(_('slug'), max_length=255, null=True, blank=True)
     
     class Meta:
         verbose_name = _('region')
@@ -207,33 +207,33 @@ class Region(models.Model, Filterble):
         return self.name
 
     @classmethod
-    def identify(cls,obj):
-        '''
+    def identify(cls, obj):
+        """
         An identifier for the object. May be a str or a tuple with str.
-        '''
-        return obj['mcc'],obj['name'],obj['adolescent'],obj['slug']
+        """
+        return obj['mcc'], obj['name'], obj['adolescent'], obj['slug']
 
     @classmethod
-    def identify_obj(cls,obj):
-        return obj.mcc,obj.name,obj.adolescent,obj.slug
+    def identify_obj(cls, obj):
+        return obj.mcc, obj.name, obj.adolescent, obj.slug
 
     @classmethod
-    def prepare_to_db(cls,ident):
-        '''
+    def prepare_to_db(cls, ident):
+        """
         Prepares the object to db based on its identifier
-        '''
-        return Region(mcc=ident[0],name=ident[1],adolescent=ident[2],
-            slug=ident[3])
+        """
+        return Region(mcc=ident[0], name=ident[1], adolescent=ident[2], slug=ident[3])
 
     @classmethod
-    def get_obj(cls,app):
+    def get_obj(cls, app):
         return app['regions']
-        
+
+
 class Locale(models.Model, Filterble):
-    '''
+    """
     Locales to be assigned to the app support
-    '''
-    name = models.CharField(_('locale'),max_length=5)
+    """
+    name = models.CharField(_('locale'), max_length=5)
     
     class Meta:
         verbose_name = _('locale')
@@ -243,32 +243,33 @@ class Locale(models.Model, Filterble):
         return self.name
 
     @classmethod
-    def identify(cls,obj):
-        '''
+    def identify(cls, obj):
+        """
         An identifier for the object. May be a str or a tuple with str.
-        '''
+        """
         return obj
 
     @classmethod
-    def identify_obj(cls,obj):
+    def identify_obj(cls, obj):
         return obj.name
 
     @classmethod
-    def prepare_to_db(cls,ident):
-        '''
+    def prepare_to_db(cls, ident):
+        """
         Prepares the object to db based on its identifier
-        '''
+        """
         return Locale(name=ident)
 
     @classmethod
-    def get_obj(cls,app):
+    def get_obj(cls, app):
         return app['supported_locales']
 
+
 class Preview(models.Model, Filterble):
-    '''
+    """
     Information about the app previews
-    '''
-    filetype = models.CharField(_('file type'),max_length=255)
+    """
+    filetype = models.CharField(_('file type'), max_length=255)
     thumbnail_url = models.URLField(_('thumbnail url'))
     image_url = models.URLField(_('image url'))
     external_id = models.IntegerField(_('external id'))
@@ -279,76 +280,69 @@ class Preview(models.Model, Filterble):
         verbose_name_plural = _('previews')
         
     def __unicode__(self):
-        return _('preview with id %(preview_id)s') % {
-            'preview_id': self.external_id}
+        return _('preview with id %(preview_id)s') % {'preview_id': self.external_id}
 
     @classmethod
-    def identify(cls,obj):
-        '''
+    def identify(cls, obj):
+        """
         An identifier for the object. May be a str or a tuple with str.
-        '''
-        return obj['filetype'],obj['thumbnail_url'],obj['image_url'],\
-            int(obj['id']),obj['resource_uri']
+        """
+        return obj['filetype'], obj['thumbnail_url'], obj['image_url'], int(obj['id']), obj['resource_uri']
 
     @classmethod
-    def identify_obj(cls,obj):
-        return obj.filetype,obj.thumbnail_url,obj.image_url,\
-            obj.external_id,obj.resource_uri
+    def identify_obj(cls, obj):
+        return obj.filetype, obj.thumbnail_url, obj.image_url, obj.external_id, obj.resource_uri
 
     @classmethod
-    def prepare_to_db(cls,ident):
-        '''
+    def prepare_to_db(cls, ident):
+        """
         Prepares the object to db based on its identifier
-        '''
-        return Preview(filetype=ident[0],thumbnail_url=ident[1],
-            image_url=ident[2],external_id=int(ident[3]),
-            resource_uri=ident[4])
+        """
+        return Preview(filetype=ident[0], thumbnail_url=ident[1], image_url=ident[2], external_id=int(ident[3]),
+                       resource_uri=ident[4])
 
     @classmethod
-    def get_obj(cls,app):
+    def get_obj(cls, app):
         return app['previews']
-        
+
+
 class FFOSApp(models.Model):
-    '''
+    """
     FireFox OS App. It keeps the app data of a firefox os application. Some of
     the data types are not clear in the API so it may have to be changed in the
     future. So for many char fields I'm going to use 255 length. Linas said it
     was fine.
-    '''
+    """
 
     #def __init__(self,*args,**kwargs):
     #    super(FFOSApp,self).__init__(*args,**kwargs)
     #    print '.',
     
-    app_type = models.CharField(_('app type'),max_length=255)
+    app_type = models.CharField(_('app type'), max_length=255)
     
-    author = models.CharField(_('author'),max_length=255,null=True,blank=True)
+    author = models.CharField(_('author'), max_length=255, null=True, blank=True)
     
-    categories = models.ManyToManyField(FFOSAppCategory,blank=True,
-        verbose_name=_('categories'),related_name='apps')
+    categories = models.ManyToManyField(FFOSAppCategory, blank=True, verbose_name=_('categories'), related_name='apps')
 
     # Sometimes data cames as other stuff
-    content_ratings = models.TextField(_('content rating'),null=True,blank=True)
+    content_ratings = models.TextField(_('content rating'), null=True, blank=True)
     
-    created = models.DateTimeField(_('created date'),null=True,blank=True)
+    created = models.DateTimeField(_('created date'), null=True, blank=True)
 
     # Change to 255 length because of data problems
-    current_version = models.CharField(_('current version'),max_length=255,
-        null=True,blank=True)
+    current_version = models.CharField(_('current version'), max_length=255, null=True, blank=True)
     
-    default_locale = models.CharField(_('default locale'),max_length=5)
+    default_locale = models.CharField(_('default locale'), max_length=5)
     
-    description = models.TextField(_('description'),null=True,blank=True)
+    description = models.TextField(_('description'), null=True, blank=True)
     
-    device_types = models.ManyToManyField(DeviceType,blank=True,
-        verbose_name=_('device types'),related_name='apps')
+    device_types = models.ManyToManyField(DeviceType, blank=True, verbose_name=_('device types'), related_name='apps')
     
-    homepage = models.TextField(_('homepage'),null=True,blank=True)
+    homepage = models.TextField(_('homepage'), null=True, blank=True)
     
-    icon = models.ForeignKey(FFOSAppIcon,verbose_name=_('app icon'),
-        related_name='app',blank=True)
+    icon = models.ForeignKey(FFOSAppIcon,verbose_name=_('app icon'), related_name='app', blank=True)
     
-    external_id = models.IntegerField(_('external id'),unique=True)
+    external_id = models.IntegerField(_('external id'), unique=True)
     
     is_packaged = models.BooleanField(_('is packaged?'))
     
@@ -356,63 +350,55 @@ class FFOSApp(models.Model):
     
     name = models.TextField(_('name'), null=True, blank=True)
     
-    payment_account = models.CharField(_('payment account'),max_length=255,
-        null=True,blank=True)
+    payment_account = models.CharField(_('payment account'), max_length=255, null=True, blank=True)
     
     payment_required = models.BooleanField(_('is payment required?'))
     
-    price_locale = models.CharField(_('price locale'),max_length=255,null=True,
-        blank=True)
+    price_locale = models.CharField(_('price locale'), max_length=255, null=True, blank=True)
     
-    price = models.CharField(_('price'),max_length=255,null=True,blank=True)
+    price = models.CharField(_('price'),max_length=255, null=True, blank=True)
     
-    premium_type = models.CharField(_('primium type'),max_length=255,null=True,
-        blank=True)
+    premium_type = models.CharField(_('primium type'), max_length=255, null=True, blank=True)
     
     privacy_policy = models.CharField(_('privacy policy'), max_length=255)
     
     public_stats = models.BooleanField(_('public stats'))
     
-    rating_average = models.DecimalField(_('rating (average)'),max_digits=10,
-        decimal_places=3)
+    rating_average = models.DecimalField(_('rating (average)'),max_digits=10, decimal_places=3)
     
     rating_count = models.IntegerField(_('rating count'))
     
-    regions = models.ManyToManyField(Region,verbose_name=_('regions'),
-        blank=True,related_name='apps')
+    regions = models.ManyToManyField(Region, verbose_name=_('regions'), blank=True, related_name='apps')
     
-    resource_uri = models.TextField(_('resource uri'),null=True,blank=True)
+    resource_uri = models.TextField(_('resource uri'), null=True, blank=True)
     
-    slug = models.CharField(_('slug'),max_length=255,null=True,blank=True)
+    slug = models.CharField(_('slug'), max_length=255, null=True, blank=True)
     
-    status = models.IntegerField(_('status'),max_length=4)
+    status = models.IntegerField(_('status'), max_length=4)
     
-    support_email = models.TextField(_('support e-mail'),null=True,blank=True)
+    support_email = models.TextField(_('support e-mail'), null=True, blank=True)
     
-    support_url = models.URLField(_('support url'),null=True,blank=True)
+    support_url = models.URLField(_('support url'), null=True, blank=True)
     
-    supported_locales = models.ManyToManyField(Locale,blank=True,
-        verbose_name=_('supported locales'),related_name='apps')
+    supported_locales = models.ManyToManyField(Locale, blank=True, verbose_name=_('supported locales'),
+                                               related_name='apps')
     
     tags = models.TextField(_('tags'))
     
     upsell = models.BooleanField(_('upsell'))
     
-    upsold = models.CharField(_('upsold'),max_length=255,null=True,blank=True)
+    upsold = models.CharField(_('upsold'), max_length=255, null=True, blank=True)
     
-    weekly_downloads = models.CharField(_('weekly downloads'),max_length=255,
-        null=True,blank=True)
+    weekly_downloads = models.CharField(_('weekly downloads'), max_length=255, null=True, blank=True)
     
-    previews = models.ManyToManyField(Preview,verbose_name=_('previews'),
-        blank=True,related_name='app')
+    previews = models.ManyToManyField(Preview,verbose_name=_('previews'), blank=True, related_name='app')
     
     class Meta:
         verbose_name = _('firefox os app')
         verbose_name_plural = _('firefox os apps')
         
     def __unicode__(self):
-        return _('%(app_name)s version %(version)s') % {'app_name': self.name,
-            'version': self.current_version}
+        return _('%(app_name)s version %(version)s') % {'app_name': self.name, 'version': self.current_version}
 
     @property
     def store_url(self):
@@ -650,33 +636,32 @@ class FFOSUser(models.Model):
     # Length is 5 not only for 'en' type of lang but also to the 'en_en' kind.
     # Can lang be null???
     # Lang or Locale???
-    locale = models.CharField(_('locale'),max_length=255,null=True,blank=True)
+    locale = models.CharField(_('locale'), max_length=255, null=True, blank=True)
     
-    region = models.CharField(_('region'),max_length=255,null=True,blank=True)
+    region = models.CharField(_('region'), max_length=255, null=True, blank=True)
     
     # Length is 255, more than the dummy data field send by FireFox. Linas
     # said it's fine.
     # The documentation defines this has a md5 hash so a 32 hexa digit will be
     # enough?
-    external_id = models.CharField(_('external id'),max_length=255,unique=True)
+    external_id = models.CharField(_('external id'), max_length=255, unique=True)
     
-    installed_apps = models.ManyToManyField(FFOSApp,blank=True,
-        verbose_name=_('installed apps'),related_name='users',
-        through='Installation')
+    installed_apps = models.ManyToManyField(FFOSApp, blank=True, verbose_name=_('installed apps'), related_name='users',
+                                            through='Installation')
     
     class Meta:
         verbose_name = _('firefox client')
         verbose_name_plural = _('firefox clients')
         
     def __unicode__(self):
-        '''
+        """
         Return the word client followed by the client external id
-        '''
+        """
         return _('client %(external_id)s') % {'external_id': self.external_id}
 
     @staticmethod
     def load(*users):
-        '''
+        """
         Load a list of users to the data model FFOSUser. It also make the
             logging.info('Already in the database')
         connection to the installed apps.
@@ -711,44 +696,41 @@ class FFOSUser(models.Model):
                         More apps with the same format as the last one...
                     ]
                 }
-        '''
+        """
         logging.info('Preparing user data')
         new_users, apps, install = [], set([]), []
         old_users = [x['external_id'] for x in FFOSUser.objects.filter(
             external_id__in=[x['user'] for x in users]).values('external_id')]
         for user in users:
             if user['user'] not in old_users:
-                new_users.append(FFOSUser(locale=user['lang'],
-                    region=user['region'],external_id=user['user']))
+                new_users.append(FFOSUser(locale=user['lang'], region=user['region'],external_id=user['user']))
             for app in user['installed_apps']:
                 apps.add(app['id'])
-                install.append((user['user'],app['id'],
-                    datetime.strptime(app['installed'],"%Y-%m-%dT%H:%M:%S")\
-                    .replace(tzinfo=utc)))
+                install.append((user['user'], app['id'], datetime.strptime(app['installed'],
+                                                                           "%Y-%m-%dT%H:%M:%S").replace(tzinfo=utc)))
         logging.info('Loading users')
         FFOSUser.objects.bulk_create(new_users)
 
-        users = {u['external_id']: u['pk'] for u in FFOSUser.objects.filter(
-            external_id__in=[x['user'] for x in users]).values('pk',
-                'external_id')}
-        apps = {a['external_id']: a['pk'] for a in FFOSApp.objects.filter(
-            external_id__in=apps).values('pk','external_id')}
+        users = {u['external_id']: u['pk']
+                 for u in FFOSUser.objects.filter(external_id__in=[x['user']
+                                                                   for x in users]).values('pk', 'external_id')}
+        apps = {a['external_id']: a['pk']
+                for a in FFOSApp.objects.filter(external_id__in=apps).values('pk', 'external_id')}
         logging.info('Loading installed apps')
-        Installation.objects.bulk_create([Installation(
-            user_id=users[i[0]],app_id=apps[i[1]],installation_date=i[2])
-            for i in install if i[1] in apps ])
+        Installation.objects.bulk_create([Installation(user_id=users[i[0]], app_id=apps[i[1]], installation_date=i[2])
+                                          for i in install if i[1] in apps])
+
 
 class Installation(models.Model):
-    '''
+    """
     The connection between the user and the app. It has information about the
     user and the app such as installation date and eventually the date in which
     the app was removed.
-    '''
-    user = models.ForeignKey(FFOSUser,verbose_name=_('user'))
-    app = models.ForeignKey(FFOSApp,verbose_name=_('app'))
+    """
+    user = models.ForeignKey(FFOSUser, verbose_name=_('user'))
+    app = models.ForeignKey(FFOSApp, verbose_name=_('app'))
     installation_date = models.DateTimeField(_('installation date'))
-    removed_date = models.DateTimeField(_('removed date'),
-        null=True,blank=True)
+    removed_date = models.DateTimeField(_('removed date'), null=True, blank=True)
     
     class Meta:
         verbose_name = _('installation')
@@ -761,8 +743,4 @@ class Installation(models.Model):
 
 from django.contrib import admin
 
-admin.site.register([FFOSApp,FFOSUser,FFOSAppCategory,FFOSAppIcon,
-    DeviceType,Region,Locale,Installation])
-    
-    
-    
+admin.site.register([FFOSApp, FFOSUser, FFOSAppCategory, FFOSAppIcon, DeviceType, Region, Locale, Installation])
