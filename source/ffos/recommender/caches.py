@@ -29,7 +29,6 @@ class CacheUser(Decorator):
         """
         @functools.wraps(function)
         def decorated(*args, **kwargs):
-
             u_id = kwargs['user']
             if isinstance(u_id, basestring):
                 user = cache.get(CacheUser.USER % u_id)

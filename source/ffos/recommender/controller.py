@@ -117,8 +117,8 @@ class InterfaceController(object):
         # previous user.
         return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] * a_matrix)))
 
-    @LogRecommendedApps()
     @CacheUser()
+    @LogRecommendedApps()
     def get_recommendation(self, user, n=10):
         """
         Method to get recommendation according with some user id

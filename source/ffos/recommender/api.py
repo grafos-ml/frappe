@@ -1,29 +1,20 @@
 #-*- coding: utf-8 -*-
-'''
+"""
 Created on 10 Jan 2014
 
 TastyPie API module or ffos app recommender
 
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
-'''
-'''
-from django.shortcuts import Http404
-from tastypie.authentication import ApiKeyAuthentication
-from tastypie.exceptions import BadRequest, ImmediateHttpResponse
-from tastypie.exceptions import Unauthorized
-from tastypie import fields
-'''
+"""
 from django.utils.translation import ugettext as _
 from tastypie.authorization import Authorization
-from tastypie.http import HttpForbidden
 from ffos.models import FFOSUser
 from django.conf.urls import url
-from tastypie.resources import csrf_exempt
-from tastypie.resources import ModelResource #, ALL, ALL_WITH_RELATIONS,Resource
 
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.filters import RepetitionFilter, RegionReRanker, \
     LocaleFilter, CategoryReRanker, RepetitionReRanker
+from ffos.api import FFOSResource
 
 from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
 
@@ -40,43 +31,37 @@ controller.registerReranker(
 )
 
 
-class RecommendationResource(ModelResource):
+class RecommendationResource(FFOSResource):
     class Meta:
         queryset = FFOSUser.objects.all()
         resource_name = 'recommendation'
         detail_uri_name = 'external_id'
         #authentication = ApiKeyAuthentication()
         authorization = Authorization()
-        list_allowed_methods = []
+        list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
         fields = ['external_id']
         include_resource_uri = False
-        #exclude = ['resource_uri']
+
+    class WrapView(FFOSResource.WrapView):
+        """
+        This class is used to wrap the views so they may retrieve parameter data from the url. The default just
+        retrieve the format.
+        """
+
+        def set_request(self, request, *args, **kwargs):
+            """
+            Set some request variables to be used in views
+            """
+            args, kwargs = super(RecommendationResource.WrapView, self).set_request(request, *args, **kwargs)
+            request.recommendation_len = int(kwargs.pop('n', 10))
+            return args, kwargs
 
     @property
     def urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/(?P<n>[0-9]+)/(?P<external_id>\w[\w/-]"
-                r"*).(?P<format>\w+)$" % self._meta.resource_name, self.wrap_view('dispatch_detail'),
-                name="api_dispatch_detail")]
-
-    def determine_format(self, request):
-        """
-        Used to determine the desired format from the request.format
-        attribute.
-        """
-        if hasattr(request, 'format') and request.format in self._meta.serializer.formats:
-            return self._meta.serializer.get_mime_for_format(request.format)
-        return super(RecommendationResource, self).determine_format(request)
-
-    def wrap_view(self, view):
-        @csrf_exempt
-        def wrapper(request, *args, **kwargs):
-            request.format = kwargs.pop('format', None)
-            request.recommendation_len = int(kwargs.pop('n', 10))
-            wrapped_view = super(RecommendationResource, self).wrap_view(view)
-            return wrapped_view(request, *args, **kwargs)
-        return wrapper
+            url(r"^(?P<resource_name>%s)/(?P<n>[0-9]+)/(?P<external_id>\w[\w/-]*).(?P<format>\w+)$" %
+                self._meta.resource_name, self.WrapView(self, "dispatch_detail"), name="api_dispatch_detail")]
 
     def dehydrate(self, bundle):
         """
