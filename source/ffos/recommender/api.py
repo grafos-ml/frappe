@@ -6,7 +6,6 @@ TastyPie API module or ffos app recommender
 
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 """
-from django.utils.translation import ugettext as _
 from tastypie.authorization import Authorization
 from ffos.models import FFOSUser
 from django.conf.urls import url
@@ -38,7 +37,7 @@ class RecommendationResource(FFOSResource):
         detail_uri_name = 'external_id'
         #authentication = ApiKeyAuthentication()
         authorization = Authorization()
-        list_allowed_methods = ['get']
+        list_allowed_methods = []
         detail_allowed_methods = ['get']
         fields = ['external_id']
         include_resource_uri = False

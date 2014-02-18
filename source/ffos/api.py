@@ -13,7 +13,8 @@ __author__ = "joaonrb"
 from tastypie.resources import csrf_exempt
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie import fields
-from ffos.models import FFOSApp, FFOSUser
+from ffos.models import Installation, FFOSApp
+from django.conf.urls import url
 import functools
 
 
@@ -52,22 +53,26 @@ class FFOSResource(ModelResource):
             return args, kwargs
 
 
-class FFOSUserResource(FFOSResource):
+class FFOSAppResource(FFOSResource):
     class Meta:
-        queryset = FFOSUser.objects.all()
-        resource_name = "users"
-        list_allowed_methods = ["get"]
-        detail_allowed_methods = ["get"]
+        queryset = FFOSApp.objects.all()
+        resource_name = "apps"
 
 
 class InstalledAppResource(FFOSResource):
-    user = fields.ForeignKey(FFOSUserResource, 'user', null=True)
+    app = fields.ForeignKey(FFOSAppResource, "app", null=True)
 
     class Meta:
-        queryset = FFOSApp.objects.all()
-        resource_name = "user/installed"
+        queryset = Installation.objects.all()
+        resource_name = "installed-apps"
         list_allowed_methods = ["get"]
-        detail_allowed_methods = ["get", "post"]
-        filtering = {
-            "users": ALL_WITH_RELATIONS
-        }
+        detail_allowed_methods = ["post"]
+        include_resource_uri = False
+        excludes = ["removed_date", "id"]
+
+    @property
+    def urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/(?P<user__external_id>\w[\w/-]*).(?P<format>\w+)$" %
+                self._meta.resource_name, self.WrapView(self, "dispatch_list"), name="api_dispatch_detail")]
+

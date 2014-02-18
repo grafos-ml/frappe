@@ -6,7 +6,7 @@ django-crontab
 nose
 django-nose
 coverage
-django-tastypie
+djangorestframework
 django-debug-toolbar
 numpy==1.8.0
 pandas==0.12.0

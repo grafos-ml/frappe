@@ -40,12 +40,13 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_nose',
     # Tastypie looks like a very good rest api framework, but for now just simple views
-    'tastypie',
+    'tastypie',  # It isn't
     'ffos',
     'ffos.recommender',
     'ffos.gui',
     "ffos.recommender.rlogging",
     'debug_toolbar',
+    'rest_framework'
 )
 
 MIDDLEWARE_CLASSES = (

@@ -1,12 +1,9 @@
 from django.conf.urls import patterns, include, url
 from ffos.recommender.rlogging.views import goto
 from tastypie.api import Api
-from ffos.api import FFOSUserResource, InstalledAppResource
 from ffos.recommender.api import RecommendationResource
 v1_api = Api(api_name='v1')
 v1_api.register(RecommendationResource())
-v1_api.register(FFOSUserResource())
-v1_api.register(InstalledAppResource())
 
 from django.contrib import admin
 admin.autodiscover()
