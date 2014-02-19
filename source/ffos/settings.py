@@ -26,7 +26,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost"]
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'tastypie',  # It isn't
     'ffos',
     'ffos.recommender',
+    'ffos.recommender.api',
     'ffos.gui',
     "ffos.recommender.rlogging",
     'debug_toolbar',
@@ -137,6 +138,7 @@ DEBUG_TOOLBAR_PATCH_SETTINGS = DEBUG
 
 # Rest Framework Settings
 
+"""
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
     # Only used if the `serializer_class` attribute is not set on a view.
@@ -149,7 +151,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
 }
-
+"""
 # Caching
 
 CACHES = {

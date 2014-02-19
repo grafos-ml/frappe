@@ -12,7 +12,6 @@ __author__ = "joaonrb"
 
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer, XMLRenderer
 from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
@@ -23,6 +22,7 @@ from ffos.recommender.api.serializers import ItemRecommendedSerializer
 JSON = "json"
 XML = "xml"
 DEFAULT_FORMAT = JSON
+ALLOWED_FORMATS = (JSON, XML)
 
 FORMAT = lambda data_format: {
     JSON: (JSONParser, JSONResponse),
@@ -32,11 +32,11 @@ FORMAT = lambda data_format: {
 FORMAT_ERROR = 400
 FORMAT_ERROR_MESSAGE = {
     _("status"): FORMAT_ERROR,
-    _("error"): _("Format chosen is not allowed. Allowed format %s.") % ", ".join(FORMAT.keys())
+    _("error"): _("Format chosen is not allowed. Allowed format %s.") % ", ".join(ALLOWED_FORMATS)
 }
 
 RECOMMENDER = SimpleController()
-RECOMMENDER.registerFilter(SimpleLogReRanker)
+RECOMMENDER.registerReranker(SimpleLogReRanker())
 
 
 class APIResponse(HttpResponse):
@@ -82,13 +82,13 @@ class XMLResponse(APIResponse):
 
     A HttpResponse that renders its content into XML.
     """
-    content_type = "text/xml"
+    content_type = "application/xml"
     renderer = XMLRenderer()
 
 
-class UserRecommendation(APIView):
+class UserRecommendationAPI(APIView):
     """
-    .. py:class:: ffos.recommender.api.views.UserRecommendation()
+    .. py:class:: ffos.recommender.api.views.UserRecommendationAPI()
 
     About
     -----
@@ -96,13 +96,35 @@ class UserRecommendation(APIView):
     A class based view for the recommendation. This View ony support the get method
     """
 
+    http_method_names = [
+        'get',
+        #'post',
+        #'put',
+        #'patch',
+        #'delete',
+        #'head',
+        #'options',
+        #'trace'
+    ]
+
     def get(self, request, user_external_id, number_of_recommendations, data_format=JSON):
         """
         The get method
         """
-        recommended_apps = RECOMMENDER.get_recommendations_items(user_external_id, n=number_of_recommendations)
-        serializer = ItemRecommendedSerializer(recommended_apps, many=True)
+        recommended_apps = RECOMMENDER.get_external_id_recommendations(user_external_id, n=int(number_of_recommendations))
+        data = {"user": user_external_id, "recommendations": recommended_apps}
         try:
-            return FORMAT(data_format)[1](serializer.data)
+            return FORMAT(data_format)[1](data)
         except KeyError:
             return FORMAT(DEFAULT_FORMAT)[1](FORMAT_ERROR_MESSAGE, status=FORMAT_ERROR)
+
+
+class ItemAPIView(APIView):
+    """
+    ... py:class:: ffos.recommender.api.views.ItemAPI)
+
+    About
+    -----
+
+    Class to check detail of items and install a new one
+    """

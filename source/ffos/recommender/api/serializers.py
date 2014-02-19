@@ -24,6 +24,7 @@ class ItemRecommendedSerializer(serializers.ModelSerializer):
 
     Serializer for a recommended item.
     """
+
     class Meta:
         model = FFOSApp
-        fields = ("External_id", "support_url")
+        fields = "external_id",
