@@ -536,8 +536,8 @@ class FFOSApp(models.Model):
                 name=app['name'],
 
                 # Choose false because it looks logical
-                payment_required=app.get('payment_required',False),
-                weekly_downloads=app.get('weekly_downloads',None),
+                payment_required=app.get('payment_required', False),
+                weekly_downloads=app.get('weekly_downloads', None),
                 upsell=app['upsell'],
                 resource_uri=app.get('resource_uri', "")
             ) for app, _, _, _, _, _, _ in apps if app['id'] not in already_in_db])

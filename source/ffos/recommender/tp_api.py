@@ -13,7 +13,7 @@ from django.conf.urls import url
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.filters import RepetitionFilter, RegionReRanker, \
     LocaleFilter, CategoryReRanker, RepetitionReRanker
-from ffos.api import FFOSResource
+from ffos.tp_api import FFOSResource
 
 from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
 

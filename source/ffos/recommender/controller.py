@@ -148,6 +148,23 @@ class InterfaceController(object):
         logging.debug('Re-rankers finished')
         return result[:n]
 
+    def get_recommendations_items(self, user, n=10):
+        """
+        Returns the recommendations with a list of external_is's
+
+        **Args**
+
+            Same parameters that get_app_significance
+
+        **Returns**
+
+            *list*:
+                FFOSApp external id list
+        """
+        result = self.get_recommendation(user=user, n=n)
+        rs = {app.pk: app for app in FFOSApp.objects.filter(pk__in=result)}
+        return [rs[r] for r in result]
+
     def get_external_id_recommendations(self, user, n=10):
         """
         Returns the recommendations with a list of external_is's

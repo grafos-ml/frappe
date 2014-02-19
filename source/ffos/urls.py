@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 from ffos.recommender.rlogging.views import goto
 from tastypie.api import Api
-from ffos.recommender.api import RecommendationResource
+from ffos.recommender.tp_api import RecommendationResource
 v1_api = Api(api_name='v1')
 v1_api.register(RecommendationResource())
 
