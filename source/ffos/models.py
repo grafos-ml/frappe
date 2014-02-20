@@ -313,10 +313,6 @@ class FFOSApp(models.Model):
     future. So for many char fields I'm going to use 255 length. Linas said it
     was fine.
     """
-
-    #def __init__(self,*args,**kwargs):
-    #    super(FFOSApp,self).__init__(*args,**kwargs)
-    #    print '.',
     
     app_type = models.CharField(_('app type'), max_length=255)
     
@@ -324,7 +320,7 @@ class FFOSApp(models.Model):
     
     categories = models.ManyToManyField(FFOSAppCategory, blank=True, verbose_name=_('categories'), related_name='apps')
 
-    # Sometimes data cames as other stuff
+    # Sometimes data comes as other stuff
     content_ratings = models.TextField(_('content rating'), null=True, blank=True)
     
     created = models.DateTimeField(_('created date'), null=True, blank=True)
@@ -340,7 +336,7 @@ class FFOSApp(models.Model):
     
     homepage = models.TextField(_('homepage'), null=True, blank=True)
     
-    icon = models.ForeignKey(FFOSAppIcon,verbose_name=_('app icon'), related_name='app', blank=True)
+    icon = models.ForeignKey(FFOSAppIcon, verbose_name=_('app icon'), related_name='app', blank=True)
     
     external_id = models.IntegerField(_('external id'), unique=True)
     
@@ -356,7 +352,7 @@ class FFOSApp(models.Model):
     
     price_locale = models.CharField(_('price locale'), max_length=255, null=True, blank=True)
     
-    price = models.CharField(_('price'),max_length=255, null=True, blank=True)
+    price = models.CharField(_('price'), max_length=255, null=True, blank=True)
     
     premium_type = models.CharField(_('primium type'), max_length=255, null=True, blank=True)
     
@@ -629,6 +625,7 @@ class FFOSApp(models.Model):
         logging.info('Done!')
 
 
+
 class FFOSUser(models.Model):
     """
     FireFox OS User/client. Is a model for FFOS experience information. Some id
@@ -653,8 +650,8 @@ class FFOSUser(models.Model):
     # enough?
     external_id = models.CharField(_('external id'), max_length=255, unique=True)
     
-    installed_apps = models.ManyToManyField(FFOSApp, blank=True, verbose_name=_('installed apps'), related_name='users',
-                                            through='Installation')
+    apps = models.ManyToManyField(FFOSApp, blank=True, related_name='users', verbose_name=_('apps'),
+                                  through='Installation')
     
     class Meta:
         verbose_name = _('firefox client')
@@ -665,6 +662,13 @@ class FFOSUser(models.Model):
         Return the word client followed by the client external id
         """
         return _('client %(external_id)s') % {'external_id': self.external_id}
+
+    @property
+    def installed_apps(self):
+        """
+        Return the installed only apps
+        """
+        return self.apps.filter(installation__removed_date=None)
 
     @staticmethod
     def load(*users):

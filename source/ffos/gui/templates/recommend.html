@@ -22,7 +22,7 @@
 				<h4>{% trans "Installed Apps" %}</h4>
 				<hr>
                 <div id="installedApps" class="col-xs-12 col-dm-12">
-                {% for app in ffosuser.installed_apps.all.select_related %}
+                {% for app in ffosuser.installed_apps.select_related %}
                     <div class="col-sm-6 col-md-3">
                         <a href="{% url 'click_app' %}?clicker={{ ffosuser.external_id }}&clicked_app={{ app.external_id }}" class="thumbnail">
                             <img alt="Some Icone" src="{{ app.icon.size128 }}" >

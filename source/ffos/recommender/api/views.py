@@ -21,6 +21,7 @@ from rest_framework.views import APIView
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
 from ffos.models import FFOSApp, FFOSUser, Installation
+from ffos.recommender.rlogging.models import RLog
 
 import warnings
 
@@ -173,15 +174,24 @@ class ItemAPI(RecommendationAPI):
         _("error"): _("Item with that id has not found.")
     }
 
-    def get(self, _, app_external_id):
+    def get(self, request, app_external_id):
         """
         The get method
         """
+        user = request.GET.get("user", None)
         try:
             app = FFOSApp.objects.filter(external_id=app_external_id).values("external_id", "name", "icon__size64",
-                                                                             "icon__size16")[0]
+                                                                             "icon__size16", "slug", "id")[0]
+            user = FFOSUser.objects.filter(external_id=user).values("id")[0]["id"] if user else None
         except FFOSApp.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
+
+        to_store = request.GET.get("to_store", False)
+        source = bool(request.GET.get("source", None))
+        if user and source == "recommendation":
+            RLog.objects.create(user=user, item=app["id"], type=RLog.CLICK)
+        if to_store:
+            return self.format_response({"store-url": FFOSApp.slug_to_store_url(app["slug"])})
         return self.format_response({"external_id": app["external_id"], "name": app["name"],
                                      "icon": app["icon__size64"], "icon_small": app["icon__size16"]})
 
@@ -221,9 +231,9 @@ class UserItemsAPI(RecommendationAPI):
         query = \
             """
             INSERT INTO %(database)s.ffos_installation
-                SELECT NULL, ffos_ffosuser.id, ffos_ffosapp.id, NOW(), NULL \
-                FROM %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp \
-                WHERE %(database)s.ffos_ffosuser.external_id="%(user)s" \
+                SELECT NULL, ffos_ffosuser.id, ffos_ffosapp.id, NOW(), NULL
+                FROM %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp
+                WHERE %(database)s.ffos_ffosuser.external_id="%(user)s"
                 AND %(database)s.ffos_ffosapp.external_id="%(item)s";
             """ % {
                 "database": settings.DATABASES["default"]["NAME"],
@@ -244,8 +254,10 @@ class UserItemsAPI(RecommendationAPI):
             """
             UPDATE %(database)s.ffos_installation, %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp
                 SET %(database)s.ffos_installation.removed_date=NOW()
-                WHERE %(database)s.ffos_ffosuser.external_id="%(user)s" \
-                AND %(database)s.ffos_ffosapp.external_id="%(item)s";
+                WHERE %(database)s.ffos_ffosapp.external_id="%(item)s"
+                AND %(database)s.ffos_ffosuser.external_id="%(user)s"
+                AND %(database)s.ffos_installation.user_id=%(database)s.ffos_ffosuser.id
+                AND %(database)s.ffos_installation.app_id=%(database)s.ffos_ffosapp.id;
             """ % {
                 "database": settings.DATABASES["default"]["NAME"],
                 "user": user,
@@ -289,7 +301,7 @@ class UserItemsAPI(RecommendationAPI):
         Delete Rest method to remove items from user stack
         """
         try:
-            item_id = request.DELETE["item_to_acquire"]
+            item_id = request.DATA["item_to_acquire"]
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 

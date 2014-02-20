@@ -67,7 +67,7 @@ class SimpleLogReRanker(ReRanker):
         :rtype: A list of app ids(int).
         """
         mapped_items = {}
-        installed_apps = [app["pk"] for app in user.installed_apps.all().values("pk")]
+        installed_apps = [app["pk"] for app in user.installed_apps.values("pk")]
         # Push the installed app to the back. This is needed because this algorithm rearrange rank values
         for app_id in installed_apps:
             mapped_items[app_id] = float("inf"), 1  # For already installed apps the stronger push down variables.
