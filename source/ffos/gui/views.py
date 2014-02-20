@@ -48,7 +48,7 @@ class Landing(View, TemplateResponseMixin):
     #    context.update({'settings': settings})
     #    return context
 
-    def get(self, request, page=1, **kwargs):
+    def get(self, request, page=1):
         """
         """
         page = int(page)

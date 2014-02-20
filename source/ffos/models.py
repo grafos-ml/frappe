@@ -402,7 +402,14 @@ class FFOSApp(models.Model):
 
     @property
     def store_url(self):
-        return u"https://marketplace.firefox.com/app/%s/" % self.slug
+        return self.slug_to_store_url(self.slug)
+
+    @staticmethod
+    def slug_to_store_url(slug):
+        """
+        Receives the tem slug to return the store url
+        """
+        return u"https://marketplace.firefox.com/app/%s/" % slug
 
     @staticmethod
     def load(*apps):
@@ -735,6 +742,7 @@ class Installation(models.Model):
     class Meta:
         verbose_name = _('installation')
         verbose_name_plural = _('installations')
+        unique_together = ("user", "app")
         
     def __unicode__(self):
         return _('%(state)s %(app)s app for user %(user)s') % {

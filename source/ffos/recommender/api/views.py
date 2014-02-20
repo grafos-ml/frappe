@@ -10,6 +10,9 @@
 """
 __author__ = "joaonrb"
 
+from django.conf import settings
+from django.db import connection
+from django.db.utils import OperationalError
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from rest_framework.renderers import JSONRenderer, XMLRenderer
@@ -17,7 +20,9 @@ from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
-from ffos.recommender.api.serializers import ItemRecommendedSerializer
+from ffos.models import FFOSApp, FFOSUser, Installation
+
+import warnings
 
 JSON = "json"
 XML = "xml"
@@ -29,11 +34,24 @@ FORMAT = lambda data_format: {
     XML: (XMLParser, XMLResponse)
 }[data_format]
 
+SUCCESS = 200
+SUCCESS_MESSAGE = {
+    _("status"): SUCCESS,
+    _("message"): _("Done.")
+}
+
 FORMAT_ERROR = 400
 FORMAT_ERROR_MESSAGE = {
     _("status"): FORMAT_ERROR,
     _("error"): _("Format chosen is not allowed. Allowed format %s.") % ", ".join(ALLOWED_FORMATS)
 }
+
+PARAMETERS_IN_MISS = {
+    _("status"): FORMAT_ERROR,
+    _("error"): _("Some parameters are missing. Check documentation.")
+}
+
+NOT_FOUND_ERROR = 404
 
 RECOMMENDER = SimpleController()
 RECOMMENDER.registerReranker(SimpleLogReRanker())
@@ -86,7 +104,19 @@ class XMLResponse(APIResponse):
     renderer = XMLRenderer()
 
 
-class UserRecommendationAPI(APIView):
+class RecommendationAPI(APIView):
+    format_parser = None
+    format_response = None
+
+    def dispatch(self, request, data_format=JSON, *args, **kwargs):
+        try:
+            self.format_parser, self.format_response = FORMAT(data_format)
+        except KeyError:
+            return FORMAT(DEFAULT_FORMAT)[1](FORMAT_ERROR_MESSAGE, status=FORMAT_ERROR)
+        return super(RecommendationAPI, self).dispatch(request, *args, **kwargs)
+
+
+class UserRecommendationAPI(RecommendationAPI):
     """
     .. py:class:: ffos.recommender.api.views.UserRecommendationAPI()
 
@@ -107,24 +137,161 @@ class UserRecommendationAPI(APIView):
         #'trace'
     ]
 
-    def get(self, request, user_external_id, number_of_recommendations, data_format=JSON):
+    def get(self, _, user_external_id, number_of_recommendations):
         """
         The get method
         """
-        recommended_apps = RECOMMENDER.get_external_id_recommendations(user_external_id, n=int(number_of_recommendations))
+        recommended_apps = RECOMMENDER.get_external_id_recommendations(user_external_id,
+                                                                       n=int(number_of_recommendations))
         data = {"user": user_external_id, "recommendations": recommended_apps}
-        try:
-            return FORMAT(data_format)[1](data)
-        except KeyError:
-            return FORMAT(DEFAULT_FORMAT)[1](FORMAT_ERROR_MESSAGE, status=FORMAT_ERROR)
+        return self.format_response(data)
 
 
-class ItemAPIView(APIView):
+class ItemAPI(RecommendationAPI):
     """
-    ... py:class:: ffos.recommender.api.views.ItemAPI)
+    ... py:class:: ffos.recommender.api.views.ItemAPI()
 
     About
     -----
 
-    Class to check detail of items and install a new one
+    Class to check detail of items.
     """
+
+    http_method_names = [
+        'get',
+        #'post',
+        #'put',
+        #'patch',
+        #'delete',
+        #'head',
+        #'options',
+        #'trace'
+    ]
+
+    NOT_FOUND_ERROR_MESSAGE = {
+        _("status"): NOT_FOUND_ERROR,
+        _("error"): _("Item with that id has not found.")
+    }
+
+    def get(self, _, app_external_id):
+        """
+        The get method
+        """
+        try:
+            app = FFOSApp.objects.filter(external_id=app_external_id).values("external_id", "name", "icon__size64",
+                                                                             "icon__size16")[0]
+        except FFOSApp.DoesNotExist:
+            return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
+        return self.format_response({"external_id": app["external_id"], "name": app["name"],
+                                     "icon": app["icon__size64"], "icon_small": app["icon__size16"]})
+
+
+class UserItemsAPI(RecommendationAPI):
+    """
+    ... py:class:: ffos.recommender.api.views.AcquireItemAPI()
+
+    About
+    -----
+
+    This API allows a user to check upon their acquired items, to acquire a new item and to drop an old one.
+    """
+
+    NOT_FOUND_ERROR_MESSAGE = {
+        _("status"): NOT_FOUND_ERROR,
+        _("error"): _("User with that id has not found.")
+    }
+
+    http_method_names = [
+        'get',
+        'post',
+        #'put',
+        #'patch',
+        'delete',
+        #'head',
+        #'options',
+        #'trace'
+    ]
+
+    @staticmethod
+    def insert_acquisition(user, item):
+        """
+        Insert a new
+        """
+        warnings.warn("This insert was only tested for MySQL", Warning)
+        query = \
+            """
+            INSERT INTO %(database)s.ffos_installation
+                SELECT NULL, ffos_ffosuser.id, ffos_ffosapp.id, NOW(), NULL \
+                FROM %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp \
+                WHERE %(database)s.ffos_ffosuser.external_id="%(user)s" \
+                AND %(database)s.ffos_ffosapp.external_id="%(item)s";
+            """ % {
+                "database": settings.DATABASES["default"]["NAME"],
+                "user": user,
+                "item": item}
+        cursor = connection.cursor()
+        a = cursor.execute(query)
+        if a == 0:
+            raise OperationalError("Item not inserted")
+
+    @staticmethod
+    def delete_acquisition(user, item):
+        """
+        Insert a new
+        """
+        warnings.warn("This insert was only tested for MySQL", Warning)
+        query = \
+            """
+            UPDATE %(database)s.ffos_installation, %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp
+                SET %(database)s.ffos_installation.removed_date=NOW()
+                WHERE %(database)s.ffos_ffosuser.external_id="%(user)s" \
+                AND %(database)s.ffos_ffosapp.external_id="%(item)s";
+            """ % {
+                "database": settings.DATABASES["default"]["NAME"],
+                "user": user,
+                "item": item}
+        cursor = connection.cursor()
+        a = cursor.execute(query)
+        if a == 0:
+            raise OperationalError("Item not deleted")
+
+    def get(self, request, user_external_id):
+        """
+        Get method. It may receive get parameters
+        """
+        offset = request.GET.get("offset", 0)  # Offset of items
+        items = request.GET.get("items", 20)  # Number of items to present
+        try:
+            apps = FFOSUser.objects.get(external_id=user_external_id).installed_apps.all()
+            apps = [int(app) for app, in apps[offset:items].values_list("external_id")]
+        except FFOSUser.DoesNotExist:
+            return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
+        data = {"user": user_external_id, "installed": apps}
+        return self.format_response(data)
+
+    def post(self, request, user_external_id):
+        """
+        Post method
+        """
+        try:
+            item_id = request.POST["item_to_acquire"]
+        except KeyError:
+            return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
+
+        #Installation.objects.create(user_id=FFOSUser.objects.get(external_id=user_external_id).pk,
+        #                            app_id=FFOSApp.objects.get(external_id=item_id).pk,
+        #                            installation_date=timezone.now())
+        self.insert_acquisition(user_external_id, item_id)
+        return self.format_response(SUCCESS_MESSAGE)
+
+    def delete(self, request, user_external_id):
+        """
+        Delete Rest method to remove items from user stack
+        """
+        try:
+            item_id = request.DELETE["item_to_acquire"]
+        except KeyError:
+            return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
+
+        self.delete_acquisition(user_external_id, item_id)
+        return self.format_response(SUCCESS_MESSAGE)
