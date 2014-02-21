@@ -16,11 +16,14 @@
 		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-		
+		{% block css_files %}
 		<link rel="stylesheet" href="{% static "css/bootstrap.css" %}"/>
 		<link rel="stylesheet" href="{% static "css/bootstrap-theme.css" %}"/>
+        {% endblock css_files %}
+        {% block js_files %}
 		<script type="text/javascript" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
 		<script type="text/javascript" src="{% static "js/bootstrap.js" %}"></script>
+        {% endblock js_files %}
 	</head>
 
 	<body>

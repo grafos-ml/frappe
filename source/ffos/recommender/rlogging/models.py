@@ -22,17 +22,19 @@ class RLog(models.Model):
     """
 
     RECOMMEND = 0
-    CLICK = 1
+    CLICK_RECOMMENDED = 1
     INSTALL = 2
     REMOVE = 3
+    CLICK = 4
     TYPES = {
         RECOMMEND: _("recommend"),
-        CLICK: _("click"),
+        CLICK_RECOMMENDED: _("click recommended"),
         INSTALL: _("install"),
-        REMOVE: _("remove")
+        REMOVE: _("remove"),
+        CLICK: _("click")
     }
 
-    user = models.ForeignKey(FFOSUser, to_field="external_id", verbose_name=_("user"))
+    user = models.ForeignKey(FFOSUser, to_field="external_id", verbose_name=_("user"), null=True, default=None)
     item = models.ForeignKey(FFOSApp, to_field="external_id", verbose_name=_("item"))
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
     value = models.FloatField(_("value"), null=True, default=None)
@@ -53,7 +55,7 @@ class RLog(models.Model):
         }
 
     @staticmethod
-    def click(user, app):
+    def click_recommended(user, app):
         """
         Puts a click log into database
         """

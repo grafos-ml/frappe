@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load i18n cache staticfiles handlebars_tags %}
+
+{% block title %}{% trans "Recommendation for" %} {{ ffosuser.external_id }}{% endblock title %}
+
+{% block js_files %}
+        {{ block.super }}
+        {% tplhandlebars "app-containe" %}
+            {{ #each apps }}
+            <div class="col-sm-6 col-md-3">
+                <a href="{{ icon }}" class="thumbnail">
+                    <img alt="Some Icone" src="{{ icon }}" >
+                </a>
+                <p><small>{{ app.installation_date }}</small></p>
+            </div>
+            {% endfor %}
+        {% endtplhandlebars %}
+        <script type="text/javascript" src="{% static "js/handlebars-v1.3.0.js" %}"></script>
+{% endblock js_files %}
+
+{% block body %}
+    {% cache 900 recommend_header ffosuser.external_id %}
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="bs-docs-section">
+						<div class="page-header">
+							<h3 id="overview">
+								{{ ffosuser.external_id }}
+								<br />
+								<small>{{ ffosuser.locale }}</small>
+							</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<h4>{% trans "Installed Apps" %}</h4>
+				<hr>
+                <div id="installedApps" class="col-xs-12 col-dm-12">
+                {% for app in ffosuser.installed_apps.select_related %}
+                    <div class="col-sm-6 col-md-3">
+                        <a href="{% url 'click_app' %}?clicker={{ ffosuser.external_id }}&clicked_app={{ app.external_id }}" class="thumbnail">
+                            <img alt="Some Icone" src="{{ app.icon.size128 }}" >
+                        </a>
+                        <p><small>{{ app.installation_date }}</small></p>
+                    </div>
+                {% endfor %}
+                </div>
+                <div class="col-xs-12 pull-left">
+                    <ul class="pagination" id="installedPager"></ul>
+                </div>
+                <script>
+                    var csrf_token = "{{ csrf_token }}";
+                    var perPage = 4;
+                    function goTo(page,pager,listElement){
+                          if(page >= 0 && page < listElement.children().size()/
+                            perPage){
+                              var startAt = page * perPage,
+                                endOn = startAt + perPage;
+                              listElement.children().css('display','none')
+                                .slice(startAt, endOn).css('display','block');
+                              $(pager).data("curr",page);
+                          }
+                    }
+                    function Paginator(container,paginator) {
+
+                        this.constructor = function(container, paginator) {
+                            this.listElement = $(container);
+                            this.numItems = this.listElement.children().size();
+                            this.paginator = paginator;
+                            this.numPages = Math.ceil(this.numItems/perPage);
+                            $(this.paginator).data("curr",0);
+                            this.curr = 0;
+                            this.buildPaginator();
+                            $(this.paginator+' .page_link:first')
+                                .addClass('active');
+
+                            this.listElement.children().css('display', 'none');
+                            this.listElement.children().slice(0,perPage)
+                                .css('display','block');
+
+                            $(this.paginator+' li .page_link').click(function(){
+                              var clickedPage = $(this).html().valueOf() - 1;
+                              goTo(clickedPage,paginator,$(container),
+                                perPage);
+                            });
+                            $(this.paginator+' .page_prev').click(this.previous);
+                            $(this.paginator+' .page_next').click(this.next);
+                        }
+
+                        this.previous = function(){
+                          var goToPage = parseInt($(paginator)
+                            .data("curr")) - 1;
+                          goTo(goToPage,paginator,$(container));
+                        }
+
+                       this.next = function(){
+                          goToPage = parseInt($(paginator).data("curr"))
+                            + 1;
+                          goTo(goToPage,paginator,$(container));
+                        }
+
+                        this.constructor(container,paginator);
+                    }
+                    Paginator.prototype.buildPaginator = function() {
+                            $('<li><a href="#" class="page_prev">&laquo;</a>'+
+                                '</li>').appendTo(this.paginator);
+                            while(this.numPages > this.curr)
+                                $('<li><a href="#" class="page_link">'+
+                                    (++this.curr)+'</a></li>')
+                                    .appendTo(this.paginator);
+                            $('<li><a href="#" class="page_next">&raquo;</a>'+
+                                '</li>').appendTo(this.paginator);
+                        }
+                    new Paginator('#installedApps','#installedPager');
+                </script>
+			</div>
+    {% endcache %}
+			<div class="row">
+				<h4>{% trans "Recomendations" %}</h4>
+				<hr>
+                <div id="recommendedApps" class="col-xs-12">
+                {% for app, regions in recommended %}
+                    <div class="col-sm-6 col-md-3">
+                        <a href="{% url 'click_app' %}?clicker={{ ffosuser.external_id }}&clicked_app={{ app.external_id }}" class="thumbnail">
+                            <img alt="Some Icone" src="{{ app.icon.size128 }}" >
+                        </a>
+                        <p>{{app.pk}} {{ app.external_id }} {{ app.name }}</p>
+                        <p>
+                            {% for region in regions %}
+                                {{ region }}
+                            {% endfor %}
+                        </p>
+                    </div>
+                {% endfor %}
+                </div>
+                <div class="col-xs-12 pull-left">
+                    <ul class="pagination" id="recommendedPager">
+                        <li><a href="#" class="page_prev">{% trans "Previous" %}</a></li>
+                        <li><a href="#" class="page_next">{% trans "More" %}</a></li>
+                    </ul>
+                </div>
+                <script>
+                    BlankPaginator = Paginator
+                    BlankPaginator.prototype.buildPaginator = function(){};
+                    new BlankPaginator('#recommendedApps','#recommendedPager');
+                </script>
+			</div>
+{% endblock body %}

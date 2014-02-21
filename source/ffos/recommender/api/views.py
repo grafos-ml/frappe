@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 .. module:: ffos.recommender.api.views
     :platform: Unix, Windows
@@ -6,21 +7,21 @@
      Created at Fev 19, 2014
 
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
-
 """
 __author__ = "joaonrb"
 
 from django.conf import settings
 from django.db import connection
 from django.db.utils import OperationalError
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils.translation import ugettext as _
+from django.shortcuts import get_object_or_404
 from rest_framework.renderers import JSONRenderer, XMLRenderer
 from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
-from ffos.models import FFOSApp, FFOSUser, Installation
+from ffos.models import FFOSApp, FFOSUser
 from ffos.recommender.rlogging.models import RLog
 
 import warnings
@@ -106,15 +107,128 @@ class XMLResponse(APIResponse):
 
 
 class RecommendationAPI(APIView):
+    """
+    .. py:class:: ffos.recommender.api.views.RecommendationAPI()
+
+
+    About
+    -----
+
+    An "abstract kind" of view class that implements a APIView from rest_framework
+    """
     format_parser = None
     format_response = None
 
     def dispatch(self, request, data_format=JSON, *args, **kwargs):
+        """
+        Check the format of the request/response by the argument
+
+        :param request: Django HTTP request
+        :type request: HTTPRequest
+        :param data_format: The data format of the request/response. Must be something in "json", "xml",...
+        :type data_format: str
+        :param args: Generic extra anonymous parameters
+        :param kwargs: Generic key words parameters
+        """
         try:
             self.format_parser, self.format_response = FORMAT(data_format)
         except KeyError:
             return FORMAT(DEFAULT_FORMAT)[1](FORMAT_ERROR_MESSAGE, status=FORMAT_ERROR)
         return super(RecommendationAPI, self).dispatch(request, *args, **kwargs)
+
+
+class GoToItemStore(APIView):
+    """
+    .. py:class:: ffos.recommender.api.views.GoToItemStore()
+
+    About
+    -----
+
+    Goes to the store
+    """
+
+    http_method_names = [
+        'get',
+        #'post',
+        #'put',
+        #'patch',
+        #'delete',
+        #'head',
+        #'options',
+        #'trace'
+    ]
+
+    RECOMMENDED = "recommended"
+    STANDARD = "standard"
+    ANONYMOUS = "anonymous"
+    source_types = [RECOMMENDED, STANDARD]
+    source_map = {
+        RECOMMENDED: RLog.CLICK_RECOMMENDED,
+        STANDARD: RLog.CLICK
+    }
+
+    def click(self, user, item, click_type, rank=None):
+        """
+        Click on an app.
+
+        :param user: User external_id that do the click.
+        :type user: str or None
+        :param item: Item external_id that is clicked.
+        :type item: str
+        :param click_type: The type of click that is.
+        :type click_type: str
+        :param rank: Rank of the item on recommendation. Default=None.
+        :type rank: int
+        """
+        warnings.warn("This insert was only tested for MySQL", Warning)
+        query = \
+            ("""
+             INSERT INTO %(database)s.rlogging_rlog
+                SELECT NULL, ffos_ffosuser.id, ffos_ffosapp.id, NOW(), %(rank)s, %(type)s
+                FROM %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp
+                WHERE %(database)s.ffos_ffosuser.external_id="%(user)s"
+                AND %(database)s.ffos_ffosapp.external_id="%(item)s";
+             """ if user else
+             """
+             INSERT INTO %(database)s.rlogging_rlog
+                SELECT NULL, NULL, ffos_ffosapp.id, NOW(), %(rank)s, %(type)s
+                FROM %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp
+                AND %(database)s.ffos_ffosapp.external_id="%(item)s";
+             """) % \
+            {
+                "database": settings.DATABASES["default"]["NAME"],
+                "user": user,
+                "item": item,
+                "type": self.source_map[click_type],
+                "rank": rank or "NULL"
+            }
+        cursor = connection.cursor()
+        a = cursor.execute(query)
+        if a == 0:
+            raise OperationalError("RLog not inserted")
+
+    def get(self, request, user_external_id, item_external_id, source):
+        """
+        The go to store get request
+
+        :param request: Django HTTP request
+        :type request: HTTPRequest
+        :param user_external_id: The external id of the user making the click or anonymous
+        :type user_external_id: str
+        :param item_external_id: The external id of the item clicked
+        :type item_external_id: str
+        :param source: The source of the click. If is standard or from a recommendation. If is originated from a
+        recommendation, than it must have a GET parameter called ´´rank´´
+        :type source: str
+        """
+        rank = request.GET.get("rank", None)
+        if (source not in self.source_types) or (not rank and source == self.RECOMMENDED):
+            raise Http404
+        user = get_object_or_404(FFOSUser, external_id=user_external_id)
+        app = get_object_or_404(FFOSApp, external_id=item_external_id)
+        if source in self.source_types[:-1]:
+            RLog.objects.create(user=user, item=app, type=self.source_map[source], value=rank)
+        return HttpResponseRedirect(app.store_url)
 
 
 class UserRecommendationAPI(RecommendationAPI):
@@ -186,14 +300,12 @@ class ItemAPI(RecommendationAPI):
         except FFOSApp.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
 
-        to_store = request.GET.get("to_store", False)
         source = bool(request.GET.get("source", None))
         if user and source == "recommendation":
-            RLog.objects.create(user=user, item=app["id"], type=RLog.CLICK)
-        if to_store:
-            return self.format_response({"store-url": FFOSApp.slug_to_store_url(app["slug"])})
-        return self.format_response({"external_id": app["external_id"], "name": app["name"],
-                                     "icon": app["icon__size64"], "icon_small": app["icon__size16"]})
+            RLog.objects.create(user=user, item=app["id"], type=RLog.CLICK_RECOMMENDED)
+        response = {"external_id": app["external_id"], "name": app["name"], "icon": app["icon__size64"],
+                    "icon_small": app["icon__size16"]}
+        return self.format_response(response)
 
 
 class UserItemsAPI(RecommendationAPI):

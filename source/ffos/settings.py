@@ -47,7 +47,8 @@ INSTALLED_APPS = (
     'ffos.gui',
     "ffos.recommender.rlogging",
     'debug_toolbar',
-    'rest_framework'
+    'rest_framework',
+    "django_handlebars"
 )
 
 MIDDLEWARE_CLASSES = (

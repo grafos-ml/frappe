@@ -73,7 +73,7 @@ class Landing(View, TemplateResponseMixin):
 
 class Recommend(View, TemplateResponseMixin):
 
-    template_name = "recommend.html"
+    template_name = "recommend.v2.html"
 
     http_method_names = [
         'get',

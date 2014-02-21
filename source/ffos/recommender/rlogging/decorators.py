@@ -30,7 +30,7 @@ class ClickApp(Decorator):
         def decorated(request, *args, **kwargs):
             user_external_id = request.GET["clicker"]
             app_external_id = request.GET["clicked_app"]
-            request.go_to = RLog.click(user_external_id, app_external_id)
+            request.go_to = RLog.click_recommended(user_external_id, app_external_id)
             return function(request, *args, **kwargs)
         return decorated
 
