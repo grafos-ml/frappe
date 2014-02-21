@@ -15,7 +15,7 @@ from django.db import connection
 from django.db.utils import OperationalError
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils.translation import ugettext as _
-from django.shortcuts import get_object_or_404
+from django.core.urlresolvers import reverse
 from rest_framework.renderers import JSONRenderer, XMLRenderer
 from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
@@ -129,6 +129,7 @@ class RecommendationAPI(APIView):
         :type data_format: str
         :param args: Generic extra anonymous parameters
         :param kwargs: Generic key words parameters
+        :return: A JSON or XML or whatever is configured and asked by the client response
         """
         try:
             self.format_parser, self.format_response = FORMAT(data_format)
@@ -159,12 +160,12 @@ class GoToItemStore(APIView):
     ]
 
     RECOMMENDED = "recommended"
-    STANDARD = "standard"
+    CLICK = "click"
     ANONYMOUS = "anonymous"
-    source_types = [RECOMMENDED, STANDARD]
+    source_types = [RECOMMENDED, CLICK]
     source_map = {
         RECOMMENDED: RLog.CLICK_RECOMMENDED,
-        STANDARD: RLog.CLICK
+        CLICK: RLog.CLICK
     }
 
     def click(self, user, item, click_type, rank=None):
@@ -179,25 +180,15 @@ class GoToItemStore(APIView):
         :type click_type: str
         :param rank: Rank of the item on recommendation. Default=None.
         :type rank: int
+        :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
         warnings.warn("This insert was only tested for MySQL", Warning)
         query = \
-            ("""
-             INSERT INTO %(database)s.rlogging_rlog
-                SELECT NULL, ffos_ffosuser.id, ffos_ffosapp.id, NOW(), %(rank)s, %(type)s
-                FROM %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp
-                WHERE %(database)s.ffos_ffosuser.external_id="%(user)s"
-                AND %(database)s.ffos_ffosapp.external_id="%(item)s";
-             """ if user else
-             """
-             INSERT INTO %(database)s.rlogging_rlog
-                SELECT NULL, NULL, ffos_ffosapp.id, NOW(), %(rank)s, %(type)s
-                FROM %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp
-                AND %(database)s.ffos_ffosapp.external_id="%(item)s";
-             """) % \
+            ("INSERT INTO %(database)s.rlogging_rlog (id, user_id, item_id, timestamp, value, type)"
+             "VALUES (NULL, %(user)s, \"%(item)s\", NOW(), %(rank)s, %(type)s);") % \
             {
                 "database": settings.DATABASES["default"]["NAME"],
-                "user": user,
+                "user": ('"%s"' % user) if user else "NULL",
                 "item": item,
                 "type": self.source_map[click_type],
                 "rank": rank or "NULL"
@@ -220,15 +211,15 @@ class GoToItemStore(APIView):
         :param source: The source of the click. If is standard or from a recommendation. If is originated from a
         recommendation, than it must have a GET parameter called ´´rank´´
         :type source: str
+        :return: A HTTP response to redirect to the store item page.
         """
         rank = request.GET.get("rank", None)
         if (source not in self.source_types) or (not rank and source == self.RECOMMENDED):
             raise Http404
-        user = get_object_or_404(FFOSUser, external_id=user_external_id)
-        app = get_object_or_404(FFOSApp, external_id=item_external_id)
-        if source in self.source_types[:-1]:
-            RLog.objects.create(user=user, item=app, type=self.source_map[source], value=rank)
-        return HttpResponseRedirect(app.store_url)
+        user_external_id = user_external_id if user_external_id != self.ANONYMOUS else None
+        self.click(user_external_id, item_external_id, source, rank)
+        slug = FFOSApp.objects.filter(external_id=item_external_id).values_list("slug")[0]
+        return HttpResponseRedirect(FFOSApp.slug_to_store_url(slug))
 
 
 class UserRecommendationAPI(RecommendationAPI):
@@ -254,7 +245,14 @@ class UserRecommendationAPI(RecommendationAPI):
 
     def get(self, _, user_external_id, number_of_recommendations):
         """
-        The get method
+        Get method to request recommendations
+
+        :param _: This is the request. It is not needed but has to be here because of the django interface with views.
+        :param user_external_id: The user that want the recommendation ore the object of the recommendations.
+        :type user_external_id: str
+        :param number_of_recommendations: Number of recommendations that are requested.
+        :type number_of_recommendations: int
+        :return: A HTTP response with a list of recommendations.
         """
         recommended_apps = RECOMMENDER.get_external_id_recommendations(user_external_id,
                                                                        n=int(number_of_recommendations))
@@ -288,23 +286,30 @@ class ItemAPI(RecommendationAPI):
         _("error"): _("Item with that id has not found.")
     }
 
-    def get(self, request, app_external_id):
+    def get(self, request, item_external_id):
         """
-        The get method
+        Get item details
+
+        :param request: The HTTP request
+        :param item_external_id: The item external id that the details should be send.
+        :type item_external_id: str
+        :return: A HTTP response with the item information
         """
-        user = request.GET.get("user", None)
         try:
-            app = FFOSApp.objects.filter(external_id=app_external_id).values("external_id", "name", "icon__size64",
-                                                                             "icon__size16", "slug", "id")[0]
-            user = FFOSUser.objects.filter(external_id=user).values("id")[0]["id"] if user else None
+            app = FFOSApp.objects.filter(external_id=item_external_id).values("external_id", "name", "icon__size64",
+                                                                              "icon__size16", "slug", "id")[0]
         except FFOSApp.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
 
-        source = bool(request.GET.get("source", None))
-        if user and source == "recommendation":
-            RLog.objects.create(user=user, item=app["id"], type=RLog.CLICK_RECOMMENDED)
+        rank = request.GET.get("rank", None)
+        uri = reverse("go_to_store", kwargs={
+            "user_external_id": request.GET.get("user", GoToItemStore.ANONYMOUS),
+            "item_external_id": item_external_id,
+            "source": GoToItemStore.RECOMMENDED if rank else GoToItemStore.CLICK})
+        if rank:
+            uri += "?rank=%s" % rank
         response = {"external_id": app["external_id"], "name": app["name"], "icon": app["icon__size64"],
-                    "icon_small": app["icon__size16"]}
+                    "icon_small": app["icon__size16"], "store": uri}
         return self.format_response(response)
 
 
@@ -335,9 +340,15 @@ class UserItemsAPI(RecommendationAPI):
     ]
 
     @staticmethod
-    def insert_acquisition(user, item):
+    def insert_acquisition(user_external_id, item_external_id):
         """
-        Insert a new
+        Insert a new in user installed apps
+
+        :param user_external_id: The user external id.
+        :type user_external_id: str
+        :param item_external_id: The item external id.
+        :type item_external_id: str
+        :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
         warnings.warn("This insert was only tested for MySQL", Warning)
         query = \
@@ -348,18 +359,24 @@ class UserItemsAPI(RecommendationAPI):
                 WHERE %(database)s.ffos_ffosuser.external_id="%(user)s"
                 AND %(database)s.ffos_ffosapp.external_id="%(item)s";
             """ % {
-                "database": settings.DATABASES["default"]["NAME"],
-                "user": user,
-                "item": item}
+            "database": settings.DATABASES["default"]["NAME"],
+            "user": user_external_id,
+            "item": item_external_id}
         cursor = connection.cursor()
         a = cursor.execute(query)
         if a == 0:
             raise OperationalError("Item not inserted")
 
     @staticmethod
-    def delete_acquisition(user, item):
+    def delete_acquisition(user_external_id, item_external_id):
         """
-        Insert a new
+        Update a certain item to remove in the uninstall datetime field
+
+        param user_external_id: The user external id.
+        :type user_external_id: str
+        :param item_external_id: The item external id.
+        :type item_external_id: str
+        :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
         warnings.warn("This insert was only tested for MySQL", Warning)
         query = \
@@ -371,9 +388,9 @@ class UserItemsAPI(RecommendationAPI):
                 AND %(database)s.ffos_installation.user_id=%(database)s.ffos_ffosuser.id
                 AND %(database)s.ffos_installation.app_id=%(database)s.ffos_ffosapp.id;
             """ % {
-                "database": settings.DATABASES["default"]["NAME"],
-                "user": user,
-                "item": item}
+            "database": settings.DATABASES["default"]["NAME"],
+            "user": user_external_id,
+            "item": item_external_id}
         cursor = connection.cursor()
         a = cursor.execute(query)
         if a == 0:
@@ -381,13 +398,23 @@ class UserItemsAPI(RecommendationAPI):
 
     def get(self, request, user_external_id):
         """
-        Get method. It may receive get parameters
+        Get the users owned items. It receives an extra set of GET parameters. The offset and the items.
+
+        The ´´offset´´ represents the amount of items to pass before start sending results.
+        The ´´items´´ represents the amount of items to show.
+
+        :param request: The HTTP request.
+        :param user_external_id: The user external id that are making the request.
+        :type user_external_id: str
+        :return: A list of app external ids of the user installed apps (apps that are in database with reference to this
+         user and the removed date set to null).
         """
         offset = request.GET.get("offset", 0)  # Offset of items
         items = request.GET.get("items", 20)  # Number of items to present
         try:
             apps = FFOSUser.objects.get(external_id=user_external_id).installed_apps.all()
-            apps = [int(app) for app, in apps[offset:items].values_list("external_id")]
+            apps = apps.order_by("installation__installation_date").values_list("external_id")
+            apps = [int(app) for app, in apps[offset:items]]
         except FFOSUser.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
         data = {"user": user_external_id, "installed": apps}
@@ -395,25 +422,38 @@ class UserItemsAPI(RecommendationAPI):
 
     def post(self, request, user_external_id):
         """
-        Post method
+        Puts a new item in the user installed apps. It should have a special POST parameter (besides the csrf token or
+        other token needed to the connection) that is item_to_acquire.
+
+        The ´´item_to_acquire´´ is the item external id that is supposed to be installed in the user inventory.
+
+        :param request: The HTTP request.
+        :param user_external_id: The user external id that are making the request.
+        :type user_external_id: str
+        :return: A success response if the input was successful =p
         """
         try:
             item_id = request.POST["item_to_acquire"]
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        #Installation.objects.create(user_id=FFOSUser.objects.get(external_id=user_external_id).pk,
-        #                            app_id=FFOSApp.objects.get(external_id=item_id).pk,
-        #                            installation_date=timezone.now())
         self.insert_acquisition(user_external_id, item_id)
         return self.format_response(SUCCESS_MESSAGE)
 
     def delete(self, request, user_external_id):
         """
-        Delete Rest method to remove items from user stack
+        removes an old item in the user installed apps. It should have a special POST parameter (besides the csrf token
+        or other token needed to the connection) that is item_to_acquire.
+
+        The ´´item_to_remove´´ is the item external id that is supposed to be removed in the user inventory.
+
+        :param request: The HTTP request.
+        :param user_external_id: The user external id that are making the request.
+        :type user_external_id: str
+        :return: A success response if the input was successful =p
         """
         try:
-            item_id = request.DATA["item_to_acquire"]
+            item_id = request.DATA["item_to_remove"]
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
