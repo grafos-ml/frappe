@@ -136,6 +136,7 @@ class InterfaceController(object):
         *list*:
             A Python list the recommendation apps ids.
         """
+        print ""
         result = self.get_app_significance_list(user=user, u_matrix=self.get_user_matrix(),
                                                 a_matrix=self.get_apps_matrix())
         logging.debug('Matrix loaded or generated')

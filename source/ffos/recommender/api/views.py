@@ -21,7 +21,7 @@ from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
-from ffos.models import FFOSApp, FFOSUser
+from ffos.models import FFOSApp, FFOSUser, Installation
 from ffos.recommender.rlogging.models import RLog
 
 import warnings
@@ -168,14 +168,14 @@ class GoToItemStore(APIView):
         CLICK: RLog.CLICK
     }
 
-    def click(self, user, item, click_type, rank=None):
+    def click(self, user_external_id, item_external_id, click_type, rank=None):
         """
         Click on an app.
 
-        :param user: User external_id that do the click.
-        :type user: str or None
-        :param item: Item external_id that is clicked.
-        :type item: str
+        :param user_external_id: User external_id that do the click.
+        :type user_external_id: str or None
+        :param item_external_id: Item external_id that is clicked.
+        :type item_external_id: str
         :param click_type: The type of click that is.
         :type click_type: str
         :param rank: Rank of the item on recommendation. Default=None.
@@ -188,8 +188,8 @@ class GoToItemStore(APIView):
              "VALUES (NULL, %(user)s, \"%(item)s\", NOW(), %(rank)s, %(type)s);") % \
             {
                 "database": settings.DATABASES["default"]["NAME"],
-                "user": ('"%s"' % user) if user else "NULL",
-                "item": item,
+                "user": ('"%s"' % user_external_id) if user_external_id else "NULL",
+                "item": item_external_id,
                 "type": self.source_map[click_type],
                 "rank": rank or "NULL"
             }
@@ -286,9 +286,11 @@ class ItemAPI(RecommendationAPI):
         _("error"): _("Item with that id has not found.")
     }
 
+    ITEM_EXPOSED_ATTRIBUTES = ["external_id", "name", "icon__size128", "icon__size64", "icon__size16", "slug", "id"]
+
     def get(self, request, item_external_id):
         """
-        Get item details
+        Get item details.
 
         :param request: The HTTP request
         :param item_external_id: The item external id that the details should be send.
@@ -296,8 +298,7 @@ class ItemAPI(RecommendationAPI):
         :return: A HTTP response with the item information
         """
         try:
-            app = FFOSApp.objects.filter(external_id=item_external_id).values("external_id", "name", "icon__size64",
-                                                                              "icon__size16", "slug", "id")[0]
+            app = FFOSApp.objects.filter(external_id=item_external_id).values(*self.ITEM_EXPOSED_ATTRIBUTES)[0]
         except FFOSApp.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
 
@@ -309,7 +310,8 @@ class ItemAPI(RecommendationAPI):
         if rank:
             uri += "?rank=%s" % rank
         response = {"external_id": app["external_id"], "name": app["name"], "icon": app["icon__size64"],
-                    "icon_small": app["icon__size16"], "store": uri}
+                    "icon_small": app["icon__size16"], "icon_big": app["icon__size128"], "store": uri}
+
         return self.format_response(response)
 
 
@@ -409,12 +411,14 @@ class UserItemsAPI(RecommendationAPI):
         :return: A list of app external ids of the user installed apps (apps that are in database with reference to this
          user and the removed date set to null).
         """
-        offset = request.GET.get("offset", 0)  # Offset of items
-        items = request.GET.get("items", 20)  # Number of items to present
+        offset = int(request.GET.get("offset", 0))  # Offset of items
+        items = int(request.GET.get("items", 20))  # Number of items to present
         try:
-            apps = FFOSUser.objects.get(external_id=user_external_id).installed_apps.all()
-            apps = apps.order_by("installation__installation_date").values_list("external_id")
-            apps = [int(app) for app, in apps[offset:items]]
+            apps = Installation.objects.filter(user__external_id=user_external_id, removed_date=None)
+            apps = apps.order_by("installation_date")
+            apps = apps.values_list("app__external_id", "installation_date", "removed_date")[offset:offset+items]
+            apps = [{"external_id": int(app), "installation_date": date, "removed_date": removed_date}
+                    for app, date, removed_date in apps]
         except FFOSUser.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
         data = {"user": user_external_id, "installed": apps}

@@ -16,7 +16,7 @@ from django.db.models import Count, Sum
 MAX_LOG = 120000
 SIMPLE_RANK_CALCULATOR = lambda rank, mean, count, size: rank + ((size - mean) ** count)
 SIMPLE_RANK_CALCULATOR = lambda rank, mean, count, size: mean + ((size - mean) ** count)
-CONSTANT = 10
+CONSTANT = 4
 
 
 class SimpleLogReRanker(ReRanker):
