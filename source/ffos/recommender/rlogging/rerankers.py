@@ -1,8 +1,8 @@
 #-*- coding: utf-8 -*-
 """
-.. module:: ffos.recommender.rlogging.rerankers
-    :platform: Unix, Windows
-    :synopsis: Log based rerankers. Created on Fev 13, 2014
+Created on Fev 13, 2014
+
+Log based re-ranker. I reads the logs from this user and re-rank items from the original recommendation order.
 
 .. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 
@@ -11,25 +11,28 @@ __author__ = "joaonrb"
 
 from ffos.recommender.filters import ReRanker
 from ffos.recommender.rlogging.models import RLog
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 
 MAX_LOG = 120000
-SIMPLE_RANK_CALCULATOR = lambda rank, mean, count, size: rank + ((size - mean) ** count)
+#SIMPLE_RANK_CALCULATOR = lambda rank, mean, count, size: rank + ((size - mean) ** count)
 SIMPLE_RANK_CALCULATOR = lambda rank, mean, count, size: mean + ((size - mean) ** count)
-CONSTANT = 4
+"""
+Default rank calculator. Makes the item new rank be equal to the *mean* of it position in the recommendation *plus*
+the *number of recommendations for request* minus mean elevated to the *number of recommendation that this item has
+experienced*.
+
+:param rank: The rank that the item receive in this recommendation
+:param mean: The mean of recommendations that this item has so far.
+:param count: Number of recommendation that this item has been so far.
+:param size: Size of this recommendation set.
+"""
 
 
 class SimpleLogReRanker(ReRanker):
     """
-    .. py:class:: ffos.recommender.rlogging.rerankers.SimpleLogReRanker([constant=1[, gravity_point=mean]])
-
-        .. py:attribute:: constant - The constant to move the ranking up or down. As little importance to the algorithm.
-        .. py:attribute:: gravity_point - A function or callable object to calculate the gravity point given the request
-        array.
-
-
-    About
-    -----
+    .. py:attribute:: constant - The constant to move the ranking up or down. As little importance to the algorithm.
+    .. py:attribute:: gravity_point - A function or callable object to calculate the gravity point given the \
+        request array.
 
     This first implementation of the re-ranker is intend to produce a withdraw or boost in each app "pre-recommended"
     based in the app position, the app position in previous recommendations and clicks by the user. For this task
@@ -37,23 +40,21 @@ class SimpleLogReRanker(ReRanker):
 
     - Is more fair to an app to fall if it experiments an higher improvement that an app that is lower than its normal.
     - The more clicks an app have, the more powerful will be the boost (positive or negative).
-    - Is fair for the re-ranker to make not so disturbing moves on each app ranking in order to re-arrange them. This
+    - Is fair for the re-ranker to make not so disturbing moves on each app ranking in order to re-arrange them. This \
     way the changes will be smother.
     """
 
-    def __init__(self, constant=None, rank_calculator=None):
+    def __init__(self, rank_calculator=None):
         """
         Constructor
 
-        :param constant: Gravity point.
         :param rank_calculator: A callable object to calculate the new rank. Must receive rank, rank mean, number of
         recommendations and gravity point
         :type rank_calculator: collections.Callable.
         """
         self._rank_calculator = rank_calculator or SIMPLE_RANK_CALCULATOR
-        self._constant = constant or CONSTANT
 
-    def __call__(self, user, early_recommendation):
+    def __call__(self, user, early_recommendation, size=4):
         """
         The real, optimized, not redundant at all call method for the simple log based re-ranker or whatever. With this
         algorithm we will need no more plains to get around in the sky. Just call this method and it will re-rank the
@@ -75,7 +76,7 @@ class SimpleLogReRanker(ReRanker):
         # Lets start by making a proper query that receive a list of tuples with:
         # (item id, type of log, sum(values), count, count_type)... This should be enough to a good re-ranker
         apps_in_logs = (app_id for app_id in early_recommendation if app_id not in installed_apps)
-        logs = RLog.objects.filter(item__id__in=apps_in_logs, user=user, type=RLog.RECOMMEND)
+        logs = RLog.objects.filter(item__id__in=apps_in_logs, user=user, type=RLog.RECOMMEND).filter(~Q(value=None))
         logs = logs.values("item__pk")
         logs = logs.annotate(count=Count("item__pk"), sum=Sum("value"))
 
@@ -97,7 +98,7 @@ class SimpleLogReRanker(ReRanker):
                 mean = sum_value/count
                 #new_rank = (number_of_apps / mean) ** count
                 new_rank = \
-                    self._rank_calculator(rank, mean, count, self._constant if mean+1 < self._constant else (mean+1.5))
+                    self._rank_calculator(rank, mean, count, size if mean+1 < size else (mean+1.5))
             except ZeroDivisionError:
                 new_rank = rank
             #print new_rank

@@ -14,5 +14,6 @@ Indices and tables
    backend
    webservice
    webservice.v1
+   webservice.v2
 
 

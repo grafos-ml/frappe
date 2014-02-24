@@ -1,5 +1,5 @@
-ffos - FireFox OS Store Recommender
-===================================
+ffos.recommender - FireFox OS Store Recommender
+===============================================
 
 This module support the web services for the recommendation system.
 
@@ -11,5 +11,12 @@ Services
 
     webservice
     webservice.v1
+    webservice.v2
 
 
+Re-Rankers
+----------
+
+.. automodule:: ffos.recommender.rlogging.rerankers
+   :members:
+   :undoc-members:

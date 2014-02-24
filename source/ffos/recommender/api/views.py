@@ -310,7 +310,7 @@ class ItemAPI(RecommendationAPI):
         if rank:
             uri += "?rank=%s" % rank
         response = {"external_id": app["external_id"], "name": app["name"], "icon": app["icon__size64"],
-                    "icon_small": app["icon__size16"], "icon_big": app["icon__size128"], "store": uri}
+                    "icon_small": app["icon__size16"], "icon_large": app["icon__size128"], "store": uri}
 
         return self.format_response(response)
 

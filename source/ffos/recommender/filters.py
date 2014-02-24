@@ -36,10 +36,13 @@ class Filter(object):
         """
         return True
 
-    def __call__(user, app_score):
+    def __call__(self, user, app_scores, **kwargs):
         """
+        The call method that make this class callable.
+
+        :param user: The FFOSUser or the user external_id
+        :param app_scores: The list with the apps scores mapped to their app id
         """
-        pass
 
 
 class RepetitionFilter(Filter):
@@ -47,7 +50,7 @@ class RepetitionFilter(Filter):
     An abstract Filter to be implemented with the real thing.
     """
 
-    def __call__(self, user, app_score):
+    def __call__(self, user, app_score, **kwargs):
         """
         """
         for app in user.installed_apps.all():
@@ -68,7 +71,7 @@ class LocaleFilter(Filter):
             cache.set('USER_LOCALE_%s' % user.external_id, apps)
         return apps
 
-    def __call__(self, user, app_score):
+    def __call__(self, user, app_score, **kwargs):
         for app in self.get_user_pref(user):
             app_score[app.pk-1] = float('-inf')
         return app_score
@@ -98,7 +101,7 @@ class RegionReRanker(ReRanker):
             cache.set('USER_REGION_%s' % user.external_id, apps)
         return apps
 
-    def __call__(self, user, app_score):
+    def __call__(self, user, app_score, **kwargs):
         to_add = []
         for a in self.get_user_pref(user):
             app_score.remove(a.pk)
@@ -117,7 +120,7 @@ class CategoryReRanker(ReRanker):
 
     PART = 0.33
 
-    def __call__(self, user, app_score):
+    def __call__(self, user, app_score, **kwargs):
         tes = len(app_score)
         ucp = self.get_user_category_profile(user)
         soma, prefs = 0, []
@@ -178,7 +181,7 @@ class RepetitionReRanker(ReRanker):
     A re ranker to push installed aps to the end
     """
 
-    def __call__(self, user, app_score):
+    def __call__(self, user, app_score, **kwargs):
         """
 
         """

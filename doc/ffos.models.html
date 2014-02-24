@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" />
     <link rel="up" title="ffos - FireFox OS Store" href="ffos.html" />
-    <link rel="next" title="App Recommendation Webservice Version 1.0" href="webservice.html" />
+    <link rel="next" title="ffos.gui - FireFox OS Store Graphical Interface" href="ffos.gui.html" />
     <link rel="prev" title="ffos - FireFox OS Store" href="ffos.html" /> 
   </head>
   <body>
@@ -39,7 +39,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="webservice.html" title="App Recommendation Webservice Version 1.0"
+          <a href="ffos.gui.html" title="ffos.gui - FireFox OS Store Graphical Interface"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="ffos.html" title="ffos - FireFox OS Store"
@@ -103,81 +103,88 @@ normally, in the end all the data is available in the database.</p>
 <dt>&#8216;&#8217;*&#8217;&#8216;apps <em>list</em>:</dt>
 <dd><p class="first">A List of dicts with json. Every json in the file must respect the
 following format:</p>
-<div class="last highlight-python"><pre>{
-    "premium_type": String(255),
-    "content_ratings": String(255),
-    "manifest_url": String(url),
-    "current_version": String(10),
-    "upsold": String(255),
-    "id": String(20) or Integer(20),
-    "ratings": {
-        "count": Integer(10),
-        "average": float(10,3)
+<div class="last highlight-python"><div class="highlight"><pre>{
+    &quot;premium_type&quot;: String(255),
+    &quot;content_ratings&quot;: String(255),
+    &quot;manifest_url&quot;: String(url),
+    &quot;current_version&quot;: String(10),
+    &quot;upsold&quot;: String(255),
+    &quot;id&quot;: String(20) or Integer(20),
+    &quot;ratings&quot;: {
+        &quot;count&quot;: Integer(10),
+        &quot;average&quot;: float(10,3)
     },
-    "app_type": String(255),
-    "author": String(255),
-    "support_url": String(url),
-    "slug": String(255),
-    "regions": [
+    &quot;app_type&quot;: String(255),
+    &quot;author&quot;: String(255),
+    &quot;support_url&quot;: String(url),
+    &quot;slug&quot;: String(255),
+    &quot;regions&quot;: [
         {
-            "mcc": Integer(20),
-            "name": String(255),
-            "adolescent": boolean,
-            "slug": String(5)
+            &quot;mcc&quot;: Integer(20),
+            &quot;name&quot;: String(255),
+            &quot;adolescent&quot;: boolean,
+            &quot;slug&quot;: String(5)
         },...
     ],
-    "icons": {
-        "16": String(url),
-        "48": String(url),
-        "64": String(url),
-        "128": String(url)
+    &quot;icons&quot;: {
+        &quot;16&quot;: String(url),
+        &quot;48&quot;: String(url),
+        &quot;64&quot;: String(url),
+        &quot;128&quot;: String(url)
     },
-    "created": The date when the app was installed in the format
-        "yyyy-mm-ddThh:mm:ss",
-    "homepage": String(url),
-    "support_email": String(255),
-    "public_stats": boolean,
-    "status": integer(4),
-    "privacy_policy": String(255),
-    "is_packaged": boolean,
-    "description": text,
-    "default_locale": String(5),
-    "price": String(255),
-    "previews": [
+    &quot;created&quot;: The date when the app was installed in the format
+        &quot;yyyy-mm-ddThh:mm:ss&quot;,
+    &quot;homepage&quot;: String(url),
+    &quot;support_email&quot;: String(255),
+    &quot;public_stats&quot;: boolean,
+    &quot;status&quot;: integer(4),
+    &quot;privacy_policy&quot;: String(255),
+    &quot;is_packaged&quot;: boolean,
+    &quot;description&quot;: text,
+    &quot;default_locale&quot;: String(5),
+    &quot;price&quot;: String(255),
+    &quot;previews&quot;: [
         {
-            "filetype": String(255),
-            "thumbnail_url": String(url),
-            "image_url": String(url),
-            "id": String(20) or Integer(20),
-            "resource_uri": String(255)
+            &quot;filetype&quot;: String(255),
+            &quot;thumbnail_url&quot;: String(url),
+            &quot;image_url&quot;: String(url),
+            &quot;id&quot;: String(20) or Integer(20),
+            &quot;resource_uri&quot;: String(255)
         },...
     ],
-    "payment_account": String(255),
-    "categories": [
+    &quot;payment_account&quot;: String(255),
+    &quot;categories&quot;: [
         String(255),
         ...
         ],
-    "supported_locales": [
+    &quot;supported_locales&quot;: [
         String(5),
         ...
         ],
-    "price_locale": String(255),
-    "name": "String(255),
-    "versions": {
+    &quot;price_locale&quot;: String(255),
+    &quot;name&quot;: &quot;String(255),
+    &quot;versions&quot;: {
         Whatever, this is not going to be use for now
     },
-    "device_types": [
+    &quot;device_types&quot;: [
         String(255),
         ...
     ],
-    "payment_required": boolean,
-    "weekly_downloads": String(255),
-    "upsell": boolean,
-    "resource_uri": String(255)
-}</pre>
+    &quot;payment_required&quot;: boolean,
+    &quot;weekly_downloads&quot;: String(255),
+    &quot;upsell&quot;: boolean,
+    &quot;resource_uri&quot;: String(255)
+}
+</pre></div>
 </div>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="ffos.models.FFOSApp.slug_to_store_url">
+<em class="property">static </em><tt class="descname">slug_to_store_url</tt><big>(</big><em>slug</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSApp.slug_to_store_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives the tem slug to return the store url</p>
 </dd></dl>
 
 </dd></dl>
@@ -226,14 +233,21 @@ foreign key in the app.</p>
 <em class="property">class </em><tt class="descclassname">ffos.models.</tt><tt class="descname">FFOSUser</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSUser" title="Permalink to this definition">¶</a></dt>
 <dd><p>FireFox OS User/client. Is a model for FFOS experience information. Some id
 stamp and locale info mostly:</p>
-<div class="highlight-python"><pre>IMPORTANT: The unique internal id is standard SQL incremented ID. The
+<div class="highlight-python"><div class="highlight"><pre>IMPORTANT: The unique internal id is standard SQL incremented ID. The
 implementation it depends on the DBMS type and settings. Maybe is a
-topic to discuss.</pre>
+topic to discuss.
+</pre></div>
 </div>
 <dl class="method">
 <dt id="ffos.models.FFOSUser.__unicode__">
 <tt class="descname">__unicode__</tt><big>(</big><big>)</big><a class="headerlink" href="#ffos.models.FFOSUser.__unicode__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the word client followed by the client external id</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ffos.models.FFOSUser.installed_apps">
+<tt class="descname">installed_apps</tt><a class="headerlink" href="#ffos.models.FFOSUser.installed_apps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the installed only apps</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -253,25 +267,26 @@ normally, in the end all the data is available in database.</p>
 <dt>users <em>dict</em>:</dt>
 <dd><p class="first">A list with Python dictionaries, each one representing a user.
 Is required that each user as the following format:</p>
-<div class="last highlight-python"><pre>{
-    'lang': two or five size string in the locale format,
-    'region': Although I think this is just a 2 string code of
+<div class="last highlight-python"><div class="highlight"><pre>{
+    &#39;lang&#39;: two or five size string in the locale format,
+    &#39;region&#39;: Although I think this is just a 2 string code of
         the region, it allow far more (255 length),
-    'user': Is a big string, documented as a md5 hash with size
+    &#39;user&#39;: Is a big string, documented as a md5 hash with size
         35, but the dummy data has far more than that. To play
         it safe we use 255.
-    'installed_apps': [
+    &#39;installed_apps&#39;: [
         {
-            'installed': The date when the app was installed in
-                the format "yyyy-mm-ddThh:mm:ss",
-            'id': The id of the installed app. This should be
+            &#39;installed&#39;: The date when the app was installed in
+                the format &quot;yyyy-mm-ddThh:mm:ss&quot;,
+            &#39;id&#39;: The id of the installed app. This should be
                 already on the database.
-            'slug': The slug of the app. It's an important
+            &#39;slug&#39;: The slug of the app. It&#39;s an important
                 value.
         },
         More apps with the same format as the last one...
     ]
-}</pre>
+}
+</pre></div>
 </div>
 </dd>
 </dl>
@@ -363,8 +378,8 @@ the geo information the app can give to the system.</p>
   <p class="topless"><a href="ffos.html"
                         title="previous chapter">ffos - FireFox OS Store</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="webservice.html"
-                        title="next chapter">App Recommendation Webservice Version 1.0</a></p>
+  <p class="topless"><a href="ffos.gui.html"
+                        title="next chapter">ffos.gui - FireFox OS Store Graphical Interface</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/ffos.models.txt"
@@ -397,7 +412,7 @@ the geo information the app can give to the system.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="webservice.html" title="App Recommendation Webservice Version 1.0"
+          <a href="ffos.gui.html" title="ffos.gui - FireFox OS Store Graphical Interface"
              >next</a> |</li>
         <li class="right" >
           <a href="ffos.html" title="ffos - FireFox OS Store"
@@ -409,7 +424,7 @@ the geo information the app can give to the system.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2013, João Baptista.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
   </body>
 </html>

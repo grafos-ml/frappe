@@ -141,11 +141,11 @@ class InterfaceController(object):
                                                 a_matrix=self.get_apps_matrix())
         logging.debug('Matrix loaded or generated')
         for _filter in self.filters:
-            result = _filter(user, result)
+            result = _filter(user, result, size=10)
         logging.debug('Filters finished')
         result = [aid+1 for aid, _ in sorted(enumerate(result.tolist()), cmp=lambda x, y: cmp(y[1], x[1]))]
         for _reranker in self.rerankers:
-            result = _reranker(user, result)
+            result = _reranker(user, result, size=10)
         logging.debug('Re-rankers finished')
         return result[:n]
 
