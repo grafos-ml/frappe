@@ -1,3 +1,4 @@
+
 App Recommendation Webservice Version 1.2
 =========================================
 
@@ -87,9 +88,6 @@ The request recommendation method work over ReST request in a JSON, XML or YAML.
 The response come as has a list of app IDS.
 
 
-GET Request
-+++++++++++
-
 *URL*::
 
     http://domain.com/api/v2/recommend/<recommendation_number>/<user_id>.<format>
@@ -97,39 +95,15 @@ GET Request
     http://domain.com/api/v2/recommend/<recommendation_number>/<user_id>/  # Default format is JSON
 
 
-+----------------+---------------+-------------------------------------------+
-|                |               |                                           |
-| Parameter Name | Type          | Description                               |
-|                |               |                                           |
-+================+===============+===========================================+
-|                |               |                                           |
-| Request        | Object        | User information.                         |
-|                |               |                                           |
-+----------------+---------------+-------------------------------------------+
-|                |               |                                           |
-| Request.       | String        | Identifier number for the user.           |
-|  user_id       |               |                                           |
-|                |               |                                           |
-+----------------+---------------+-------------------------------------------+
-|                |               |                                           |
-| Request.       | Number        | Number of recommendation you want.        |
-|  recommendation|               |                                           |
-|  _number       |               |                                           |
-|                |               |                                           |
-+----------------+---------------+-------------------------------------------+
-|                |               |                                           |
-| Request.format | String        | The format of the response (json, xml or  |
-|                |               | yaml.                                     |
-|                |               |                                           |
-+----------------+---------------+-------------------------------------------+
+GET Request
++++++++++++
 
 Example::
 
     http://domain.com/api/v2/recommend/120/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173.xml
 
 
-GET Response
-++++++++++++
+Response:
 
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
@@ -173,13 +147,13 @@ This functionality allow to record useful information about a specific app. It c
 a recommendation, and a click from anonymous users.
 
 
-GET Request
-+++++++++++
-
 *URL*::
 
     http://domain.com/apu/v2/<click or recommended>/<user external id or anonymous>/<app external id>/
 
+
+GET Request
++++++++++++
 
 If the source is *recommended* it has to have a GET parameter called rank. This parameter is used to classify the
 position were the app had in that recommendation.
@@ -205,14 +179,15 @@ Item/App Detail
 To retrieve information about a specific application.
 
 
-GET Request
-+++++++++++
-
 *URL*::
 
     http://domain.com/api/v2/item/<app external id>.<format>
     http://domain.com/api/v2/item/<app external id>/<format>/
     http://domain.com/api/v2/item/<app external id>/  # Default format is JSON
+
+
+GET Request
++++++++++++
 
 The request may have a set of extra GET parameters.
 
@@ -221,10 +196,6 @@ The request may have a set of extra GET parameters.
 | Parameter Name | Type          | Description                               |
 |                |               |                                           |
 +================+===============+===========================================+
-|                |               |                                           |
-| Request        | Object        | User information.                         |
-|                |               |                                           |
-+----------------+---------------+-------------------------------------------+
 |                |               |                                           |
 | user           | String        | An external id of the user in case is an  |
 |                |               | installed app.                            |
@@ -241,18 +212,13 @@ Example::
     http://domain.com/api/v2/item/457282.json?rank=4&user=006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173
 
 
-GET Response
-++++++++++++
+Response:
 
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
 | Parameter Name | Type          | Description                               |
 |                |               |                                           |
 +================+===============+===========================================+
-|                |               |                                           |
-| Response       | Object        |                                           |
-|                |               |                                           |
-+----------------+---------------+-------------------------------------------+
 |                |               |                                           |
 | name           | String        | The name of the app.                      |
 |                |               |                                           |
@@ -288,4 +254,186 @@ Example::
         icon_large: "https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-128.png?modified=1377861637",
         store: "/api/v2/click/anonymous/462103/",
         icon: "https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-64.png?modified=1377861637"
+    }
+
+
+User Items API
+--------------
+
+With this API is possible to check user owned items/installed apps. This API also allow acquire or drop an item (install
+or uninstall an app) using the POST and DELETE methods.
+
+.. note::
+
+    All the *unsafe* HTTP methods require a crsf token. But in this case and since the API is not supposed to contact
+    with public we will disable this functionality.
+
+
+*URL*::
+
+    http://domain.com/api/v2/user-items/<user external id>.<format>
+    http://domain.com/api/v2/user-items/<user external id>/<format>/
+    http://domain.com/api/v2/user-items/<user external id>/  # Default format is JSON
+
+GET Request
++++++++++++
+
+The request *may* have a set of extra GET parameters.
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| Request        | Object        | User information.                         |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| offset         | Number        | The number of items to drop before        |
+|                |               | deliver in response.                      |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| items          | Number        | The number of items to be delivered in    |
+|                |               | the response.                             |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+Example::
+
+    http://domain.com/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/xml/?offset=10&items=30
+    http://domain.com/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173.json
+
+
+
+Response:
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| user           | String        | The user external id.                     |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| applications   | List          | A list of installed apps.                 |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+Installed Apps:
+
++-------------------+---------------+-------------------------------------------+
+|                   |               |                                           |
+| Parameter Name    | Type          | Description                               |
+|                   |               |                                           |
++===================+===============+===========================================+
+|                   |               |                                           |
+| external_id       | String        | The app external id.                      |
+|                   |               |                                           |
++-------------------+---------------+-------------------------------------------+
+|                   |               |                                           |
+| installation_date | DateTime      | The installation date with the format:    |
+|                   |               | YYYY-MM-DDTHH:MM:SSZ                      |
+|                   |               |                                           |
++-------------------+---------------+-------------------------------------------+
+|                   |               |                                           |
+| removed_date      | DateTime      | The installation date with the format:    |
+|                   |               | YYYY-MM-DDTHH:MM:SSZ. May be Null.        |
+|                   |               |                                           |
++-------------------+---------------+-------------------------------------------+
+
+
+Example::
+
+    {
+        user: "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173",
+        applications: [
+            {
+            installation_date: "2013-04-02T18:47:58Z",
+            removed_date: null,
+            external_id: 413346
+            }
+           ]
+    }
+
+
+POST Request
+++++++++++++
+
+This method is used to acquire/install a new item/application to the user inventory. It still need a Post parameter.
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| item_to_acquire| String        | The item external id.                     |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+Response:
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| status         | Number        | The response status.                      |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| message        | Text          | Some message with information.            |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+
+Example::
+
+    {
+        "status": 200,
+        "message": "done"
+    }
+
+DELETE Request
+++++++++++++++
+
+This method is used to drop/remove a new item/application from a user inventory. It still need a parameter.
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| item_to_remove | String        | The item external id.                     |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+Response:
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| status         | Number        | The response status.                      |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| message        | Text          | Some message with information.            |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+
+Example::
+
+    {
+        "status": 200,
+        "message": "done"
     }

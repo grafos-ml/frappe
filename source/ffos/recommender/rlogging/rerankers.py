@@ -30,7 +30,6 @@ experienced*.
 
 class SimpleLogReRanker(ReRanker):
     """
-    .. py:attribute:: constant - The constant to move the ranking up or down. As little importance to the algorithm.
     .. py:attribute:: gravity_point - A function or callable object to calculate the gravity point given the \
         request array.
 
@@ -42,19 +41,20 @@ class SimpleLogReRanker(ReRanker):
     - The more clicks an app have, the more powerful will be the boost (positive or negative).
     - Is fair for the re-ranker to make not so disturbing moves on each app ranking in order to re-arrange them. This \
     way the changes will be smother.
+
     """
 
     def __init__(self, rank_calculator=None):
         """
         Constructor
 
-        :param rank_calculator: A callable object to calculate the new rank. Must receive rank, rank mean, number of
-        recommendations and gravity point
-        :type rank_calculator: collections.Callable.
+        :param rank_calculator: A callable object to calculate the new rank. Must receive rank, rank mean, number of \
+        recommendations and gravity point. Default is ffos.recommender.rlogging.rerankers.SIMPLE_RANK_CALCULATOR
+        :type rank_calculator: collections.Callable
         """
         self._rank_calculator = rank_calculator or SIMPLE_RANK_CALCULATOR
 
-    def __call__(self, user, early_recommendation, size=4):
+    def __call__(self, user, early_recommendation, size=4, **kwargs):
         """
         The real, optimized, not redundant at all call method for the simple log based re-ranker or whatever. With this
         algorithm we will need no more plains to get around in the sky. Just call this method and it will re-rank the
@@ -62,7 +62,7 @@ class SimpleLogReRanker(ReRanker):
 
         :param user: The user that want to know what he wants for apps.
         :type user: ffos.models.FFOSUser
-        :param early_recommendation A list with recommendation ids in order to be recommended (ranked).
+        :param early_recommendation: A list with recommendation ids in order to be recommended (ranked).
         :type early_recommendation: list.
         :return: A new set of recommendations ready to fill every app need for the user.
         :rtype: A list of app ids(int).

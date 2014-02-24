@@ -14,9 +14,34 @@ Services
     webservice.v2
 
 
-Re-Rankers
-----------
+Filters
+-------
+
+Methods that are design to boost or week the item original score.
+
+User Content Filters
+++++++++++++++++++++
+
+.. automodule:: ffos.recommender.filters
+   :members: RepetitionFilter, LocaleFilter
+   :special-members: __init__, __call__
+
+Re-Ranker
+---------
+
+Methods that re-arrange the original recommendation list based on some criteria.
+
+User Content Re-Ranker
+++++++++++++++++++++++
+
+.. automodule:: ffos.recommender.filters
+   :members: RegionReRanker, CategoryReRanker, RepetitionReRanker
+   :special-members: __init__, __call__
+
+Log Based Re-Ranker
++++++++++++++++++++
 
 .. automodule:: ffos.recommender.rlogging.rerankers
    :members:
-   :undoc-members:
+   :special-members: __init__, __call__
+

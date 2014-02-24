@@ -24,7 +24,7 @@ controller.registerFilter(
 )
 controller.registerReranker(
     RegionReRanker(),
-    CategoryReRanker(n=12),
+    CategoryReRanker(),
     SimpleLogReRanker(),
     RepetitionReRanker()
 )

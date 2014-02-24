@@ -9,23 +9,7 @@ Created on Dec 9, 2013
 from django.views.generic.base import View, TemplateResponseMixin
 from django.shortcuts import render_to_response, RequestContext
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from ffos.models import FFOSUser, FFOSApp
-from ffos.recommender.controller import SimpleController
-from ffos.recommender.filters import RepetitionFilter, RegionReRanker, \
-    LocaleFilter, CategoryReRanker, RepetitionReRanker
-from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
-
-controller = SimpleController()
-controller.registerFilter(
-    #RepetitionFilter(),
-    #LocaleFilter()
-)
-controller.registerReranker(
-    #RegionReRanker(),
-    #CategoryReRanker(n=12),
-    SimpleLogReRanker(),
-    #RepetitionReRanker()
-)
+from ffos.models import FFOSUser
 
 
 class Landing(View, TemplateResponseMixin):
@@ -90,14 +74,6 @@ class Recommend(View, TemplateResponseMixin):
         """
 
         """
-        rec = controller.get_recommendation(user=user, n=80)
         context = RequestContext(request)
-        apps = {o.pk: o for o in FFOSApp.objects.filter(pk__in=rec).select_related()}
-        reg, regions = {}, FFOSApp.objects.filter(pk__in=rec).values_list('pk', 'regions__name')
-        for pk, name in regions:
-            try:
-                reg[pk] = reg[pk]+[name]
-            except KeyError:
-                reg[pk] = [name]
-        context.update({"ffosuser": user, 'recommended': [(apps[i], reg[i])for i in rec]})
+        context.update({"ffosuser": user})
         return render_to_response(self.template_name, context)

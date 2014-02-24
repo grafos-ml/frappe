@@ -414,14 +414,14 @@ class UserItemsAPI(RecommendationAPI):
         offset = int(request.GET.get("offset", 0))  # Offset of items
         items = int(request.GET.get("items", 20))  # Number of items to present
         try:
-            apps = Installation.objects.filter(user__external_id=user_external_id, removed_date=None)
+            apps = Installation.objects.filter(user__external_id=user_external_id)
             apps = apps.order_by("installation_date")
             apps = apps.values_list("app__external_id", "installation_date", "removed_date")[offset:offset+items]
             apps = [{"external_id": int(app), "installation_date": date, "removed_date": removed_date}
                     for app, date, removed_date in apps]
         except FFOSUser.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
-        data = {"user": user_external_id, "installed": apps}
+        data = {"user": user_external_id, "applications": apps}
         return self.format_response(data)
 
     def post(self, request, user_external_id):
