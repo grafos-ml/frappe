@@ -77,6 +77,9 @@ class TensorModel(models.Model):
 
     @staticmethod
     def train():
+        """
+        Builds a new tensor matrix for recommendation
+        """
         from jnius import autoclass
         JavaTensorCoFi = autoclass('es.tid.frappe.recsys.TensorCoFi')
         MySQLDataReader = autoclass('es.tid.frappe.mysql.MySQLDataReader')

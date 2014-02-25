@@ -21,6 +21,7 @@ from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
+from ffos.recommender import filters
 from ffos.models import FFOSApp, FFOSUser, Installation
 from ffos.recommender.rlogging.models import RLog
 
@@ -56,7 +57,10 @@ PARAMETERS_IN_MISS = {
 NOT_FOUND_ERROR = 404
 
 RECOMMENDER = SimpleController()
-RECOMMENDER.registerReranker(SimpleLogReRanker())
+RECOMMENDER.registerReranker(
+    #filters.CategoryReRanker(),
+    SimpleLogReRanker()
+)
 
 
 class APIResponse(HttpResponse):
