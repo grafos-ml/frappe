@@ -18,7 +18,7 @@ import numpy as np
 
 class TestSimpleLogReRanker(object):
     """
-
+    Testing package for the SimpleLogReRanking re-ranker and the system supporting it.
     """
     controller = None
     user = None

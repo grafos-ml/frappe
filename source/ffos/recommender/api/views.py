@@ -21,9 +21,9 @@ from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.rlogging.rerankers import SimpleLogReRanker
-from ffos.recommender import filters
 from ffos.models import FFOSApp, FFOSUser, Installation
 from ffos.recommender.rlogging.models import RLog
+from ffos.recommender.diversification import DiversityReRanker
 
 import warnings
 
@@ -44,6 +44,8 @@ SUCCESS_MESSAGE = {
 }
 
 FORMAT_ERROR = 400
+NOT_FOUND_ERROR = 404
+
 FORMAT_ERROR_MESSAGE = {
     _("status"): FORMAT_ERROR,
     _("error"): _("Format chosen is not allowed. Allowed format %s.") % ", ".join(ALLOWED_FORMATS)
@@ -54,11 +56,9 @@ PARAMETERS_IN_MISS = {
     _("error"): _("Some parameters are missing. Check documentation.")
 }
 
-NOT_FOUND_ERROR = 404
-
 RECOMMENDER = SimpleController()
 RECOMMENDER.registerReranker(
-    #filters.CategoryReRanker(),
+    DiversityReRanker(),
     SimpleLogReRanker()
 )
 
