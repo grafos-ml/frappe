@@ -12,8 +12,6 @@ Indices and tables
    :maxdepth: 2
 
    backend
-   webservice
-   webservice.v1
    webservice.v2
 
 

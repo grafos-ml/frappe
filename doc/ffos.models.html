@@ -253,21 +253,19 @@ topic to discuss.
 <dl class="staticmethod">
 <dt id="ffos.models.FFOSUser.load">
 <em class="property">static </em><tt class="descname">load</tt><big>(</big><em>*users</em><big>)</big><a class="headerlink" href="#ffos.models.FFOSUser.load" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Load a list of users to the data model FFOSUser. It also make the</dt>
-<dd>logging.info(&#8216;Already in the database&#8217;)</dd>
-</dl>
-<p>connection to the installed apps.</p>
+<dd><p>Load a list of users to the data model FFOSUser. It also make the logging.info(&#8216;Already in the database&#8217;)
+connection to the installed apps.</p>
 <p>If the users parameter is according with the prerequisites (respects the
 format and for every installed app that app already is registered in
 database) this function should ENSURE that, if the execution ends
 normally, in the end all the data is available in database.</p>
-<p><strong>Args</strong></p>
-<dl class="docutils">
-<dt>users <em>dict</em>:</dt>
-<dd><p class="first">A list with Python dictionaries, each one representing a user.
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>users</strong> (<em>dict</em>) &#8211; <p>A list with Python dictionaries, each one representing a user.
 Is required that each user as the following format:</p>
-<div class="last highlight-python"><div class="highlight"><pre>{
+<div class="highlight-python"><div class="highlight"><pre>{
     &#39;lang&#39;: two or five size string in the locale format,
     &#39;region&#39;: Although I think this is just a 2 string code of
         the region, it allow far more (255 length),
@@ -288,8 +286,10 @@ Is required that each user as the following format:</p>
 }
 </pre></div>
 </div>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

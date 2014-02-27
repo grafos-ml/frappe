@@ -672,8 +672,7 @@ class FFOSUser(models.Model):
     @staticmethod
     def load(*users):
         """
-        Load a list of users to the data model FFOSUser. It also make the
-            logging.info('Already in the database')
+        Load a list of users to the data model FFOSUser. It also make the logging.info('Already in the database')
         connection to the installed apps.
 
         If the users parameter is according with the prerequisites (respects the

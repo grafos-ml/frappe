@@ -9,8 +9,6 @@ Services
 .. toctree::
     :maxdepth: 1
 
-    webservice
-    webservice.v1
     webservice.v2
 
 
@@ -45,3 +43,9 @@ Log Based Re-Ranker
    :members:
    :special-members: __init__, __call__
 
+Diversity Re-Ranker
++++++++++++++++++++
+
+.. automodule:: ffos.recommender.diversification
+   :members:
+   :special-members: __init__, __call__

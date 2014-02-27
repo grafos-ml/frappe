@@ -84,7 +84,7 @@ following table.
 Request Recommendations
 -----------------------
 
-The request recommendation method work over ReST request in a JSON, XML or YAML.
+The request recommendation method work over ReST request in a JSON or XML.
 The response come as has a list of app IDS.
 
 
@@ -125,7 +125,7 @@ Response:
 
 Example::
 
-    Response:
+    XML Response:
         <root>
             <user>
                 0033597455692156e68dfdc2fc3936595b560834d1a0d68d8606e23779f454e1
@@ -138,7 +138,16 @@ Example::
             </recommendations>
         </root>
 
-
+    JSON Response:
+        {
+            user: "0033597455692156e68dfdc2fc3936595b560834d1a0d68d8606e23779f454e1",
+            recommendations: [
+                453746,
+                463842,
+                461344,
+                408212
+                ]
+        }
 
 Go to the Application place in FF Store
 ---------------------------------------
