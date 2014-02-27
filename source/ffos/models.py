@@ -625,7 +625,6 @@ class FFOSApp(models.Model):
         logging.info('Done!')
 
 
-
 class FFOSUser(models.Model):
     """
     FireFox OS User/client. Is a model for FFOS experience information. Some id
@@ -682,9 +681,7 @@ class FFOSUser(models.Model):
         database) this function should ENSURE that, if the execution ends
         normally, in the end all the data is available in database.
 
-        **Args**
-
-        users *dict*:
+        :param users:
             A list with Python dictionaries, each one representing a user.
             Is required that each user as the following format::
 
@@ -707,6 +704,7 @@ class FFOSUser(models.Model):
                         More apps with the same format as the last one...
                     ]
                 }
+        :type users: dict
         """
         logging.info('Preparing user data')
         new_users, apps, install = [], set([]), []

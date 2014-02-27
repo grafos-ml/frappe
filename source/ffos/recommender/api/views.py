@@ -58,8 +58,8 @@ PARAMETERS_IN_MISS = {
 
 RECOMMENDER = SimpleController()
 RECOMMENDER.registerReranker(
-    DiversityReRanker(),
-    SimpleLogReRanker()
+    SimpleLogReRanker(),
+    DiversityReRanker()
 )
 
 

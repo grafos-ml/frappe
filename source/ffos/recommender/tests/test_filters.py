@@ -11,11 +11,12 @@ from ffos.models import FFOSUser, FFOSApp
 from ffos.recommender.controller import SimpleController
 from ffos.recommender.filters import RegionReRanker, CategoryReRanker, RepetitionReRanker, RepetitionFilter, \
     LocaleFilter
+from ffos.recommender.diversification import DiversityReRanker
 
 
 class TestCategoryReRanker(object):
     """
-
+    Tests of re ranker
     """
     controller = None
     user = None
@@ -37,7 +38,7 @@ class TestCategoryReRanker(object):
             [aid+1 for aid, _ in sorted(enumerate(cls.original_recommendation.tolist()),
                                         cmp=lambda x, y: cmp(y[1], x[1]))]
         cls.controller.registerFilter(RepetitionFilter(), LocaleFilter())
-        cls.controller.registerReranker(RegionReRanker(), CategoryReRanker(), RepetitionReRanker())
+        cls.controller.registerReranker(RegionReRanker(), CategoryReRanker(), RepetitionReRanker(), DiversityReRanker())
         cls.log_recommendations = [cls.controller.get_recommendation(user=cls.user, n=None) for _ in xrange(5)]
 
     def test_installed_apps_are_off(self):

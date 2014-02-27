@@ -215,8 +215,8 @@ class DiversityReRanker(ReRanker):
         :return: The re-ranked recommendation
         :rtype: list
         """
-        size_times = 2
-        diversity = BinomialDiversity(recommendation, size, self.lambda_constant)
+        size_times = 4
+        diversity = BinomialDiversity(recommendation[:size*size_times], size, self.lambda_constant)
         new_recommendation = []
         recommendation_set = recommendation[:size*size_times]
         for _ in xrange(size):

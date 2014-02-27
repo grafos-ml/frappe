@@ -1,18 +1,18 @@
 #-*- coding: utf-8 -*-
 """
-Created on Dec 5, 2013
-
-This is a nose test module for the data loader methods and the loaddata.py
+Created on Dec 5, 2013  python manage.py test -v2 --with-coverage --cover-html --cover-package=ffos ffos/tests/test_models.py
+                            ffos/recommender/tests/ ffos/recommender/rlogging/tests.py
+This is a nose test moduds and the loaddata.py
 script.
 
--------------------------------------------------------------------------------
-This test module is to substitute the "deprecated" version in nosetest module
--------------------------------------------------------------------------------
+---------------------------------------------------
+This test module is to sersion in nosetest module
+---------------------------------------------------
 
-To USE this test module make sure to have installed the "nose" framework and
+To USE this test module the "nose" framework and
 the django-nose.
-Make sure to install the django_nose in the setting files. An set the settings
-variable like "TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'".
+Make sure to install thefiles. An set the settings
+variable like "TEST_RUNNiteRunner'".
 
 Then use the command::
 
@@ -23,8 +23,8 @@ Then use the command::
 
     $ python manage.py help test -> to check how it work
 
-    $ python manage.py test -v2 --with-coverage --cover-html --cover-package=ffos ffos/tests/test_models.py
-    ffos/recommender/tests/ ffos/recommender/rlogging/tests.py
+    $ python manage.py test -v2 --with-coverage --cover-html --cover-package=ffos ffos/tests/test_models.py \
+     ffos/recommender/tests/ ffos/recommender/rlogging/tests.py
 
 
 
@@ -179,8 +179,7 @@ class TestLoad(object):
             for obj in app.categories.all():
                 assert FFOSAppCategory.identify_obj(obj) in sorted_cat
             assert FFOSAppIcon.identify_obj(app.icon) == \
-                FFOSAppIcon.identify(FFOSAppIcon.get_obj(
-                sorted_app[app.external_id]))
+                FFOSAppIcon.identify(FFOSAppIcon.get_obj(sorted_app[app.external_id]))
             for obj in app.device_types.all():
                 assert DeviceType.identify_obj(obj) in sorted_dt
             for obj in app.regions.all():
@@ -204,12 +203,12 @@ class TestLoad(object):
         FFOSUser.load(*juser)
 
         # Sort the users in json
-        sorted_user = dict(map(lambda x:(x['user'],x), juser))
+        sorted_user = dict(map(lambda x: (x['user'], x), juser))
 
-        len_ins = len(Counter(map(lambda x: x['id'], itertools.chain(*map(
-            lambda x: x['installed_apps'],juser)))))
+        #len_ins = len(Counter(map(lambda x: x['id'], itertools.chain(*map(
+        #    lambda x: x['installed_apps'], juser)))))
 
-        users = FFOSUser.objects.all().prefetch_related('installed_apps')
+        users = FFOSUser.objects.all().prefetch_related('apps')
         assert len(users) == len(juser)
         # This may not assert if user have installed apps that no longer exist
         # assert len(Installation.objects.all()) == len_ins
