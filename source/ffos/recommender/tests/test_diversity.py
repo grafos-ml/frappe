@@ -10,11 +10,54 @@ from ffos.models import FFOSApp, FFOSUser
 from ffos.recommender.controller import SimpleController
 
 
+class DummyDiversity(BinomialDiversity):
+    """
+    Implementation of a dummy Diversity algorithm for test purposes
+    """
+
+    A = "a"
+    B = "b"
+    C = "c"
+
+    P_A = 0.5
+    P_B = 0.25
+    P_C = 0.25
+
+    def __init__(self, lambda_constant=0.5):
+        """
+        Constructor
+
+        :param lambda_constant: Lambda constant. Must be between 0 and 1.
+        :type lambda_constant: float
+        """
+        constant = 100
+        i0 = 0
+        categories = [(i, self.A) for i in xrange(i0, i0+int(constant*self.P_A))]
+
+        i0 += int(constant*self.P_A)
+        categories += [(i, self.B) for i in xrange(i0, i0+int(constant*self.P_B))]
+
+        i0 += int(constant*self.P_B)
+        categories += [(i, self.C) for i in xrange(i0, i0+int(constant*self.P_C))]
+
+        assert len(categories) == constant, "Categories does not have %d elements" % constant
+
+        self.categories_by_item = {}
+        self.categories = {}
+        for item_id, category in categories:
+            self.categories[category] = self.categories.get(category, 0.) + 1.
+            try:
+                self.categories_by_item[item_id].append(category)
+            except KeyError:
+                self.categories_by_item[item_id] = [category]
+        self.number_items = constant
+        self.recommendation_size = 2
+        self.lambda_constant = lambda_constant
+
+
 class TestDiversity(object):
     """
     Test diversity methods.
-
-
     """
 
     diversity = None
@@ -29,36 +72,39 @@ class TestDiversity(object):
         cls.original_recommendation = cls.controller.get_app_significance_list(
             user=cls.user, u_matrix=cls.controller.get_user_matrix(), a_matrix=cls.controller.get_apps_matrix())
         cls.original_recommendation_ids = \
-            [item_id
-             for item_id, _ in sorted(
-                enumerate(cls.original_recommendation.tolist()), cmp=lambda x, y: cmp(y[1], x[1]))]
+            [item_id for item_id, _ in
+             sorted(enumerate(cls.original_recommendation.tolist()), cmp=lambda x, y: cmp(y[1], x[1]))]
         cls.diversity = BinomialDiversity(cls.original_recommendation_ids, 4)
+        cls.dummy_diversity = DummyDiversity()
 
     def test_coverage(self):
         """
         Test the coverage
         """
         cover_0_apps = self.diversity.coverage([])
-        assert cover_0_apps == 0., "The coverage for empty lists isn't 0. Value=%f" % cover_0_apps
-        cover_4_apps_with_1_category = self.diversity.coverage([2379, 9, 41, 233])
-        assert 0.999010 < cover_4_apps_with_1_category < 0.999012, \
-            "The coverage isn't 0.999011. Value=%f" % cover_4_apps_with_1_category
+        assert cover_0_apps == 1., "The coverage for empty lists isn't 1. Value=%f" % cover_0_apps
+
+    def test_coverage_with_dummy(self):
+        """
+        Test coverage with dummy
+        """
+        cover_b_a = self.dummy_diversity.coverage([50, 0])  # 50 a "b" item and 0 an "a" item
+        assert 0.825481 < cover_b_a < 0.825483, "The coverage [b, a] isn't 0.825482. Value=%f" % cover_b_a
+        cover_a_a = self.dummy_diversity.coverage([1, 0])  # 1 a "a" item and 0 an "a" item
+        assert 0.681419 < cover_a_a < 0.681421, "The coverage [a, a] isn't 0.681420. Value=%f" % cover_a_a
+
+    def test_non_redundancy_dummy(self):
+        """
+        Test the non redundancy with a dummy
+        """
+        non_red_b_a = self.dummy_diversity.non_redundancy([50, 0])  # 50 a "b" item and 0 an "a" item
+        assert 1. == non_red_b_a, "The non redundancy [b, a] isn't 1.0. Value=%f" % non_red_b_a
+        non_red_a_a = self.dummy_diversity.non_redundancy([1, 0])  # 1 a "a" item and 0 an "a" item
+        assert 0.333332 < non_red_a_a < 0.333334, "The non redundancy [a, a] isn't 0.333333. Value=%f" % non_red_a_a
 
     def test_non_redundancy(self):
         """
-        Test the coverage
+        Test the non redundancy
         """
         non_red_0_apps = self.diversity.non_redundancy([])
         assert non_red_0_apps == 0., "The non redundancy for empty lists isn't 0. Value=%f" % non_red_0_apps
-        non_red_4_apps_with_1_category = self.diversity.non_redundancy([2379, 9, 41, 233])
-        assert 0.996944 < non_red_4_apps_with_1_category < 0.996946, \
-            "The non redundancy isn't 0.996945. Value=%f" % non_red_4_apps_with_1_category
-
-    def test_diversity_plus(self):
-        """
-        Test the diversity plus.
-        Since the normal diversity is made at cost of coverage and non redundancy it became tested by the tests above.
-        """
-        apps = [app for app, in FFOSApp.objects.all().order_by("?").values_list("id")[:4]]
-        assert self.diversity.diversity(apps) == self.diversity.diversity_plus(apps), \
-            "Diversity plus result isn't the same as standard diversity"

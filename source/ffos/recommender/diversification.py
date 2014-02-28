@@ -77,20 +77,19 @@ class BinomialDiversity(object):
         :rtype: float
         """
         recommendation_categories = (self.categories_by_item[item_id] for item_id in recommendation)
-        categories_frequency = set(chain(*recommendation_categories))
+        categories_in_recommendation = set(chain(*recommendation_categories))
+        categories_out_recommendation = \
+            (category for category in self.categories if category not in categories_in_recommendation)
 
-        for name in categories_frequency:
+        for name in categories_out_recommendation:
             p_category_success = self.categories[name]/self.number_items
             probability_of_category = \
-                binom.pmf(0, self.recommendation_size, p_category_success) ** (1./self.number_items)
+                binom.pmf(0, len(recommendation), p_category_success) ** (1./len(self.categories))
             try:
                 result *= probability_of_category
             except NameError:
                 result = probability_of_category
-        try:
-            return result
-        except NameError:
-            return 0.
+        return locals().get("result", 0.)
 
     def non_redundancy(self, recommendation):
         """
@@ -102,23 +101,20 @@ class BinomialDiversity(object):
         :rtype: float
         """
         recommendation_categories = (self.categories_by_item[item_id] for item_id in recommendation)
-        categories_frequency = Counter(chain(*recommendation_categories)).iteritems()
+        categories_frequency = Counter(chain(*recommendation_categories)).items()
 
         for name, category_count in categories_frequency:
             p_category_success = self.categories[name]/self.number_items
-            p_category_equal = binom.pmf(category_count, self.recommendation_size, p_category_success)
-            p_category_bigger_zero = 0
-            for i in xrange(1, self.recommendation_size):
-                p_category_bigger_zero += binom.pmf(i, self.recommendation_size, p_category_success)
-            probability_non_redundancy = (1.-(p_category_equal/p_category_bigger_zero)) ** (1./self.number_items)
+            p_greater_0 = 1 - binom.pmf(0, len(recommendation), p_category_success)
+            p_greater_0_and_greater_k = \
+                sum((binom.pmf(i, len(recommendation), p_category_success)
+                    for i in xrange(category_count, int(self.categories[name])+1)))
+            probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(categories_frequency))
             try:
                 result *= probability_non_redundancy
             except NameError:
                 result = probability_non_redundancy
-        try:
-            return result
-        except NameError:
-            return 0.
+        return locals().get("result", 0.)
 
     def diversity(self, recommendation):
         """
@@ -130,38 +126,6 @@ class BinomialDiversity(object):
         :rtype: float
         """
         return self.coverage(recommendation) * self.non_redundancy(recommendation)
-
-    def diversity_plus(self, recommendation):
-        """
-        Check the diversity of this propose of recommendation. This version calculates coverage and
-
-        :param recommendation: Recommendation to evaluate.
-        :type recommendation: list
-        :return: The diversity measure. The higher the better(high diversity with low redundancy)
-        :rtype: float
-        """
-        recommendation_categories = (self.categories_by_item[item_id] for item_id in recommendation)
-        categories_frequency = Counter(chain(*recommendation_categories)).iteritems()
-
-        for name, category_count in categories_frequency:
-            p_category_success = self.categories[name]/self.number_items
-            p_category_equal = binom.pmf(category_count, self.recommendation_size, p_category_success)
-            p_category_bigger_zero = 0
-            for i in xrange(1, self.recommendation_size):
-                p_category_bigger_zero += binom.pmf(i, self.recommendation_size, p_category_success)
-            probability_non_redundancy = (1.-(p_category_equal/p_category_bigger_zero)) ** (1./self.number_items)
-            probability_of_category = \
-                binom.pmf(0, self.recommendation_size, p_category_success) ** (1./self.number_items)
-            try:
-                m_non_red *= probability_non_redundancy
-                m_coverage *= probability_of_category
-            except NameError:
-                m_non_red = probability_non_redundancy
-                m_coverage = probability_of_category
-        try:
-            return m_coverage * m_non_red
-        except NameError:
-            return 0.
 
     def __call__(self, recommendation, item):
         """
@@ -179,7 +143,7 @@ class BinomialDiversity(object):
         # Assuming the ranking has a uniform distribution from 1 to len(recommendation)
         normalized_rank = normalize(rank, 0.5*(1+self.number_items), (1./12)*(self.number_items-1)**2)
 
-        div = self.diversity_plus(recommendation+[item_id]) - self.diversity_plus(recommendation)
+        div = self.diversity(recommendation+[item_id]) - self.diversity(recommendation)
 
         # Assume that the mean is 0 (it have the same probability of improving and of getting worse). The variance of
         # 0.25 is a guess that the improvement never goes beyond imagination(:s)
