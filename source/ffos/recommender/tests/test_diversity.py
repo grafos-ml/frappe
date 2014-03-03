@@ -124,6 +124,7 @@ class TestDiversity(object):
              sorted(enumerate(cls.original_recommendation.tolist()), cmp=lambda x, y: cmp(y[1], x[1]))]
         cls.diversity = BinomialDiversity(cls.original_recommendation_ids, 4)
         cls.dummy_diversity = DummyDiversity()
+        cls.turbo_dummy = TurboDummy()
 
     def test_coverage(self):
         """
@@ -156,5 +157,25 @@ class TestDiversity(object):
         """
         non_red_0_apps = self.diversity.non_redundancy([])
         assert non_red_0_apps == 0., "The non redundancy for empty lists isn't 0. Value=%f" % non_red_0_apps
+
+    def test_coverage_with_turbo_dummy(self):
+        """
+        Test coverage with turbo dummy
+        """
+        self.turbo_dummy.coverage([0])
+        cover_b_a = self.turbo_dummy.coverage([0, 50])  # 50 a "b" item and 0 an "a" item
+        assert 0.825481 < cover_b_a < 0.825483, "The coverage [b, a] isn't 0.825482. Value=%f" % cover_b_a
+        cover_a_a = self.turbo_dummy.coverage([0, 1])  # 1 a "a" item and 0 an "a" item
+        assert 0.681419 < cover_a_a < 0.681421, "The coverage [a, a] isn't 0.681420. Value=%f" % cover_a_a
+
+    def test_non_redundancy_turbo_dummy(self):
+        """
+        Test the non redundancy with a turbo dummy
+        """
+        self.turbo_dummy.non_redundancy([0])
+        non_red_b_a = self.turbo_dummy.non_redundancy([0, 50])  # 50 a "b" item and 0 an "a" item
+        assert 1. == non_red_b_a, "The non redundancy [b, a] isn't 1.0. Value=%f" % non_red_b_a
+        non_red_a_a = self.turbo_dummy.non_redundancy([0, 1])  # 1 a "a" item and 0 an "a" item
+        assert 0.333332 < non_red_a_a < 0.333334, "The non redundancy [a, a] isn't 0.333333. Value=%f" % non_red_a_a
 
 

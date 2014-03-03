@@ -238,11 +238,11 @@ class TurboBinomialDiversity(BinomialDiversity):
                 return cached_results[recommendation[-1]]["coverage"]
             except KeyError:
                 pass
-
-        cached_results["cor"] = categories_out_recommendation = \
+        else:
+            cached_results[recommendation[-1]] = {}
+        cached_results[recommendation[-1]]["cor"] = categories_out_recommendation = \
             [category for category in cached_results.get("cor", list(self.categories.keys()))
              if category not in self.categories_by_item[recommendation[-1]]]
-
         for name in categories_out_recommendation:
             p_category_success = self.categories[name]/self.number_items
             try:
@@ -251,11 +251,11 @@ class TurboBinomialDiversity(BinomialDiversity):
                 self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] = \
                     binom.pmf(0, len(recommendation), p_category_success)
                 probability_of_category = \
-                    self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] ** (1./len(self.categories))
+                    self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
             try:
-                result *= probability_of_category
+                result *= (probability_of_category ** (1./len(self.categories)))
             except NameError:
-                result = probability_of_category
+                result = probability_of_category ** (1./len(self.categories))
 
         try:
             cached_results[recommendation[-1]]["coverage"] = locals().get("result", 0.)
@@ -282,8 +282,10 @@ class TurboBinomialDiversity(BinomialDiversity):
                 return cached_results[recommendation[-1]]["non redundancy"]
             except KeyError:
                 pass
+        else:
+            cached_results[recommendation[-1]] = {}
 
-        cached_results["cf"] = categories_frequency = \
+        cached_results[recommendation[-1]]["cf"] = categories_frequency = \
             (cached_results.get("cf", Counter()) + Counter(self.categories_by_item[recommendation[-1]]))
 
         for name, category_count in categories_frequency.items():
