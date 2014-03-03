@@ -180,7 +180,7 @@ class DiversityReRanker(ReRanker):
         :rtype: list
         """
         size_times = 4
-        diversity = BinomialDiversity(recommendation[:size*size_times], size, self.lambda_constant)
+        diversity = TurboBinomialDiversity(recommendation[:size*size_times], size, self.lambda_constant)
         new_recommendation = []
         recommendation_set = recommendation[:size*size_times]
         for _ in xrange(size):
@@ -193,3 +193,126 @@ class DiversityReRanker(ReRanker):
         result = new_recommendation + recommendation_set + recommendation[size*size_times:]
         assert len(result) == len(recommendation), "The result lost or gained elements"
         return result
+
+
+class TurboBinomialDiversity(BinomialDiversity):
+    """
+    Implementation of BinomialDiversity with improvement by reducing the redundancy calculations. This will be done by
+    mapping the tree of results and using this trees in the calculations.
+    """
+
+    mapped_results = None
+
+    def __init__(self, items, size, lambda_constant=0.5):
+        """
+        Constructor
+
+        :param items: A list with the items ids
+        :type items: list
+        :param size: The size of the recommendation
+        :type size: int
+        :param lambda_constant: Lambda constant. Must be between 0 and 1.
+        :type lambda_constant: float
+        """
+        super(TurboBinomialDiversity, self).__init__(items, size, lambda_constant)
+        self.mapped_results = {
+            "P": {}
+        }
+
+    def coverage(self, recommendation):
+        """
+        This measure the coverage for this recommendation
+
+        :param recommendation: A proposal for recommendation to get the coverage.
+        :type recommendation: iterable
+        :return: The coverage of the recommendation
+        :rtype: float
+        """
+        if len(recommendation) == 0:
+            return 0.
+        cached_results = self.mapped_results
+        for item in recommendation[:-1]:
+            cached_results = cached_results[item]
+        if recommendation[-1] in cached_results:
+            try:
+                return cached_results[recommendation[-1]]["coverage"]
+            except KeyError:
+                pass
+
+        cached_results["cor"] = categories_out_recommendation = \
+            [category for category in cached_results.get("cor", list(self.categories.keys()))
+             if category not in self.categories_by_item[recommendation[-1]]]
+
+        for name in categories_out_recommendation:
+            p_category_success = self.categories[name]/self.number_items
+            try:
+                probability_of_category = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+            except KeyError:
+                self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] = \
+                    binom.pmf(0, len(recommendation), p_category_success)
+                probability_of_category = \
+                    self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] ** (1./len(self.categories))
+            try:
+                result *= probability_of_category
+            except NameError:
+                result = probability_of_category
+
+        try:
+            cached_results[recommendation[-1]]["coverage"] = locals().get("result", 0.)
+        except KeyError:
+            cached_results[recommendation[-1]] = {"coverage": locals().get("result", 0.)}
+        return locals().get("result", 0.)
+
+    def non_redundancy(self, recommendation):
+        """
+        This measure the coverage for this recommendation
+
+        :param recommendation: A proposal for recommendation to get the coverage.
+        :type recommendation: iterable
+        :return: The coverage of the recommendation
+        :rtype: float
+        """
+        if len(recommendation) == 0:
+            return 0.
+        cached_results = self.mapped_results
+        for item in recommendation[:-1]:
+            cached_results = cached_results[item]
+        if recommendation[-1] in cached_results:
+            try:
+                return cached_results[recommendation[-1]]["non redundancy"]
+            except KeyError:
+                pass
+
+        cached_results["cf"] = categories_frequency = \
+            (cached_results.get("cf", Counter()) + Counter(self.categories_by_item[recommendation[-1]]))
+
+        for name, category_count in categories_frequency.items():
+            p_category_success = self.categories[name]/self.number_items
+
+            try:
+                probability_of_category = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+            except KeyError:
+                self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] = \
+                    binom.pmf(0, len(recommendation), p_category_success)
+                probability_of_category = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+            p_greater_0 = 1. - probability_of_category
+
+            p_greater_0_and_greater_k = 0
+            for i in xrange(category_count, int(self.categories[name])+1):
+                try:
+                    p_equal_i = self.mapped_results["P"]["p(%s=%d)N=%d" % (name, i, len(recommendation))]
+                except KeyError:
+                    p_equal_i = binom.pmf(i, len(recommendation), p_category_success)
+                    self.mapped_results["P"]["p(%s=%d)N=%d" % (name, i, len(recommendation))] = p_equal_i
+                p_greater_0_and_greater_k += p_equal_i
+            probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(categories_frequency))
+            try:
+                result *= probability_non_redundancy
+            except NameError:
+                result = probability_non_redundancy
+
+        try:
+            cached_results[recommendation[-1]]["non redundancy"] = locals().get("result", 0.)
+        except KeyError:
+            cached_results[recommendation[-1]] = {"non redundancy": locals().get("result", 0.)}
+        return locals().get("result", 0.)

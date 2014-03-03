@@ -5,7 +5,7 @@ Test package for the diversification in general.
 
 __author__ = 'joaonrb'
 
-from ffos.recommender.diversification import BinomialDiversity
+from ffos.recommender.diversification import BinomialDiversity, TurboBinomialDiversity
 from ffos.models import FFOSApp, FFOSUser
 from ffos.recommender.controller import SimpleController
 
@@ -53,6 +53,54 @@ class DummyDiversity(BinomialDiversity):
         self.number_items = constant
         self.recommendation_size = 2
         self.lambda_constant = lambda_constant
+
+
+class TurboDummy(TurboBinomialDiversity):
+    """
+    Implementation of a dummy Diversity algorithm for test purposes
+    """
+
+    A = "a"
+    B = "b"
+    C = "c"
+
+    P_A = 0.5
+    P_B = 0.25
+    P_C = 0.25
+
+    def __init__(self, lambda_constant=0.5):
+        """
+        Constructor
+
+        :param lambda_constant: Lambda constant. Must be between 0 and 1.
+        :type lambda_constant: float
+        """
+        constant = 100
+        i0 = 0
+        categories = [(i, self.A) for i in xrange(i0, i0+int(constant*self.P_A))]
+
+        i0 += int(constant*self.P_A)
+        categories += [(i, self.B) for i in xrange(i0, i0+int(constant*self.P_B))]
+
+        i0 += int(constant*self.P_B)
+        categories += [(i, self.C) for i in xrange(i0, i0+int(constant*self.P_C))]
+
+        assert len(categories) == constant, "Categories does not have %d elements" % constant
+
+        self.categories_by_item = {}
+        self.categories = {}
+        for item_id, category in categories:
+            self.categories[category] = self.categories.get(category, 0.) + 1.
+            try:
+                self.categories_by_item[item_id].append(category)
+            except KeyError:
+                self.categories_by_item[item_id] = [category]
+        self.number_items = constant
+        self.recommendation_size = 2
+        self.lambda_constant = lambda_constant
+        self.mapped_results = {
+            "P": {}
+        }
 
 
 class TestDiversity(object):
@@ -108,3 +156,5 @@ class TestDiversity(object):
         """
         non_red_0_apps = self.diversity.non_redundancy([])
         assert non_red_0_apps == 0., "The non redundancy for empty lists isn't 0. Value=%f" % non_red_0_apps
+
+
