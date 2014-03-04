@@ -8,7 +8,7 @@ from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout
 from ffos.recommender.caches import CacheUser
-import views
+from ffos.gui import views
 
 urlpatterns = patterns('',
     url(r'^$',login_required(cache_page(15*60)(views.Landing.as_view())), name='recommendation_index'),

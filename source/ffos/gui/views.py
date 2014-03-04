@@ -11,7 +11,6 @@ from django.shortcuts import render_to_response, RequestContext
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from ffos.models import FFOSUser
 
-
 class Landing(View, TemplateResponseMixin):
 
     template_name = "landing.html"
