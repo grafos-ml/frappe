@@ -112,5 +112,19 @@ class TensorModel(models.Model):
         matrix = np.ma.column_stack(cols)
         return matrix
 
+
+class PopularItems(models.Model):
+    """
+    Popular items storage periodically te popular
+    """
+    timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("popular items")
+        verbose_name_plural = _("popular items")
+
+    def __str__(self):
+        return self.timestamp.strftime()
+
 from django.contrib import admin
 admin.site.register([TensorModel])
