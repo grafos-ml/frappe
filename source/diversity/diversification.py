@@ -13,8 +13,7 @@ __author__ = "joaonrb"
 from scipy.stats import binom
 from collections import Counter
 from itertools import chain
-from ffos.models import FFOSAppCategory
-from ffos.recommender.filters import ReRanker
+from diversity.models import Genre
 
 
 def normalize(value, mean_value, var):
@@ -38,8 +37,8 @@ class BinomialDiversity(object):
     Binomial diversity implementation of the paper that is described in the module
     """
 
-    categories_by_item = None
-    categories = None
+    genre_by_item = None
+    genres = None
     recommendation_size = None
     number_items = None
 
@@ -54,15 +53,15 @@ class BinomialDiversity(object):
         :param lambda_constant: Lambda constant. Must be between 0 and 1.
         :type lambda_constant: float
         """
-        categories = FFOSAppCategory.objects.filter(apps__id__in=items).values_list("apps__id", "name")
-        self.categories_by_item = {}
-        self.categories = {}
-        for item_id, category in categories:
-            self.categories[category] = self.categories.get(category, 0.) + 1.
+        genres = Genre.objects.filter(apps__id__in=items).values_list("apps__id", "name")
+        self.genre_by_item = {}
+        self.genres = {}
+        for item_id, genre in genres:
+            self.genres[genre] = self.genres.get(genre, 0.) + 1.
             try:
-                self.categories_by_item[item_id].append(category)
+                self.genre_by_item[item_id].append(genre)
             except KeyError:
-                self.categories_by_item[item_id] = [category]
+                self.genre_by_item[item_id] = [genre]
         self.number_items = len(items)
         self.recommendation_size = size
         self.lambda_constant = lambda_constant
@@ -76,19 +75,17 @@ class BinomialDiversity(object):
         :return: The coverage of the recommendation
         :rtype: float
         """
-        recommendation_categories = (self.categories_by_item[item_id] for item_id in recommendation)
-        categories_in_recommendation = set(chain(*recommendation_categories))
-        categories_out_recommendation = \
-            (category for category in self.categories if category not in categories_in_recommendation)
+        recommendation_genres = (self.genre_by_item[item_id] for item_id in recommendation)
+        genres_in_recommendation = set(chain(*recommendation_genres))
+        genres_out_recommendation = (genre for genre in self.genres if genre not in genres_in_recommendation)
 
-        for name in categories_out_recommendation:
-            p_category_success = self.categories[name]/self.number_items
-            probability_of_category = \
-                binom.pmf(0, len(recommendation), p_category_success) ** (1./len(self.categories))
+        for name in genres_out_recommendation:
+            p_get_genre = self.genres[name]/self.number_items
+            probability_of_genre = binom.pmf(0, len(recommendation), p_get_genre) ** (1./len(self.genres))
             try:
-                result *= probability_of_category
+                result *= probability_of_genre
             except NameError:
-                result = probability_of_category
+                result = probability_of_genre
         return locals().get("result", 0.)
 
     def non_redundancy(self, recommendation):
@@ -100,16 +97,16 @@ class BinomialDiversity(object):
         :return: The coverage of the recommendation
         :rtype: float
         """
-        recommendation_categories = (self.categories_by_item[item_id] for item_id in recommendation)
-        categories_frequency = Counter(chain(*recommendation_categories)).items()
+        recommendation_genres = (self.genre_by_item[item_id] for item_id in recommendation)
+        genres_frequency = Counter(chain(*recommendation_genres)).items()
 
-        for name, category_count in categories_frequency:
-            p_category_success = self.categories[name]/self.number_items
-            p_greater_0 = 1 - binom.pmf(0, len(recommendation), p_category_success)
+        for name, genre_count in genres_frequency:
+            p_get_genre = self.genres[name]/self.number_items
+            p_greater_0 = 1 - binom.pmf(0, len(recommendation), p_get_genre)
             p_greater_0_and_greater_k = \
-                sum((binom.pmf(i, len(recommendation), p_category_success)
-                    for i in xrange(category_count, int(self.categories[name])+1)))
-            probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(categories_frequency))
+                sum((binom.pmf(i, len(recommendation), p_get_genre)
+                    for i in range(genre_count, int(self.genres[name])+1)))
+            probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(genres_frequency))
             try:
                 result *= probability_non_redundancy
             except NameError:
@@ -151,7 +148,7 @@ class BinomialDiversity(object):
         return (1.-self.lambda_constant)*normalized_rank + self.lambda_constant*normalized_div
 
 
-class DiversityReRanker(ReRanker):
+class DiversityReRanker(object):
     """
     The greedy re-ranker that build a new recommendation by choosing the max diversity item in the head of the old
      recommendation. It iterates this process until have a new recommendation.
@@ -183,7 +180,7 @@ class DiversityReRanker(ReRanker):
         diversity = TurboBinomialDiversity(recommendation[:size*size_times], size, self.lambda_constant)
         new_recommendation = []
         recommendation_set = recommendation[:size*size_times]
-        for _ in xrange(size):
+        for _ in range(size):
             div_list = ((item, diversity(new_recommendation, (index, item)))
                         for index, item in enumerate(recommendation_set, start=1))
             chosen_item = max(div_list, key=lambda x: x[1])[0]
@@ -240,22 +237,21 @@ class TurboBinomialDiversity(BinomialDiversity):
                 pass
         else:
             cached_results[recommendation[-1]] = {}
-        cached_results[recommendation[-1]]["cor"] = categories_out_recommendation = \
-            [category for category in cached_results.get("cor", list(self.categories.keys()))
-             if category not in self.categories_by_item[recommendation[-1]]]
-        for name in categories_out_recommendation:
-            p_category_success = self.categories[name]/self.number_items
+        cached_results[recommendation[-1]]["cor"] = genres_out_recommendation = \
+            [genre for genre in cached_results.get("cor", list(self.genres.keys()))
+             if genre not in self.genre_by_item[recommendation[-1]]]
+        for name in genres_out_recommendation:
+            p_get_genre = self.genres[name]/self.number_items
             try:
-                probability_of_category = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+                probability_of_genre = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
             except KeyError:
                 self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] = \
-                    binom.pmf(0, len(recommendation), p_category_success)
-                probability_of_category = \
-                    self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+                    binom.pmf(0, len(recommendation), p_get_genre)
+                probability_of_genre = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
             try:
-                result *= (probability_of_category ** (1./len(self.categories)))
+                result *= (probability_of_genre ** (1./len(self.genres)))
             except NameError:
-                result = probability_of_category ** (1./len(self.categories))
+                result = probability_of_genre ** (1./len(self.genres))
 
         try:
             cached_results[recommendation[-1]]["coverage"] = locals().get("result", 0.)
@@ -285,30 +281,30 @@ class TurboBinomialDiversity(BinomialDiversity):
         else:
             cached_results[recommendation[-1]] = {}
 
-        cached_results[recommendation[-1]]["cf"] = categories_frequency = \
-            (cached_results.get("cf", Counter()) + Counter(self.categories_by_item[recommendation[-1]]))
+        cached_results[recommendation[-1]]["cf"] = genre_frequency = \
+            (cached_results.get("cf", Counter()) + Counter(self.genre_by_item[recommendation[-1]]))
 
-        for name, category_count in categories_frequency.items():
-            p_category_success = self.categories[name]/self.number_items
+        for name, genre_count in genre_frequency.items():
+            p_get_genre = self.genres[name]/self.number_items
 
             try:
-                probability_of_category = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+                probability_of_genre = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
             except KeyError:
                 self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] = \
-                    binom.pmf(0, len(recommendation), p_category_success)
-                probability_of_category = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
-            p_greater_0 = 1. - probability_of_category
+                    binom.pmf(0, len(recommendation), p_get_genre)
+                probability_of_genre = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+            p_greater_0 = 1. - probability_of_genre
 
             p_greater_0_and_greater_k = 0
-            for i in xrange(category_count, int(self.categories[name])+1):
+            for i in range(genre_count, int(self.genres[name])+1):
                 try:
                     p_equal_i = self.mapped_results["P"]["p(%s=%d)N=%d" % (name, i, len(recommendation))]
                 except KeyError:
                     p_equal_i = binom.pmf(i if i < len(recommendation) else len(recommendation), len(recommendation),
-                                          p_category_success)
+                                          p_get_genre)
                     self.mapped_results["P"]["p(%s=%d)N=%d" % (name, i, len(recommendation))] = p_equal_i
                 p_greater_0_and_greater_k += p_equal_i
-            probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(categories_frequency))
+            probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(genre_frequency))
             try:
                 result *= probability_non_redundancy
             except NameError:

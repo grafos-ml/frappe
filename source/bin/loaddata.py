@@ -92,7 +92,7 @@ OPTIONS: user, app
                 },...
             ],
             "payment_account": String(255),
-            "categories": [
+            "genres": [
                 String(255),
                 ...
                 ],

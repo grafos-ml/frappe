@@ -9,20 +9,20 @@ data needed for the recommendation tools.
 
 Dome django fields are also defined here.
 
-..moduleauthor:: Joao Baptista <joaonrb@gmail.com>
+..moduleauthor:: joaonrb <joaonrb@gmail.com>
 
 """
+
+__author__ = "joaonrb"
+
 import os
-from ffos import recommender
 from pkg_resources import resource_filename
-os.environ['CLASSPATH'] = resource_filename(recommender.__name__,
-                                            'lib/algorithm-1.0-SNAPSHOT-jar-with-dependencies.jar')
+os.environ['CLASSPATH'] = resource_filename(__name__, "lib/algorithm-1.0-SNAPSHOT-jar-with-dependencies.jar")
 # os.environ["JAVA_OPTS"] = "-Xmx4096M"
 from django.db import models
 from django.utils.translation import ugettext as _
 import base64
 import numpy as np
-from django.conf import settings
 
 
 class Matrix(models.TextField):

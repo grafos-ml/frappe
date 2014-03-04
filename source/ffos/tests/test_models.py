@@ -148,7 +148,7 @@ class TestLoad(object):
         prev_len = len(Counter(map(lambda x: Preview.identify(x),
             itertools.chain(*map(lambda x:Preview.get_obj(x),japps)))))
 
-        apps = FFOSApp.objects.all().prefetch_related('categories','icon',
+        apps = FFOSApp.objects.all().prefetch_related('genres','icon',
             'device_types','regions','supported_locales','previews')
         # Check if to more or less objects where loaded to the database
         assert len(apps) == len(japps)

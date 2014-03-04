@@ -43,7 +43,7 @@ class Filterble(object):
     @classmethod
     def already_in_db(cls):
         """
-        Return a list o identifiers of the categories in db
+        Return a list o identifiers of the genres in db
         """
         return {cls.identify_obj(obj): obj for obj in cls.objects.all()}
 
@@ -79,7 +79,7 @@ class FFOSAppCategory(models.Model, Filterble):
     
     class Meta:
         verbose_name = _('category')
-        verbose_name_plural = _('categories')
+        verbose_name_plural = _('genres')
         
     def __unicode__(self):
         return self.name
@@ -101,7 +101,7 @@ class FFOSAppCategory(models.Model, Filterble):
 
     @classmethod
     def get_obj(cls, app):
-        return app['categories']
+        return app['genres']
 
         
 class DeviceType(models.Model, Filterble):
@@ -321,7 +321,7 @@ class FFOSApp(models.Model):
     
     author = models.CharField(_('author'), max_length=255, null=True, blank=True)
     
-    categories = models.ManyToManyField(FFOSAppCategory, blank=True, verbose_name=_('categories'), related_name='apps')
+    categories = models.ManyToManyField(FFOSAppCategory, blank=True, verbose_name=_('genres'), related_name='apps')
 
     # Sometimes data comes as other stuff
     content_ratings = models.TextField(_('content rating'), null=True, blank=True)
@@ -476,7 +476,7 @@ class FFOSApp(models.Model):
                         },...
                     ],
                     "payment_account": String(255),
-                    "categories": [
+                    "genres": [
                         String(255),
                         ...
                         ],
@@ -556,10 +556,10 @@ class FFOSApp(models.Model):
         for a in FFOSApp.objects.filter(external_id__in=apps.keys()):
             apps[a.external_id] = apps[a.external_id], a
 
-        logging.info('Loading categories')
+        logging.info('Loading genres')
         FFOSAppCategory.objects.bulk_create(FFOSAppCategory.new_to_add())
 
-        # Cache all the categories for relation with app. (Yet to be improved)
+        # Cache all the genres for relation with app. (Yet to be improved)
         categories = {FFOSAppCategory.identify_obj(x): x for x in FFOSAppCategory.objects.filter(
             name__in=[x.name for x in itertools.chain(*_cat)])}
 
