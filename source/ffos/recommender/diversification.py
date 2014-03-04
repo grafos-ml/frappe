@@ -304,7 +304,8 @@ class TurboBinomialDiversity(BinomialDiversity):
                 try:
                     p_equal_i = self.mapped_results["P"]["p(%s=%d)N=%d" % (name, i, len(recommendation))]
                 except KeyError:
-                    p_equal_i = binom.pmf(i, len(recommendation), p_category_success)
+                    p_equal_i = binom.pmf(i if i < len(recommendation) else len(recommendation), len(recommendation),
+                                          p_category_success)
                     self.mapped_results["P"]["p(%s=%d)N=%d" % (name, i, len(recommendation))] = p_equal_i
                 p_greater_0_and_greater_k += p_equal_i
             probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(categories_frequency))
