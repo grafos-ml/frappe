@@ -70,7 +70,6 @@ class TensorModel(models.Model):
     def numpy_matrix(self):
         """
         Shape the matrix in to whatever
-        TODO
         """
         self.matrix.shape = self.rows, self.columns
         return np.matrix(self.matrix)
