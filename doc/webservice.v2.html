@@ -1,0 +1,648 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>App Recommendation Webservice Version 1.2 &mdash; FireFox OS Store 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" />
+    <link rel="prev" title="App Recommendation Webservice Version 1.2" href="" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="#" title="App Recommendation Webservice Version 1.2"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="app-recommendation-webservice-version-1-2">
+<h1>App Recommendation Webservice Version 1.2<a class="headerlink" href="#app-recommendation-webservice-version-1-2" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="about">
+<h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
+<p>FireFox OS Store Recommendation webservice is a way to get apps recommendations
+considering some user experience. The system is simple, the user send some data
+its experience and receive a set of recommended apps to his profile. This
+experience can be apps already installed, apps rejected, user location, time,
+season, etc...</p>
+<p>This new version has little difference from his previous one. Mainly now you can
+use a bunch of formats for response. JSON is maintained as the default but you
+always get XML and YAML. HTML format and other just depend on plugins. I will
+research witch may needed an write them on the requirements.txt on the repo.
+In the back-end there was a huge change. All the ReST API system was imported to
+TastyPie Framework. That&#8217;s way so many things are possible now.</p>
+</div>
+<div class="section" id="recommendation-api">
+<h2>Recommendation API<a class="headerlink" href="#recommendation-api" title="Permalink to this headline">¶</a></h2>
+<p>Just a brief note about the documentation. The ReST description tables here on
+this document always start with a response or request field in the first entry.
+That&#8217;s not a name of an actual field. It&#8217;s is the type of the response. Usually
+a object or list. The entries following the first describe the elements that
+are used in it.</p>
+<p>Just to make things more clear, a example is provided following the table.</p>
+</div>
+<div class="section" id="data-types">
+<h2>Data Types<a class="headerlink" href="#data-types" title="Permalink to this headline">¶</a></h2>
+<p>Every field data type used in the request and response are described in the
+following table.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="16%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type</th>
+<th class="head">Data Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Text</td>
+<td>String</td>
+<td>Common text like names or descriptions. Ex:
+This description.</td>
+</tr>
+<tr class="row-odd"><td>Natural Number</td>
+<td>Integer</td>
+<td>Numbers commonly used to count things. Ex:
+How many times something.</td>
+</tr>
+<tr class="row-even"><td>Real Number</td>
+<td>Float</td>
+<td>Number used to measure things like distances,
+latitude, etc...</td>
+</tr>
+<tr class="row-odd"><td>Date &amp; Time</td>
+<td>String</td>
+<td>Date in format &#8216;YYYY-MM-DDTHH:MI:SS&#8217;. Note
+that its the date followed by a capital T and
+then the time.</td>
+</tr>
+<tr class="row-even"><td>List&lt;type&gt;</td>
+<td>Array</td>
+<td>List of some data type elements. The type
+in the List is the type of data of the
+elements in the list. If type is not provided
+in the documentation you should consider
+multiple data types among the elements in the
+the list. But that would never happen because
+we are really good and will never do such
+nonsense.</td>
+</tr>
+<tr class="row-odd"><td>Object</td>
+<td>Dictionary</td>
+<td>A JSON Dictionary with some fields mapping
+some values. This Values can be of any data
+type described in this table.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="request-recommendations">
+<h2>Request Recommendations<a class="headerlink" href="#request-recommendations" title="Permalink to this headline">¶</a></h2>
+<p>The request recommendation method work over ReST request in a JSON or XML.
+The response come as has a list of app IDS.</p>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/recommend/&lt;recommendation_number&gt;/&lt;user_id&gt;.&lt;format&gt;
+http://domain.com/api/v2/recommend/&lt;recommendation_number&gt;/&lt;user_id&gt;/&lt;format&gt;/
+http://domain.com/api/v2/recommend/&lt;recommendation_number&gt;/&lt;user_id&gt;/  # Default format is JSON
+</pre></div>
+</div>
+<div class="section" id="get-request">
+<h3>GET Request<a class="headerlink" href="#get-request" title="Permalink to this headline">¶</a></h3>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/recommend/120/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173.xml
+</pre></div>
+</div>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Response</td>
+<td>Object</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>external_id</td>
+<td>String</td>
+<td>The identifier of the user</td>
+</tr>
+<tr class="row-even"><td>recommendations</td>
+<td>List&lt;Number&gt;</td>
+<td>A list with suggested apps ids.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>XML Response:
+    &lt;root&gt;
+        &lt;user&gt;
+            0033597455692156e68dfdc2fc3936595b560834d1a0d68d8606e23779f454e1
+        &lt;/user&gt;
+        &lt;recommendations&gt;
+            &lt;list-item&gt;457282&lt;/list-item&gt;
+            &lt;list-item&gt;469837&lt;/list-item&gt;
+            &lt;list-item&gt;472640&lt;/list-item&gt;
+            &lt;list-item&gt;455346&lt;/list-item&gt;
+        &lt;/recommendations&gt;
+    &lt;/root&gt;
+
+JSON Response:
+    {
+        user: &quot;0033597455692156e68dfdc2fc3936595b560834d1a0d68d8606e23779f454e1&quot;,
+        recommendations: [
+            453746,
+            463842,
+            461344,
+            408212
+            ]
+    }
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="go-to-the-application-place-in-ff-store">
+<h2>Go to the Application place in FF Store<a class="headerlink" href="#go-to-the-application-place-in-ff-store" title="Permalink to this headline">¶</a></h2>
+<p>This functionality allow to record useful information about a specific app. It can record a simple click, a click from
+a recommendation, and a click from anonymous users.</p>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/apu/v2/&lt;click or recommended&gt;/&lt;user external id or anonymous&gt;/&lt;app external id&gt;/
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h3>GET Request<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>If the source is <em>recommended</em> it has to have a GET parameter called rank. This parameter is used to classify the
+position were the app had in that recommendation.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="19%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>rank</td>
+<td>Integer</td>
+<td>The position of the app in the recommendation.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/recommended/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/457282/?rank=4
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="item-app-detail">
+<h2>Item/App Detail<a class="headerlink" href="#item-app-detail" title="Permalink to this headline">¶</a></h2>
+<p>To retrieve information about a specific application.</p>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/item/&lt;app external id&gt;.&lt;format&gt;
+http://domain.com/api/v2/item/&lt;app external id&gt;/&lt;format&gt;/
+http://domain.com/api/v2/item/&lt;app external id&gt;/  # Default format is JSON
+</pre></div>
+</div>
+<div class="section" id="id2">
+<h3>GET Request<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>The request may have a set of extra GET parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>user</td>
+<td>String</td>
+<td>An external id of the user in case is an
+installed app.</td>
+</tr>
+<tr class="row-odd"><td>rank</td>
+<td>Number</td>
+<td>The rank of the application in case of it
+source was from a recommendation.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/item/457282.json?rank=4&amp;user=006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173
+</pre></div>
+</div>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>name</td>
+<td>String</td>
+<td>The name of the app.</td>
+</tr>
+<tr class="row-odd"><td>external_id</td>
+<td>Integer</td>
+<td>The external id of the app.</td>
+</tr>
+<tr class="row-even"><td>icon</td>
+<td>URL</td>
+<td>The URL for the 64x64 icon.</td>
+</tr>
+<tr class="row-odd"><td>icon_small</td>
+<td>URL</td>
+<td>The URL for the 16x16 icon.</td>
+</tr>
+<tr class="row-even"><td>icon_large</td>
+<td>URL</td>
+<td>The URL for the 128x128 icon.</td>
+</tr>
+<tr class="row-odd"><td>store</td>
+<td>URI</td>
+<td>The URI to the &#8220;go to store&#8221;
+functionality.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="n">name</span><span class="p">:</span> <span class="s">&quot;Urban Dictionary&quot;</span><span class="p">,</span>
+    <span class="n">external_id</span><span class="p">:</span> <span class="mi">462103</span><span class="p">,</span>
+    <span class="n">icon_small</span><span class="p">:</span> <span class="s">&quot;https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-32.png?modified=1377861637&quot;</span><span class="p">,</span>
+    <span class="n">icon_large</span><span class="p">:</span> <span class="s">&quot;https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-128.png?modified=1377861637&quot;</span><span class="p">,</span>
+    <span class="n">store</span><span class="p">:</span> <span class="s">&quot;/api/v2/click/anonymous/462103/&quot;</span><span class="p">,</span>
+    <span class="n">icon</span><span class="p">:</span> <span class="s">&quot;https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-64.png?modified=1377861637&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="user-items-api">
+<h2>User Items API<a class="headerlink" href="#user-items-api" title="Permalink to this headline">¶</a></h2>
+<p>With this API is possible to check user owned items/installed apps. This API also allow acquire or drop an item (install
+or uninstall an app) using the POST and DELETE methods.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All the <em>unsafe</em> HTTP methods require a crsf token. But in this case and since the API is not supposed to contact
+with public we will disable this functionality.</p>
+</div>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/user-items/&lt;user external id&gt;.&lt;format&gt;
+http://domain.com/api/v2/user-items/&lt;user external id&gt;/&lt;format&gt;/
+http://domain.com/api/v2/user-items/&lt;user external id&gt;/  # Default format is JSON
+</pre></div>
+</div>
+<div class="section" id="id3">
+<h3>GET Request<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>The request <em>may</em> have a set of extra GET parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Request</td>
+<td>Object</td>
+<td>User information.</td>
+</tr>
+<tr class="row-odd"><td>offset</td>
+<td>Number</td>
+<td>The number of items to drop before
+deliver in response.</td>
+</tr>
+<tr class="row-even"><td>items</td>
+<td>Number</td>
+<td>The number of items to be delivered in
+the response.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/xml/?offset=10&amp;items=30
+http://domain.com/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173.json
+</pre></div>
+</div>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>user</td>
+<td>String</td>
+<td>The user external id.</td>
+</tr>
+<tr class="row-odd"><td>applications</td>
+<td>List</td>
+<td>A list of installed apps.</td>
+</tr>
+</tbody>
+</table>
+<p>Installed Apps:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="19%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>external_id</td>
+<td>String</td>
+<td>The app external id.</td>
+</tr>
+<tr class="row-odd"><td>installation_date</td>
+<td>DateTime</td>
+<td>The installation date with the format:
+YYYY-MM-DDTHH:MM:SSZ</td>
+</tr>
+<tr class="row-even"><td>removed_date</td>
+<td>DateTime</td>
+<td>The installation date with the format:
+YYYY-MM-DDTHH:MM:SSZ. May be Null.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="n">user</span><span class="p">:</span> <span class="s">&quot;006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173&quot;</span><span class="p">,</span>
+    <span class="n">applications</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+        <span class="n">installation_date</span><span class="p">:</span> <span class="s">&quot;2013-04-02T18:47:58Z&quot;</span><span class="p">,</span>
+        <span class="n">removed_date</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+        <span class="n">external_id</span><span class="p">:</span> <span class="mi">413346</span>
+        <span class="p">}</span>
+       <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="post-request">
+<h3>POST Request<a class="headerlink" href="#post-request" title="Permalink to this headline">¶</a></h3>
+<p>This method is used to acquire/install a new item/application to the user inventory. It still need a Post parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>item_to_acquire</td>
+<td>String</td>
+<td>The item external id.</td>
+</tr>
+</tbody>
+</table>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>status</td>
+<td>Number</td>
+<td>The response status.</td>
+</tr>
+<tr class="row-odd"><td>message</td>
+<td>Text</td>
+<td>Some message with information.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="s">&quot;message&quot;</span><span class="p">:</span> <span class="s">&quot;done&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete-request">
+<h3>DELETE Request<a class="headerlink" href="#delete-request" title="Permalink to this headline">¶</a></h3>
+<p>This method is used to drop/remove a new item/application from a user inventory. It still need a parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>item_to_remove</td>
+<td>String</td>
+<td>The item external id.</td>
+</tr>
+</tbody>
+</table>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>status</td>
+<td>Number</td>
+<td>The response status.</td>
+</tr>
+<tr class="row-odd"><td>message</td>
+<td>Text</td>
+<td>Some message with information.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="s">&quot;message&quot;</span><span class="p">:</span> <span class="s">&quot;done&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">App Recommendation Webservice Version 1.2</a><ul>
+<li><a class="reference internal" href="#about">About</a></li>
+<li><a class="reference internal" href="#recommendation-api">Recommendation API</a></li>
+<li><a class="reference internal" href="#data-types">Data Types</a></li>
+<li><a class="reference internal" href="#request-recommendations">Request Recommendations</a><ul>
+<li><a class="reference internal" href="#get-request">GET Request</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#go-to-the-application-place-in-ff-store">Go to the Application place in FF Store</a><ul>
+<li><a class="reference internal" href="#id1">GET Request</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#item-app-detail">Item/App Detail</a><ul>
+<li><a class="reference internal" href="#id2">GET Request</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#user-items-api">User Items API</a><ul>
+<li><a class="reference internal" href="#id3">GET Request</a></li>
+<li><a class="reference internal" href="#post-request">POST Request</a></li>
+<li><a class="reference internal" href="#delete-request">DELETE Request</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href=""
+                        title="previous chapter">App Recommendation Webservice Version 1.2</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/webservice.v2.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="#" title="App Recommendation Webservice Version 1.2"
+             >previous</a> |</li>
+        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, João Baptista.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>
