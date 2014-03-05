@@ -41,7 +41,14 @@ INSTALLED_APPS = (
     "django_nose",
     "debug_toolbar",
     "rest_framework",
-    "templatetag_handlebars"
+    "templatetag_handlebars",
+    "recommender",
+    "recommender.records",
+    "recommender.diversity",
+    "recommender.api",
+    "firefox",
+    "firefox.api",
+    "firefox.gui"
 )
 
 MIDDLEWARE_CLASSES = (
@@ -57,9 +64,9 @@ MIDDLEWARE_CLASSES = (
     #"debug_toolbar.middleware.DebugToolbarMiddleware",
 )
 
-ROOT_URLCONF = "recommender.urls"
+ROOT_URLCONF = "firefox.urls"
 
-WSGI_APPLICATION = "recommender.wsgi.application"
+WSGI_APPLICATION = "firefox.wsgi.application"
 
 
 # Database
@@ -73,11 +80,10 @@ HOSTS = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "raqksixq_ffosv1",
-        "USER": "raqksixq_frappe",
-        "PASSWORD": "Sp21o61H4",
-        "HOST": HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS
-            else "localhost",
+        "NAME": "recommender_v12",
+        "USER": "FFOS",
+        "PASSWORD": "pasteldenata",
+        "HOST": HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS else "localhost",
     } if not TESTING else {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "raqksixq_ffosv1",
@@ -86,8 +92,7 @@ DATABASES = {
         "TEST_CHARSET": "utf8",
         "USER": "raqksixq_frappe",
         "PASSWORD": "Sp21o61H4",
-        "HOST": HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS
-            else "localhost",
+        "HOST": HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS else "localhost",
     }
 }
 

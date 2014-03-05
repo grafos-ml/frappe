@@ -1,14 +1,13 @@
-'''
+"""
 Url for recommendation API
 
-
-'''
+"""
 from django.conf.urls import patterns, url
 from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout
-from ffos.recommender.caches import CacheUser
-from ffos.gui import views
+from recommender.caches import CacheUser
+from firefox.gui import views
 
 urlpatterns = patterns('',
     url(r'^$',login_required(cache_page(15*60)(views.Landing.as_view())), name='recommendation_index'),

@@ -9,8 +9,7 @@ Log based re-ranker. I reads the logs from this user and re-rank items from the 
 """
 __author__ = "joaonrb"
 
-from ffos.recommender.filters import ReRanker
-from ffos.recommender.rlogging.models import RLog
+from recommender.records.models import Record
 from django.db.models import Count, Sum, Q
 
 MAX_LOG = 120000
@@ -28,7 +27,7 @@ experienced*.
 """
 
 
-class SimpleLogReRanker(ReRanker):
+class SimpleLogReRanker(object):
     """
     .. py:attribute:: gravity_point - A function or callable object to calculate the gravity point given the \
         request array.
@@ -76,7 +75,7 @@ class SimpleLogReRanker(ReRanker):
         # Lets start by making a proper query that receive a list of tuples with:
         # (item id, type of log, sum(values), count, count_type)... This should be enough to a good re-ranker
         apps_in_logs = (app_id for app_id in early_recommendation if app_id not in installed_apps)
-        logs = RLog.objects.filter(item__id__in=apps_in_logs, user=user, type=RLog.RECOMMEND).filter(~Q(value=None))
+        logs = Record.objects.filter(item__id__in=apps_in_logs, user=user, type=Record.RECOMMEND).filter(~Q(value=None))
         logs = logs.values("item__pk")
         logs = logs.annotate(count=Count("item__pk"), sum=Sum("value"))
 
@@ -105,7 +104,7 @@ class SimpleLogReRanker(ReRanker):
             new_scores.append((new_rank, item))
 
         # We just need to sort
-        sorted_items = sorted(new_scores, cmp=lambda x, y: cmp(x[0], y[0]))
+        sorted_items = sorted(new_scores, cmp=lambda x: x[0])
         assert sorted_items[0][0] < sorted_items[-1][0], "The elements are sorted in the wrong way"
 
         return [item_id for _, item_id in sorted_items]

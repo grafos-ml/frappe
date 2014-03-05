@@ -8,7 +8,6 @@ Created on Dec 5, 2013
 .. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
 
 """
-
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
 from recommender.models import User
@@ -52,13 +51,13 @@ class CacheApp(object):
         """
         @functools.wraps(function)
         def decorated(*args, **kwargs):
-            a_id = kwargs['app']
+            a_id = kwargs["item"]
             if isinstance(a_id, str):
                 app = cache.get(CacheApp.App % a_id)
                 if not app:
                     app = get_object_or_404(User, external_id=a_id)
                     cache.set(CacheApp.APP % a_id, app)
-                kwargs['app'] = app
+                kwargs["item"] = app
             return function(*args, **kwargs)
         return decorated
 

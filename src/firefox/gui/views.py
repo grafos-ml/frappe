@@ -9,9 +9,13 @@ Created on Dec 9, 2013
 from django.views.generic.base import View, TemplateResponseMixin
 from django.shortcuts import render_to_response, RequestContext
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from ffos.models import FFOSUser
+from recommender.models import User
+
 
 class Landing(View, TemplateResponseMixin):
+    """
+    Landing view
+    """
 
     template_name = "landing.html"
 
@@ -33,10 +37,14 @@ class Landing(View, TemplateResponseMixin):
 
     def get(self, request, page=1):
         """
+        Get
+
+        :param request: HTTP request
+        :param page: Page
         """
         page = int(page)
         p = page-1
-        users_list = FFOSUser.objects.all()
+        users_list = User.objects.all()
         paginator = Paginator(users_list, 15)  # Show 15 users per page
         try:
             users = paginator.page(page)
@@ -55,6 +63,9 @@ class Landing(View, TemplateResponseMixin):
 
 
 class Recommend(View, TemplateResponseMixin):
+    """
+    Recommend view in gui
+    """
 
     template_name = "recommend.v2.html"
 
@@ -71,7 +82,10 @@ class Recommend(View, TemplateResponseMixin):
 
     def get(self, request, user, **kwargs):
         """
+        Get
 
+        :param request: HTTP request
+        :param user: user
         """
         context = RequestContext(request)
         context.update({"ffosuser": user})

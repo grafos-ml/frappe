@@ -13,15 +13,14 @@ __author__ = "joaonrb"
 from django.conf import settings
 from django.db import connection
 from django.db.utils import OperationalError
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse
 from django.utils.translation import ugettext as _
-from django.core.urlresolvers import reverse
 from rest_framework.renderers import JSONRenderer, XMLRenderer
 from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from recommender.core import Recommender
 from recommender.records.rerankers import SimpleLogReRanker
-from recommender.models import Item, User, Inventory
+from recommender.models import User, Inventory
 from recommender.records.models import Record
 from recommender.diversity.rerankers import DiversityReRanker
 
@@ -57,7 +56,7 @@ PARAMETERS_IN_MISS = {
 }
 
 RECOMMENDER = Recommender()
-RECOMMENDER.registerReranker(
+RECOMMENDER.register_reranker(
     SimpleLogReRanker(),
     DiversityReRanker()
 )

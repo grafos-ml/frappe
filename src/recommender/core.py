@@ -12,7 +12,7 @@ import numpy as np
 from recommender.models import Item
 from recommender.caches import CacheUser, CacheMatrix
 from recommender.models import TensorModel
-from recommender.rlogging.decorators import LogRecommendedApps
+from recommender.records.decorators import LogRecommendedApps
 import logging
 
 
@@ -38,7 +38,7 @@ class InterfaceController(object):
         :param filters: A filter to add to the controller
         """
         for f in filters:
-            filter.controller = self
+            f.controller = self
             self._filters.append(f)
 
     @property
@@ -55,7 +55,7 @@ class InterfaceController(object):
         :param rerankers: A reranker to add to the controller.
         """
         for r in rerankers:
-            rerankers.controller = self
+            r.controller = self
             self._re_rankers.append(r)
 
     @property

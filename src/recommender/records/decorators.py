@@ -12,12 +12,11 @@ __author__ = {
     'e-mail': 'joaonrb@gmail.com'
 }
 
-from ffos.recommender.rlogging.models import RLog
-from ffos.recommender.decorators import Decorator
+from recommender.records.models import Record
 import functools
 
 
-class ClickApp(Decorator):
+class ClickApp(object):
     """
     Decorator for view. Every time a user click on a recommendation
     """
@@ -30,12 +29,12 @@ class ClickApp(Decorator):
         def decorated(request, *args, **kwargs):
             user_external_id = request.GET["clicker"]
             app_external_id = request.GET["clicked_app"]
-            request.go_to = RLog.click_recommended(user_external_id, app_external_id)
+            request.go_to = Record.click_recommended(user_external_id, app_external_id)
             return function(request, *args, **kwargs)
         return decorated
 
 
-class LogRecommendedApps(Decorator):
+class LogRecommendedApps(object):
     """
     Decorator for recommendations
     """
@@ -51,6 +50,6 @@ class LogRecommendedApps(Decorator):
                 user = kwargs["user"]
             except KeyError:
                 user = args[0]
-            RLog.recommended(user, *result)
+            Record.recommended(user, *result)
             return result
         return decorated

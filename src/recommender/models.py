@@ -67,7 +67,7 @@ class Item(models.Model):
     Item to be used by recommending system
     """
     name = models.CharField(_("name"), max_length=255)
-    external_id = models.CharField(_("external id"), max_length=255)
+    external_id = models.CharField(_("external id"), max_length=255, unique=True)
 
     class Meta:
         verbose_name = _("item")
@@ -81,7 +81,7 @@ class User(models.Model):
     """
     User to own items in recommendation system
     """
-    external_id = models.CharField(_("external id"), max_length=255)
+    external_id = models.CharField(_("external id"), max_length=255, unique=True)
     items = models.ManyToManyField(Item, verbose_name=_("items"), blank=True, through="Inventory")
 
     class Meta:
