@@ -135,8 +135,8 @@ sys.path.append(resource_filename(__name__, "/../"))
 os.environ["DJANGO_SETTINGS_MODULE"] = "firefox.settings"
 from django.utils.timezone import utc
 from datetime import datetime
-from django.db import connection
-from firefox.models import ItemDetails
+from django.db import connection, utils
+from firefox.models import Details
 from recommender.models import Item, User, Inventory
 from recommender.diversity.models import Genre
 
@@ -221,30 +221,24 @@ def put_items(objects):
         print("New relations created ...")
 
     # Create details
-    details_in_db = [eid for eid in ItemDetails.objects.filter(external_id__in=items.keys()).values_list("external_id")]
+    details_in_db = [eid for eid in Details.objects.filter(external_id__in=items.keys()).values_list("external_id")]
     details_to_enter = [external_id for external_id in items.keys() if external_id not in details_in_db]
     items_with_no_detail = {
         eid: iid for eid, iid in Item.objects.filter(external_id__in=details_to_enter).values_list("external_id", "id")
     }
+    details = []
     for external_id in details_to_enter:
-        description, details, slug = items[external_id][2]
+        description, url, slug = items[external_id][2]
         if description:
-            description = bytes(description, "utf-8").decode("unicode_escape")
-        try:
-            details = bytes(details, "utf-8").decode("unicode_escape")
-        except TypeError:
-            details = ""
-        try:
-            cursor.execute(BULK_QUERY % {
-                "table": "firefox_itemdetails",
-                "columns": "(item_ptr_id, description, details, slug)",
-                "values": '(%s, "%s", "%s", "%s")' %
-                          (str(items_with_no_detail[external_id]), description, details, slug)})
-        except Exception:
-            cursor.execute(BULK_QUERY % {
-                "table": "firefox_itemdetails",
-                "columns": "(item_ptr_id, description, details, slug)",
-                "values": '(%s, "%s", "", "%s")' % (str(items_with_no_detail[external_id]), details, slug)})
+            # description = bytes(description, "utf-8").decode("unicode_escape")
+            description = description.replace('"', "'")
+        url = bytes(url, "utf-8").decode("unicode_escape")
+        details.append('(%s, "%s", "%s", "%s")' % (str(items_with_no_detail[external_id]), description, url, slug))
+    cursor.execute(BULK_QUERY % {
+        "table": "firefox_details",
+        "columns": "(item_ptr_id, description, url, slug)",
+        "values": ", ".join(details)
+    })
     print("New details created ...")
 
 

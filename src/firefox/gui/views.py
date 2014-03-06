@@ -44,7 +44,7 @@ class Landing(View, TemplateResponseMixin):
         """
         page = int(page)
         p = page-1
-        users_list = User.objects.all()
+        users_list = User.objects.all().order_by("id")
         paginator = Paginator(users_list, 15)  # Show 15 users per page
         try:
             users = paginator.page(page)

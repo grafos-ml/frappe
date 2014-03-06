@@ -14,17 +14,17 @@ from django.db import models
 from recommender.models import Item
 
 
-class ItemDetails(Item):
+class Details(Item):
     """
     Some item Details for the FireFox apps to use th recommendation
     """
     description = models.TextField(_("description"), null=True, blank=True)
-    details = models.URLField(_("details"))
+    url = models.URLField(_("urls"))
     slug = models.CharField(_("slug"), max_length=255)
 
     class Meta:
-        verbose_name = _("item detail")
-        verbose_name_plural = _("item details")
+        verbose_name = _("detail")
+        verbose_name_plural = _("details")
 
     @staticmethod
     def slug_to_item_place(slug):

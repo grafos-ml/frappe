@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: ffos.recommender.rlogging.tests
-    :platform: Unix, Windows
-    :synopsis: Test the Logging system and re-ranker based on logs
-     Created Fev 17, 2014
+Created Fev 17, 2014
+
+Test the Logging system and re-ranker based on logs
 
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 

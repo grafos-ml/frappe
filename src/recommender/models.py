@@ -96,7 +96,7 @@ class User(models.Model):
         """
         Return the installed only apps
         """
-        return self.items.filter(owned__dropped_date=None)
+        return self.items.filter(inventory__dropped_date=None)
 
 
 class Inventory(models.Model):

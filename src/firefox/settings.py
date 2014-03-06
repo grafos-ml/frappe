@@ -133,7 +133,7 @@ logging.basicConfig(format=FORMAT, level=logging.DEBUG if DEBUG else logging.WAR
 # Nose settings
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
-DEBUG_TOOLBAR_PATCH_SETTINGS = DEBUG
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 # Rest Framework Settings
 

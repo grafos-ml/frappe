@@ -4,36 +4,6 @@
 
 var perPage = 4;
 
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-var csrftoken = getCookie('csrftoken');
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-$.ajaxSetup({
-    crossDomain: false, // obviates need for sameOrigin test
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type)) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
-
 function goTo(page, pager, listElement){
     if(page >= 0 && page < listElement.children().size()/perPage) {
         var startAt = page * perPage, endOn = startAt + perPage;
@@ -114,6 +84,7 @@ function loadInstalledApps(user) {
                         window.setTimeout(function () {
                             var html = appContainer({"apps": items});
                             $("#installedApps").html(html);
+                            loadLargeIcons();
                             new Paginator('#installedApps','#installedPager');
                         }, 500);
                     }
@@ -140,6 +111,7 @@ function loadRecommendations(user) {
                     window.setTimeout(function () {
                         var html = appContainer({"apps": items});
                         $("#recommendedApps").html(html);
+                        loadLargeIcons();
                     },1000);
                 }
             });

@@ -23,7 +23,7 @@ from recommender.records.rerankers import SimpleLogReRanker
 from recommender.models import Item, User, Inventory
 from recommender.records.models import Record
 from recommender.diversity.rerankers import DiversityReRanker
-from firefox.models import ItemDetails
+from firefox.models import Details
 
 from recommender.api.views import AbstractGoToItem, RecommendationAPI, NOT_FOUND_ERROR
 
@@ -66,8 +66,8 @@ class GoToItem(AbstractGoToItem):
             raise Http404
         user_external_id = user_external_id if user_external_id != self.ANONYMOUS else None
         self.click(user_external_id, item_external_id, source, rank)
-        slug = ItemDetails.objects.filter(external_id=item_external_id).values_list("slug")[0]
-        return HttpResponseRedirect(ItemDetails.slug_to_store_url(slug))
+        slug = Details.objects.filter(external_id=item_external_id).values_list("slug")[0]
+        return HttpResponseRedirect(Details.slug_to_item_place(slug))
 
 
 class ItemAPI(RecommendationAPI):
@@ -96,7 +96,7 @@ class ItemAPI(RecommendationAPI):
         _("error"): _("Item with that id has not found.")
     }
 
-    ITEM_EXPOSED_ATTRIBUTES = ["external_id", "name", "details", "slug", "id"]
+    ITEM_EXPOSED_ATTRIBUTES = ["name", "details__url", "id"]
 
     def get(self, request, item_external_id):
         """
@@ -108,7 +108,7 @@ class ItemAPI(RecommendationAPI):
         :return: A HTTP response with the item information
         """
         try:
-            item = ItemDetails.objects.filter(external_id=item_external_id).values(*self.ITEM_EXPOSED_ATTRIBUTES)[0]
+            item = Item.objects.filter(external_id=item_external_id).values(*self.ITEM_EXPOSED_ATTRIBUTES)[0]
         except Item.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
 
@@ -119,6 +119,7 @@ class ItemAPI(RecommendationAPI):
             "source": GoToItem.RECOMMENDED if rank else GoToItem.CLICK})
         if rank:
             uri += "?rank=%s" % rank
-        response = {"external_id": item["external_id"], "name": item["name"], "details": item["details"], "store": uri}
+        response = {"external_id": item_external_id, "name": item["name"], "details": item["details__url"],
+                    "store": uri}
 
         return self.format_response(response)
