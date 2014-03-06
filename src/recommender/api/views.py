@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-.. module:: ffos.recommender.api.views
-    :platform: Unix, Windows
-    :synopsis: The views for the Recommend API.
-     Created at Fev 19, 2014
+Created at Fev 19, 2014
+
+The views for the Recommend API.
 
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 """
@@ -23,8 +22,6 @@ from recommender.records.rerankers import SimpleLogReRanker
 from recommender.models import User, Inventory
 from recommender.records.models import Record
 from recommender.diversity.rerankers import DiversityReRanker
-
-import warnings
 
 JSON = "json"
 XML = "xml"
@@ -169,7 +166,6 @@ class AbstractGoToItem(APIView):
         :type rank: int
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        warnings.warn("This insert was only tested for MySQL", Warning)
         query = \
             ("INSERT INTO %(database)s.records_record (id, user_id, item_id, timestamp, value, type)"
              "VALUES (NULL, %(user)s, \"%(item)s\", NOW(), %(rank)s, %(type)s);") % \
@@ -261,7 +257,6 @@ class UserItemsAPI(RecommendationAPI):
         :type item_external_id: str
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        warnings.warn("This insert was only tested for MySQL", Warning)
         query = \
             """
             INSERT INTO %(database)s.ffos_installation
@@ -289,7 +284,6 @@ class UserItemsAPI(RecommendationAPI):
         :type item_external_id: str
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        warnings.warn("This insert was only tested for MySQL", Warning)
         query = \
             """
             UPDATE %(database)s.ffos_installation, %(database)s.ffos_ffosuser, %(database)s.ffos_ffosapp

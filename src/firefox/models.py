@@ -18,7 +18,7 @@ class ItemDetails(Item):
     """
     Some item Details for the FireFox apps to use th recommendation
     """
-    description = models.TextField(_("description"))
+    description = models.TextField(_("description"), null=True, blank=True)
     details = models.URLField(_("details"))
     slug = models.CharField(_("slug"), max_length=255)
 

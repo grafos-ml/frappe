@@ -25,7 +25,6 @@ from recommender.records.models import Record
 from recommender.diversity.rerankers import DiversityReRanker
 from firefox.models import ItemDetails
 
-import warnings
 from recommender.api.views import AbstractGoToItem, RecommendationAPI, NOT_FOUND_ERROR
 
 
