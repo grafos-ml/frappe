@@ -1,4 +1,4 @@
-package org.cofirank.tensorcofi.predictors;
+package es.tid.frappe.recsys;
 
 import org.jblas.FloatMatrix;
 import org.jblas.Solve;
@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.cofirank.tensorcofi.TensorOptions;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,19 +19,21 @@ public class TFThreads implements Predictor {
     private int numDim;
     private int d;
     private float p;
+    private int iter;
     private float lambda;
     private ArrayList<FloatMatrix> Factors;
     private ArrayList<FloatMatrix> Counts;
-    private static final int NUMBER_OF_THREADS = 5;
+    private static final int NUMBER_OF_THREADS = 32;
 
-    public TFThreads(TensorOptions options, int[] dimensions) {
+    public TFThreads(int d, int iter, float lambda, float p, int[] dimensions) {
         this.dimensionEntries = dimensions;
-        this.d = options.d;
-        this.lambda = (float) options.lambda;
-
+        this.d = d;
+        this.lambda = lambda;
         this.Factors = new ArrayList<FloatMatrix>();
         this.Counts = new ArrayList<FloatMatrix>();
-        this.p = options.p;
+        this.p = p;
+        this.iter = iter;
+        this.numDim = dimensions.length;
 
         for (int i = 0; i < this.numDim; i++) {
             FloatMatrix tempFactors = FloatMatrix.rand(this.d, this.dimensionEntries[i]);
@@ -49,8 +50,7 @@ public class TFThreads implements Predictor {
     public void update(int[] Data) {
     }
 
-   public void solve(int numIter, FloatMatrix dataArray) {
-
+   public void solve(FloatMatrix dataArray) {
         FloatMatrix base = FloatMatrix.ones(this.getD(), this.getD());
         ArrayList<HashMap<Integer, ArrayList<Integer>>> tensor = new ArrayList<HashMap<Integer, ArrayList<Integer>>>();
    
@@ -64,9 +64,9 @@ public class TFThreads implements Predictor {
         for (int i = 0; i < this.getNumDim(); i++) {
             tensor.add(new HashMap<Integer, ArrayList<Integer>>());
             for (int j = 0; j < this.dimensionEntries[i]; j++)
-                tensor.get(i).put(j, new ArrayList<Integer>());
+                tensor.get(i).put(j + 1, new ArrayList<Integer>()); //changed to accomodate testfm
             for (int dataRow = 0; dataRow < dataArray.rows; ++dataRow)
-                tensor.get(i).get((int) dataArray.get(dataRow, i) - 1).add(dataRow);
+                tensor.get(i).get((int) dataArray.get(dataRow, i)).add(dataRow);
         }
         long endTime = System.nanoTime();
         long duration = endTime - startTime;
@@ -75,7 +75,7 @@ public class TFThreads implements Predictor {
         startTime = System.nanoTime();
 
         //Outer loop defines the number of epochs
-        for (int iter = 0; iter < numIter; iter++) {
+        for (int iter = 0; iter < this.iter; iter++) {
             //Iterate over each Factor Matrix (U,M,C_i...)
             for (int dimension = 0; dimension < this.getNumDim(); dimension++) {
                 int entriesInDimension = dimensionEntries[dimension];
@@ -114,7 +114,8 @@ public class TFThreads implements Predictor {
                 int stepPerThread = entriesInDimension / NUMBER_OF_THREADS;
                 if (stepPerThread == 0) // if there are more threads than entriesindimension
                     stepPerThread = 1;
-                for (int start = 0; start < entriesInDimension; start += stepPerThread){
+                for (int start = 1; start <= entriesInDimension; start += stepPerThread){
+                     //shift by one to accomodate testfm
                     int end = (start+stepPerThread < entriesInDimension)? start+stepPerThread : entriesInDimension;
                     //System.out.println("adding thread - start:"+start+" end:"+end+" total entries in dim:"+entriesInDimension);
                     Runnable worker = new ThreadRunner(start, end, this.getFactors().get(dimension), dimension, this, dataArray, base, tensor);
@@ -136,7 +137,7 @@ public class TFThreads implements Predictor {
         }
             endTime = System.nanoTime();
             duration = endTime - startTime;
-            System.out.print("\n"+ "Optimization took: " + duration/1000000000);
+            System.out.print("\n"+ "Optimization took: " + duration/1000000000.0);
     }
 
     public static FloatMatrix computeNewTensorEntrieVector(ArrayList<Integer> dataRowList,
@@ -200,33 +201,41 @@ public class TFThreads implements Predictor {
         return "TensorCofi with Threads.";
     }
 
+    @Override
+    public List<FloatMatrix> getModel() {
+        return Factors;
+    }
     
+    @Override
+    public void train(FloatMatrix dataArray) {
+       solve(dataArray);
+    }
     /**
      * @return the numDim
      */
     public int getNumDim() {
-        return numDim;
+        return this.numDim;
     }
 
     /**
      * @return the d
      */
     public int getD() {
-        return d;
+        return this.d;
     }
 
     /**
      * @return the p
      */
     public float getP() {
-        return p;
+        return this.p;
     }
 
     /**
      * @return the lambda
      */
     public float getLambda() {
-        return lambda;
+        return this.lambda;
     }
 
     /**

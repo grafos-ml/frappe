@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.cofirank.tensorcofi.predictors;
+package es.tid.frappe.recsys;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +35,7 @@ public class ThreadRunner implements Runnable{
 
 
     public void updateSingleEntry(int dataEntry){
+        System.out.print("dataEntry " + dataEntry +"\n" );
          float pijk = tensor.getCounts().get(dimension).get(dataEntry,0);
             ArrayList<Integer> dataRowList = this.tensorIndex.get(dimension).get(dataEntry);
             FloatMatrix newEntry = TFThreads.computeNewTensorEntrieVector(
@@ -43,7 +44,7 @@ public class ThreadRunner implements Runnable{
                     base, this.dataArray);
 
             synchronized(this.factorMatrix){
-                this.factorMatrix.putColumn(dataEntry, newEntry);
+                this.factorMatrix.putColumn(dataEntry - 1 , newEntry); //changed to accomodate testfm
             }
     }
 
