@@ -11,7 +11,6 @@ function loadIcons(name, size) {
     $.each(ids, function(index){
         var item_id = ids[index].id;
         if($("#"+item_id).attr("src") === null || $("#"+item_id).attr("src") === "") {
-            alert(item_id);
             $.getJSON("/api/v2/item/"+item_id+"/", function(data) {
                 $.getJSON(data.details, function(item) {
                     $("#"+item_id+".ff-"+name+"-icon").attr("src", item.icons[size]);

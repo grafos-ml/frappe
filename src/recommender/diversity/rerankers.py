@@ -53,7 +53,7 @@ class BinomialDiversity(object):
         :param lambda_constant: Lambda constant. Must be between 0 and 1.
         :type lambda_constant: float
         """
-        genres = Genre.objects.filter(apps__id__in=items).values_list("apps__id", "name")
+        genres = Genre.objects.filter(items__id__in=items).values_list("items__id", "name")
         self.genre_by_item = {}
         self.genres = {}
         for item_id, genre in genres:

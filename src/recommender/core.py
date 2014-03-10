@@ -108,14 +108,14 @@ class InterfaceController(object):
         """
         result = self.get_app_significance_list(user=user, u_matrix=self.get_user_matrix(),
                                                 a_matrix=self.get_apps_matrix())
-        logging.debug('Matrix loaded or generated')
+        logging.debug("Matrix loaded or generated")
         for f in self.filters:
             result = f(user, result, size=n)
-        logging.debug('Filters finished')
+        logging.debug("Filters finished")
         result = [aid+1 for aid, _ in sorted(enumerate(result.tolist()), key=lambda x: x[1], reverse=True)]
         for r in self.rerankers:
             result = r(user, result, size=n)
-        logging.debug('Re-rankers finished')
+        logging.debug("Re-rankers finished")
         return result[:n]
 
     def get_recommendations_items(self, user, n=10):
@@ -139,8 +139,8 @@ class InterfaceController(object):
         :return: Item external id list
         """
         result = self.get_recommendation(user=user, n=n)
-        rs = {app_id: app_eid for app_id, app_eid in Item.objects.filter(pk__in=result).values_list('pk',
-                                                                                                    'external_id')}
+        rs = {app_id: app_eid for app_id, app_eid in Item.objects.filter(pk__in=result).values_list("pk",
+                                                                                                    "external_id")}
         return [rs[r] for r in result]
 
 
@@ -156,10 +156,10 @@ class Recommender(InterfaceController):
         :return: The matrix of users.
         """
         try:
-            return TensorModel.objects.filter(dim=0).order_by('-id')[0].numpy_matrix
+            return TensorModel.objects.filter(dim=0).order_by("-id")[0].numpy_matrix
         except IndexError:
-            TensorModel.train()
-            return self.get_user_matrix()
+            users, _ = TensorModel.train()
+            return users.numpy_matrix
 
     @CacheMatrix()
     def get_apps_matrix(self):
@@ -169,7 +169,7 @@ class Recommender(InterfaceController):
         :return: The matrix of apps.
         """
         try:
-            return TensorModel.objects.filter(dim=1).order_by('-id')[0].numpy_matrix
+            return TensorModel.objects.filter(dim=1).order_by("-id")[0].numpy_matrix
         except IndexError:
-            TensorModel.train()
-            return  self.get_apps_matrix()
+            _, items = TensorModel.train()
+            return items.numpy_matrix
