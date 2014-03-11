@@ -9,20 +9,10 @@ API for the firefox application in the recommendation system
 """
 __author__ = "joaonrb"
 
-from django.conf import settings
-from django.db import connection
-from django.db.utils import OperationalError
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
-from rest_framework.renderers import JSONRenderer, XMLRenderer
-from rest_framework.parsers import JSONParser, XMLParser
-from rest_framework.views import APIView
-from recommender.core import Recommender
-from recommender.records.rerankers import SimpleLogReRanker
-from recommender.models import Item, User, Inventory
-from recommender.records.models import Record
-from recommender.diversity.rerankers import DiversityReRanker
+from recommender.models import Item
 from firefox.models import Details
 
 from recommender.api.views import AbstractGoToItem, RecommendationAPI, NOT_FOUND_ERROR
@@ -36,14 +26,7 @@ class GoToItem(AbstractGoToItem):
     """
 
     http_method_names = [
-        'get',
-        #'post',
-        #'put',
-        #'patch',
-        #'delete',
-        #'head',
-        #'options',
-        #'trace'
+        "get"
     ]
 
     def get(self, request, user_external_id, item_external_id, source):
@@ -81,14 +64,7 @@ class ItemAPI(RecommendationAPI):
     """
 
     http_method_names = [
-        'get',
-        #'post',
-        #'put',
-        #'patch',
-        #'delete',
-        #'head',
-        #'options',
-        #'trace'
+        "get"
     ]
 
     NOT_FOUND_ERROR_MESSAGE = {

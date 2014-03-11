@@ -23,7 +23,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 import base64
 import numpy as np
-import math
+from recommender.model_factory import JavaTensorCoFi
 from django.utils.six import with_metaclass
 
 
@@ -123,126 +123,6 @@ class Inventory(models.Model):
             "user": self.user.external_id}
 
 
-class TensorCoFi(object):
-    """
-    A creator of TensorCoFi models
-    """
-
-    def __init__(self, d=20, iterations=5, lambda_value=0.05, alpha_value=40, dimensions=[0, 0]):
-        """
-
-        :param d:
-        :param iterations:
-        :param lambda_value:
-        :param alpha_value:
-        :param dimensions:
-        :return:
-        """
-        self.d = d
-        self.dimensions = dimensions
-        self.lambda_value = lambda_value
-        self.alpha_value = alpha_value
-        self.iterations = iterations
-
-        self.factors = []
-        self.counts = []
-        for dim in dimensions:
-            self.factors.append(np.random.rand(d, dim))
-            self.counts.append(np.zeros((dim, 1)))
-        self.regularizer = None
-        self.matrix_vector_product = None
-        self.one = None
-        self.invertible = None
-        self.tmp = None
-
-    def iterate(self, tensor, data_array):
-        """
-        Iterate  over each Factor Matrix
-        :param tensor:
-        :return:
-        """
-        dimension_range = list(range(len(self.dimensions)))
-        for i, dimension in enumerate(self.dimensions):
-
-            # The base computation
-            if len(self.dimensions) == 2:
-                base = self.factors[1 - len(self.dimensions)]
-                base = np.dot(base, base.transpose())
-            else:
-                base = np.ones((self.d, self.d))
-                for j in dimension_range:
-                    if j != i:
-                        base = self.factors[j] * self.factors[j].transpose()
-
-            if not i:  # i == 0
-                for entry in range(dimension):
-                    count = sum((1 for j in range(data_array.shape[0]) if data_array[j, i] == entry)) or 1
-                    self.counts[i][entry, 0] = count
-
-            for entry in range(dimension):
-                if entry in tensor[i]:
-                    data_row_list = tensor[i][entry].tolist()[0]
-                    for data_column, data in enumerate(data_row_list):
-                        self.tmp = self.tmp * 0. + 1.
-                        if data_column != i:
-                            self.tmp = self.tmp * self.factors[data_column][:, data]
-                        score = data_array[data_array.shape[1], i]
-                        weight = 1. + self.alpha_value * math.log(1. + abs(score))
-
-                        self.invertible += (1. - weight) * self.tmp * self.tmp.transpose()
-                        self.matrix_vector_product += self.tmp * np.sign(score) * weight
-
-                        self.invertible += base
-                        self.regularizer = self.regularizer * 1. / self.dimensions[i]
-                        self.invertible += self.regularizer
-
-                        self.invertible = np.linalg.solve(self.invertible, self.one)
-
-                        # Put the calculated factor back into place
-
-                        self.factors[i][:, entry] = np.dot(self.matrix_vector_product, self.invertible)
-
-                        # Reset invertible and matrix_vector_product
-                        self.invertible *= 0.
-                        self.matrix_vector_product *= 0.
-
-    def prepare_tensor(self, data_array):
-        """
-        Prepare the data
-
-        :param data_array: Data to convert in to tensor model
-        """
-
-        self.regularizer = np.multiply(np.identity(self.d), self.lambda_value)
-        self.matrix_vector_product = np.zeros((1, self.d))
-        self.one = np.identity(self.d)
-        self.invertible = np.zeros((self.d, self.d))
-        self.tmp = np.ones((1, self.d))
-        tensor = {}
-        for i, dim in enumerate(self.dimensions):
-            tensor[i] = {}
-            for row in data_array:
-                tensor[i][row[0, i]] = row
-        return tensor
-
-    def train(self, data_array):
-        """
-        Implementation of TensorCoFi training in Python
-
-        :param data_array: Data to convert in to tensor model
-        """
-        tensor = self.prepare_tensor(data_array)
-        # Starting loops
-        for _ in range(self.iterations):
-            self.iterate(tensor, data_array)
-
-    def get_model(self):
-        """
-        TODO
-        """
-        return self.factors
-
-
 class TensorModel(models.Model):
     """
     Tensor model created with java application in lib/
@@ -273,11 +153,12 @@ class TensorModel(models.Model):
         TODO
         """
         data = Inventory.objects.all().order_by("user").values_list("user", "item")
-        np_data = np.matrix([(u-1, i-1) for u, i in data])
-        tensor = TensorCoFi(dimensions=[len(User.objects.all()), len(Item.objects.all())])
-        tensor.train(np_data)
+        np_data = np.matrix([(u, i) for u, i in data])
+        # tensor = JavaTensorCoFi(dimensions=[len(User.objects.all()), len(Item.objects.all())])
+        tensor = JavaTensorCoFi()
+        tensor.train(np_data, users_len=len(User.objects.all()), items_len=len(Item.objects.all()))
         users, items = tensor.get_model()
-
+        print(users.shape, items.shape)
         users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
         users.save()
         items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)

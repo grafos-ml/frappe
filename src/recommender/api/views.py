@@ -193,14 +193,7 @@ class UserRecommendationAPI(RecommendationAPI):
     """
 
     http_method_names = [
-        'get',
-        #'post',
-        #'put',
-        #'patch',
-        #'delete',
-        #'head',
-        #'options',
-        #'trace'
+        "get"
     ]
 
     def get(self, _, user_external_id, number_of_recommendations):
@@ -236,14 +229,9 @@ class UserItemsAPI(RecommendationAPI):
     }
 
     http_method_names = [
-        'get',
-        'post',
-        #'put',
-        #'patch',
-        'delete',
-        #'head',
-        #'options',
-        #'trace'
+        "get",
+        "post",
+        "delete"
     ]
 
     @staticmethod

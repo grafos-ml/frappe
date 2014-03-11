@@ -10,6 +10,7 @@ import java.util.List;
 import org.jblas.FloatMatrix;
 
 import es.tid.frappe.recsys.TensorCoFi;
+import es.tid.frappe.recsys.TFThreads;
 
 public class TensorCoPy {
 	
@@ -22,8 +23,8 @@ public class TensorCoPy {
 	public static void main(String[] args) throws IOException {
 		PrintStream out = System.out;
 		System.setOut(new PrintStream(new OutputStream() {
-		    @Override public void write(int b) throws IOException {}
-		}));
+		   @Override public void write(int b) throws IOException {}
+		 }));
 		FloatMatrix data = FloatMatrix.loadCSVFile(args[0]+"train.csv");
 		TensorCoFi ts = new TensorCoFi(Integer.valueOf(args[1]), 
 				Integer.valueOf(args[2]), Float.valueOf(args[3]),
