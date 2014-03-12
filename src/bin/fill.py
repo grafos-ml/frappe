@@ -126,13 +126,16 @@ in all sub-directories.
 """
 __author__ = "joaonrb"
 
+# Configure here the Django settings file location
+DJANGO_SETTINGS = "firefox.settings"
+
 import sys
 import os
 import json
 import traceback
 from pkg_resources import resource_filename
 sys.path.append(resource_filename(__name__, "/../"))
-os.environ["DJANGO_SETTINGS_MODULE"] = "firefox.settings"
+os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from django.utils.timezone import utc
 from datetime import datetime
 from django.db import connection, utils

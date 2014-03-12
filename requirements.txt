@@ -11,8 +11,8 @@ pandas
 django-templatetag-handlebars
 pymysql
 sphinx
+python-crontab
 
-#python-crontab
 #django-crontab
 
 #https://github.com/kivy/pyjnius/archive/1.0.3.tar.gz

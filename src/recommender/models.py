@@ -158,7 +158,6 @@ class TensorModel(models.Model):
         tensor = JavaTensorCoFi()
         tensor.train(np_data, users_len=len(User.objects.all()), items_len=len(Item.objects.all()))
         users, items = tensor.get_model()
-        print(users.shape, items.shape)
         users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
         users.save()
         items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
