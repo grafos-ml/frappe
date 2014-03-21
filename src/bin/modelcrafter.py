@@ -43,7 +43,8 @@ CRON_JOB_NAME = "joaonrb"
 
 import sys
 import os
-sys.path.append("/home/joaonrb/Workspaces/Repository/ffos/src")
+from pkg_resources import resource_filename
+sys.path.append(resource_filename(__name__, "/../"))
 import crontab
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from recommendation.models import TensorModel

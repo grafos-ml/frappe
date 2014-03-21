@@ -139,6 +139,7 @@ os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from django.utils.timezone import utc
 from datetime import datetime
 from django.db import connection
+from firefox.models import Details
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre
 
@@ -221,6 +222,27 @@ def put_items(objects):
             "columns": "(genre_id, item_id)",
             "values": ", ".join(relation)})
         print("New relations created ...")
+
+    # Create details
+    details_in_db = [eid for eid in Details.objects.filter(external_id__in=items.keys()).values_list("external_id")]
+    details_to_enter = [external_id for external_id in items.keys() if external_id not in details_in_db]
+    items_with_no_detail = {
+        eid: iid for eid, iid in Item.objects.filter(external_id__in=details_to_enter).values_list("external_id", "id")
+    }
+    details = []
+    for external_id in details_to_enter:
+        description, url, slug = items[external_id][2]
+        if description:
+            # description = bytes(description, "utf-8").decode("unicode_escape")
+            description = description.replace('"', "'")
+        url = bytes(url, "utf-8").decode("unicode_escape")
+        details.append('(%s, "%s", "%s", "%s")' % (str(items_with_no_detail[external_id]), description, url, slug))
+    cursor.execute(BULK_QUERY % {
+        "table": "firefox_details",
+        "columns": "(item_ptr_id, description, url, slug)",
+        "values": ", ".join(details)
+    })
+    print("New details created ...")
 
 
 def put_users(objects):
