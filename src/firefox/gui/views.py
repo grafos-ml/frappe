@@ -9,7 +9,7 @@ Created on Dec 9, 2013
 from django.views.generic.base import View, TemplateResponseMixin
 from django.shortcuts import render_to_response, RequestContext
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from recommender.models import User
+from recommendation.models import User
 
 
 class Landing(View, TemplateResponseMixin):

@@ -1,17 +1,101 @@
 
-Welcome to FireFox OS Store's documentation!
-============================================
+Welcome to Recommendation Framework!
+====================================
 
-Standard documentation for the FireFox OS store back-end.
+Recommendation Framework is a Django application that provides item recommendations for users. The simplest form of
+recommendations now are based on collaborative filtering tensor matrix. The framework also ships with a set of filters
+and re-rankers to give more juice to the recommendation. The point of the framework is to flexible enough to adapt to
+most of the services. For this purpose is possible to develop and deploy within the framework "recommendation" plugins
+to improve the recommendation, to make it more flexible or whathever some brilliant mind want the framework to do.
 
+Download
+--------
 
-Indices and tables
-==================
+Check the repository here. What? It doesn't point to any place? Whats the point with that!?
+
+API Documentation
+-----------------
 
 .. toctree::
    :maxdepth: 2
 
-   backend
-   webservice.v2
+   recommendation.tutorial
+   recommendation.documentation
+   recommendation.plugins
+
+Get Started
+-----------
+
+To get started with the Recommendation framework, you first need to set a Django environment. Do all the thing you need
+to do in order to start your django project. If you don't now how to do it you're a bit ahead of yourself. Just check
+the `Django <http://djangoproject.com>`_ website and see if it's what you're looking for.
+
+Installation
+____________
+
+Like all the good python python packages you just use "`pip install recommendation-framework`" and you're ready to go.
+Unfortunately this project doesn't even got a real name. As far as I'm concerned it will be called frappe or something
+coffee and cream related. Why? This project is the younger brother of the `Frappé
+<http://frappe.cc/>`_ another recommendation project developed by `Linas Baltrunas
+<http://www.linkedin.com/profile/view?id=34647483>`_, the same guy behind this here. So, in this alpha stage of the
+project, to get it just ask nicely to `Linas <mailto:linas.baltrunas@gmail.com>`_ or `João <mailto:joaonrb@gmail.com>`_
+and we will think about it. If for some reason they think they worthy you just have to add the package to you
+environment.
+
+After that just add the it to the installed apps in Django settings:
+
+.. code-block:: python
+   :linenos:
+
+   # settings.py
+
+   INSTALLED_APPS = (
+        ...  # A ton of cool Django apps
+        "recommendation",
+        ...
+   )
+
+Okay, now you can have ways to retrieve recommendations from the system. Link your users to the
+recommendation.models.User and the items you want to be subject of recommendation to recommendation.models.Item.
+One more thing. To retrieve recommendations a special matrix must be built. To have it built you have to run the
+script:
+
+.. code-block:: bash
+   :linenos:
+
+   >>> modelcrafter.py make
+
+This script is shipping with the recommendation framework and it build this matrix. You will want to continue to build
+the matrix for new users and items to be included. Keep that in mind.
+
+And voilá, you get your self a recommendation system for your precious little web site. It's a bit static though.
+
+Plugin Installations
+____________________
+
+To remove the "staticness" of the recommendations you can always install new plugins. The recommendation framework ships
+with some pretty neat plugins. Installed in the same way any Django app is installed. Just keep and mind one thing. In
+case of re-rankers and filters, your system may what some actions to occur before others. For instance, you may want
+that your recommendation have always a big diversity in genre but that don't send every time the same items. So you will
+have to register the diversity first and the logging after.
+
+
+.. code-block:: python
+   :linenos:
+
+   # settings.py
+
+   INSTALLED_APPS = (
+        ...  # A ton of cool Django apps
+        "recommendation",
+        "recommendation.diversity",  # First do diversity
+        "recommendation.records",  # Than re-rank based on records
+        ...
+   )
+
+Now you have a awesome recommendation system.
+
+REST API Installation
+_____________________
 
 

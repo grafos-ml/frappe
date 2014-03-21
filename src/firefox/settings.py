@@ -42,10 +42,10 @@ INSTALLED_APPS = (
     "debug_toolbar",
     "rest_framework",
     "templatetag_handlebars",
-    "recommender",
-    "recommender.records",
-    "recommender.diversity",
-    "recommender.api",
+    "recommendation",
+    "recommendation.records",
+    "recommendation.diversity",
+    "recommendation.api",
     "firefox",
     "firefox.api",
     "firefox.gui"
@@ -74,7 +74,7 @@ WSGI_APPLICATION = "firefox.wsgi.application"
 
 import socket
 HOSTS = {
-    "chronos": "192.168.228.128",
+    "gabriela": "192.168.225.128",
 }
 
 DATABASES = {
@@ -83,15 +83,6 @@ DATABASES = {
         "NAME": "recommender_v12",
         "USER": "FFOS",
         "PASSWORD": "pasteldenata",
-        "HOST": HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS else "localhost",
-    } if not TESTING else {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "raqksixq_ffosv1",
-        "CHARSET": "utf8",
-        "TEST_NAME": "test_ffosv1",
-        "TEST_CHARSET": "utf8",
-        "USER": "raqksixq_frappe",
-        "PASSWORD": "Sp21o61H4",
         "HOST": HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS else "localhost",
     }
 }

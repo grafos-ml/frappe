@@ -140,8 +140,8 @@ from django.utils.timezone import utc
 from datetime import datetime
 from django.db import connection, utils
 from firefox.models import Details
-from recommender.models import Item, User, Inventory
-from recommender.diversity.models import Genre
+from recommendation.models import Item, User, Inventory
+from recommendation.diversity.models import Genre
 
 BULK_QUERY = "INSERT INTO %(table)s %(columns)s VALUES %(values)s;"
 
@@ -164,7 +164,7 @@ def parse_dir(directory):
 
 def put_items(objects):
     """
-    Loads items to the recommender and FireFox system.
+    Loads items to the recommendation and FireFox system.
 
     :param objects: Generator with json objects to put in database
     """
@@ -247,7 +247,7 @@ def put_items(objects):
 
 def put_users(objects):
     """
-    Loads users for the FireFox recommender
+    Loads users for the FireFox recommendation
     :param objects: Users
     :return:
     """

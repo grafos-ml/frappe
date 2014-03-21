@@ -1,5 +1,4 @@
-#!/home/joaonrb/.system/virtualenv/recommendor/bin/python
-##!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created at March 11, 2014
@@ -47,7 +46,7 @@ import os
 sys.path.append("/home/joaonrb/Workspaces/Repository/ffos/src")
 import crontab
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
-from recommender.models import TensorModel
+from recommendation.models import TensorModel
 
 
 class ModelCrafterError(Exception):

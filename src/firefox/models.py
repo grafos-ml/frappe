@@ -11,7 +11,7 @@ __author__ = "joaonrb"
 
 from django.utils.translation import ugettext as _
 from django.db import models
-from recommender.models import Item
+from recommendation.models import Item
 
 
 class Details(Item):

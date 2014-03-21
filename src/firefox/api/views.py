@@ -12,15 +12,15 @@ __author__ = "joaonrb"
 from django.http import Http404, HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
-from recommender.models import Item
+from recommendation.models import Item
 from firefox.models import Details
 
-from recommender.api.views import AbstractGoToItem, RecommendationAPI, NOT_FOUND_ERROR
+from recommendation.api.views import AbstractGoToItem, RecommendationAPI, NOT_FOUND_ERROR
 
 
 class GoToItem(AbstractGoToItem):
     """
-    .. py:class:: ffos.recommender.api.views.GoToItemStore()
+    .. py:class:: ffos.recommendation.api.views.GoToItemStore()
 
     Goes to the store
     """
@@ -55,7 +55,7 @@ class GoToItem(AbstractGoToItem):
 
 class ItemAPI(RecommendationAPI):
     """
-    ... py:class:: ffos.recommender.api.views.ItemAPI()
+    ... py:class:: ffos.recommendation.api.views.ItemAPI()
 
     About
     -----

@@ -6,7 +6,7 @@ from django.conf.urls import patterns, url
 from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout
-from recommender.caches import CacheUser
+from recommendation.caches import CacheUser
 from firefox.gui import views
 
 urlpatterns = patterns('',
