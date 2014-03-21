@@ -19,7 +19,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 import base64
 import numpy as np
-from recommendation.model_factory import JavaTensorCoFi
+from recommendation.model_factory import JavaTensorCoFi, Popularity
 from django.utils.six import with_metaclass
 
 
@@ -42,6 +42,37 @@ class Matrix(with_metaclass(models.SubfieldBase, models.TextField)):
         :type value: str
         :return: A numpy matrix
         :rtype: numpy.Array
+        """
+        if isinstance(value, str):
+            prep = bytes(value, "utf-8")
+            return np.fromstring(base64.decodebytes(prep), dtype=np.float64)
+        return value
+
+    def get_prep_value(self, value):
+        """
+        Prepare the value from python like object to database like value
+
+        :param value: Matrix to keep in database
+        :type value: numpy.Array
+        :return: Base64 representation string encoded in utf-8
+        :rtype: str
+        """
+        prep = value.tostring()
+        return base64.b64encode(prep)
+
+
+class Recommendation(with_metaclass(models.SubfieldBase, models.TextField)):
+    """
+    A raw recommendation based on apps that exist in the system
+    """
+
+    __metaclass__ = models.SubfieldBase
+
+    def to_python(self, value):
+        """
+        Convert the string from the database to a python like object
+
+        :param value: string of a list for a recommendation
         """
         if isinstance(value, str):
             prep = bytes(value, "utf-8")
@@ -132,7 +163,7 @@ class TensorModel(models.Model):
         verbose_name = _("factor")
         verbose_name_plural = _("factors")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.matrix
 
     @property
@@ -146,7 +177,7 @@ class TensorModel(models.Model):
     @staticmethod
     def train():
         """
-        TODO
+        Trains the model in to data base
         """
         data = Inventory.objects.all().order_by("user").values_list("user", "item")
         np_data = np.matrix([(u, i) for u, i in data])
@@ -159,5 +190,32 @@ class TensorModel(models.Model):
         items.save()
         return users, items
 
+
+class PopularityModel(models.Model):
+    """
+    Popularity model for when there are no info on user
+    """
+    recommendation = Recommendation(_("recommendation"))
+    number_of_items = models.IntegerField(_("number of items"))
+    timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("popularity model")
+        verbose_name_plural = _("popularity models")
+
+    def __str__(self):
+        return "popularity(%s...%s)" % (str(self.recommendation[4:][:-1]), str(self.recommendation[:-4][1:]))
+
+    @staticmethod
+    def train():
+        """
+        Train the popular model
+        :return:
+        """
+        popular_recommendation = Popularity.get_popular_items(Item)
+        PopularityModel.objects.create(recommendation=popular_recommendation,
+                                       number_of_items=len(popular_recommendation))
+
+
 from django.contrib import admin
-admin.site.register([Item, User, Inventory, TensorModel])
+admin.site.register([Item, User, Inventory, TensorModel, PopularityModel])

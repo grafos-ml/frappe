@@ -133,9 +133,6 @@ import sys
 import os
 import json
 import traceback
-from pkg_resources import resource_filename
-sys.path.append(resource_filename(__name__, "/../"))
-os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from django.utils.timezone import utc
 from datetime import datetime
 from django.db import connection
@@ -296,4 +293,7 @@ def main(obj_type, directory):
 # Script main
 
 if __name__ == '__main__':
+    from pkg_resources import resource_filename
+    sys.path.append(resource_filename(__name__, "/../"))
+    os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
     main(sys.argv[1], sys.argv[2])

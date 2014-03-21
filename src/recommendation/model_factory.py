@@ -19,6 +19,9 @@ import datetime
 import subprocess
 import recommendation
 from pkg_resources import resource_filename
+import shutil
+from math import log
+from django.db.models import Count
 
 USER = "user"
 ITEM = "item"
@@ -159,12 +162,11 @@ class JavaTensorCoFi(object):
     def __init__(self, d=20, iterations=5, lambda_value=0.05, alpha_value=40, user_features=["user"],
                  item_features=["item"]):
         """
-
-        :param d:
-        :param iterations:
-        :param lambda_value:
-        :param alpha_value:
-        :param dimensions:
+        Constructor
+        :param d: Number of factors
+        :param iterations: Number of iterations
+        :param lambda_value: Constant lambda
+        :param alpha_value: Constant alpha
         :return:
         """
         self.set_params(d, iterations, lambda_value, alpha_value)
@@ -174,24 +176,6 @@ class JavaTensorCoFi(object):
 
         self.user_column_names = user_features
         self.item_column_names = item_features
-
-    @classmethod
-    def param_details(cls):
-        """
-        Return parameter details for dim, nIter, lamb and alph
-        """
-        return {
-            "dimension": (10, 20, 2, 20),
-            "iteration": (1, 10, 2, 5),
-            "lambda_value": (.1, 1., .1, .05),
-            "alpha_value": (30, 50, 5, 40)
-        }
-
-    def fit(self, data):
-        """
-        Prepare the model
-        """
-        self._fit(data)
 
     def set_params(self, d=20, iterations=5, lambda_value=0.05, alpha_value=40):
         """
@@ -215,8 +199,16 @@ class JavaTensorCoFi(object):
         return "TensorCoFi(d={},iterations={},lambda={},alpha={})".format(
             self._d, self._iterations, self._lambda_value, self._alpha_value)
 
-    def fit(self, data, users_len=None, items_len=None):
-        directory = "log/" + datetime.datetime.now().isoformat("_")
+    def fit(self, data, users_len=None, items_len=None, remove_log=True):
+        """
+        Trains the model with a set of data
+
+        :param data: Data to train the model
+        :param users_len: The number of users
+        :param items_len: The number of items
+        :param remove_log: If it should remove the log after the execution
+        """
+        directory = resource_filename(__name__, "/tensorcofi_log/") + datetime.datetime.now().isoformat("_")
         users_len = users_len or len(set(row[0, 0] for row in data))
         items_len = items_len or len(set(row[0, 1] for row in data))
         if not os.path.exists(directory):
@@ -237,12 +229,43 @@ class JavaTensorCoFi(object):
             'user': np.ma.column_stack(np.loadtxt(open(users, "r"), delimiter=",")).transpose(),
             'item': np.ma.column_stack(np.loadtxt(open(items, 'r'), delimiter=",")).transpose()
         }
+        if remove_log:
+            shutil.rmtree(resource_filename(__name__, "/tensorcofi_log/"))
 
     def train(self, data, **kwargs):
+        """
+        Trains the data
+        :param data:
+        :param kwargs:
+        :return:
+        """
         return self.fit(data, **kwargs)
 
     def get_model(self):
         """
-        TODO
+        Return the user matrix and item matrix as a tuple
         """
         return self.factors[USER], self.factors[ITEM]
+
+
+class Popularity(object):
+    """
+    Popularity model for when there no user information
+    """
+
+    @staticmethod
+    def get_popular_items(model):
+        """
+        Get the popular items in the system
+        """
+        items = model.objects.all().annotate(count=Count("user")).values_list("id", "count")
+        sorted_items = sorted(items, key=lambda x: x[0])
+        recommendation = [count for _, count in sorted_items]
+        return np.array(recommendation)
+
+    @staticmethod
+    def get_name():
+        """
+        toSting like
+        """
+        return "Popularity"

@@ -25,7 +25,8 @@ To make Gepeto go on vacations just type::
 
 To make Gepeto build only one model::
 
-    $ modelcrafter.py make
+    $ modelcrafter.py train tensorcofi
+    $ modelcrafter.py train popularity
 
 Options
 =======
@@ -47,7 +48,7 @@ from pkg_resources import resource_filename
 sys.path.append(resource_filename(__name__, "/../"))
 import crontab
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
-from recommendation.models import TensorModel
+from recommendation.models import TensorModel, PopularityModel
 
 
 class ModelCrafterError(Exception):
@@ -86,12 +87,17 @@ class TimeInterval(object):
         getattr(job, self.unit)().every(self.value)
         return job
 
+MODELS = {
+    "tensorcofi": TensorModel,
+    "popularity": PopularityModel
+}
+
 
 def craft_model():
     """
     This crafts a model for the recommendation system.
     """
-    TensorModel.train()
+    MODELS[sys.argv[2]].train()
 
 
 def work(every):
@@ -113,7 +119,7 @@ OPTIONS = {
         "command": work,
         "args": ["every"],
     },
-    "make": {
+    "train": {
         "command": craft_model,
         "args": []
     }

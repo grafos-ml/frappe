@@ -11,7 +11,7 @@
 import numpy as np
 from recommendation.models import Item
 from recommendation.caches import CacheUser, CacheMatrix
-from recommendation.models import TensorModel
+from recommendation.models import TensorModel, PopularityModel
 from recommendation.records.decorators import LogRecommendedApps
 import logging
 
@@ -95,6 +95,14 @@ class InterfaceController(object):
         # previous user.
         return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] * a_matrix)))
 
+    @CacheMatrix()
+    def get_popularity(self):
+        """
+        Return the popular items
+        :return: list
+        """
+        return PopularityModel.objects.filter().order_by("-id")[0].recommendation
+
     @CacheUser()
     @LogRecommendedApps()
     def get_recommendation(self, user, n=10):
@@ -106,8 +114,11 @@ class InterfaceController(object):
         :return: A Python list the recommendation apps ids.
         :rtype: list
         """
-        result = self.get_app_significance_list(user=user, u_matrix=self.get_user_matrix(),
-                                                a_matrix=self.get_apps_matrix())
+        try:
+            result = self.get_app_significance_list(user=user, u_matrix=self.get_user_matrix(),
+                                                    a_matrix=self.get_apps_matrix())
+        except IndexError:
+            result = self.get_popularity()
         logging.debug("Matrix loaded or generated")
         for f in self.filters:
             result = f(user, result, size=n)
@@ -149,17 +160,15 @@ class Recommender(InterfaceController):
     Get the matrix from the Model
     """
 
+    @CacheMatrix()
     def get_user_matrix(self):
         """
         Catch the user matrix from database
 
         :return: The matrix of users.
         """
-        try:
-            return TensorModel.objects.filter(dim=0).order_by("-id")[0].numpy_matrix
-        except IndexError:
-            users, _ = TensorModel.train()
-            return users.numpy_matrix
+        return TensorModel.objects.filter(dim=0).order_by("-id")[0].numpy_matrix
+
 
     @CacheMatrix()
     def get_apps_matrix(self):
@@ -168,8 +177,4 @@ class Recommender(InterfaceController):
 
         :return: The matrix of apps.
         """
-        try:
-            return TensorModel.objects.filter(dim=1).order_by("-id")[0].numpy_matrix
-        except IndexError:
-            _, items = TensorModel.train()
-            return items.numpy_matrix
+        return TensorModel.objects.filter(dim=1).order_by("-id")[0].numpy_matrix
