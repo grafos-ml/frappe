@@ -79,7 +79,6 @@ class InterfaceController(object):
         :return: The matrix of apps.
         """
 
-
     @CacheUser()
     def get_app_significance_list(self, user, u_matrix, a_matrix):
         """

@@ -17,11 +17,33 @@ from django.utils.translation import ugettext as _
 from rest_framework.renderers import JSONRenderer, XMLRenderer
 from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
-from recommendation.core import Recommender
-from recommendation.records.rerankers import SimpleLogReRanker
 from recommendation.models import User, Inventory
 from recommendation.records.models import Record
-from recommendation.diversity.rerankers import DiversityReRanker
+
+DEFAULT_SETTINGS = {
+    "default": {
+        "core": ("recommendation.core", "Recommender"),
+        "filters": [
+
+        ],
+        "rerankers": [
+            ("recommendation.records.rerankers", "SimpleLogReRanker"),
+            ("recommendation.diversity.rerankers", "DiversityReRanker")
+        ]
+    }
+}
+
+try:
+    RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")
+except AttributeError:
+    RECOMMENDATION_SETTINGS = DEFAULT_SETTINGS
+rec_mod, rec_class = RECOMMENDATION_SETTINGS["default"]["core"]
+RECOMMENDATION_CORE = getattr(__import__(rec_mod, fromlist=[""]), rec_class)()
+
+for mod, filter_class in RECOMMENDATION_SETTINGS["default"]["filters"]:
+    RECOMMENDATION_CORE.register_filter(getattr(__import__(mod, fromlist=[""]), filter_class)())
+for mod, reranker_class in RECOMMENDATION_SETTINGS["default"]["rerankers"]:
+    RECOMMENDATION_CORE.register_reranker(getattr(__import__(mod, fromlist=[""]), reranker_class)())
 
 JSON = "json"
 XML = "xml"
@@ -51,12 +73,6 @@ PARAMETERS_IN_MISS = {
     _("status"): FORMAT_ERROR,
     _("error"): _("Some parameters are missing. Check documentation.")
 }
-
-RECOMMENDER = Recommender()
-RECOMMENDER.register_reranker(
-    SimpleLogReRanker(),
-    DiversityReRanker()
-)
 
 
 class APIResponse(HttpResponse):
@@ -207,8 +223,8 @@ class UserRecommendationAPI(RecommendationAPI):
         :type number_of_recommendations: int
         :return: A HTTP response with a list of recommendations.
         """
-        recommended_apps = RECOMMENDER.get_external_id_recommendations(user_external_id,
-                                                                       n=int(number_of_recommendations))
+        recommended_apps = RECOMMENDATION_CORE.get_external_id_recommendations(user_external_id,
+                                                                               n=int(number_of_recommendations))
         data = {"user": user_external_id, "recommendations": recommended_apps}
         return self.format_response(data)
 

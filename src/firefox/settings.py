@@ -14,7 +14,6 @@ import os
 import sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-TESTING = "test" in sys.argv
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -154,5 +153,20 @@ CACHES = {
         "OPTIONS": {
             "MAX_ENTRIES": 1000
         },
+    }
+}
+
+# Settings for the recommendation
+
+DEFAULT_SETTINGS = {
+    "default": {
+        "core": ("recommendation.core", "Recommender"),
+        "filters": [
+
+        ],
+        "rerankers": [
+            ("recommendation.records.rerankers", "SimpleLogReRanker"),
+            ("recommendation.diversity.rerankers", "DiversityReRanker")
+        ]
     }
 }
