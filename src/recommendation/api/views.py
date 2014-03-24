@@ -11,7 +11,7 @@ __author__ = "joaonrb"
 
 from django.conf import settings
 from django.db import connection
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, IntegrityError
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from rest_framework.renderers import JSONRenderer, XMLRenderer
@@ -54,7 +54,7 @@ PARAMETERS_IN_MISS = {
 
 class APIResponse(HttpResponse):
     """
-    .. py:class:: ffos.recommendation.api.views.APIResponse(data)
+    .. py:class:: recommendation.api.views.APIResponse(data)
 
 
     About
@@ -73,7 +73,7 @@ class APIResponse(HttpResponse):
 
 class JSONResponse(APIResponse):
     """
-    .. py:class:: ffos.recommendation.api.views.JSONResponse(data)
+    .. py:class:: recommendation.api.views.JSONResponse(data)
 
 
     About
@@ -87,7 +87,7 @@ class JSONResponse(APIResponse):
 
 class XMLResponse(APIResponse):
     """
-    .. py:class:: ffos.recommendation.api.views.XMLResponse(data)
+    .. py:class:: recommendation.api.views.XMLResponse(data)
 
 
     About
@@ -101,7 +101,7 @@ class XMLResponse(APIResponse):
 
 class RecommendationAPI(APIView):
     """
-    .. py:class:: ffos.recommendation.api.views.RecommendationAPI()
+    .. py:class:: recommendation.api.views.RecommendationAPI()
 
 
     About
@@ -177,7 +177,7 @@ class AbstractGoToItem(APIView):
 
 class UserRecommendationAPI(RecommendationAPI):
     """
-    .. py:class:: ffos.recommendation.api.views.UserRecommendationAPI()
+    .. py:class:: recommendation.api.views.UserRecommendationAPI()
 
     About
     -----
@@ -206,9 +206,55 @@ class UserRecommendationAPI(RecommendationAPI):
         return self.format_response(data)
 
 
+class UsersAPI(RecommendationAPI):
+    """
+    Class for API view of the users
+    """
+
+    NOT_FOUND_ERROR_MESSAGE = {
+        _("status"): NOT_FOUND_ERROR,
+        _("error"): _("User with that id has not found.")
+    }
+
+    EXTERNAL_ID_EXISTS_ERROR_MESSAGE = {
+        _("status"): NOT_FOUND_ERROR,
+        _("error"): _("User with that id already exists.")
+    }
+
+    http_method_names = [
+        "get",
+        "post",
+    ]
+
+    def get(self, request):
+        """
+        Return a list of users
+        """
+        starting = int(request.GET.get("starting", 0))
+        offset = int(request.GET.get("offset", 0))
+        users = User.objects.all()
+        ordered_users = users.order_by("id")
+        users_list = ordered_users.values_list("id", "external_id")[starting:(starting+offset) if offset else None]
+        return self.format_response([{"external_id": eid, "id": iid} for iid, eid in users_list])
+
+    def post(self, request):
+        """
+        creates a new user
+        """
+        try:
+            new_user_external_id = request.POST.get("external_id")
+        except KeyError:
+            return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
+        try:
+            User.objects.create(external_id=new_user_external_id)
+        except IntegrityError:
+            return self.format_response(self.EXTERNAL_ID_EXISTS_ERROR_MESSAGE, status=500)
+        return self.format_response(SUCCESS_MESSAGE)
+
+
 class UserItemsAPI(RecommendationAPI):
     """
-    ... py:class:: ffos.recommendation.api.views.AcquireItemAPI()
+    ... py:class:: recommendation.api.views.AcquireItemAPI()
 
     About
     -----
@@ -303,11 +349,11 @@ class UserItemsAPI(RecommendationAPI):
             items = Inventory.objects.filter(user__external_id=user_external_id)
             items = items.order_by("acquisition_date")
             items = items.values_list("item__external_id", "acquisition_date", "dropped_date")[offset:limit]
-            items = [{"external_id": int(item), "installation_date": date, "removed_date": removed_date}
+            items = [{"external_id": int(item), "acquisition_date": date, "dropped_date": removed_date}
                      for item, date, removed_date in items]
         except User.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
-        data = {"user": user_external_id, "applications": items}
+        data = {"user": user_external_id, "items": items}
         return self.format_response(data)
 
     def post(self, request, user_external_id):

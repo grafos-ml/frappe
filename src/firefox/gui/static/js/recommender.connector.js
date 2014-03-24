@@ -72,15 +72,16 @@ function loadInstalledApps(user) {
     uri = getInstalledAppsURI(user);
     $.getJSON(uri, function(data) {
         var items = [];
-        $.each(data.applications, function(index) {
-            $.getJSON("/api/v2/item/"+data.applications[index].external_id+".json?user="+user, function(elem_data) {
-                if(data.applications[index].removed_date == null) {
-                    elem_data.installation_date = data.applications[index].installation_date;
+        alert(JSON.stringify(data));
+        $.each(data.items, function(index) {
+            $.getJSON("/api/v2/item/"+data.items[index].external_id+".json?user="+user, function(elem_data) {
+                if(data.items[index].removed_date == null) {
+                    elem_data.installation_date = data.items[index].acquisition_date;
                     elem_data.install_or_remove = "minus";
                     elem_data.install_or_remove_color = "danger";
                     elem_data.action = "item_remove('"+user+"','"+elem_data.external_id+"');";
                     items.push(elem_data);
-                    if(data.applications.length == index+1) {
+                    if(data.items.length == index+1) {
                         window.setTimeout(function () {
                             var html = appContainer({"apps": items});
                             $("#installedApps").html(html);
@@ -101,8 +102,8 @@ function loadRecommendations(user) {
         $.each(data.recommendations, function(index) {
             $.getJSON("/api/v2/item/"+data.recommendations[index]+".json?user="+user+"&rank="+(index+1),
                 function(elem_data) {
-                elem_data.installation_date = data.recommendations[index].installation_date;
-                elem_data.removed_date = data.recommendations[index].removed_date;
+                elem_data.installation_date = data.recommendations[index].acquisition_date;
+                elem_data.removed_date = data.recommendations[index].dropped_date;
                 elem_data.install_or_remove = "plus";
                 elem_data.install_or_remove_color = "success";
                 elem_data.action = "item_acquire('"+user+"','"+elem_data.external_id+"');"
