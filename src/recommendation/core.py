@@ -9,6 +9,7 @@
 """
 
 import numpy as np
+from django.conf import settings
 from recommendation.models import Item
 from recommendation.caches import CacheUser, CacheMatrix
 from recommendation.models import TensorModel, PopularityModel
@@ -177,3 +178,38 @@ class Recommender(InterfaceController):
         :return: The matrix of apps.
         """
         return TensorModel.objects.filter(dim=1).order_by("-id")[0].numpy_matrix
+
+DEFAULT_SETTINGS = {
+    "default": {
+        "core": ("recommendation.core", "Recommender"),
+        "filters": [
+
+        ],
+        "rerankers": [
+            ("recommendation.records.rerankers", "SimpleLogReRanker"),
+            ("recommendation.diversity.rerankers", "DiversityReRanker")
+        ]
+    }
+}
+
+try:
+    RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")
+except AttributeError:
+    RECOMMENDATION_SETTINGS = DEFAULT_SETTINGS
+
+RECOMMENDATION_ENGINES = {}
+for engine, engine_settings in RECOMMENDATION_SETTINGS.items():
+    rec_mod, rec_class = engine_settings["core"]
+
+    RECOMMENDATION_ENGINES[engine] = getattr(__import__(rec_mod, fromlist=[""]), rec_class)()
+
+    # Register Filters
+    for mod, filter_class in engine_settings["filters"]:
+        RECOMMENDATION_ENGINES[engine].register_filter(getattr(__import__(mod, fromlist=[""]), filter_class)())
+
+    # Register re-rankers
+    for mod, reranker_class in RECOMMENDATION_SETTINGS["default"]["rerankers"]:
+        RECOMMENDATION_ENGINES[engine].register_reranker(getattr(__import__(mod, fromlist=[""]), reranker_class)())
+
+# Set default Recommendation engine
+DEFAULT_RECOMMENDATION = RECOMMENDATION_ENGINES["default"]

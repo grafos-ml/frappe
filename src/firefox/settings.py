@@ -53,7 +53,7 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    #"django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -73,7 +73,7 @@ WSGI_APPLICATION = "firefox.wsgi.application"
 
 import socket
 HOSTS = {
-    "gabriela": "192.168.225.128",
+    "gabriela": "172.16.51.128",
 }
 
 DATABASES = {
@@ -127,20 +127,12 @@ DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 # Rest Framework Settings
 
-"""
 REST_FRAMEWORK = {
-    # Use hyperlinked styles by default.
-    # Only used if the `serializer_class` attribute is not set on a view.
-    "DEFAULT_MODEL_SERIALIZER_CLASS":
-        "rest_framework.serializers.HyperlinkedModelSerializer",
-
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ]
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        #'rest_framework.authentication.BasicAuthentication',
+        #'rest_framework.authentication.SessionAuthentication',
+    )
 }
-"""
 # Caching
 
 CACHES = {
@@ -158,13 +150,14 @@ CACHES = {
 
 # Settings for the recommendation
 
-DEFAULT_SETTINGS = {
+RECOMMENDATION_SETTINGS = {
     "default": {
         "core": ("recommendation.core", "Recommender"),
         "filters": [
 
         ],
         "rerankers": [
+            # The order witch the re-rankers or filters are setted here represent the order that they are called
             ("recommendation.records.rerankers", "SimpleLogReRanker"),
             ("recommendation.diversity.rerankers", "DiversityReRanker")
         ]

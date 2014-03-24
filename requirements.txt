@@ -8,7 +8,8 @@ django-debug-toolbar
 numpy
 scipy
 pandas
-django-templatetag-handlebars
+#django-templatetag-handlebars
+https://github.com/joaonrb/django-templatetag-handlebars/archive/master.zip
 pymysql
 sphinx
 python-crontab
