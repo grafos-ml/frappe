@@ -72,7 +72,6 @@ function loadInstalledApps(user) {
     uri = getInstalledAppsURI(user);
     $.getJSON(uri, function(data) {
         var items = [];
-        alert(JSON.stringify(data));
         $.each(data.items, function(index) {
             $.getJSON("/api/v2/item/"+data.items[index].external_id+".json?user="+user, function(elem_data) {
                 if(data.items[index].removed_date == null) {

@@ -168,7 +168,6 @@ def put_items(objects):
     object_genres = set([])
     items = {}
 
-    test = []
     # Create the items
     for json_item in objects:
         external_id = json_item.get("id")

@@ -17,8 +17,8 @@ class Locale(models.Model):
     language_code = models.CharField(_("language code"), max_length=2)
     country_code = models.CharField(_("country code"), max_length=2, default="")
     name = models.CharField(_("country"), max_length=255, default="")
-    items = models.ManyToManyField(Item, verbose_name=_("items"), null=True, related_name="available_locales")
-    users = models.ManyToManyField(User, verbose_name=_("users"), null=True, related_name="required_locales")
+    items = models.ManyToManyField(Item, verbose_name=_("items"), related_name="available_locales", blank=True)
+    users = models.ManyToManyField(User, verbose_name=_("users"), related_name="required_locales", blank=True)
 
     class Meta:
         verbose_name = _("locale")
@@ -27,3 +27,14 @@ class Locale(models.Model):
 
     def __str__(self):
         return "%s%s" % (self.language_code, "-%s" % self.country_code if self.country_code else "")
+
+    def save(self, *args, **kwargs):
+        """
+        Makes the codes to be saved always using lower case
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        self.language_code = self.language_code.lower()
+        self.country_code = self.country_code.lower()
+        super(Locale, self).save(*args, **kwargs)

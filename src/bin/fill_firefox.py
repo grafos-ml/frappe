@@ -142,6 +142,7 @@ from django.db import connection
 from firefox.models import ItemDetail
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre
+from recommendation.language.models import Locale
 
 BULK_QUERY = "INSERT INTO %(table)s %(columns)s VALUES %(values)s;"
 
@@ -170,9 +171,9 @@ def put_items(objects):
     """
     print("Loading files into memory")
     object_genres = set([])
+    object_locales = set([])
     items = {}
 
-    test = []
     # Create the items
     for json_item in objects:
         external_id = json_item.get("id")
@@ -184,12 +185,17 @@ def put_items(objects):
         for genre in json_item.get("categories", ()):
             genres.append(genre)
             object_genres.add(genre)
-        items[external_id] = Item(external_id=external_id, name=name), genres, (description, details, slug)
+        locales = set([])
+        for locale in json_item.get("supported_locales", ()):
+            locale = locale.lower()
+            locales.add(locale)
+            object_locales.add(locale)
+        items[external_id] = Item(external_id=external_id, name=name), genres, locales, (description, details, slug)
 
     items_in_db = \
         [item for item, in Item.objects.filter(external_id__in=items.keys()).values_list("external_id")]
     missing_items = [item for external_id, item in items.items() if external_id not in items_in_db]
-    new_items = {item.external_id: item for item, _, _ in missing_items}
+    new_items = {item.external_id: item for item, _, _, _ in missing_items}
     Item.objects.bulk_create(new_items.values())
     new_items = {
         eid: iid for eid, iid in Item.objects.filter(external_id__in=new_items.keys()).values_list("external_id", "id")
@@ -208,8 +214,25 @@ def put_items(objects):
 
     print("New genres created ...")
 
+    locales = [str(locale) for locale in Locale.objects.all()]
+
+    # Create locales
+    new_locales = []
+    for locale in object_locales:
+        if locale not in locales:
+            try:
+                language_code, country_code = locale.split("-")
+            except ValueError:
+                language_code, country_code = locale, ""
+            new_locale = Locale(language_code=language_code, country_code=country_code)
+            new_locales.append(new_locale)
+
+    Locale.objects.bulk_create(new_locales)
+
+    print("New locales created ...")
+
     cursor = connection.cursor()
-    # Create relations
+    # Create genre relations
     if new_items:
         relation = []
         for item_eid, item_id in new_items.items():
@@ -221,7 +244,22 @@ def put_items(objects):
             "table": "diversity_genre_items",
             "columns": "(genre_id, item_id)",
             "values": ", ".join(relation)})
-        print("New relations created ...")
+        print("New genre relations created ...")
+
+    # Create locale relations
+    if new_locales:
+        locales = {str(locale): locale for locale in Locale.objects.all()}
+        relations = []
+        for item_eid, item_id in new_items.items():
+
+            for locale in items[item_eid][2]:
+                relations.append("(%s, %s)" % (str(locales[locale].id), item_id))
+
+        cursor.execute(BULK_QUERY % {
+            "table": "language_locale_items",
+            "columns": "(locale_id, item_id)",
+            "values": ", ".join(relations)})
+        print("New locale relations created ...")
 
     # Create details
     details_in_db = [eid for eid in ItemDetail.objects.filter(external_id__in=items.keys()).values_list("external_id")]
@@ -231,14 +269,14 @@ def put_items(objects):
     }
     details = []
     for external_id in details_to_enter:
-        description, url, slug = items[external_id][2]
+        description, url, slug = items[external_id][3]
         if description:
             # description = bytes(description, "utf-8").decode("unicode_escape")
             description = description.replace('"', "'")
         url = bytes(url, "utf-8").decode("unicode_escape")
         details.append('(%s, "%s", "%s", "%s")' % (str(items_with_no_detail[external_id]), description, url, slug))
     cursor.execute(BULK_QUERY % {
-        "table": "firefox_details",
+        "table": "firefox_itemdetail",
         "columns": "(item_ptr_id, description, url, slug)",
         "values": ", ".join(details)
     })
@@ -254,6 +292,8 @@ def put_users(objects):
     print("Loading files into memory ...")
     new_users = []
     inventory = []
+    user_locales = {}
+    locales_to_enter = set([])
     users = set([])
     items = set([])
     for user in objects:
@@ -264,11 +304,60 @@ def put_users(objects):
             items.add(item["id"])
             inventory.append((external_id, item["id"],
                               datetime.strptime(item["installed"], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=utc)))
+        # Import locales
+        locales = user["lang"]
+        if isinstance(locales, str):
+            locales = [locales]
+        elif isinstance(locales, dict):
+            locales = list(locales.values())
+        elif not isinstance(locales, list):
+            locales = []
+        for locale in locales:
+            locale = locale.lower()
+            try:
+                user_locales[external_id].add(locale)
+            except KeyError:
+                user_locales[external_id] = set([locale])
+            locales_to_enter.add(locale)
+
+
     database_users = User.objects.filter(external_id__in=users).values_list("external_id", "id")
     users_in_db = {eid: iid for eid, iid in database_users}
     new_users = [user for user in new_users if user.external_id not in users_in_db.keys()]
     User.objects.bulk_create(new_users)
     print("Users created ...")
+
+    # Create locales
+    locales = [str(locale) for locale in Locale.objects.all()]
+    new_locales = []
+    for locale in locales_to_enter:
+        if locale not in locales:
+            try:
+                language_code, country_code = locale.split("-")
+            except ValueError:
+                language_code, country_code = locale, ""
+            new_locale = Locale(language_code=language_code, country_code=country_code)
+            new_locales.append(new_locale)
+
+    Locale.objects.bulk_create(new_locales)
+
+    print("New locales created ...")
+
+    # Create locale relations
+    locales = {str(locale): locale.id for locale in Locale.objects.all()}
+    user_to_locales = User.objects.filter(external_id__in=user_locales).values_list("external_id", "id")
+    bulk_locale_user = []
+    for ueid, uid in user_to_locales:
+        for locale in user_locales[ueid]:
+            bulk_locale_user.append('("%s", "%s")' % (locales[locale], uid))
+
+    cursor = connection.cursor()
+
+    cursor.execute(BULK_QUERY % {
+        "table": "language_locale_users",
+        "columns": "(locale_id, user_id)",
+        "values": ", ".join(bulk_locale_user)})
+    print("New locale relations created ...")
 
     # Create inventory
     database_items = Item.objects.filter(external_id__in=items).values_list("external_id", "id")

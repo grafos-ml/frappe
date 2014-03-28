@@ -44,7 +44,7 @@ INSTALLED_APPS = (
     "recommendation",
     "recommendation.records",
     "recommendation.diversity",
-    "recommendation.language"
+    "recommendation.language",
     "recommendation.api",
     "firefox",
     "firefox.api",

@@ -71,7 +71,7 @@ class ItemAPI(RecommendationAPI):
         _("error"): _("Item with that id has not found.")
     }
 
-    ITEM_EXPOSED_ATTRIBUTES = ["name", "details__url", "id"]
+    ITEM_EXPOSED_ATTRIBUTES = ["name", "itemdetail__url", "id"]
 
     def get(self, request, item_external_id):
         """
@@ -94,7 +94,7 @@ class ItemAPI(RecommendationAPI):
             "source": GoToItem.RECOMMENDED if rank else GoToItem.CLICK})
         if rank:
             uri += "?rank=%s" % rank
-        response = {"external_id": item_external_id, "name": item["name"], "details": item["details__url"],
+        response = {"external_id": item_external_id, "name": item["name"], "details": item["itemdetail__url"],
                     "store": uri}
 
         return self.format_response(response)
