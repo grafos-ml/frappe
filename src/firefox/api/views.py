@@ -13,8 +13,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from recommendation.models import Item
-from firefox.models import Details
-
+from firefox.models import ItemDetail
 from recommendation.api.views import AbstractGoToItem, RecommendationAPI, NOT_FOUND_ERROR
 
 
@@ -49,8 +48,8 @@ class GoToItem(AbstractGoToItem):
             raise Http404
         user_external_id = user_external_id if user_external_id != self.ANONYMOUS else None
         self.click(user_external_id, item_external_id, source, rank)
-        slug = Details.objects.filter(external_id=item_external_id).values_list("slug")[0]
-        return HttpResponseRedirect(Details.slug_to_item_place(slug))
+        slug = ItemDetail.objects.filter(external_id=item_external_id).values_list("slug")[0]
+        return HttpResponseRedirect(ItemDetail.slug_to_item_place(slug))
 
 
 class ItemAPI(RecommendationAPI):

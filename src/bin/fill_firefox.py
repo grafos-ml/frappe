@@ -139,7 +139,7 @@ os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from django.utils.timezone import utc
 from datetime import datetime
 from django.db import connection
-from firefox.models import Details
+from firefox.models import ItemDetail
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre
 
@@ -224,7 +224,7 @@ def put_items(objects):
         print("New relations created ...")
 
     # Create details
-    details_in_db = [eid for eid in Details.objects.filter(external_id__in=items.keys()).values_list("external_id")]
+    details_in_db = [eid for eid in ItemDetail.objects.filter(external_id__in=items.keys()).values_list("external_id")]
     details_to_enter = [external_id for external_id in items.keys() if external_id not in details_in_db]
     items_with_no_detail = {
         eid: iid for eid, iid in Item.objects.filter(external_id__in=details_to_enter).values_list("external_id", "id")

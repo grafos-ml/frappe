@@ -66,11 +66,10 @@ class SimpleLogReRanker(object):
         :return: A new set of recommendations ready to fill every item need for the user.
         :rtype: A list of items ids(int).
         """
-        mapped_items = {}
         owned_items = [item["pk"] for item in user.owned_items.values("pk")]
         # Push the installed app to the back. This is needed because this algorithm rearrange rank values
-        for item_id in owned_items:
-            mapped_items[item_id] = float("inf"), 1  # For already installed apps the stronger push down variables.
+        # For already installed apps the stronger push down variables.
+        mapped_items = {item_id: (float("inf"), 1) for item_id in owned_items}
 
         # Lets start by making a proper query that receive a list of tuples with:
         # (item id, type of log, sum(values), count, count_type)... This should be enough to a good re-ranker

@@ -14,7 +14,7 @@ from django.db import models
 from recommendation.models import Item
 
 
-class Details(Item):
+class ItemDetail(Item):
     """
     Some item Details for the FireFox apps to use th recommendation
     """

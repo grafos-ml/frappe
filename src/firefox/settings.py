@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     "recommendation",
     "recommendation.records",
     "recommendation.diversity",
+    "recommendation.language"
     "recommendation.api",
     "firefox",
     "firefox.api",
@@ -154,7 +155,7 @@ RECOMMENDATION_SETTINGS = {
     "default": {
         "core": ("recommendation.core", "Recommender"),
         "filters": [
-
+            ("recommendation.language.filters", "SimpleLocaleFilter"),
         ],
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called
