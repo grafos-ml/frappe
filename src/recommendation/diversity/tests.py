@@ -5,9 +5,9 @@ Test package for the diversification in general.
 
 __author__ = 'joaonrb'
 
-from ffos.recommender.diversification import BinomialDiversity, TurboBinomialDiversity
-from ffos.models import FFOSApp, FFOSUser
-from ffos.recommender.controller import SimpleController
+from recommendation.diversity.rerankers import BinomialDiversity, TurboBinomialDiversity
+from recommendation.models import User
+from recommendation.core import Recommender
 
 
 class DummyDiversity(BinomialDiversity):
@@ -32,13 +32,13 @@ class DummyDiversity(BinomialDiversity):
         """
         constant = 100
         i0 = 0
-        categories = [(i, self.A) for i in xrange(i0, i0+int(constant*self.P_A))]
+        categories = [(i, self.A) for i in range(i0, i0+int(constant*self.P_A))]
 
         i0 += int(constant*self.P_A)
-        categories += [(i, self.B) for i in xrange(i0, i0+int(constant*self.P_B))]
+        categories += [(i, self.B) for i in range(i0, i0+int(constant*self.P_B))]
 
         i0 += int(constant*self.P_B)
-        categories += [(i, self.C) for i in xrange(i0, i0+int(constant*self.P_C))]
+        categories += [(i, self.C) for i in range(i0, i0+int(constant*self.P_C))]
 
         assert len(categories) == constant, "Categories does not have %d elements" % constant
 
@@ -77,13 +77,13 @@ class TurboDummy(TurboBinomialDiversity):
         """
         constant = 100
         i0 = 0
-        categories = [(i, self.A) for i in xrange(i0, i0+int(constant*self.P_A))]
+        categories = [(i, self.A) for i in range(i0, i0+int(constant*self.P_A))]
 
         i0 += int(constant*self.P_A)
-        categories += [(i, self.B) for i in xrange(i0, i0+int(constant*self.P_B))]
+        categories += [(i, self.B) for i in range(i0, i0+int(constant*self.P_B))]
 
         i0 += int(constant*self.P_B)
-        categories += [(i, self.C) for i in xrange(i0, i0+int(constant*self.P_C))]
+        categories += [(i, self.C) for i in range(i0, i0+int(constant*self.P_C))]
 
         assert len(categories) == constant, "Categories does not have %d elements" % constant
 
@@ -115,13 +115,13 @@ class TestDiversity(object):
         """
         Setup the test for the diversity module
         """
-        cls.controller = SimpleController()
-        cls.user = FFOSUser.objects.order_by("?")[0]
+        cls.controller = Recommender()
+        cls.user = User.objects.order_by("?")[0]
         cls.original_recommendation = cls.controller.get_app_significance_list(
             user=cls.user, u_matrix=cls.controller.get_user_matrix(), a_matrix=cls.controller.get_apps_matrix())
         cls.original_recommendation_ids = \
             [item_id for item_id, _ in
-             sorted(enumerate(cls.original_recommendation.tolist()), cmp=lambda x, y: cmp(y[1], x[1]))]
+             sorted(enumerate(cls.original_recommendation.tolist()), key=lambda x: x[1], reverse=True)]
         cls.diversity = BinomialDiversity(cls.original_recommendation_ids, 4)
         cls.dummy_diversity = DummyDiversity()
         cls.turbo_dummy = TurboDummy()
