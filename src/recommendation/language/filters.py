@@ -26,14 +26,11 @@ class SimpleLocaleFilter(object):
         :return: A new set of recommendations ready to fill every item need for the user.
         :rtype: A list of items ids(int).
         """
-        if size:
-            size *= 5
         user_languages = (lang for lang, in user.required_locales.all().values_list("language_code"))
         items_not_supported = Item.objects.exclude(available_locales__language_code__in=user_languages)
 
         # To shorten the processor working time
-        valid_items = \
-            [i for i, _ in sorted(enumerate(early_recommendation), key=lambda x: x[1], reverse=True)][:size]
+        valid_items = [i for i, _ in sorted(enumerate(early_recommendation), key=lambda x: x[1], reverse=True)]
         for item_id, in items_not_supported.filter(id__in=valid_items).values_list("id"):
             early_recommendation[item_id] = float("-inf")
         return early_recommendation

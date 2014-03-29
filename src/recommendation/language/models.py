@@ -38,3 +38,6 @@ class Locale(models.Model):
         self.language_code = self.language_code.lower()
         self.country_code = self.country_code.lower()
         super(Locale, self).save(*args, **kwargs)
+
+from django.contrib import admin
+admin.site.register([Locale])

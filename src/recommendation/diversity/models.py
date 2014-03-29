@@ -28,3 +28,6 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+
+from django.contrib import admin
+admin.site.register([Genre])

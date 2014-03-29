@@ -43,3 +43,6 @@ class ItemDetail(Item):
         Return this item url place
         """
         return self.slug_to_item_place(self.slug)
+
+from django.contrib import admin
+admin.site.register([ItemDetail])

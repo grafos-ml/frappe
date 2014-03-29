@@ -54,14 +54,11 @@ class BinomialDiversity(object):
         :type lambda_constant: float
         """
         genres = Genre.objects.filter(items__id__in=items).values_list("items__id", "name")
-        self.genre_by_item = {}
+        self.genre_by_item = {item: [] for item in items}
         self.genres = {}
         for item_id, genre in genres:
             self.genres[genre] = self.genres.get(genre, 0.) + 1.
-            try:
-                self.genre_by_item[item_id].append(genre)
-            except KeyError:
-                self.genre_by_item[item_id] = [genre]
+            self.genre_by_item[item_id].append(genre)
         self.number_items = len(items)
         self.recommendation_size = size
         self.lambda_constant = lambda_constant
