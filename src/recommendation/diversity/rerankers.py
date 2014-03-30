@@ -76,14 +76,13 @@ class BinomialDiversity(object):
         genres_in_recommendation = set(chain(*recommendation_genres))
         genres_out_recommendation = (genre for genre in self.genres if genre not in genres_in_recommendation)
 
+        result = 1.
         for name in genres_out_recommendation:
             p_get_genre = self.genres[name]/self.number_items
             probability_of_genre = binom.pmf(0, len(recommendation), p_get_genre) ** (1./len(self.genres))
-            try:
-                result *= probability_of_genre
-            except NameError:
-                result = probability_of_genre
-        return locals().get("result", 0.)
+            result *= probability_of_genre
+
+        return result
 
     def non_redundancy(self, recommendation):
         """
@@ -96,7 +95,7 @@ class BinomialDiversity(object):
         """
         recommendation_genres = (self.genre_by_item[item_id] for item_id in recommendation)
         genres_frequency = Counter(chain(*recommendation_genres)).items()
-
+        result = 1.
         for name, genre_count in genres_frequency:
             p_get_genre = self.genres[name]/self.number_items
             p_greater_0 = 1 - binom.pmf(0, len(recommendation), p_get_genre)
@@ -104,11 +103,9 @@ class BinomialDiversity(object):
                 sum((binom.pmf(i, len(recommendation), p_get_genre)
                     for i in range(genre_count, int(self.genres[name])+1)))
             probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(genres_frequency))
-            try:
-                result *= probability_non_redundancy
-            except NameError:
-                result = probability_non_redundancy
-        return locals().get("result", 0.)
+
+            result *= probability_non_redundancy
+        return result
 
     def diversity(self, recommendation):
         """
@@ -223,7 +220,9 @@ class TurboBinomialDiversity(BinomialDiversity):
         :rtype: float
         """
         if len(recommendation) == 0:
-            return 0.
+            return 1.
+
+        # Search in cached results
         cached_results = self.mapped_results
         for item in recommendation[:-1]:
             cached_results = cached_results[item]
@@ -234,6 +233,9 @@ class TurboBinomialDiversity(BinomialDiversity):
                 pass
         else:
             cached_results[recommendation[-1]] = {}
+
+        # Calculate new coverage value
+        result = 1.
         cached_results[recommendation[-1]]["cor"] = genres_out_recommendation = \
             [genre for genre in cached_results.get("cor", list(self.genres.keys()))
              if genre not in self.genre_by_item[recommendation[-1]]]
@@ -245,16 +247,11 @@ class TurboBinomialDiversity(BinomialDiversity):
                 self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] = \
                     binom.pmf(0, len(recommendation), p_get_genre)
                 probability_of_genre = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
-            try:
-                result *= (probability_of_genre ** (1./len(self.genres)))
-            except NameError:
-                result = probability_of_genre ** (1./len(self.genres))
 
-        try:
-            cached_results[recommendation[-1]]["coverage"] = locals().get("result", 0.)
-        except KeyError:
-            cached_results[recommendation[-1]] = {"coverage": locals().get("result", 0.)}
-        return locals().get("result", 0.)
+            result *= (probability_of_genre ** (1./len(self.genres)))
+
+        cached_results[recommendation[-1]]["coverage"] = result
+        return result
 
     def non_redundancy(self, recommendation):
         """
@@ -266,7 +263,9 @@ class TurboBinomialDiversity(BinomialDiversity):
         :rtype: float
         """
         if len(recommendation) == 0:
-            return 0.
+            return 1.
+
+        # Search in cached results
         cached_results = self.mapped_results
         for item in recommendation[:-1]:
             cached_results = cached_results[item]
@@ -278,9 +277,11 @@ class TurboBinomialDiversity(BinomialDiversity):
         else:
             cached_results[recommendation[-1]] = {}
 
+        # Calculate new non-redundancy value
         cached_results[recommendation[-1]]["cf"] = genre_frequency = \
             (cached_results.get("cf", Counter()) + Counter(self.genre_by_item[recommendation[-1]]))
 
+        result = 1.
         for name, genre_count in genre_frequency.items():
             p_get_genre = self.genres[name]/self.number_items
 
@@ -297,18 +298,12 @@ class TurboBinomialDiversity(BinomialDiversity):
                 try:
                     p_equal_i = self.mapped_results["P"]["p(%s=%d)N=%d" % (name, i, len(recommendation))]
                 except KeyError:
-                    p_equal_i = binom.pmf(i if i < len(recommendation) else len(recommendation), len(recommendation),
-                                          p_get_genre)
+                    p_equal_i = binom.pmf(i, len(recommendation), p_get_genre)
                     self.mapped_results["P"]["p(%s=%d)N=%d" % (name, i, len(recommendation))] = p_equal_i
                 p_greater_0_and_greater_k += p_equal_i
-            probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(genre_frequency))
-            try:
-                result *= probability_non_redundancy
-            except NameError:
-                result = probability_non_redundancy
+            probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0)
 
-        try:
-            cached_results[recommendation[-1]]["non redundancy"] = locals().get("result", 0.)
-        except KeyError:
-            cached_results[recommendation[-1]] = {"non redundancy": locals().get("result", 0.)}
-        return locals().get("result", 0.)
+            result *= (probability_non_redundancy ** (1./len(genre_frequency)))
+
+        cached_results[recommendation[-1]]["non redundancy"] = result
+        return cached_results[recommendation[-1]]["non redundancy"]
