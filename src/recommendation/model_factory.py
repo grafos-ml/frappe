@@ -8,7 +8,6 @@
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 
 """
-from operator import itemgetter
 
 __author__ = "joaonrb"
 
@@ -20,7 +19,6 @@ import subprocess
 import recommendation
 from pkg_resources import resource_filename
 import shutil
-from math import log
 from django.db.models import Count
 
 USER = "user"

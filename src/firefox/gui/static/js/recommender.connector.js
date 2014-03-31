@@ -74,20 +74,20 @@ function loadInstalledApps(user) {
         var items = [];
         $.each(data.items, function(index) {
             $.getJSON("/api/v2/item/"+data.items[index].external_id+".json?user="+user, function(elem_data) {
-                if(data.items[index].removed_date == null) {
+                if(data.items[index].dropped_date === null) {
                     elem_data.installation_date = data.items[index].acquisition_date;
                     elem_data.install_or_remove = "minus";
                     elem_data.install_or_remove_color = "danger";
                     elem_data.action = "item_remove('"+user+"','"+elem_data.external_id+"');";
                     items.push(elem_data);
-                    if(data.items.length == index+1) {
-                        window.setTimeout(function () {
-                            var html = appContainer({"apps": items});
-                            $("#installedApps").html(html);
-                            loadLargeIcons();
-                            new Paginator('#installedApps','#installedPager');
-                        }, 500);
-                    }
+                }
+                if(data.items.length == index+1) {
+                    window.setTimeout(function () {
+                        var html = appContainer({"apps": items});
+                        $("#installedApps").html(html);
+                        loadLargeIcons();
+                        new Paginator('#installedApps','#installedPager');
+                    }, 500);
                 }
             });
         });

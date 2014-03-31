@@ -21,6 +21,12 @@ import base64
 import numpy as np
 from recommendation.model_factory import JavaTensorCoFi, Popularity
 from django.utils.six import with_metaclass
+import sys
+if sys.version_info >= (3, 0):
+    basestring = unicode = str
+else:
+    def bytes(string, *args, **kwargs):
+        return str(string)
 
 
 class Matrix(with_metaclass(models.SubfieldBase, models.TextField)):
@@ -34,6 +40,8 @@ class Matrix(with_metaclass(models.SubfieldBase, models.TextField)):
     description = """Matrix for tensor controller to find nice app suggestions"""
     __metaclass__ = models.SubfieldBase
 
+    DECODE_MATRIX = lambda self, x: (base64.decodebytes if sys.version_info >= (3, 0) else base64.decodestring)(x)
+
     def to_python(self, value):
         """
         Convert the value from the database to python like object
@@ -43,9 +51,9 @@ class Matrix(with_metaclass(models.SubfieldBase, models.TextField)):
         :return: A numpy matrix
         :rtype: numpy.Array
         """
-        if isinstance(value, str):
+        if isinstance(value, basestring):
             prep = bytes(value, "utf-8")
-            return np.fromstring(base64.decodebytes(prep), dtype=np.float64)
+            return np.fromstring(self.DECODE_MATRIX(prep), dtype=np.float64)
         return value
 
     def get_prep_value(self, value):
@@ -68,15 +76,17 @@ class Recommendation(with_metaclass(models.SubfieldBase, models.TextField)):
 
     __metaclass__ = models.SubfieldBase
 
+    DECODE_MATRIX = lambda self, x: (base64.decodebytes if sys.version_info >= (3, 0) else base64.decodestring)(x)
+
     def to_python(self, value):
         """
         Convert the string from the database to a python like object
 
         :param value: string of a list for a recommendation
         """
-        if isinstance(value, str):
+        if isinstance(value, basestring):
             prep = bytes(value, "utf-8")
-            return np.fromstring(base64.decodebytes(prep), dtype=np.float64)
+            return np.fromstring(self.DECODE_MATRIX(prep), dtype=np.float64)
         return value
 
     def get_prep_value(self, value):

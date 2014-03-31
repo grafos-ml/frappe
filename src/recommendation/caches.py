@@ -12,6 +12,9 @@ from django.shortcuts import get_object_or_404
 from django.core.cache import cache
 from recommendation.models import User
 import functools
+import sys
+if sys.version_info >= (3, 0):
+    basestring = unicode = str
 
 
 class CacheUser(object):
@@ -28,7 +31,7 @@ class CacheUser(object):
         @functools.wraps(function)
         def decorated(*args, **kwargs):
             u_id = kwargs['user']
-            if isinstance(u_id, str):
+            if isinstance(u_id, basestring):
                 user = cache.get(CacheUser.USER % u_id)
                 if not user:
                     user = get_object_or_404(User.objects.select_related(), external_id=u_id)
@@ -52,7 +55,7 @@ class CacheApp(object):
         @functools.wraps(function)
         def decorated(*args, **kwargs):
             a_id = kwargs["item"]
-            if isinstance(a_id, str):
+            if isinstance(a_id, basestring):
                 app = cache.get(CacheApp.App % a_id)
                 if not app:
                     app = get_object_or_404(User, external_id=a_id)
