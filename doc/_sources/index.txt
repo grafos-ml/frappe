@@ -13,8 +13,8 @@ Download
 
 Check the repository here. What? It doesn't point to any place? Whats the point with that!?
 
-Documentation
--------------
+API Documentation
+-----------------
 
 .. toctree::
    :maxdepth: 2
@@ -93,13 +93,9 @@ have to register the diversity first and the logging after.
         ...
    )
 
+Now you have a awesome recommendation system.
 
-Practical Application (For FireFox eyes only)
----------------------------------------------
+REST API Installation
+_____________________
 
-.. toctree::
-   :maxdepth: 2
-
-   firefox
-   firefox.rest.api
 
