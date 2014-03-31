@@ -27,8 +27,8 @@ class SimpleLocaleFilter(object):
         :rtype: A list of items ids(int).
         """
         user_languages = (lang for lang, in user.required_locales.all().values_list("language_code"))
-        items_not_supported = Item.objects.exclude(available_locales__language_code__in=user_languages)
-
+        items_with_language = Item.objects.filter(available_locales__isnull=False)
+        items_not_supported = items_with_language.exclude(available_locales__language_code__in=user_languages)
         # To shorten the processor working time
         valid_items = [i for i, _ in sorted(enumerate(early_recommendation), key=lambda x: x[1], reverse=True)]
         for item_id, in items_not_supported.filter(id__in=valid_items).values_list("id"):
