@@ -96,8 +96,6 @@ class SimpleLogReRanker(object):
             try:
                 mean = sum_value/count
                 #new_rank = (number_of_apps / mean) ** count
-
-                print(rank, mean, count, size)
                 new_rank = \
                     self._rank_calculator(rank, mean, count, size if mean+1 < size else (mean+1.5))
             except ZeroDivisionError:

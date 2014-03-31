@@ -155,12 +155,13 @@ RECOMMENDATION_SETTINGS = {
     "default": {
         "core": ("recommendation.core", "Recommender"),
         "filters": [
+            ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
             ("recommendation.language.filters", "SimpleLocaleFilter"),
         ],
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called
-            ("recommendation.records.rerankers", "SimpleLogReRanker"),
-            ("recommendation.diversity.rerankers", "DiversityReRanker")
+            #("recommendation.records.rerankers", "SimpleLogReRanker"),
+            #("recommendation.diversity.rerankers", "DiversityReRanker")
         ]
     }
 }

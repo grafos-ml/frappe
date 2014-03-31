@@ -32,5 +32,5 @@ class SimpleLocaleFilter(object):
         # To shorten the processor working time
         valid_items = [i for i, _ in sorted(enumerate(early_recommendation), key=lambda x: x[1], reverse=True)]
         for item_id, in items_not_supported.filter(id__in=valid_items).values_list("id"):
-            early_recommendation[item_id] = float("-inf")
+            early_recommendation[item_id-1] = float("-inf")
         return early_recommendation
