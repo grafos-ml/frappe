@@ -237,15 +237,7 @@ Response:
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
-| icon           | URL           | The URL for the 64x64 icon.               |
-|                |               |                                           |
-+----------------+---------------+-------------------------------------------+
-|                |               |                                           |
-| icon_small     | URL           | The URL for the 16x16 icon.               |
-|                |               |                                           |
-+----------------+---------------+-------------------------------------------+
-|                |               |                                           |
-| icon_large     | URL           | The URL for the 128x128 icon.             |
+| details        | URL           | The URL for app details.                  |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
@@ -257,12 +249,10 @@ Response:
 Example::
 
     {
-        name: "Urban Dictionary",
-        external_id: 462103,
-        icon_small: "https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-32.png?modified=1377861637",
-        icon_large: "https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-128.png?modified=1377861637",
-        store: "/api/v2/click/anonymous/462103/",
-        icon: "https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-64.png?modified=1377861637"
+        external_id: "457282",
+        name: "Kronometro Vulpa",
+        store: "/api/v2/recommended/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/457282/?rank=4",
+        details: "https://marketplace.firefox.com/api/v1/apps/app/457282/"
     }
 
 
@@ -344,12 +334,12 @@ Installed Apps:
 |                   |               |                                           |
 +-------------------+---------------+-------------------------------------------+
 |                   |               |                                           |
-| installation_date | DateTime      | The installation date with the format:    |
+| acquisition_date  | DateTime      | The installation date with the format:    |
 |                   |               | YYYY-MM-DDTHH:MM:SSZ                      |
 |                   |               |                                           |
 +-------------------+---------------+-------------------------------------------+
 |                   |               |                                           |
-| removed_date      | DateTime      | The installation date with the format:    |
+| dropped_date      | DateTime      | The installation date with the format:    |
 |                   |               | YYYY-MM-DDTHH:MM:SSZ. May be Null.        |
 |                   |               |                                           |
 +-------------------+---------------+-------------------------------------------+
@@ -358,14 +348,14 @@ Installed Apps:
 Example::
 
     {
-        user: "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173",
-        applications: [
+        items: [
             {
-            installation_date: "2013-04-02T18:47:58Z",
-            removed_date: null,
-            external_id: 413346
+                acquisition_date: "2013-04-02T18:47:58Z",
+                external_id: 413346,
+                dropped_date: null
             }
-           ]
+        ],
+        user: "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173"
     }
 
 
@@ -420,6 +410,141 @@ This method is used to drop/remove a new item/application from a user inventory.
 +================+===============+===========================================+
 |                |               |                                           |
 | item_to_remove | String        | The item external id.                     |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+Response:
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| status         | Number        | The response status.                      |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| message        | Text          | Some message with information.            |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+
+Example::
+
+    {
+        "status": 200,
+        "message": "done"
+    }
+
+User API
+--------
+
+This API implements a way to list the users in system and create a new user.
+
+.. note::
+
+    All the *unsafe* HTTP methods require a crsf token. But in this case and since the API is not supposed to contact
+    with public we will disable this functionality.
+
+
+*URL*::
+
+    http://domain.com/api/v2/users.<format>
+    http://domain.com/api/v2/users/<format>/
+    http://domain.com/api/v2/users/  # Default format is JSON
+
+GET Request
++++++++++++
+
+The request *may* have a set of extra GET parameters.
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| Request        | Object        | User information.                         |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| offset         | Number        | The number of users to drop before        |
+|                |               | deliver in response.                      |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| users          | Number        | The number of users to be delivered in    |
+|                |               | the response.                             |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+Example::
+
+    http://domain.com/api/v2/users.json?offset=10&users=30
+    http://domain.com/api/v2/users/xml/
+
+
+
+Response:
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| response       | List          | A list of users apps.                     |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+User:
+
++-------------------+---------------+-------------------------------------------+
+|                   |               |                                           |
+| Parameter Name    | Type          | Description                               |
+|                   |               |                                           |
++===================+===============+===========================================+
+|                   |               |                                           |
+| external_id       | String        | The user external id.                     |
+|                   |               |                                           |
++-------------------+---------------+-------------------------------------------+
+|                   |               |                                           |
+| id                | Integer       | The user internal id                      |
+|                   |               |                                           |
++-------------------+---------------+-------------------------------------------+
+
+
+Example::
+
+    [
+        {
+            external_id: "00bff6c3e52abf68501dcd4b9882a76327f6182cf760d33463531bacdd52c53b",
+            id: 11
+        },
+        {
+            external_id: "00360cca7ccdb1464cca0e42cef52753698295b4c148f86d2fa74431001477a8",
+            id: 12
+        },
+        {
+            external_id: "0000389d24eb79b0970d3baccaff7736fd2aebc7eee5d0615779a2d3dd5824aa",
+            id: 13
+        }
+    ]
+
+
+POST Request
+++++++++++++
+
+This method is used to create a new user in system. It still need a Post parameter.
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| external_id    | String        | The user external id.                     |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 

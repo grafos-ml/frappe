@@ -230,11 +230,13 @@ class UsersAPI(RecommendationAPI):
         """
         Return a list of users
         """
-        starting = int(request.GET.get("starting", 0))
         offset = int(request.GET.get("offset", 0))
+        number_of_users = int(request.GET.get("users", 0))
         users = User.objects.all()
         ordered_users = users.order_by("id")
-        users_list = ordered_users.values_list("id", "external_id")[starting:(starting+offset) if offset else None]
+        users_list = \
+            ordered_users.values_list("id",
+                                      "external_id")[offset:(offset+number_of_users) if number_of_users else None]
         return self.format_response([{"external_id": eid, "id": iid} for iid, eid in users_list])
 
     def post(self, request):
