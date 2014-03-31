@@ -66,6 +66,7 @@ class SimpleLogReRanker(object):
         :return: A new set of recommendations ready to fill every item need for the user.
         :rtype: A list of items ids(int).
         """
+        size = size or len(early_recommendation)
         owned_items = [item["pk"] for item in user.owned_items.values("pk")]
         # Push the installed app to the back. This is needed because this algorithm rearrange rank values
         # For already installed apps the stronger push down variables.
@@ -95,6 +96,8 @@ class SimpleLogReRanker(object):
             try:
                 mean = sum_value/count
                 #new_rank = (number_of_apps / mean) ** count
+
+                print(rank, mean, count, size)
                 new_rank = \
                     self._rank_calculator(rank, mean, count, size if mean+1 < size else (mean+1.5))
             except ZeroDivisionError:

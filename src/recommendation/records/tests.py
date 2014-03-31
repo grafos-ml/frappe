@@ -38,14 +38,14 @@ class TestSimpleLogReRanker(object):
         cls.original_recommendation = \
             [aid+1 for aid, _ in sorted(enumerate(cls.original_recommendation.tolist()), key=lambda x: x[1],
                                         reverse=True)]
-        cls.controller.registerReranker(SimpleLogReRanker())
+        cls.controller.register_reranker(SimpleLogReRanker())
         cls.log_recommendations = [cls.controller.get_recommendation(user=cls.user, n=None) for _ in range(50)]
 
-    def test_installed_apps_are_off(self):
+    def test_owned_items_are_off(self):
         """
         [SimpleLogReRanker] Check if installed apps are pushed behind
         """
-        installed_app = list(self.user.installed_apps.all())
+        installed_app = list(self.user.owned_items.all())
         for recommendation in self.log_recommendations:
             assert all((app.pk in recommendation[0-len(installed_app):] for app in installed_app)), \
                 "Installed apps are note being pushed back"
