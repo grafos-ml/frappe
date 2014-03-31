@@ -109,7 +109,6 @@ STATIC_URL = "/static/"
 # Logging
 
 import logging
-import os
 from datetime import datetime
 
 FORMAT = "%(asctime)-15s: %(message)s"
