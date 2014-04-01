@@ -43,7 +43,7 @@ class GoToItem(AbstractGoToItem):
         :type source: str
         :return: A HTTP response to redirect to the store item page.
         """
-        rank = request.GET.get("rank", None)
+        rank = request.GET.get("rank", 1)  # Change because of the firefox system
         if (source not in self.source_types) or (not rank and source == self.RECOMMENDED):
             raise Http404
         user_external_id = user_external_id if user_external_id != self.ANONYMOUS else None

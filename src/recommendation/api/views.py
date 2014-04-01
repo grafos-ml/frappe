@@ -160,7 +160,7 @@ class AbstractGoToItem(APIView):
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
         query = \
-            ("INSERT INTO %(database)s.records_record (id, user_id, item_id, timestamp, value, type)"
+            ("INSERT INTO %(database)s.records_record (id, user_id, item_id, timestamp, value, type) "
              "VALUES (NULL, %(user)s, \"%(item)s\", NOW(), %(rank)s, %(type)s);") % \
             {
                 "database": settings.DATABASES["default"]["NAME"],
