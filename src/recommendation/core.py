@@ -114,10 +114,12 @@ class InterfaceController(object):
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
 
-        if user.pk-1 > u_matrix.shape[0]:#we have a new user, so lets construct factors for him:
-            apps_idx = [a.pk - 1 for a in user.items.all() if a.pk - 1 < a_matrix.shape[0]]
-            u_factors = self.online_user_factors(a_matrix, apps_idx)
-            np.squeeze(np.asarray((u_factors * a_matrix)))
+        if user.pk-1 > u_matrix.shape[0]:  # We have a new user, so lets construct factors for him:
+            apps_idx = [a.pk - 1 for a in user.items.all() if a.pk - 1 < a_matrix.shape[1]]
+            if len(apps_idx) < 3:
+                raise ValueError
+            u_factors = self.online_user_factors(a_matrix.transpose(), apps_idx)
+            return np.squeeze(np.asarray((u_factors * a_matrix)))
         else:
             return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] * a_matrix)))
 
@@ -143,7 +145,8 @@ class InterfaceController(object):
         try:
             result = self.get_app_significance_list(user=user, u_matrix=self.get_user_matrix(),
                                                     a_matrix=self.get_apps_matrix())
-        except IndexError:
+        except ValueError:
+            print("POPULARITY")
             result = self.get_popularity()
         logging.debug("Matrix loaded or generated")
         for f in self.filters:
