@@ -80,6 +80,26 @@ class InterfaceController(object):
         :return: The matrix of apps.
         """
 
+    def online_user_factors(self, Y, user_item_ids, p_param = 10, lambda_param = 0.01):
+        """
+        :param Y: application matrix Y.shape = (#apps, #factors)
+        :param user_item_ids: the rows that correspond to installed applications in Y matrix
+        :param p_param: p parameter
+        :param lambda_param: regulerizer
+
+        >>> pyTF = PyTensorCoFi()
+        >>> Y = np.array([[-1.0920831, -0.01566422], [-0.8727925, 0.22307773], [0.8753245, -0.80181429], [-0.1338534, -0.51448172], [-0.2144651, -0.96081265]])
+        >>> user_items = [1,3,4]
+        >>> pyTF.online_user_factors(Y, user_items, p_param=10, lambda_param=0.01)
+        array([-1.18324547, -0.95040477])
+        """
+        y = Y[user_item_ids]
+        base1 = Y.transpose().dot(Y)
+        base2 = y.transpose().dot(np.diag([p_param - 1] * y.shape[0])).dot(y)
+        base = base1 + base2 + np.diag([lambda_param] * base1.shape[0])
+        u_factors = np.linalg.inv(base).dot(y.transpose()).dot(np.diag([p_param] * y.shape[0])).dot(np.ones(y.shape[0]).transpose())
+        return u_factors
+
     @CacheUser()
     def get_app_significance_list(self, user, u_matrix, a_matrix):
         """
@@ -93,7 +113,13 @@ class InterfaceController(object):
         """
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
-        return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] * a_matrix)))
+
+        if user.pk-1 > u_matrix.shape[0]:#we have a new user, so lets construct factors for him:
+            apps_idx = [a.pk - 1 for a in user.items.all()]
+            u_factors = self.online_user_factors(a_matrix, apps_idx)
+            np.squeeze(np.asarray((u_factors * a_matrix)))
+        else:
+            return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] * a_matrix)))
 
     @CacheMatrix()
     def get_popularity(self):
@@ -213,3 +239,7 @@ for engine, engine_settings in RECOMMENDATION_SETTINGS.items():
 
 # Set default Recommendation engine
 DEFAULT_RECOMMENDATION = RECOMMENDATION_ENGINES["default"]
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
