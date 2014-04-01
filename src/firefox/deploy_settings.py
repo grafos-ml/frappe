@@ -27,7 +27,6 @@ TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ["10.22.113.20"]
 
-
 # Application definition
 
 INSTALLED_APPS = (
