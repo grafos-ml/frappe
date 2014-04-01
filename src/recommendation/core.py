@@ -115,7 +115,7 @@ class InterfaceController(object):
         # previous user.
 
         if user.pk-1 > u_matrix.shape[0]:#we have a new user, so lets construct factors for him:
-            apps_idx = [a.pk - 1 for a in user.items.all()]
+            apps_idx = [a.pk - 1 for a in user.items.all() if a.pk - 1 < a_matrix.shape[0]]
             u_factors = self.online_user_factors(a_matrix, apps_idx)
             np.squeeze(np.asarray((u_factors * a_matrix)))
         else:
