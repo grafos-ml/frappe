@@ -25,7 +25,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ["10.22.113.20"]
+ALLOWED_HOSTS = ["localhost"]
 
 
 # Application definition
@@ -37,8 +37,8 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #"django_nose",
-    #"debug_toolbar",
+    "django_nose",
+    "debug_toolbar",
     "rest_framework",
     "templatetag_handlebars",
     "recommendation",
@@ -74,14 +74,18 @@ WSGI_APPLICATION = "firefox.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-
+import socket
+HOSTS = {
+    "gabriela": "172.16.51.128",
+}
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "recommender_v12",
-        "USER": "alpha2",
-        "PASSWORD": "pasteldenata"
+        "USER": "FFOS",
+        "PASSWORD": "pasteldenata",
+        "HOST": HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS else "localhost",
     }
 }
 
@@ -162,5 +166,3 @@ RECOMMENDATION_SETTINGS = {
         ]
     }
 }
-
-CORS_ORIGIN_ALLOW_ALL = True
