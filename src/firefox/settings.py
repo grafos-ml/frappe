@@ -78,8 +78,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "recommender_v12",
-        "USER": "alpha2",
-        "PASSWORD": "pasteldenata"
+        "USER": "FFOS",
+        "PASSWORD": "pasteldenata",
+        "HOST": "172.16.51.128"
     }
 }
 

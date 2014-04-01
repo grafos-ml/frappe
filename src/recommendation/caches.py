@@ -34,7 +34,11 @@ class CacheUser(object):
             if isinstance(u_id, basestring):
                 user = cache.get(CacheUser.USER % u_id)
                 if not user:
-                    user = get_object_or_404(User.objects.select_related(), external_id=u_id)
+                    try:
+                        user = User.objects.get(external_id=u_id)
+                    except Exception:
+                        user = User(external_id=u_id)
+                        user.save()
                     cache.set(CacheUser.USER % u_id, user)
                 kwargs['user'] = user
             return function(*args, **kwargs)
