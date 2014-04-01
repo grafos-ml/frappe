@@ -188,6 +188,13 @@ def put_items(objects):
         locales = set([])
         for locale in json_item.get("supported_locales", ()):
             locale = locale.lower()
+            try:
+                loc_code, coun_code = locale.split("-")
+                if len(coun_code) > 2:
+                    coun_code = ""
+            except ValueError:
+                loc_code, coun_code = locale.strip("-"), ""
+            locale = loc_code, coun_code
             locales.add(locale)
             object_locales.add(locale)
         items[external_id] = Item(external_id=external_id, name=name), genres, locales, (description, details, slug)
@@ -220,10 +227,7 @@ def put_items(objects):
     new_locales = []
     for locale in object_locales:
         if locale not in locales:
-            try:
-                language_code, country_code = locale.split("-")
-            except ValueError:
-                language_code, country_code = locale, ""
+            language_code, country_code = locale
             new_locale = Locale(language_code=language_code, country_code=country_code)
             new_locales.append(new_locale)
 
@@ -236,10 +240,8 @@ def put_items(objects):
     if new_items:
         relation = []
         for item_eid, item_id in new_items.items():
-
-            for genre in items[item_eid][1]:
+            for genre in items[int(item_eid)][1]:
                 relation.append("(%s, %s)" % (str(genres[genre].id), item_id))
-
         cursor.execute(BULK_QUERY % {
             "table": "diversity_genre_items",
             "columns": "(genre_id, item_id)",
@@ -248,11 +250,11 @@ def put_items(objects):
 
     # Create locale relations
     if new_locales:
-        locales = {str(locale): locale for locale in Locale.objects.all()}
+        locales = {(locale.language_code, locale.country_code): locale for locale in Locale.objects.all()}
         relations = []
         for item_eid, item_id in new_items.items():
 
-            for locale in items[item_eid][2]:
+            for locale in items[int(item_eid)][2]:
                 relations.append("(%s, %s)" % (str(locales[locale].id), item_id))
 
         cursor.execute(BULK_QUERY % {
@@ -271,10 +273,11 @@ def put_items(objects):
     for external_id in details_to_enter:
         description, url, slug = items[external_id][3]
         if description:
+            description = str(description)
             # description = bytes(description, "utf-8").decode("unicode_escape")
             description = description.replace('"', "'")
         url = bytes(url, "utf-8").decode("unicode_escape")
-        details.append('(%s, "%s", "%s", "%s")' % (str(items_with_no_detail[external_id]), description, url, slug))
+        details.append('(%s, "%s", "%s", "%s")' % (str(items_with_no_detail[str(external_id)]), description, url, slug))
     cursor.execute(BULK_QUERY % {
         "table": "firefox_itemdetail",
         "columns": "(item_ptr_id, description, url, slug)",
@@ -291,7 +294,7 @@ def put_users(objects):
     """
     print("Loading files into memory ...")
     new_users = []
-    inventory = []
+    inventory = {}
     user_locales = {}
     locales_to_enter = set([])
     users = set([])
@@ -302,8 +305,7 @@ def put_users(objects):
         users.add(external_id)
         for item in user["installed_apps"]:
             items.add(item["id"])
-            inventory.append((external_id, item["id"],
-                              datetime.strptime(item["installed"], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=utc)))
+            inventory[(external_id, item["id"])] = datetime.strptime(item["installed"], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=utc)
         # Import locales
         locales = user["lang"]
         if isinstance(locales, str):
@@ -314,6 +316,13 @@ def put_users(objects):
             locales = []
         for locale in locales:
             locale = locale.lower()
+            try:
+                l, c = locale.split("-")
+                if len(c) > 2:
+                    c = ""
+            except ValueError:
+                l, c = locale.strip("-"), ""
+            locale = l, c
             try:
                 user_locales[external_id].add(locale)
             except KeyError:
@@ -328,14 +337,11 @@ def put_users(objects):
     print("Users created ...")
 
     # Create locales
-    locales = [str(locale) for locale in Locale.objects.all()]
+    locales = [(locale.language_code, locale.country_code) for locale in Locale.objects.all()]
     new_locales = []
     for locale in locales_to_enter:
         if locale not in locales:
-            try:
-                language_code, country_code = locale.split("-")
-            except ValueError:
-                language_code, country_code = locale, ""
+            language_code, country_code = locale
             new_locale = Locale(language_code=language_code, country_code=country_code)
             new_locales.append(new_locale)
 
@@ -344,7 +350,7 @@ def put_users(objects):
     print("New locales created ...")
 
     # Create locale relations
-    locales = {str(locale): locale.id for locale in Locale.objects.all()}
+    locales = {(locale.language_code, locale.country_code): locale.id for locale in Locale.objects.all()}
     user_to_locales = User.objects.filter(external_id__in=user_locales).values_list("external_id", "id")
     bulk_locale_user = []
     for ueid, uid in user_to_locales:
@@ -360,19 +366,21 @@ def put_users(objects):
     print("New locale relations created ...")
 
     # Create inventory
-    database_items = Item.objects.filter(external_id__in=items).values_list("external_id", "id")
+    database_items = Item.objects.filter(external_id__in=[str(i) for i in items]).values_list("external_id", "id")
     items = {int(eid): iid for eid, iid in database_items}
     database_users = \
         User.objects.filter(external_id__in=[user.external_id for user in new_users]).values_list("external_id", "id")
     users = {eid: iid for eid, iid in database_users}
     users.update(users_in_db)
     inventory_to_enter = []
-    for uid, iid, date in inventory:
+    for (uid, iid), date in inventory.items():
         try:
-            inventory_to_enter.append(Inventory(user_id=users[uid], item_id=items[iid], acquisition_date=date))
+            inventory_to_enter.append(Inventory(user_id=users[uid], item_id=items[int(iid)], acquisition_date=date))
         except KeyError:
             print(" - Item with external id %d doesn't exist" % iid)
-
+        if len(inventory_to_enter) > 1000:
+            Inventory.objects.bulk_create(inventory_to_enter)
+            inventory_to_enter = []
     Inventory.objects.bulk_create(inventory_to_enter)
     print("Inventory created ...")
 

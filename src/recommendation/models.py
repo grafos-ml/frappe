@@ -156,7 +156,7 @@ class Inventory(models.Model):
 
     def __str__(self):
         return _("%(state)s %(item)s item for user %(user)s") % {
-            "state": _("dropped") if self.removed_date else _("owned"), "item": self.item.name,
+            "state": _("dropped") if self.dropped_date else _("owned"), "item": self.item.name,
             "user": self.user.external_id}
 
 
