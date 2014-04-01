@@ -48,7 +48,8 @@ INSTALLED_APPS = (
     "recommendation.api",
     "firefox",
     "firefox.api",
-    "firefox.gui"
+    "firefox.gui",
+    "corsheaders"
 )
 
 MIDDLEWARE_CLASSES = (
@@ -60,6 +61,7 @@ MIDDLEWARE_CLASSES = (
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.transaction.TransactionMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     #"django.middleware.cache.FetchFromCacheMiddleware",
     #"debug_toolbar.middleware.DebugToolbarMiddleware",
 )
@@ -78,9 +80,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "recommender_v12",
-        "USER": "FFOS",
-        "PASSWORD": "pasteldenata",
-        "HOST": "172.16.51.128"
+        "USER": "alpha2",
+        "PASSWORD": "pasteldenata"
     }
 }
 
@@ -161,3 +162,5 @@ RECOMMENDATION_SETTINGS = {
         ]
     }
 }
+
+CORS_ORIGIN_ALLOW_ALL = True

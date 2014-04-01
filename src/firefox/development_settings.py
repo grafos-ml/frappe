@@ -25,7 +25,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ["10.22.113.20"]
+ALLOWED_HOSTS = ["localhost"]
 
 
 # Application definition
@@ -37,8 +37,8 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #"django_nose",
-    #"debug_toolbar",
+    "django_nose",
+    "debug_toolbar",
     "rest_framework",
     "templatetag_handlebars",
     "recommendation",
@@ -48,7 +48,8 @@ INSTALLED_APPS = (
     "recommendation.api",
     "firefox",
     "firefox.api",
-    "firefox.gui"
+    "firefox.gui",
+    "corsheaders"
 )
 
 MIDDLEWARE_CLASSES = (
@@ -60,6 +61,7 @@ MIDDLEWARE_CLASSES = (
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.transaction.TransactionMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     #"django.middleware.cache.FetchFromCacheMiddleware",
     #"debug_toolbar.middleware.DebugToolbarMiddleware",
 )
@@ -72,7 +74,10 @@ WSGI_APPLICATION = "firefox.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-
+import socket
+HOSTS = {
+    "gabriela": "172.16.51.128",
+}
 
 DATABASES = {
     "default": {
@@ -80,7 +85,7 @@ DATABASES = {
         "NAME": "recommender_v12",
         "USER": "FFOS",
         "PASSWORD": "pasteldenata",
-        "HOST": "172.16.51.128"
+        "HOST": HOSTS[socket.gethostname()] if socket.gethostname() in HOSTS else "localhost",
     }
 }
 

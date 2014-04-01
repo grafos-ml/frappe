@@ -372,7 +372,7 @@ class UserItemsAPI(RecommendationAPI):
         :return: A success response if the input was successful =p
         """
         try:
-            item_id = request.POST["item_to_acquire"]
+            item_id = request.DATA["item_to_acquire"]
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
