@@ -177,7 +177,6 @@ class SimpleDiversity(BinomialDiversity):
             self.counter[genre] = self.p_genre(self.genres[genre], self.user_genres.get(genre, 0.), self.number_items,
                                                self.user_items_count) * size
             self.counter[genre] = int(self.counter[genre])
-        print(self.counter)
 
     def __call__(self, recommendation, item):
         recommendation = recommendation[:]
