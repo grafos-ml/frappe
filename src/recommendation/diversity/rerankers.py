@@ -63,12 +63,12 @@ class BinomialDiversity(object):
         self.number_items = len(items)
         self.recommendation_size = size
         self.lambda_constant = lambda_constant
-        self.alpha_constant = alpha_constant
         user_genres = Genre.objects.filter(items__in=user.owned_items.all()).values_list("items__id", "name")
         self.user_genres = {}
         for iid, genre in user_genres:
             self.user_genres[genre] = self.user_genres.get(genre, 1) + 1
         self.user_items_count = user.owned_items.all().count()
+        self.alpha_constant = alpha_constant if self.user_items_count > 2 else 0.
 
     def p_genre(self, global_count, local_count, total_items, user_items):
         pg = global_count / total_items
@@ -177,6 +177,7 @@ class SimpleDiversity(BinomialDiversity):
             self.counter[genre] = self.p_genre(self.genres[genre], self.user_genres.get(genre, 0.), self.number_items,
                                                self.user_items_count) * size
             self.counter[genre] = int(self.counter[genre])
+        print(self.counter)
 
     def __call__(self, recommendation, item):
         recommendation = recommendation[:]
