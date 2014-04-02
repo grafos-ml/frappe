@@ -14,6 +14,7 @@ from scipy.stats import binom
 from collections import Counter
 from itertools import chain
 from recommendation.diversity.models import Genre
+import math
 
 
 def normalize(value, mean_value, var):
@@ -42,7 +43,7 @@ class BinomialDiversity(object):
     recommendation_size = None
     number_items = None
 
-    def __init__(self, items, size, lambda_constant=0.5):
+    def __init__(self, items, size, user, alpha_constant=1., lambda_constant=0.5):
         """
         Constructor
 
@@ -62,6 +63,20 @@ class BinomialDiversity(object):
         self.number_items = len(items)
         self.recommendation_size = size
         self.lambda_constant = lambda_constant
+        self.alpha_constant = alpha_constant
+        user_genres = Genre.objects.filter(items__in=user.owned_items.all()).values_list("items__id", "name")
+        self.user_genres = {}
+        for iid, genre in user_genres:
+            self.user_genres[genre] = self.user_genres.get(genre, 1) + 1
+        self.user_items_count = user.owned_items.all().count()
+
+    def p_genre(self, global_count, local_count, total_items, user_items):
+        pg = global_count / total_items
+        try:
+            pl = local_count / user_items
+        except ZeroDivisionError:
+            pl = 0.
+        return self.alpha_constant * pl + (1. - self.alpha_constant) * pg
 
     def coverage(self, recommendation):
         """
@@ -78,7 +93,9 @@ class BinomialDiversity(object):
 
         result = 1.
         for name in genres_out_recommendation:
-            p_get_genre = self.genres[name]/self.number_items
+            p_get_genre = self.p_genre(self.genres[name], self.user_genres.get(name, 0.), self.number_items,
+                                       self.user_items_count)
+            assert 0 <= p_get_genre <= 1, "Probability of genre doesn't make sense in coverage (%f)" % p_get_genre
             probability_of_genre = binom.pmf(0, len(recommendation), p_get_genre) ** (1./len(self.genres))
             result *= probability_of_genre
 
@@ -97,11 +114,15 @@ class BinomialDiversity(object):
         genres_frequency = Counter(chain(*recommendation_genres)).items()
         result = 1.
         for name, genre_count in genres_frequency:
-            p_get_genre = self.genres[name]/self.number_items
+            p_get_genre = self.p_genre(self.genres[name], self.user_genres.get(name, 0.), self.number_items,
+                                       self.user_items_count)
+            assert 0 <= p_get_genre <= 1, "Probability of genre doesn't make sense in non-redundancy (%f)" % p_get_genre
             p_greater_0 = 1 - binom.pmf(0, len(recommendation), p_get_genre)
-            p_greater_0_and_greater_k = \
-                sum((binom.pmf(i, len(recommendation), p_get_genre)
-                    for i in range(genre_count, int(self.genres[name])+1)))
+            #p_greater_0_and_greater_k = \
+            #    sum((binom.pmf(i, len(recommendation), p_get_genre)
+            #        for i in range(genre_count, int(self.genres[name])+1)))
+            p_greater_0_and_greater_k = binom.cdf(int(self.genres[name])+1, len(recommendation), p_get_genre) - \
+                binom.cdf(genre_count, len(recommendation), p_get_genre)
             probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(genres_frequency))
 
             result *= probability_non_redundancy
@@ -139,7 +160,36 @@ class BinomialDiversity(object):
         # Assume that the mean is 0 (it have the same probability of improving and of getting worse). The variance of
         # 0.25 is a guess that the improvement never goes beyond imagination(:s)
         normalized_div = normalize(div, 0., 0.25)
+        #print("normalized score =", normalized_rank)
+        #print("normalized div =", normalized_div)
+        #print("items genres =", item)
         return (1.-self.lambda_constant)*normalized_rank + self.lambda_constant*normalized_div
+
+
+class SimpleDiversity(BinomialDiversity):
+
+    def __init__(self, items, size, user, alpha_constant=1., lambda_constant=0.5):
+        super(SimpleDiversity, self).__init__(items, size, user, alpha_constant=alpha_constant,
+                                              lambda_constant=lambda_constant)
+        genres = Genre.objects.all().values_list("name")
+        self.counter = {}
+        for genre, in genres:
+            self.counter[genre] = self.p_genre(self.genres[genre], self.user_genres.get(genre, 0.), self.number_items,
+                                               self.user_items_count) * size
+            self.counter[genre] = int(self.counter[genre])
+        print(self.counter)
+
+    def __call__(self, recommendation, item):
+        recommendation = recommendation[:]
+        genres = self.genre_by_item[item]
+        dropped = 0
+        for genre in genres:
+            self.counter[genre] -= 1
+            if self.counter[genre] < 0:
+                dropped += 1
+        if dropped < len(genres):
+            recommendation.append(item)
+        return recommendation
 
 
 class DiversityReRanker(object):
@@ -148,7 +198,7 @@ class DiversityReRanker(object):
      recommendation. It iterates this process until have a new recommendation.
     """
 
-    def __init__(self, lambda_constant=0.1):  # Set lambda lower to improve user tendencies
+    def __init__(self, alpha_constant=0.8, lambda_constant=1.):  # Set lambda lower to improve user tendencies
         """
         Constructor
 
@@ -157,6 +207,7 @@ class DiversityReRanker(object):
         :return:
         """
         self.lambda_constant = lambda_constant
+        self.alpha_constant = alpha_constant
 
     def __call__(self, user, recommendation, size, *args, **kwargs):
         """
@@ -170,9 +221,12 @@ class DiversityReRanker(object):
         :return: The re-ranked recommendation
         :rtype: list
         """
-        size_times = 4
-        diversity = TurboBinomialDiversity(recommendation[:size*size_times], size, self.lambda_constant)
+        size_times = 40
+        diversity = SimpleDiversity(recommendation, size, user, self.alpha_constant,
+                                    self.lambda_constant)
         new_recommendation = []
+        dropped_items = []
+        """
         recommendation_set = recommendation[:size*size_times]
         for _ in range(size):
             div_list = ((item, diversity(new_recommendation, (index, item)))
@@ -181,9 +235,19 @@ class DiversityReRanker(object):
             recommendation_set.remove(chosen_item)
             new_recommendation.append(chosen_item)
 
-        result = new_recommendation + recommendation_set + recommendation[size*size_times:]
-        assert len(result) == len(recommendation), "The result lost or gained elements"
+        result = new_recommendation #+ recommendation_set + recommendation[size*size_times:]
+        #assert len(result) == len(recommendation), "The result lost or gained elements"
         return result
+        """
+        for item in recommendation:
+            new_recommendation0 = diversity(new_recommendation, item)
+            if len(new_recommendation0) != len(new_recommendation) + 1:
+                dropped_items.append(item)
+            else:
+                new_recommendation = new_recommendation0
+            if len(new_recommendation) > size:
+                break
+        return new_recommendation + dropped_items + recommendation[size+len(dropped_items):]
 
 
 class TurboBinomialDiversity(BinomialDiversity):
@@ -194,7 +258,7 @@ class TurboBinomialDiversity(BinomialDiversity):
 
     mapped_results = None
 
-    def __init__(self, items, size, lambda_constant=0.5):
+    def __init__(self, items, size, user, alpha_constant=0.66, lambda_constant=0.5):
         """
         Constructor
 
@@ -205,7 +269,7 @@ class TurboBinomialDiversity(BinomialDiversity):
         :param lambda_constant: Lambda constant. Must be between 0 and 1.
         :type lambda_constant: float
         """
-        super(TurboBinomialDiversity, self).__init__(items, size, lambda_constant)
+        super(TurboBinomialDiversity, self).__init__(items, size, user, alpha_constant, lambda_constant)
         self.mapped_results = {
             "P": {}
         }

@@ -244,7 +244,7 @@ class UsersAPI(RecommendationAPI):
         creates a new user
         """
         try:
-            new_user_external_id = request.POST.get("external_id")
+            new_user_external_id = request.DATA.get("external_id")
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
         try:

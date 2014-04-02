@@ -23,7 +23,7 @@ class DummyDiversity(BinomialDiversity):
     P_B = 0.25
     P_C = 0.25
 
-    def __init__(self, lambda_constant=0.5):
+    def __init__(self, alpha_constant=0.5, lambda_constant=0.5):
         """
         Constructor
 
@@ -53,6 +53,7 @@ class DummyDiversity(BinomialDiversity):
         self.number_items = constant
         self.recommendation_size = 2
         self.lambda_constant = lambda_constant
+        self.alpha_constant = alpha_constant
 
 
 class TurboDummy(TurboBinomialDiversity):
@@ -68,7 +69,7 @@ class TurboDummy(TurboBinomialDiversity):
     P_B = 0.25
     P_C = 0.25
 
-    def __init__(self, lambda_constant=0.5):
+    def __init__(self, alpha_constant=0.5, lambda_constant=0.5):
         """
         Constructor
 
@@ -98,6 +99,7 @@ class TurboDummy(TurboBinomialDiversity):
         self.number_items = constant
         self.recommendation_size = 2
         self.lambda_constant = lambda_constant
+        self.alpha_constant = alpha_constant
         self.mapped_results = {
             "P": {}
         }
@@ -122,7 +124,7 @@ class TestDiversity(object):
         cls.original_recommendation_ids = \
             [item_id for item_id, _ in
              sorted(enumerate(cls.original_recommendation.tolist()), key=lambda x: x[1], reverse=True)]
-        cls.diversity = BinomialDiversity(cls.original_recommendation_ids, 4)
+        cls.diversity = BinomialDiversity(cls.original_recommendation_ids, 4, cls.user)
         cls.dummy_diversity = DummyDiversity()
         cls.turbo_dummy = TurboDummy()
 

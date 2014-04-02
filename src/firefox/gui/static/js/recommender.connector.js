@@ -95,7 +95,7 @@ function loadInstalledApps(user) {
 }
 
 function loadRecommendations(user) {
-    uri = "/api/v2/recommend/4/"+user+".json";
+    uri = "/api/v2/recommend/16/"+user+".json";
     $.getJSON(uri, function(data) {
         var items = [];
         $.each(data.recommendations, function(index) {
@@ -112,7 +112,7 @@ function loadRecommendations(user) {
                         var html = appContainer({"apps": items});
                         $("#recommendedApps").html(html);
                         loadLargeIcons();
-                    },1000);
+                    }, 1000);
                 }
             });
         });
