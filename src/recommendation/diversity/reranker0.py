@@ -247,7 +247,7 @@ class DiversityReRanker(object):
      recommendation. It iterates this process until have a new recommendation.
     """
 
-    def __init__(self, alpha_constant=1., lambda_constant=5.):  # Set lambda lower to improve user tendencies
+    def __init__(self, alpha_constant=0.9, lambda_constant=1.):  # Set lambda lower to improve user tendencies
         """
         Constructor
 

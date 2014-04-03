@@ -11,6 +11,7 @@ Created on Dec 5, 2013
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
 from recommendation.models import User
+from recommendation.language.models import Locale
 import functools
 import sys
 if sys.version_info >= (3, 0):
@@ -38,7 +39,9 @@ class CacheUser(object):
                         user = User.objects.get(external_id=u_id)
                     except Exception:
                         user = User(external_id=u_id)
+                        en = Locale.objects.get(language_code="en")
                         user.save()
+                        en.users.add(user)
                     cache.set(CacheUser.USER % u_id, user)
                 kwargs['user'] = user
             return function(*args, **kwargs)
