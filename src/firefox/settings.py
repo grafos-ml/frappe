@@ -37,8 +37,9 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #"django_nose",
+    "django_nose",
     #"debug_toolbar",
+    "django_coverage",
     "rest_framework",
     "templatetag_handlebars",
     "recommendation",
@@ -48,7 +49,7 @@ INSTALLED_APPS = (
     "recommendation.api",
     "firefox",
     "firefox.api",
-    "firefox.gui"
+    "firefox.gui",
 )
 
 MIDDLEWARE_CLASSES = (

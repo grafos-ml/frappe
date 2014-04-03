@@ -108,7 +108,6 @@ class SimpleDiversityReRanker(object):
         :return: The re-ranked recommendation
         :rtype: list
         """
-        size_times = 40
         diversity = SimpleDiversity(recommendation, size, user, self.alpha_constant, self.lambda_constant)
         new_recommendation = []
         dropped_items = []
