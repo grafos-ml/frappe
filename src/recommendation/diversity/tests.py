@@ -6,8 +6,6 @@ Test package for the diversification in general.
 __author__ = 'joaonrb'
 
 from recommendation.diversity.reranker0 import BinomialDiversity, TurboBinomialDiversity
-from recommendation.models import User
-from recommendation.core import Recommender
 
 
 class DummyDiversity(BinomialDiversity):
@@ -153,6 +151,8 @@ class TestDiversity(object):
         assert 0.825481 < cover_b_a < 0.825483, "The coverage [b, a] isn't 0.825482. Value=%f" % cover_b_a
         cover_a_a = self.dummy_diversity.coverage([1, 0])  # 1 a "a" item and 0 an "a" item
         assert 0.681419 < cover_a_a < 0.681421, "The coverage [a, a] isn't 0.681420. Value=%f" % cover_a_a
+        cover_ac_b = self.dummy_diversity.coverage([0, 75, 50])
+        assert 1. == cover_ac_b, "The coverage [a, c, b] isn't 1. Value=%f" % cover_ac_b
 
     def test_non_redundancy_dummy(self):
         """
@@ -162,6 +162,8 @@ class TestDiversity(object):
         assert 1. == non_red_b_a, "The non redundancy [b, a] isn't 1.0. Value=%f" % non_red_b_a
         non_red_a_a = self.dummy_diversity.non_redundancy([1, 0])  # 1 a "a" item and 0 an "a" item
         assert 0.333332 < non_red_a_a < 0.333334, "The non redundancy [a, a] isn't 0.333333. Value=%f" % non_red_a_a
+        non_red_ac_b = self.dummy_diversity.non_redundancy([0, 75, 50])
+        assert 1. == non_red_ac_b, "The non redundancy [a, c, b] isn't 1. Value=%f" % non_red_ac_b
 
     #def test_non_redundancy(self):
     #    """
@@ -181,6 +183,10 @@ class TestDiversity(object):
         self.turbo_dummy.coverage([1])  # Turbo algorithm needs to have information of the element previous
         cover_a_a = self.turbo_dummy.coverage([1, 0])  # 1 a "a" item and 0 an "a" item
         assert 0.681419 < cover_a_a < 0.681421, "The coverage [a, a] isn't 0.681420. Value=%f" % cover_a_a
+        self.turbo_dummy.coverage([0])
+        self.turbo_dummy.coverage([0, 75])
+        cover_ac_b = self.turbo_dummy.coverage([0, 75, 50])
+        assert 1. == cover_ac_b, "The coverage [a, c, b] isn't 1. Value=%f" % cover_ac_b
 
     def test_non_redundancy_turbo_dummy(self):
         """
@@ -193,5 +199,9 @@ class TestDiversity(object):
         self.turbo_dummy.non_redundancy([1])  # Turbo algorithm needs to have information of the element previous
         non_red_a_a = self.turbo_dummy.non_redundancy([1, 0])  # 1 a "a" item and 0 an "a" item
         assert 0.333332 < non_red_a_a < 0.333334, "The non redundancy [a, a] isn't 0.333333. Value=%f" % non_red_a_a
+        self.turbo_dummy.non_redundancy([0])
+        self.turbo_dummy.non_redundancy([0, 75])
+        non_red_ac_b = self.turbo_dummy.non_redundancy([0, 75, 50])
+        assert 1. == non_red_ac_b, "The non redundancy [a, c, b] isn't 1. Value=%f" % non_red_ac_b
 
 
