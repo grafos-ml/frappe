@@ -5,7 +5,7 @@ Test package for the diversification in general.
 
 __author__ = 'joaonrb'
 
-from recommendation.diversity.reranker0 import BinomialDiversity, TurboBinomialDiversity
+from recommendation.diversity.rerankers.binomial import BinomialDiversity, TurboBinomialDiversity
 
 
 class DummyDiversity(BinomialDiversity):

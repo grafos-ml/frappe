@@ -158,7 +158,7 @@ RECOMMENDATION_SETTINGS = {
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called
             #("recommendation.records.rerankers", "SimpleLogReRanker"),
-            ("recommendation.diversity.reranker0", "DiversityReRanker")
+            ("recommendation.diversity.rerankers", "BinomialDiversityReRanker")
         ]
     }
 }

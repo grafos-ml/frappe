@@ -95,9 +95,7 @@ class SimpleLogReRanker(object):
         for rank, (item, (count, sum_value)) in ranked_variables:
             try:
                 mean = sum_value/count
-                #new_rank = (number_of_apps / mean) ** count
-                new_rank = \
-                    self._rank_calculator(rank, mean, count, size if mean+1 < size else (mean+1.5))
+                new_rank = self._rank_calculator(rank, mean, count, size if mean+1 < size else (mean+1.5))
             except ZeroDivisionError:
                 new_rank = rank
             #print new_rank
@@ -105,6 +103,6 @@ class SimpleLogReRanker(object):
 
         # We just need to sort
         sorted_items = sorted(new_scores, key=lambda x: x[0])
-        assert sorted_items[0][0] < sorted_items[-1][0], "The elements are sorted in the wrong way"
+        #assert sorted_items[0][0] < sorted_items[-1][0], "The elements are sorted in the wrong way"
 
         return [item_id for _, item_id in sorted_items]
