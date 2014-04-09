@@ -70,12 +70,13 @@ class SimpleLogReRanker(object):
         owned_items = [item["pk"] for item in user.owned_items.values("pk")]
         # Push the installed app to the back. This is needed because this algorithm rearrange rank values
         # For already installed apps the stronger push down variables.
-        mapped_items = {item_id: (float("inf"), 1) for item_id in owned_items}
+        #mapped_items = {item_id: (float("inf"), 1) for item_id in owned_items}
+        mapped_items = {item_id: (0, 0) for item_id in owned_items}
 
         # Lets start by making a proper query that receive a list of tuples with:
         # (item id, type of log, sum(values), count, count_type)... This should be enough to a good re-ranker
         items_in_logs = (item_id for item_id in early_recommendation if item_id not in owned_items)
-        logs = Record.objects.filter(item__id__in=items_in_logs, user=user, type=Record.RECOMMEND)
+        logs = Record.objects.filter(item_id__in=items_in_logs, user_id=user.external_id, type=Record.RECOMMEND)
         logs = logs.filter(~Q(value=None)).values("item__pk")
         logs = logs.annotate(count=Count("item__pk"), sum=Sum("value"))
 
@@ -85,8 +86,8 @@ class SimpleLogReRanker(object):
             mapped_items[item_pk] = count, float(sum_value)
 
         # Now get the variables ranks
-        ranked_variables = enumerate(((app_id, mapped_items.get(app_id) or (0, 0))
-                                      for app_id in early_recommendation), start=1)
+        ranked_variables = enumerate(((app_id, mapped_items.get(app_id) or (0, 0)) for app_id in early_recommendation),
+                                     start=1)
 
         # And Get the new scores
         new_scores = []

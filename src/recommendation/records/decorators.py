@@ -14,6 +14,7 @@ __author__ = {
 
 from recommendation.records.models import Record
 import functools
+from django.conf import settings
 
 
 class ClickApp(object):
@@ -21,15 +22,19 @@ class ClickApp(object):
     Decorator for view. Every time a user click on a recommendation
     """
 
+    def __init__(self):
+        self.is_this_installed = "recommendation.records" in settings.INSTALLED_APPS
+
     def __call__(self, function):
         """
         The call of the view.
         """
         @functools.wraps(function)
         def decorated(request, *args, **kwargs):
-            user_external_id = request.GET["clicker"]
-            app_external_id = request.GET["clicked_app"]
-            request.go_to = Record.click_recommended(user_external_id, app_external_id)
+            if self.is_this_installed:
+                user_external_id = request.GET["clicker"]
+                app_external_id = request.GET["clicked_app"]
+                request.go_to = Record.click_recommended(user_external_id, app_external_id)
             return function(request, *args, **kwargs)
         return decorated
 
@@ -39,6 +44,9 @@ class LogRecommendedApps(object):
     Decorator for recommendations
     """
 
+    def __init__(self):
+        self.is_this_installed = "recommendation.records" in settings.INSTALLED_APPS
+
     def __call__(self, function):
         """
         The call of the view.
@@ -46,10 +54,11 @@ class LogRecommendedApps(object):
         @functools.wraps(function)
         def decorated(*args, **kwargs):
             result = function(*args, **kwargs)
-            try:
-                user = kwargs["user"]
-            except KeyError:
-                user = args[0]
-            Record.recommended(user, *result)
+            if self.is_this_installed:
+                try:
+                    user = kwargs["user"]
+                except KeyError:
+                    user = args[0]
+                Record.recommended(user, *result)
             return result
         return decorated

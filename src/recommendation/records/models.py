@@ -34,8 +34,9 @@ class Record(models.Model):
         CLICK: _("click")
     }
 
-    user = models.ForeignKey(User, to_field="external_id", verbose_name=_("user"), null=True, default=None)
-    item = models.ForeignKey(Item, to_field="external_id", verbose_name=_("item"))
+    user = models.ForeignKey(User, to_field="external_id", verbose_name=_("user"), null=True, default=None,
+                             db_constraint=False)
+    item = models.ForeignKey(Item, verbose_name=_("item"), db_constraint=False)
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
     value = models.FloatField(_("value"), null=True, default=None)
     type = models.SmallIntegerField(_("type"), choices=TYPES.items(), default=RECOMMEND)
@@ -73,8 +74,9 @@ class Record(models.Model):
         :param user: User
         :param recommended: List of items ids
         """
-        items = {item.pk: item for item in Item.objects.filter(pk__in=recommended)}
-        logs = [Record(user=user, item=items[e_id], value=rank) for rank, e_id in enumerate(recommended, start=1)]
+        if isinstance(user, User):
+            user = user.external_id
+        logs = [Record(user_id=user, item_id=e_id, value=rank) for rank, e_id in enumerate(recommended, start=1)]
         Record.objects.bulk_create(logs)
 
 site.register([Record])
