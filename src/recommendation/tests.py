@@ -36,7 +36,7 @@ class TestModels(object):
 
     def test_items_in_db(self):
         """
-        Test if the number of items in the data base is correct
+        [Recommendation] Test if the number of items in the data base is correct
         """
         items_in_database = Item.objects.all().count()
         assert items_in_database == self.ITEMS_IN_DB, \
@@ -44,7 +44,7 @@ class TestModels(object):
 
     def test_users_in_db(self):
         """
-        Test if the number of users in the data base is correct
+        [Recommendation] Test if the number of users in the data base is correct
         """
         users_in_database = User.objects.all().count()
         assert users_in_database == self.USERS_IN_DB, \
@@ -52,7 +52,7 @@ class TestModels(object):
 
     def test_items_in_inventory(self):
         """
-        Test if the number of items in inventory is correct
+        [Recommendation] Test if the number of items in inventory is correct
         """
         owned_items_in_database = Inventory.objects.all().count()
         assert owned_items_in_database == self.ITEMS_IN_INVENTORY, \
@@ -68,7 +68,7 @@ class TestTensorCoFi(object):
     @staticmethod
     def test_tensor_matrix():
         """
-        Tests the tensor matrix against the test.fm matrix
+        [TensorCoFi] Tests the tensor matrix against the test.fm matrix
         """
         # loads installation data to pandas.DataFrame
 

@@ -11,12 +11,8 @@ from recommendation.filter_owned.filters import FilterOwnedFilter
 class DummyUser(object):
     class owned_items:
         @staticmethod
-        def all():
-            class dummy:
-                @staticmethod
-                def values_list(dummy_string):
-                    return [(1,), (4,)]
-            return dummy
+        def values_list(dummy_string):
+            return [(1,), (4,)]
 
 
 class TestFilteredOwned(object):
@@ -27,7 +23,7 @@ class TestFilteredOwned(object):
     @staticmethod
     def test_owned_items_are_filtered():
         """
-        Test if the dummy user items are filtered to minus infinity
+        [Filter Owned] Test if the dummy user items are filtered to minus infinity
         """
         user = DummyUser()
         recommendation = [.4, .2, .7, .1, .3, .4]
