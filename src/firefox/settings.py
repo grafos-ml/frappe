@@ -38,12 +38,12 @@ INSTALLED_APPS = (
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_nose",
-    #"debug_toolbar",
+    "debug_toolbar",
     "django_coverage",
     "rest_framework",
     "templatetag_handlebars",
     "recommendation",
-    "recommendation.records",
+    #"recommendation.records",
     "recommendation.diversity",
     "recommendation.language",
     "recommendation.api",
@@ -157,8 +157,8 @@ RECOMMENDATION_SETTINGS = {
         ],
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called
-            ("recommendation.records.rerankers", "SimpleLogReRanker"),
-            ("recommendation.diversity.rerankers", "BinomialDiversityReRanker")
+            #("recommendation.records.rerankers", "SimpleLogReRanker"),
+            ("recommendation.diversity.rerankers", "DynamicDiversityReRanker")
         ]
     }
 }

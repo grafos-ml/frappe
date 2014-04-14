@@ -165,7 +165,7 @@ class BinomialDiversityReRanker(object):
         :return: The re-ranked recommendation
         :rtype: list
         """
-        size_boost = 500
+        size_boost = 100
         recommendation_set = recommendation[:size_boost]
         diversity = TurboBinomialDiversity(user, recommendation_set, size, self.alpha_constant, self.lambda_constant)
         new_recommendation = []

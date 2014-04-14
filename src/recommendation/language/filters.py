@@ -26,7 +26,7 @@ class SimpleLocaleFilter(object):
         :return: A new set of recommendations ready to fill every item need for the user.
         :rtype: A list of items ids(int).
         """
-        user_languages = (lang for lang, in user.required_locales.all().values_list("language_code"))
+        user_languages = (lang for lang, in user.required_locales.values_list("language_code"))
         items_with_language = Item.objects.filter(available_locales__isnull=False)
         items_not_supported = items_with_language.exclude(available_locales__language_code__in=user_languages)
         # To shorten the processor working time
