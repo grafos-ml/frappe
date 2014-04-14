@@ -4,7 +4,9 @@ The filters for the locale functionality
 """
 __author__ = 'joaonrb'
 
+from django.db.models import Q, F
 from recommendation.models import Item
+from recommendation.language.models import Locale
 
 
 class SimpleLocaleFilter(object):
@@ -26,11 +28,12 @@ class SimpleLocaleFilter(object):
         :return: A new set of recommendations ready to fill every item need for the user.
         :rtype: A list of items ids(int).
         """
-        user_languages = (lang for lang, in user.required_locales.values_list("language_code"))
-        items_with_language = Item.objects.filter(available_locales__isnull=False)
-        items_not_supported = items_with_language.exclude(available_locales__language_code__in=user_languages)
-        # To shorten the processor working time
-        valid_items = [i for i, _ in sorted(enumerate(early_recommendation), key=lambda x: x[1], reverse=True)]
-        for item_id, in items_not_supported.filter(id__in=valid_items).values_list("id"):
+        # One SQL query only
+        supported_locales = user.required_locales.values_list("language_code", flat=True)
+        unsupported_items_or_null = Item.objects.exclude(available_locales__language_code=supported_locales)
+        unsupported_items = unsupported_items_or_null.exclude(available_locales__isnull=True)
+        for item_id, in unsupported_items.values_list("id"):
             early_recommendation[item_id-1] = float("-inf")
+
         return early_recommendation
+
