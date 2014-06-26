@@ -6,7 +6,7 @@ Recommendation Framework is a Django application that provides item recommendati
 recommendations now are based on collaborative filtering tensor matrix. The framework also ships with a set of filters
 and re-rankers to give more juice to the recommendation. The point of the framework is to flexible enough to adapt to
 most of the services. For this purpose is possible to develop and deploy within the framework "recommendation" plugins
-to improve the recommendation, to make it more flexible or whathever some brilliant mind want the framework to do.
+to improve the recommendation, to make it more flexible or whatever some brilliant mind want the framework to do.
 
 Download
 --------
@@ -33,16 +33,16 @@ the `Django <http://djangoproject.com>`_ website and see if it's what you're loo
 Installation
 ____________
 
-Like all the good python python packages you just use "`pip install recommendation-framework`" and you're ready to go.
+Like all the good python packages you just use "`pip install recommendation-framework`" and you're ready to go.
 Unfortunately this project doesn't even got a real name. As far as I'm concerned it will be called frappe or something
 coffee and cream related. Why? This project is the younger brother of the `Frappé
 <http://frappe.cc/>`_ another recommendation project developed by `Linas Baltrunas
 <http://www.linkedin.com/profile/view?id=34647483>`_, the same guy behind this here. So, in this alpha stage of the
 project, to get it just ask nicely to `Linas <mailto:linas.baltrunas@gmail.com>`_ or `João <mailto:joaonrb@gmail.com>`_
-and we will think about it. If for some reason they think they worthy you just have to add the package to you
+and we will think about it. If for some reason they think you are worthy, then you just have to add the package to you
 environment.
 
-After that just add the it to the installed apps in Django settings:
+After that just add it to the installed apps in Django settings:
 
 .. code-block:: python
    :linenos:
@@ -57,28 +57,35 @@ After that just add the it to the installed apps in Django settings:
 
 Okay, now you can have ways to retrieve recommendations from the system. Link your users to the
 recommendation.models.User and the items you want to be subject of recommendation to recommendation.models.Item.
-One more thing. To retrieve recommendations a special matrix must be built. To have it built you have to run the
+One more thing. To retrieve recommendations a special model must be built. To have it built you have to run the
 script:
 
 .. code-block:: bash
    :linenos:
 
-   >>> modelcrafter.py make
+   >>> modelcrafter.py train tensorcofi  # For tensorcofi model
+   >>> modelcrafter.py train popularity  # For Popularity
+   
+In good true, you will need the both of them in your system. The popularity model is used when the system has few 
+information on user. And the other in case that the system has more than enough info on the user. 
 
 This script is shipping with the recommendation framework and it build this matrix. You will want to continue to build
 the matrix for new users and items to be included. Keep that in mind.
 
-And voilá, you get your self a recommendation system for your precious little web site. It's a bit static though.
+And voilá, you got your self a recommendation system for your precious little web site. It's a bit static though.
 
 Plugin Installations
 ____________________
 
 To remove the "staticness" of the recommendations you can always install new plugins. The recommendation framework ships
-with some pretty neat plugins. Installed in the same way any Django app is installed. Just keep and mind one thing. In
+with some pretty neat plugins. Installed in the same way any Django app is installed. Just keep in mind one thing. In
 case of re-rankers and filters, your system may what some actions to occur before others. For instance, you may want
-that your recommendation have always a big diversity in genre but that don't send every time the same items. So you will
-have to register the diversity first and the logging after.
-
+that your recommendation have always a big diversity in genre but that don't send every time the same items. Because of 
+that you also have to use a special settings environment called RECOMMENDATION_SETTINGS. This variable is a dictionary,
+much like database. You also have a default standard and might have more to use in special situations. Basically, it
+a core engine(the structure that request the recommendation and use the filters and re-rankers), A list of filters and 
+another list for re-rankers. Typically, the filters will execute first and re-rankers after and the execute in the same 
+order that they are registered in RECOMMENDATION_SETTINGS.
 
 .. code-block:: python
    :linenos:
@@ -93,9 +100,31 @@ have to register the diversity first and the logging after.
         ...
    )
 
+   RECOMMENDATION_SETTINGS = {
+        "default": {
+            "core": ("recommendation.core", "Recommender"),
+            "filters": [
+                ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
+                ("recommendation.language.filters", "SimpleLocaleFilter"),
+            ],
+            "rerankers": [
+                # The order witch the re-rankers or filters are setted here represent the order that they are called
+                #("recommendation.records.rerankers", "SimpleLogReRanker"),
+                ("recommendation.diversity.rerankers", "DynamicDiversityReRanker")
+            ]
+        }
+    }
+    
 Now you have a awesome recommendation system.
 
 REST API Installation
 _____________________
+
+There is no science behind this. Just implement a web service in the same way django-rest-framework does. 
+
+.. toctree::
+    :maxdepth: 2
+
+    webservice.v2
 
 

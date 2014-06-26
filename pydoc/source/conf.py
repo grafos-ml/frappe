@@ -14,8 +14,8 @@
 
 import sys
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ffos.settings")
-sys.path.append('/home/joaonrb/workspacesPyCharm/ffos/src/')
+sys.path.append('/home/joaonrb/workspace/ffos/src/')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "firefox.settings")
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
