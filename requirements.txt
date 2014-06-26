@@ -1,42 +1,20 @@
 django>=1.6
-
-# Make sure to have the python-dev installed.
-python-crontab>=1.6
-django-crontab
+cython
 nose
 django-nose
 coverage
 djangorestframework
 django-debug-toolbar
-numpy==1.8.0
+numpy
 scipy
-pandas==0.12.0
-django-templatetag-handlebars
-
-# for testing the tensor
-#test.fm
-
-# Mus have a mysql-client installed. Do 'apt-get install mysql-client libmysqlclient-dev'
-mysql-python
-
-# For timezone support
-pytz
-
-#For xml API
-# Also have dependencies. Should do 'apt-get install libxml2-dev libxslt-dev'
-lxml
-defusedxml
-
-# For yalm API
-pyyaml
-
-#For documentation rendering
+pandas
+#django-templatetag-handlebars
+https://github.com/joaonrb/django-templatetag-handlebars/archive/master.zip
+pymysql
 sphinx
+python-crontab
 
-#Not in pip. Has to be installed manually
-#dateutil
-#mimeparse>=0.1.4
+#django-crontab
 
-cython
-
-https://github.com/kivy/pyjnius/archive/1.0.3.tar.gz
+#https://github.com/kivy/pyjnius/archive/1.0.3.tar.gz
+django-cors-headers

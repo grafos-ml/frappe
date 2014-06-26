@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Landing Recommendation Example" %}{% endblock title %}
+
+{% block body %}
+			<div class="row">
+				<div class=".col-xs-12">
+					<table class="table table-hover table-bordered">
+						<tbody>
+							<!-- for each user -->
+                        {% for u in users %}
+							<tr>
+                                <td>
+                                    {{ u.pk }}
+                                </td>
+								<td>
+                                    <a href="{% url 'recommendfor' user=u.external_id %}">
+                                        {{ u.external_id }}
+                                    </a>
+                                </td>
+								<td>
+                                    {% for item in u.owned_items.all|slice:":8" %}
+                                        {% if forloop.counter < 8 or u.owned_items.all == 8 %}
+                                        <img src="" alt="{{ item.name }}" class="ff-small-icon" id="{{ item.external_id }}">
+                                        {% else %}
+                                            <i class="glyphicon glyphicon-asterisk"></i>
+                                        {% endif %}
+                                    {% endfor %}
+								</td>
+							</tr>
+                        {% endfor %}
+							<!-- ... -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<ul class="pagination">
+                    {% if users.has_previous %}
+                        <li>
+                            <a href="{% url 'recommendation_landing' page=users.previous_page_number %}">
+                                &laquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="disabled"><a href="#">&laquo;</a></li>
+                    {% endif %}
+                    {% for i in page_list %}
+
+                        {% if i == users.number  %}
+                        <li class="active">
+                            <a href="{% url 'recommendation_landing' page=users.number %}">
+                                {{ users.number }}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li>
+                            <a href="{% url 'recommendation_landing' page=i %}">
+                                {{ i }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {%  endfor %}
+                    {% if users.has_next %}
+                        <li>
+                            <a href="{% url 'recommendation_landing' page=users.next_page_number %}">
+                                &raquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="disabled"><a href="#">&raquo;</a></li>
+                    {% endif %}
+				</ul>
+			</div>
+{% endblock body %}

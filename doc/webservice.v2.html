@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>App Recommendation Webservice Version 1.2 &mdash; FireFox OS Store 1.0 documentation</title>
+    <title>App Recommendation Webservice Version 1.2 &mdash; Recommendation Framework 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -23,8 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="FireFox OS Store 1.0 documentation" href="index.html" />
-    <link rel="prev" title="App Recommendation Webservice Version 1.2" href="" /> 
+    <link rel="top" title="Recommendation Framework 1.0 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -33,13 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="#" title="App Recommendation Webservice Version 1.2"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Recommendation Framework 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -303,17 +296,9 @@ source was from a recommendation.</td>
 <td>Integer</td>
 <td>The external id of the app.</td>
 </tr>
-<tr class="row-even"><td>icon</td>
+<tr class="row-even"><td>details</td>
 <td>URL</td>
-<td>The URL for the 64x64 icon.</td>
-</tr>
-<tr class="row-odd"><td>icon_small</td>
-<td>URL</td>
-<td>The URL for the 16x16 icon.</td>
-</tr>
-<tr class="row-even"><td>icon_large</td>
-<td>URL</td>
-<td>The URL for the 128x128 icon.</td>
+<td>The URL for app details.</td>
 </tr>
 <tr class="row-odd"><td>store</td>
 <td>URI</td>
@@ -324,12 +309,10 @@ functionality.</td>
 </table>
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-    <span class="n">name</span><span class="p">:</span> <span class="s">&quot;Urban Dictionary&quot;</span><span class="p">,</span>
-    <span class="n">external_id</span><span class="p">:</span> <span class="mi">462103</span><span class="p">,</span>
-    <span class="n">icon_small</span><span class="p">:</span> <span class="s">&quot;https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-32.png?modified=1377861637&quot;</span><span class="p">,</span>
-    <span class="n">icon_large</span><span class="p">:</span> <span class="s">&quot;https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-128.png?modified=1377861637&quot;</span><span class="p">,</span>
-    <span class="n">store</span><span class="p">:</span> <span class="s">&quot;/api/v2/click/anonymous/462103/&quot;</span><span class="p">,</span>
-    <span class="n">icon</span><span class="p">:</span> <span class="s">&quot;https://marketplace.cdn.mozilla.net/img/uploads/addon_icons/462/462103-64.png?modified=1377861637&quot;</span>
+    <span class="n">external_id</span><span class="p">:</span> <span class="s">&quot;457282&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="s">&quot;Kronometro Vulpa&quot;</span><span class="p">,</span>
+    <span class="n">store</span><span class="p">:</span> <span class="s">&quot;/api/v2/recommended/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/457282/?rank=4&quot;</span><span class="p">,</span>
+    <span class="n">details</span><span class="p">:</span> <span class="s">&quot;https://marketplace.firefox.com/api/v1/apps/app/457282/&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -429,12 +412,12 @@ http://domain.com/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d
 <td>String</td>
 <td>The app external id.</td>
 </tr>
-<tr class="row-odd"><td>installation_date</td>
+<tr class="row-odd"><td>acquisition_date</td>
 <td>DateTime</td>
 <td>The installation date with the format:
 YYYY-MM-DDTHH:MM:SSZ</td>
 </tr>
-<tr class="row-even"><td>removed_date</td>
+<tr class="row-even"><td>dropped_date</td>
 <td>DateTime</td>
 <td>The installation date with the format:
 YYYY-MM-DDTHH:MM:SSZ. May be Null.</td>
@@ -443,14 +426,14 @@ YYYY-MM-DDTHH:MM:SSZ. May be Null.</td>
 </table>
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-    <span class="n">user</span><span class="p">:</span> <span class="s">&quot;006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173&quot;</span><span class="p">,</span>
-    <span class="n">applications</span><span class="p">:</span> <span class="p">[</span>
+    <span class="n">items</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
-        <span class="n">installation_date</span><span class="p">:</span> <span class="s">&quot;2013-04-02T18:47:58Z&quot;</span><span class="p">,</span>
-        <span class="n">removed_date</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-        <span class="n">external_id</span><span class="p">:</span> <span class="mi">413346</span>
+            <span class="n">acquisition_date</span><span class="p">:</span> <span class="s">&quot;2013-04-02T18:47:58Z&quot;</span><span class="p">,</span>
+            <span class="n">external_id</span><span class="p">:</span> <span class="mi">413346</span><span class="p">,</span>
+            <span class="n">dropped_date</span><span class="p">:</span> <span class="n">null</span>
         <span class="p">}</span>
-       <span class="p">]</span>
+    <span class="p">],</span>
+    <span class="n">user</span><span class="p">:</span> <span class="s">&quot;006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -564,6 +547,174 @@ YYYY-MM-DDTHH:MM:SSZ. May be Null.</td>
 </div>
 </div>
 </div>
+<div class="section" id="user-api">
+<h2>User API<a class="headerlink" href="#user-api" title="Permalink to this headline">¶</a></h2>
+<p>This API implements a way to list the users in system and create a new user.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All the <em>unsafe</em> HTTP methods require a crsf token. But in this case and since the API is not supposed to contact
+with public we will disable this functionality.</p>
+</div>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/users.&lt;format&gt;
+http://domain.com/api/v2/users/&lt;format&gt;/
+http://domain.com/api/v2/users/  # Default format is JSON
+</pre></div>
+</div>
+<div class="section" id="id4">
+<h3>GET Request<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>The request <em>may</em> have a set of extra GET parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Request</td>
+<td>Object</td>
+<td>User information.</td>
+</tr>
+<tr class="row-odd"><td>offset</td>
+<td>Number</td>
+<td>The number of users to drop before
+deliver in response.</td>
+</tr>
+<tr class="row-even"><td>users</td>
+<td>Number</td>
+<td>The number of users to be delivered in
+the response.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/users.json?offset=10&amp;users=30
+http://domain.com/api/v2/users/xml/
+</pre></div>
+</div>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>response</td>
+<td>List</td>
+<td>A list of users apps.</td>
+</tr>
+</tbody>
+</table>
+<p>User:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="19%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>external_id</td>
+<td>String</td>
+<td>The user external id.</td>
+</tr>
+<tr class="row-odd"><td>id</td>
+<td>Integer</td>
+<td>The user internal id</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="n">external_id</span><span class="p">:</span> <span class="s">&quot;00bff6c3e52abf68501dcd4b9882a76327f6182cf760d33463531bacdd52c53b&quot;</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="mi">11</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="n">external_id</span><span class="p">:</span> <span class="s">&quot;00360cca7ccdb1464cca0e42cef52753698295b4c148f86d2fa74431001477a8&quot;</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="mi">12</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="n">external_id</span><span class="p">:</span> <span class="s">&quot;0000389d24eb79b0970d3baccaff7736fd2aebc7eee5d0615779a2d3dd5824aa&quot;</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="mi">13</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>POST Request<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>This method is used to create a new user in system. It still need a Post parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>external_id</td>
+<td>String</td>
+<td>The user external id.</td>
+</tr>
+</tbody>
+</table>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>status</td>
+<td>Number</td>
+<td>The response status.</td>
+</tr>
+<tr class="row-odd"><td>message</td>
+<td>Text</td>
+<td>Some message with information.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="s">&quot;message&quot;</span><span class="p">:</span> <span class="s">&quot;done&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 
 
@@ -596,13 +747,15 @@ YYYY-MM-DDTHH:MM:SSZ. May be Null.</td>
 <li><a class="reference internal" href="#delete-request">DELETE Request</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#user-api">User API</a><ul>
+<li><a class="reference internal" href="#id4">GET Request</a></li>
+<li><a class="reference internal" href="#id5">POST Request</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href=""
-                        title="previous chapter">App Recommendation Webservice Version 1.2</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/webservice.v2.txt"
@@ -631,18 +784,12 @@ YYYY-MM-DDTHH:MM:SSZ. May be Null.</td>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="#" title="App Recommendation Webservice Version 1.2"
-             >previous</a> |</li>
-        <li><a href="index.html">FireFox OS Store 1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Recommendation Framework 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, João Baptista.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+        &copy; Copyright 2013, Linas Baltrunas and João Baptista.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>
