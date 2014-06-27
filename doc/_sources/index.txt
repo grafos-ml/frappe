@@ -23,6 +23,24 @@ API Documentation
     webservice.v2
 
 
+How it works
+------------
+You have a database where you register which user (recommendation.models.User) installed which app (recommendation.models.Item).
+Every 6hours you run a script modelcrafter.py (explained bellow) to take this data and represent it as a statistical model.
+The statistical model is the heart of the recommender system but in reality it is just bunch of numbers stored as
+matrices. These matrices are stored in the database together with original data and used when needed.
+When you multiply these matrices in a specific way, you get an estimate how much a user likes an item. As you can
+imagine, this model is static and changes only every 6 hours (when you recompute it). 
+To make the system more smart and dynamic there are several tricks that we use. 
+We implement business logics as filters and rerankers. A filter is a Django module that has logic which items are not good
+to recommend. A reranker is a Django module which knows how to modify the scores of the original prediction in order
+to implement some logic such as category diversification, i.e., that recommendation list would contain not only games (predicted
+by the model) but also some tools, etc.
+
+When you call an API to get recommendations, first the statistical model predicts scores for all applications, then filters
+irrelevant items (already installed, shown but never clicked, wrong language) and then applies rerankers. The 
+left items with highest scores are returned as a result.
+
 Get Started
 -----------
 
