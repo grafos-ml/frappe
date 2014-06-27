@@ -34,9 +34,6 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="webservice.v2.html" title="App Recommendation Webservice Version 1.2"
              accesskey="N">next</a> |</li>
         <li><a href="#">Recommendation Framework 1.0 documentation</a> &raquo;</li> 
@@ -51,25 +48,36 @@
   <div class="section" id="welcome-to-recommendation-framework">
 <h1>Welcome to Recommendation Framework!<a class="headerlink" href="#welcome-to-recommendation-framework" title="Permalink to this headline">¶</a></h1>
 <p>Recommendation Framework is a Django application that provides item recommendations for users. The simplest form of
-recommendations now are based on collaborative filtering tensor matrix. The framework also ships with a set of filters
-and re-rankers to give more juice to the recommendation. The point of the framework is to flexible enough to adapt to
-most of the services. For this purpose is possible to develop and deploy within the framework &#8220;recommendation&#8221; plugins
-to improve the recommendation, to make it more flexible or whatever some brilliant mind want the framework to do.</p>
-<div class="section" id="download">
-<h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
-<p>Check the repository here. What? It doesn&#8217;t point to any place? Whats the point with that!?</p>
-</div>
+recommendations now are based on collaborative filtering tensor factorisation (TF). We use test.fm framework for
+computing the models. The Recommendation Framework then implements logic to use the models in order to serve recommendations.
+The framework ships with a set of filters and re-rankers to implement business rules such as diversity.
+Filters are modules that implement a peace of logic such as &#8220;filter out items that users has already installed&#8221;, whereas, rerankers
+implement more complex logic such as enforcing diversity or discounting values for some items.</p>
+<p>The framework was originally designed for Firefox OS marketplace but is
+flexible enough to adapt to the most of the application domains. Within the framework it is possible to develop and deploy &#8220;recommendation&#8221; plugins
+that improve the recommendations, make additional business rules, etc.</p>
 <div class="section" id="api-documentation">
 <h2>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
-<ul class="simple">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="webservice.v2.html">App Recommendation Webservice Version 1.2</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#recommendation-api">Recommendation API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#data-types">Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#request-recommendations">Request Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#go-to-the-application-place-in-ff-store">Go to the Application place in FF Store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#item-app-detail">Item/App Detail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#user-items-api">User Items API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#user-api">User API</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div class="section" id="get-started">
 <h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h2>
 <p>To get started with the Recommendation framework, you first need to set a Django environment. Do all the thing you need
-to do in order to start your django project. If you don&#8217;t now how to do it you&#8217;re a bit ahead of yourself. Just check
+to do in order to start a django project. If you don&#8217;t now how to do it just check
 the <a class="reference external" href="http://djangoproject.com">Django</a> website and see if it&#8217;s what you&#8217;re looking for.</p>
 <div class="section" id="installation">
 <h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
@@ -106,22 +114,22 @@ script:</p>
 </td></tr></table></div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">This models are static and represent popularity recommendation and tensorCoFi factor matrix for the user and item population in the moment they are build. Because of that, it doesn&#8217;t make sense to build any model with no users or items on the database. Also, you will want to rebuild the models once in a wild, as the users and items will be added and new connections between user and item are created.</p>
+<p class="last">This models are static and represent popularity recommendation and tensorCoFi (TF) factor matrix for the user and item population at the moment they are build. Because of that, it doesn&#8217;t make sense to build any model with no users or items in the database. Also, you will want to rebuild the models once in a while, as the users and items will be added and new connections between user and item are created.</p>
 </div>
-<p>In good true, you will need the both of them in your system. The popularity model is used when the system has few
-information on user. And the other in case that the system has more than enough info on the user.</p>
-<p>This script is shipping with the recommendation framework and it build this matrix. You will want to continue to build
+<p>In reality, you will need some data about users and items in your system. The popularity model is used when the system has few
+information about a user. And the TF in case that the system has some (&gt;3 apps installed) info about the user.</p>
+<p>This script is shipping with the recommendation framework and builds this matrix. You will want to continue to build
 the matrix for new users and items to be included. Keep that in mind.</p>
 <p>And voilá, you got your self a recommendation system for your precious little web site. It&#8217;s a bit static though.</p>
 </div>
 <div class="section" id="plugin-installations">
 <h3>Plugin Installations<a class="headerlink" href="#plugin-installations" title="Permalink to this headline">¶</a></h3>
-<p>To remove the &#8220;staticness&#8221; of the recommendations you can always install new plugins. The recommendation framework ships
+<p>To remove the &#8220;statiness&#8221; of the recommendations you can always install new plugins. The recommendation framework ships
 with some pretty neat plugins. Installed in the same way any Django app is installed. Just keep in mind one thing. In
-case of re-rankers and filters, your system may what some actions to occur before others. For instance, you may want
+case of re-rankers and filters, your system should do some actions before others. For instance, you may want
 that your recommendation have always a big diversity in genre but that don&#8217;t send every time the same items. Because of
 that you also have to use a special settings environment called RECOMMENDATION_SETTINGS. This variable is a dictionary,
-much like database. You also have a default standard and might have more to use in special situations. Basically, it
+much like a static configuration. You also have a default standard and might have more to use in special situations. Basically, it
 a core engine(the structure that request the recommendation and use the filters and re-rankers), A list of filters and
 another list for re-rankers. Typically, the filters will execute first and re-rankers after and the execute in the same
 order that they are registered in RECOMMENDATION_SETTINGS.</p>
@@ -174,26 +182,7 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
  <span class="p">}</span>
 </pre></div>
 </td></tr></table></div>
-<p>Now you have a awesome recommendation system.</p>
-</div>
-<div class="section" id="rest-api-installation">
-<h3>REST API Installation<a class="headerlink" href="#rest-api-installation" title="Permalink to this headline">¶</a></h3>
-<p>There is no science behind this. Just implement a web service in the same way django-rest-framework does.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="webservice.v2.html">App Recommendation Webservice Version 1.2</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#about">About</a></li>
-<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#recommendation-api">Recommendation API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#data-types">Data Types</a></li>
-<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#request-recommendations">Request Recommendations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#go-to-the-application-place-in-ff-store">Go to the Application place in FF Store</a></li>
-<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#item-app-detail">Item/App Detail</a></li>
-<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#user-items-api">User Items API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="webservice.v2.html#user-api">User API</a></li>
-</ul>
-</li>
-</ul>
-</div>
+<p>Now you have an awesome recommendation system.</p>
 </div>
 </div>
 </div>
@@ -207,12 +196,10 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Welcome to Recommendation Framework!</a><ul>
-<li><a class="reference internal" href="#download">Download</a></li>
 <li><a class="reference internal" href="#api-documentation">API Documentation</a></li>
 <li><a class="reference internal" href="#get-started">Get Started</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#plugin-installations">Plugin Installations</a></li>
-<li><a class="reference internal" href="#rest-api-installation">REST API Installation</a></li>
 </ul>
 </li>
 </ul>
@@ -251,16 +238,13 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="webservice.v2.html" title="App Recommendation Webservice Version 1.2"
              >next</a> |</li>
         <li><a href="#">Recommendation Framework 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Linas Baltrunas and João Baptista.
+        &copy; Copyright 2013, Linas Baltrunas and Joao Baptista.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

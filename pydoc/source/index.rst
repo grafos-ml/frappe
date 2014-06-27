@@ -3,31 +3,31 @@ Welcome to Recommendation Framework!
 ====================================
 
 Recommendation Framework is a Django application that provides item recommendations for users. The simplest form of
-recommendations now are based on collaborative filtering tensor matrix. The framework also ships with a set of filters
-and re-rankers to give more juice to the recommendation. The point of the framework is to flexible enough to adapt to
-most of the services. For this purpose is possible to develop and deploy within the framework "recommendation" plugins
-to improve the recommendation, to make it more flexible or whatever some brilliant mind want the framework to do.
+recommendations now are based on collaborative filtering tensor factorisation (TF). We use test.fm framework for
+computing the models. The Recommendation Framework then implements logic to use the models in order to serve recommendations.
+The framework ships with a set of filters and re-rankers to implement business rules such as diversity. 
+Filters are modules that implement a peace of logic such as "filter out items that users has already installed", whereas, rerankers
+implement more complex logic such as enforcing diversity or discounting values for some items.
 
-Download
---------
+The framework was originally designed for Firefox OS marketplace but is 
+flexible enough to adapt to the most of the application domains. Within the framework it is possible to develop and deploy "recommendation" plugins
+that improve the recommendations, make additional business rules, etc.
 
-Check the repository here. What? It doesn't point to any place? Whats the point with that!?
 
 API Documentation
 -----------------
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   recommendation.tutorial
-   recommendation.documentation
-   recommendation.plugins
+    webservice.v2
+
 
 Get Started
 -----------
 
 To get started with the Recommendation framework, you first need to set a Django environment. Do all the thing you need
-to do in order to start your django project. If you don't now how to do it you're a bit ahead of yourself. Just check
+to do in order to start a django project. If you don't now how to do it just check
 the `Django <http://djangoproject.com>`_ website and see if it's what you're looking for.
 
 Installation
@@ -66,15 +66,15 @@ script:
    >>> modelcrafter.py train tensorcofi  # For tensorcofi model
    >>> modelcrafter.py train popularity  # For Popularity
 
-.. note:: This models are static and represent popularity recommendation and tensorCoFi factor matrix for the user and \
-    item population in the moment they are build. Because of that, it doesn't make sense to build any model with no \
-    users or items on the database. Also, you will want to rebuild the models once in a wild, as the users and items \
+.. note:: This models are static and represent popularity recommendation and tensorCoFi (TF) factor matrix for the user and \
+    item population at the moment they are build. Because of that, it doesn't make sense to build any model with no \
+    users or items in the database. Also, you will want to rebuild the models once in a while, as the users and items \
     will be added and new connections between user and item are created.
    
-In good true, you will need the both of them in your system. The popularity model is used when the system has few 
-information on user. And the other in case that the system has more than enough info on the user. 
+In reality, you will need some data about users and items in your system. The popularity model is used when the system has few 
+information about a user. And the TF in case that the system has some (>3 apps installed) info about the user. 
 
-This script is shipping with the recommendation framework and it build this matrix. You will want to continue to build
+This script is shipping with the recommendation framework and builds this matrix. You will want to continue to build
 the matrix for new users and items to be included. Keep that in mind.
 
 And voilá, you got your self a recommendation system for your precious little web site. It's a bit static though.
@@ -82,12 +82,12 @@ And voilá, you got your self a recommendation system for your precious little w
 Plugin Installations
 ____________________
 
-To remove the "staticness" of the recommendations you can always install new plugins. The recommendation framework ships
+To remove the "statiness" of the recommendations you can always install new plugins. The recommendation framework ships
 with some pretty neat plugins. Installed in the same way any Django app is installed. Just keep in mind one thing. In
-case of re-rankers and filters, your system may what some actions to occur before others. For instance, you may want
+case of re-rankers and filters, your system should do some actions before others. For instance, you may want
 that your recommendation have always a big diversity in genre but that don't send every time the same items. Because of 
 that you also have to use a special settings environment called RECOMMENDATION_SETTINGS. This variable is a dictionary,
-much like database. You also have a default standard and might have more to use in special situations. Basically, it
+much like a static configuration. You also have a default standard and might have more to use in special situations. Basically, it
 a core engine(the structure that request the recommendation and use the filters and re-rankers), A list of filters and 
 another list for re-rankers. Typically, the filters will execute first and re-rankers after and the execute in the same 
 order that they are registered in RECOMMENDATION_SETTINGS.
@@ -120,16 +120,7 @@ order that they are registered in RECOMMENDATION_SETTINGS.
         }
     }
     
-Now you have a awesome recommendation system.
+Now you have an awesome recommendation system.
 
-REST API Installation
-_____________________
-
-There is no science behind this. Just implement a web service in the same way django-rest-framework does. 
-
-.. toctree::
-    :maxdepth: 2
-
-    webservice.v2
 
 
