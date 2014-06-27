@@ -65,6 +65,11 @@ script:
 
    >>> modelcrafter.py train tensorcofi  # For tensorcofi model
    >>> modelcrafter.py train popularity  # For Popularity
+
+.. note:: This models are static and represent popularity recommendation and tensorCoFi factor matrix for the user and \
+    item population in the moment they are build. Because of that, it doesn't make sense to build any model with no \
+    users or items on the database. Also, you will want to rebuild the models once in a wild, as the users and items \
+    will be added and new connections between user and item are created.
    
 In good true, you will need the both of them in your system. The popularity model is used when the system has few 
 information on user. And the other in case that the system has more than enough info on the user. 

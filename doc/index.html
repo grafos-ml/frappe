@@ -104,6 +104,10 @@ script:</p>
 &gt;&gt;&gt; modelcrafter.py train popularity  <span class="c"># For Popularity</span>
 </pre></div>
 </td></tr></table></div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This models are static and represent popularity recommendation and tensorCoFi factor matrix for the user and item population in the moment they are build. Because of that, it doesn&#8217;t make sense to build any model with no users or items on the database. Also, you will want to rebuild the models once in a wild, as the users and items will be added and new connections between user and item are created.</p>
+</div>
 <p>In good true, you will need the both of them in your system. The popularity model is used when the system has few
 information on user. And the other in case that the system has more than enough info on the user.</p>
 <p>This script is shipping with the recommendation framework and it build this matrix. You will want to continue to build
