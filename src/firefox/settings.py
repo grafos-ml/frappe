@@ -43,7 +43,7 @@ INSTALLED_APPS = (
     "rest_framework",
     "templatetag_handlebars",
     "recommendation",
-    #"recommendation.records",
+    "recommendation.records",
     "recommendation.diversity",
     "recommendation.language",
     "recommendation.api",
@@ -81,7 +81,8 @@ DATABASES = {
         "NAME": "recommender_v12",
         "USER": "FFOS",
         "PASSWORD": "pasteldenata",
-        "HOST": "172.16.51.128"
+        #"HOST": "172.16.51.128"
+        "HOST": "ana"
     }
 }
 

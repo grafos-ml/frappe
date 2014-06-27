@@ -221,7 +221,7 @@ def put_items(objects):
 
     print("New genres created ...")
 
-    locales = [str(locale) for locale in Locale.objects.all()]
+    locales = [locale for locale in Locale.objects.all().values_list("language_code", "country_code")]
 
     # Create locales
     new_locales = []
@@ -240,7 +240,7 @@ def put_items(objects):
     if new_items:
         relation = []
         for item_eid, item_id in new_items.items():
-            for genre in items[int(item_eid)][1]:
+            for genre in items[item_eid][1]:
                 relation.append("(%s, %s)" % (str(genres[genre].id), item_id))
         cursor.execute(BULK_QUERY % {
             "table": "diversity_genre_items",
@@ -254,7 +254,7 @@ def put_items(objects):
         relations = []
         for item_eid, item_id in new_items.items():
 
-            for locale in items[int(item_eid)][2]:
+            for locale in items[item_eid][2]:
                 relations.append("(%s, %s)" % (str(locales[locale].id), item_id))
 
         cursor.execute(BULK_QUERY % {
