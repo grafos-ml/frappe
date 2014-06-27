@@ -49,7 +49,7 @@
 <h1>Welcome to Recommendation Framework!<a class="headerlink" href="#welcome-to-recommendation-framework" title="Permalink to this headline">¶</a></h1>
 <p>Recommendation Framework is a Django application that provides item recommendations for users. The simplest form of
 recommendations now are based on collaborative filtering tensor factorisation (TF). We use test.fm framework for
-computing the models. The Recommendation Framework then implements logic to use the models in order to serve recommendations.
+computing the models. The Recommendation Framework then implements a logic to use the models in order to serve recommendations.
 The framework ships with a set of filters and re-rankers to implement business rules such as diversity.
 Filters are modules that implement a peace of logic such as &#8220;filter out items that users has already installed&#8221;, whereas, rerankers
 implement more complex logic such as enforcing diversity or discounting values for some items.</p>
@@ -103,10 +103,13 @@ environment.</p>
 <span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<p>Okay, now you can have ways to retrieve recommendations from the system. Link your users to the
-recommendation.models.User and the items you want to be subject of recommendation to recommendation.models.Item.
-One more thing. To retrieve recommendations a special model must be built. To have it built you have to run the
-script:</p>
+<p>Okay, now you should be able to retrieve recommendations from the system. Link your users to the
+recommendation.models.User and the items you want to be subject of recommendation to recommendation.models.Item.</p>
+</div>
+<div class="section" id="model-generation">
+<h3>Model Generation<a class="headerlink" href="#model-generation" title="Permalink to this headline">¶</a></h3>
+<p>One more thing. To retrieve recommendations a recommendation model (statistical representation of your data) must be built.
+To have it built you have to run the script:</p>
 <div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2</pre></div></td><td class="code"><div class="highlight"><pre>&gt;&gt;&gt; modelcrafter.py train tensorcofi  <span class="c"># For tensorcofi model</span>
 &gt;&gt;&gt; modelcrafter.py train popularity  <span class="c"># For Popularity</span>
@@ -199,6 +202,7 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
 <li><a class="reference internal" href="#api-documentation">API Documentation</a></li>
 <li><a class="reference internal" href="#get-started">Get Started</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#model-generation">Model Generation</a></li>
 <li><a class="reference internal" href="#plugin-installations">Plugin Installations</a></li>
 </ul>
 </li>

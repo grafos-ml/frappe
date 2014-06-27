@@ -4,7 +4,7 @@ Welcome to Recommendation Framework!
 
 Recommendation Framework is a Django application that provides item recommendations for users. The simplest form of
 recommendations now are based on collaborative filtering tensor factorisation (TF). We use test.fm framework for
-computing the models. The Recommendation Framework then implements logic to use the models in order to serve recommendations.
+computing the models. The Recommendation Framework then implements a logic to use the models in order to serve recommendations.
 The framework ships with a set of filters and re-rankers to implement business rules such as diversity. 
 Filters are modules that implement a peace of logic such as "filter out items that users has already installed", whereas, rerankers
 implement more complex logic such as enforcing diversity or discounting values for some items.
@@ -55,10 +55,13 @@ After that just add it to the installed apps in Django settings:
         ...
    )
 
-Okay, now you can have ways to retrieve recommendations from the system. Link your users to the
+Okay, now you should be able to retrieve recommendations from the system. Link your users to the
 recommendation.models.User and the items you want to be subject of recommendation to recommendation.models.Item.
-One more thing. To retrieve recommendations a special model must be built. To have it built you have to run the
-script:
+
+Model Generation
+________________
+One more thing. To retrieve recommendations a recommendation model (statistical representation of your data) must be built. 
+To have it built you have to run the script:
 
 .. code-block:: bash
    :linenos:
