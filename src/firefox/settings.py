@@ -143,7 +143,11 @@ CACHES = {
         "TIMEOUT": 60,
         "OPTIONS": {
             "MAX_ENTRIES": 1000
-        },
+        }
+    },
+    "models": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "/var/tmp/django_models_cache",
     }
 }
 

@@ -11,4 +11,9 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "firefox.development_settings")
 
 from django.core.wsgi import get_wsgi_application
+from django.core.cache import get_cache
+from recommendation.models import TensorModel, PopularityModel
+
 application = get_wsgi_application()
+PopularityModel.load_to_cache()
+TensorModel.load_to_cache()

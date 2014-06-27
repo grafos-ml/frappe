@@ -11,7 +11,7 @@
 import numpy as np
 from django.conf import settings
 from recommendation.models import Item
-from recommendation.caches import CacheUser, CacheMatrix
+from recommendation.caches import CacheUser
 from recommendation.models import TensorModel, PopularityModel
 from recommendation.records.decorators import LogRecommendedApps
 import logging
@@ -123,13 +123,12 @@ class InterfaceController(object):
         else:
             return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] * a_matrix)))
 
-    @CacheMatrix()
     def get_popularity(self):
         """
         Return the popular items
         :return: list
         """
-        return PopularityModel.objects.filter().order_by("-id")[0].recommendation
+        return PopularityModel.get_popularity().recommendation
 
     @CacheUser()
     @LogRecommendedApps()
@@ -189,24 +188,21 @@ class Recommender(InterfaceController):
     Get the matrix from the Model
     """
 
-    @CacheMatrix()
     def get_user_matrix(self):
         """
         Catch the user matrix from database
 
         :return: The matrix of users.
         """
-        return TensorModel.objects.filter(dim=0).order_by("-id")[0].numpy_matrix
+        return TensorModel.get_user_matrix().numpy_matrix
 
-
-    @CacheMatrix()
     def get_apps_matrix(self):
         """
         Cathe matrix from model
 
         :return: The matrix of apps.
         """
-        return TensorModel.objects.filter(dim=1).order_by("-id")[0].numpy_matrix
+        return TensorModel.get_item_matrix().numpy_matrix
 
 DEFAULT_SETTINGS = {
     "default": {

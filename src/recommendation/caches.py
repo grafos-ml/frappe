@@ -72,21 +72,21 @@ class CacheApp(object):
         return decorated
 
 
-class CacheMatrix(object):
-    """
-    Cache the matrix so it doesn't have to get it all the time
-    """
-    NAME = 'MATRIX_%s'
-
-    def __call__(self, function):
-        """
-        The call of the view.
-        """
-        @functools.wraps(function)
-        def decorated(*args, **kwargs):
-            matrix = cache.get(CacheMatrix.NAME % function.__name__)
-            if not matrix:
-                matrix = function(*args, **kwargs)
-                cache.set(CacheMatrix.NAME % function.__name__, matrix)
-            return matrix
-        return decorated
+#class CacheMatrix(object):
+#    """
+#    Cache the matrix so it doesn't have to get it all the time
+#    """
+#    NAME = 'MATRIX_%s'
+#
+#    def __call__(self, function):
+#        """
+#        The call of the view.
+#        """
+#        @functools.wraps(function)
+#        def decorated(*args, **kwargs):
+#            matrix = cache.get(CacheMatrix.NAME % function.__name__)
+#            if not matrix:
+#                matrix = function(*args, **kwargs)
+#                cache.set(CacheMatrix.NAME % function.__name__, matrix)
+#            return matrix
+#        return decorated
