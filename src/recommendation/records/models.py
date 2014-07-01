@@ -14,6 +14,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.admin import site
 from django.db import models
 from recommendation.models import Item, User
+from recommendation.decorators import PutInThreadQueue
 
 
 class Record(models.Model):
@@ -63,10 +64,11 @@ class Record(models.Model):
         :param item: Item external_id
         """
         app = get_object_or_404(Item, external_id=item)
-        Record.objects.create(user=get_object_or_404(User, external_id=user), item=app, type=Record.CLICK)
+        PutInThreadQueue()(Record.objects.create)(user=get_object_or_404(User, external_id=user), item=app, type=Record.CLICK)
         return app.store_url
 
     @staticmethod
+    @PutInThreadQueue()
     def recommended(user, *recommended):
         """
         Log Recommended Apps
