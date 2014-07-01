@@ -152,8 +152,6 @@ class User(models.Model):
         """
         Save the user. If add a language if language is language model
         """
-        if type(self) is tuple:
-            self = self[0]
         self.save()
         if language:
             language.users.add(self)
