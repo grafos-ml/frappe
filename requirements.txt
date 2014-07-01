@@ -1,20 +1,20 @@
 django>=1.6
-cython
-nose
-django-nose
-coverage
 djangorestframework
-django-debug-toolbar
 numpy
 scipy
 pandas
-#django-templatetag-handlebars
-https://github.com/joaonrb/django-templatetag-handlebars/archive/master.zip
 pymysql
-sphinx
-python-crontab
-
-#django-crontab
-
-#https://github.com/kivy/pyjnius/archive/1.0.3.tar.gz
 django-cors-headers
+
+# for frontend
+https://github.com/joaonrb/django-templatetag-handlebars/archive/master.zip
+
+# for debug
+nose
+django-nose
+coverage
+django-coverage
+django-debug-toolbar
+
+# for Documentation
+sphinx

@@ -22,6 +22,7 @@ import numpy as np
 from recommendation.model_factory import JavaTensorCoFi, Popularity
 from django.utils.six import with_metaclass
 import sys
+from recommendation.decorators import PutInThreadQueue
 from django.core.cache import get_cache
 if sys.version_info >= (3, 0):
     basestring = unicode = str
@@ -145,6 +146,17 @@ class User(models.Model):
         Return the installed only apps
         """
         return self.items.filter(inventory__dropped_date=None)
+
+    @PutInThreadQueue()
+    def save_with(self, language=None):
+        """
+        Save the user. If add a language if language is language model
+        """
+        if type(self) is tuple:
+            self = self[0]
+        self.save()
+        if language:
+            language.users.add(self)
 
 
 class Inventory(models.Model):

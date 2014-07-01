@@ -189,11 +189,11 @@ class UserRecommendationAPI(RecommendationAPI):
         "get"
     ]
 
-    def get(self, _, user_external_id, number_of_recommendations):
+    def get(self, request, user_external_id, number_of_recommendations):
         """
         Get method to request recommendations
 
-        :param _: This is the request. It is not needed but has to be here because of the django interface with views.
+        :param request: This is the request. It is not needed but has to be here because of the django interface with views.
         :param user_external_id: The user that want the recommendation ore the object of the recommendations.
         :type user_external_id: str
         :param number_of_recommendations: Number of recommendations that are requested.

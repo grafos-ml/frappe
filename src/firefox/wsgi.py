@@ -8,10 +8,9 @@ https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
 """
 
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "firefox.development_settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "firefox.settings")
 
 from django.core.wsgi import get_wsgi_application
-from django.core.cache import get_cache
 from recommendation.models import TensorModel, PopularityModel
 
 application = get_wsgi_application()

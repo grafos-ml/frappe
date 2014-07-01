@@ -37,12 +37,11 @@ class CacheUser(object):
                 if not user:
                     try:
                         user = User.objects.get(external_id=u_id)
-                    except Exception:
+                        cache.set(CacheUser.USER % u_id, user)
+                    except User.DoesNotExist:
                         user = User(external_id=u_id)
                         en = Locale.objects.get(language_code="en")
-                        user.save()
-                        en.users.add(user)
-                    cache.set(CacheUser.USER % u_id, user)
+                        user.save_with(language=en)
                 kwargs['user'] = user
             return function(*args, **kwargs)
         return decorated
@@ -63,7 +62,7 @@ class CacheApp(object):
         def decorated(*args, **kwargs):
             a_id = kwargs["item"]
             if isinstance(a_id, basestring):
-                app = cache.get(CacheApp.App % a_id)
+                app = cache.get(CacheApp.APP % a_id)
                 if not app:
                     app = get_object_or_404(User, external_id=a_id)
                     cache.set(CacheApp.APP % a_id, app)
