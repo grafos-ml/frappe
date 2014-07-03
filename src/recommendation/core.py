@@ -88,7 +88,8 @@ class InterfaceController(object):
         :param lambda_param: regulerizer
 
         >>> pyTF = PyTensorCoFi()
-        >>> Y = np.array([[-1.0920831, -0.01566422], [-0.8727925, 0.22307773], [0.8753245, -0.80181429], [-0.1338534, -0.51448172], [-0.2144651, -0.96081265]])
+        >>> Y = np.array([[-1.0920831, -0.01566422], [-0.8727925, 0.22307773], [0.8753245, -0.80181429], \
+                          [-0.1338534, -0.51448172], [-0.2144651, -0.96081265]])
         >>> user_items = [1,3,4]
         >>> pyTF.online_user_factors(Y, user_items, p_param=10, lambda_param=0.01)
         array([-1.18324547, -0.95040477])
@@ -97,7 +98,8 @@ class InterfaceController(object):
         base1 = Y.transpose().dot(Y)
         base2 = y.transpose().dot(np.diag([p_param - 1] * y.shape[0])).dot(y)
         base = base1 + base2 + np.diag([lambda_param] * base1.shape[0])
-        u_factors = np.linalg.inv(base).dot(y.transpose()).dot(np.diag([p_param] * y.shape[0])).dot(np.ones(y.shape[0]).transpose())
+        u_factors = np.linalg.inv(base).dot(y.transpose()).dot(np.diag([p_param] *
+                                                                       y.shape[0])).dot(np.ones(y.shape[0]).transpose())
         return u_factors
 
     @CacheUser()
@@ -178,8 +180,7 @@ class InterfaceController(object):
         :return: Item external id list
         """
         result = self.get_recommendation(user=user, n=n)
-        rs = {app_id: app_eid for app_id, app_eid in Item.objects.filter(pk__in=result).values_list("pk",
-                                                                                                    "external_id")}
+        rs = Item.all_items()
         return [rs[r] for r in result]
 
 

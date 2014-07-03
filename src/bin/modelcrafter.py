@@ -46,7 +46,7 @@ import sys
 import os
 from pkg_resources import resource_filename
 sys.path.append(resource_filename(__name__, "/../"))
-import crontab
+
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from recommendation.models import TensorModel, PopularityModel
 
@@ -106,13 +106,15 @@ def work(every):
     :param every:
     :return:
     """
-    cron = crontab.CronTab(user="www", tab="Gepeto")
-    job = cron.new(command="/home/joaonrb/Workspaces/Repository/ffos/src/bin/modelcrafter.py make",
-                   comment="Create one recommendation model and store it in db")
+    raise NotImplemented
+    #cron = crontab.CronTab(user="www", tab="Gepeto")
+    #job = cron.new(command="/home/joaonrb/Workspaces/Repository/ffos/src/bin/modelcrafter.py make",
+    #               comment="Create one recommendation model and store it in db")
     # every(job)
-    job.minutes.every(2)
-    cron.write()
-    print(cron.render())
+    #job.minutes.every(2)
+    #cron.write()
+    #print(cron.render())
+
 
 OPTIONS = {
     "work": {

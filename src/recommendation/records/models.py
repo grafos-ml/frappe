@@ -55,6 +55,14 @@ class Record(models.Model):
             "item": str(self.item.external_id)
         }
 
+    def __str__(self):
+        return _("%(date)s: user %(user)s as %(type)s item %(item)s") % {
+            "date": self.timestamp,
+            "user": str(self.user.external_id),
+            "type": Record.TYPES[self.type],
+            "item": str(self.item.external_id)
+        }
+
     @staticmethod
     def click_recommended(user, item):
         """
@@ -64,7 +72,8 @@ class Record(models.Model):
         :param item: Item external_id
         """
         app = get_object_or_404(Item, external_id=item)
-        PutInThreadQueue()(Record.objects.create)(user=get_object_or_404(User, external_id=user), item=app, type=Record.CLICK)
+        PutInThreadQueue()(Record.objects.create)(user=get_object_or_404(User, external_id=user), item=app,
+                                                  type=Record.CLICK)
         return app.store_url
 
     @staticmethod

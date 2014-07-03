@@ -23,27 +23,27 @@ MAX_THREADS = 4
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ["10.22.113.20"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
 
 INSTALLED_APPS = (
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django_nose",
-    "debug_toolbar",
-    "django_coverage",
+    #"django.contrib.admin",
+    #"django.contrib.auth",
+    #"django.contrib.contenttypes",
+    #"django.contrib.sessions",
+    #"django.contrib.messages",
+    #"django.contrib.staticfiles",
+    #"django_nose",
+    #"debug_toolbar",
+    #"django_coverage",
     "rest_framework",
-    "templatetag_handlebars",
+    #"templatetag_handlebars",
     "recommendation",
     "recommendation.records",
     "recommendation.diversity",
@@ -55,14 +55,14 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    #"django.contrib.sessions.middleware.SessionMiddleware",
+    #"django.middleware.common.CommonMiddleware",
     #"django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.transaction.TransactionMiddleware",
-    "django.middleware.cache.UpdateCacheMiddleware",
+    #"django.contrib.auth.middleware.AuthenticationMiddleware",
+    #"django.contrib.messages.middleware.MessageMiddleware",
+    #"django.middleware.clickjacking.XFrameOptionsMiddleware",
+    #"django.middleware.transaction.TransactionMiddleware",
+    #"django.middleware.cache.UpdateCacheMiddleware",
     #"django.middleware.cache.FetchFromCacheMiddleware",
     #"debug_toolbar.middleware.DebugToolbarMiddleware",
 )
@@ -78,13 +78,17 @@ WSGI_APPLICATION = "firefox.wsgi.application"
 
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "recommender_v12",
-        "USER": "FFOS",
-        "PASSWORD": "pasteldenata",
+    #"default": {
+    #    "ENGINE": "django.db.backends.mysql",
+    #    "NAME": "recommender_v12",
+    #    "USER": "FFOS",
+    #    "PASSWORD": "pasteldenata",
         #"HOST": "172.16.51.128"
-        "HOST": "ana"
+    #    "HOST": "ana"
+    #},
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "recommender_v12.db"
     }
 }
 
@@ -95,9 +99,9 @@ LANGUAGE_CODE = "en-en"
 
 TIME_ZONE = "Europe/Madrid"
 
-USE_I18N = True
+USE_I18N = False
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
 
@@ -159,13 +163,13 @@ RECOMMENDATION_SETTINGS = {
     "default": {
         "core": ("recommendation.core", "Recommender"),
         "filters": [
-            ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
-            ("recommendation.language.filters", "SimpleLocaleFilter"),
+            #("recommendation.filter_owned.filters", "FilterOwnedFilter"),
+            #("recommendation.language.filters", "SimpleLocaleFilter"),
         ],
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called
             #("recommendation.records.rerankers", "SimpleLogReRanker"),
-            ("recommendation.diversity.rerankers", "DynamicDiversityReRanker")
+            #("recommendation.diversity.rerankers", "DynamicDiversityReRanker")
         ]
     }
 }

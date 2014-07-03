@@ -63,6 +63,8 @@ class Matrix(with_metaclass(models.SubfieldBase, models.TextField)):
         if isinstance(value, basestring):
             prep = bytes(value, "utf-8")
             return np.fromstring(self.DECODE_MATRIX(prep), dtype=np.float64)
+        elif isinstance(value, bytes):
+            return np.fromstring(self.DECODE_MATRIX(value), dtype=np.float64)
         return value
 
     def get_prep_value(self, value):
@@ -124,6 +126,20 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def load_to_cache():
+        items = {app_id: app_eid for app_id, app_eid in Item.objects.all().values_list("pk", "external_id")}
+        cache = get_cache("models")
+        cache.set("recommendation_items", items, None)
+
+    @staticmethod
+    def all_items():
+        """
+        Get all items from cache
+        """
+        cache = get_cache("models")
+        return cache.get("recommendation_items")
 
 
 class User(models.Model):
@@ -192,7 +208,7 @@ class TensorModel(models.Model):
         verbose_name_plural = _("factors")
 
     def __str__(self):
-        return self.matrix
+        return str(self.matrix)
 
     @property
     def numpy_matrix(self):
@@ -221,7 +237,6 @@ class TensorModel(models.Model):
         cache = get_cache("models")
         cache.set("tensorcofi_%s" % users.get_type(), users, None)
         cache.set("tensorcofi_%s" % items.get_type(), items, None)
-
 
     @staticmethod
     def get_user_matrix():
