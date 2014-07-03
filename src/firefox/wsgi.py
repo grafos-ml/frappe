@@ -11,9 +11,12 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "firefox.settings")
 
 from django.core.wsgi import get_wsgi_application
-from recommendation.models import TensorModel, PopularityModel, Item
+from recommendation.models import TensorModel, PopularityModel, Item, User
+from recommendation.language.models import Locale
 
 application = get_wsgi_application()
 PopularityModel.load_to_cache()
 TensorModel.load_to_cache()
 Item.load_to_cache()
+User.load_owned_items()
+Locale.load_unsupported_items_by_locale()

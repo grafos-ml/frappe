@@ -8,6 +8,7 @@ __author__ = "joaonrb"
 from django.db import models
 from django.utils.translation import ugettext as _
 from recommendation.models import Item, User
+from django.core.cache import get_cache
 
 
 class Locale(models.Model):
@@ -38,6 +39,21 @@ class Locale(models.Model):
         self.language_code = self.language_code.lower()
         self.country_code = self.country_code.lower()
         super(Locale, self).save(*args, **kwargs)
+
+    @staticmethod
+    def load_unsupported_items_by_locale():
+        cache = get_cache("models")
+        users = User.objects.all()
+        for u in users:
+            supported_locales = u.required_locales.values_list("language_code", flat=True)
+            unsupported_items_or_null = Item.objects.exclude(available_locales__language_code=supported_locales)
+            unsupported_items = unsupported_items_or_null.exclude(available_locales__isnull=True)
+            cache.set("user<%s>.unsupported_items" % u.external_id, list(unsupported_items), None)
+
+    @staticmethod
+    def get_unsupported_items_by_locale(user):
+        cache = get_cache("models")
+        return cache.get("user<%s>.unsupported_items" % user.external_id)
 
 from django.contrib import admin
 admin.site.register([Locale])

@@ -159,9 +159,10 @@ class User(models.Model):
     @property
     def owned_items(self):
         """
-        Return the installed only apps
+        Get the owned items from cache
         """
-        return self.items.filter(inventory__dropped_date=None)
+        cache = get_cache("models")
+        return cache.get("user<%s>.owned_items" % self.external_id, None)
 
     @PutInThreadQueue()
     def save_with(self, language=None):
@@ -171,6 +172,19 @@ class User(models.Model):
         self.save()
         if language:
             language.users.add(self)
+
+    def get_owned_items(self):
+        """
+        Return the installed only apps
+        """
+        return self.items.filter(inventory__dropped_date=None)
+
+    @staticmethod
+    def load_owned_items():
+        cache = get_cache("models")
+        users = User.objects.all()
+        for u in users:
+            cache.set("user<%s>.owned_items" % u.external_id, list(u.get_owned_items()), None)
 
 
 class Inventory(models.Model):
