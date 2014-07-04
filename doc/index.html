@@ -176,8 +176,39 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
 </td></tr></table></div>
 <p>Now you have a awesome recommendation system.</p>
 </div>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>In the package firefox there is a working example.</p>
+<ol class="arabic">
+<li><p class="first">Create the database:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ python manage.py syncdb
+</pre></div>
+</div>
+</li>
+<li><p class="first">Fill the database with some data. In the bin folder there are some dummy data:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ ./bin/fill_firefox.py items ./bin/data/app
+...
+$ .bin/fill_firefox.py users ./bin/data/user
+</pre></div>
+</div>
+</li>
+<li><p class="first">After this build the TensorCoFi and Popularity models:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ .bin/modelcrafter.py train popularity
+$ .bin/modelcrafter.py train tensorcofi
+</pre></div>
+</div>
+</li>
+<li><p class="first">Now just run the server:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ python manage.py runserver
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Now if you use the browser go to localhost:8000 you will access a example frontend that does the api calls.</p>
+</div>
 <div class="section" id="rest-api-installation">
-<h3>REST API Installation<a class="headerlink" href="#rest-api-installation" title="Permalink to this headline">¶</a></h3>
+<h2>REST API Installation<a class="headerlink" href="#rest-api-installation" title="Permalink to this headline">¶</a></h2>
 <p>There is no science behind this. Just implement a web service in the same way django-rest-framework does.</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -196,7 +227,6 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
 </div>
 </div>
 </div>
-</div>
 
 
           </div>
@@ -212,9 +242,10 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
 <li><a class="reference internal" href="#get-started">Get Started</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#plugin-installations">Plugin Installations</a></li>
-<li><a class="reference internal" href="#rest-api-installation">REST API Installation</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#rest-api-installation">REST API Installation</a></li>
 </ul>
 </li>
 </ul>
