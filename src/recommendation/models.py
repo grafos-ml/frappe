@@ -20,8 +20,7 @@ from django.utils.translation import ugettext as _
 import base64
 import numpy as np
 import pandas as pd
-from recommendation.model_factory import TensorCoFi
-from testfm.models.baseline_model import Popularity
+from recommendation.model_factory import TensorCoFi, FFPopularity
 from django.utils.six import with_metaclass
 import sys
 from recommendation.decorators import PutInThreadQueue
@@ -229,7 +228,7 @@ class TensorModel(models.Model):
         Shape the matrix in to whatever
         """
         self.matrix.shape = self.rows, self.columns
-        return np.matrix(self.matrix)
+        return self.matrix
 
     def save(self, **kwargs):
         super(TensorModel, self).save(**kwargs)
@@ -289,13 +288,21 @@ class TensorModel(models.Model):
                             n_factors=18.0, c_lambda=0.95, c_alpha=40)
         tensor.train(data)
         users, items = tensor.get_model()
-        print users, users.shape
-        print items, items.shape
         users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
         users.save()
         items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
         items.save()
         return users, items
+
+    @staticmethod
+    def to_imodel():
+        """
+        Return the testfm model
+        """
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count(), n_iterations=9.0,
+                            n_factors=18.0, c_lambda=0.95, c_alpha=40)
+        tensor.factors = [TensorModel.get_user_matrix().numpy_matrix, TensorModel.get_item_matrix().numpy_matrix]
+        return tensor
 
 
 class PopularityModel(models.Model):
@@ -343,19 +350,18 @@ class PopularityModel(models.Model):
         Train the popular model
         :return:
         """
-        popular_model = Popularity()
+        popular_model = FFPopularity(n_items=Item.objects.all().count())
         users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
         data = pd.DataFrame({"item": items, "user": users})
         popular_model.fit(data)
-        d = []
-        for i in range(Item.objects.all().count()):
-            try:
-                d.append(popular_model._counts[i+1])
-            except (IndexError, KeyError):
-                d.append(float("-inf"))
-        pop_rec = np.array(d)
-        PopularityModel.objects.create(recommendation=pop_rec, number_of_items=len(pop_rec))
+        PopularityModel.objects.create(recommendation=popular_model.recommendation,
+                                       number_of_items=len(popular_model.recommendation))
 
+    @staticmethod
+    def to_imodel():
+        p = FFPopularity(n_items=Item.objects.all().count())
+        p.recommendation = PopularityModel.get_popularity().recommendation
+        return p
 
 from django.contrib import admin
 admin.site.register([Item, User, Inventory, TensorModel, PopularityModel])

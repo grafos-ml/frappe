@@ -138,11 +138,11 @@ sys.path.append(resource_filename(__name__, "/../"))
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from django.utils.timezone import utc
 from datetime import datetime
-from django.db import connection
 from firefox.models import ItemDetail
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre
 from recommendation.language.models import Locale
+from django.db import connection
 
 BULK_QUERY = "INSERT INTO %(table)s %(columns)s VALUES %(values)s;"
 
@@ -401,9 +401,13 @@ def main(obj_type, directory):
     """
     try:
         objects = list(parse_dir(directory))
-        for i in range(0, len(objects), 100):
-            j = i+100
-            TYPE_METHOD[obj_type](objects[i:j])
+        if connection.vendor == "sqlite":
+            for i in range(0, len(objects), 100):
+                j = i+100
+                TYPE_METHOD[obj_type](objects[i:j])
+        else:
+
+            TYPE_METHOD[obj_type](objects)
     except KeyError:
         print("Wrong parameter for data type")
         traceback.print_exc()

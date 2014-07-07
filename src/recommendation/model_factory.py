@@ -20,9 +20,15 @@ from pkg_resources import resource_filename
 import shutil
 from django.db.models import Count
 from testfm.models.tensorcofi import PyTensorCoFi
+from testfm.models.baseline_model import Popularity
 
 USER = "user"
 ITEM = "item"
+
+
+class MySQLMapDummy:
+    def __getitem__(self, item):
+        return np.int32(item-1)
 
 
 class TensorCoFi(PyTensorCoFi):
@@ -38,6 +44,10 @@ class TensorCoFi(PyTensorCoFi):
         super(TensorCoFi, self).__init__(**kwargs)
         self.n_users = n_users
         self.n_items = n_items
+        self.data_map = {
+            self.get_user_column(): MySQLMapDummy(),
+            self.get_item_column(): MySQLMapDummy()
+        }
 
     def users_size(self):
         """
@@ -50,6 +60,51 @@ class TensorCoFi(PyTensorCoFi):
         Return the number of items
         """
         return self.n_items
+
+    def get_score(self, user, item):
+        return np.dot(self.factors[0][user-1], self.factors[1][item-1])
+
+
+class FFPopularity(Popularity):
+    """
+
+    """
+
+    def __init__(self, n_items=None, *args, **kwargs):
+
+        if not isinstance(n_items, int):
+            raise AttributeError("Parameter n_items must have integer")
+        super(FFPopularity, self).__init__(*args, **kwargs)
+        self.n_items = n_items
+        self.data_map = {
+            self.get_user_column(): MySQLMapDummy(),
+            self.get_item_column(): MySQLMapDummy()
+        }
+        self.popularity_recommendation = []
+
+    def fit(self, training_data):
+        """
+        Computes number of times the item was used by a user.
+        :param training_data: DataFrame training data
+        :return:
+        """
+        super(FFPopularity, self).fit(training_data)
+        for i in range(self.n_items):
+            try:
+                self._counts[i+1] = self._counts[i+1]
+            except KeyError:
+                self._counts[i+1] = float("-inf")
+        self.popularity_recommendation = [self._counts[i+1] for i in range(self.n_items)]
+        self.popularity_recommendation = np.array(self.popularity_recommendation)
+
+    @property
+    def recommendation(self):
+        return self.popularity_recommendation
+
+    @recommendation.setter
+    def recommendation(self, value):
+        self.popularity_recommendation = value
+        self._counts = {i+1: value[i] for i in range(self.n_items)}
 
 
 class JavaTensorCoFi(object):

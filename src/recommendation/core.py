@@ -121,9 +121,9 @@ class InterfaceController(object):
             if len(apps_idx) < 3:
                 raise ValueError
             u_factors = self.online_user_factors(a_matrix, apps_idx)
-            return np.squeeze(np.asarray((u_factors * a_matrix.transpose())))
+            return np.squeeze(np.asarray((u_factors * a_matrix)))
         else:
-            return np.squeeze(np.asarray((u_matrix[user.pk-1] * a_matrix.transpose())))
+            return np.squeeze(np.asarray((u_matrix[user.pk-1] * a_matrix)))
 
     def get_popularity(self):
         """
@@ -144,9 +144,10 @@ class InterfaceController(object):
         :rtype: list
         """
         try:
+        #if True:
             result = self.get_app_significance_list(user=user, u_matrix=self.get_user_matrix(),
                                                     a_matrix=self.get_apps_matrix())
-        except (ValueError, IndexError):
+        except (ValueError, IndexError, TypeError):
             print("Popularity")
             result = self.get_popularity()
         logging.debug("Matrix loaded or generated")

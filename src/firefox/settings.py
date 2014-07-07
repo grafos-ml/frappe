@@ -79,19 +79,19 @@ WSGI_APPLICATION = "firefox.wsgi.application"
 
 
 DATABASES = {
-    #"default": {
-    #    "ENGINE": "django.db.backends.mysql",
-    #    "NAME": "recommender_v12",
-    #    "USER": "FFOS",
-    #    "PASSWORD": "pasteldenata",
-        #"HOST": "172.16.51.128"
-    #    "HOST": "ana"
-    #},
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "recommender_v12.db",
-        'ATOMIC_REQUESTS': True
-    }
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "recommender_v12",
+        "USER": "FFOS",
+        "PASSWORD": "pasteldenata",
+       #"HOST": "172.16.51.128"
+        "HOST": "ana"
+    },
+    #"default": {
+    #    "ENGINE": "django.db.backends.sqlite3",
+    #    "NAME": "recommender_v12.db",
+    #    'ATOMIC_REQUESTS': True
+    #}
 }
 
 # Internationalization
