@@ -89,7 +89,8 @@ DATABASES = {
     #},
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "recommender_v12.db"
+        "NAME": "recommender_v12.db",
+        'ATOMIC_REQUESTS': True
     }
 }
 
@@ -182,8 +183,8 @@ RECOMMENDATION_SETTINGS = {
     "default": {
         "core": ("recommendation.core", "Recommender"),
         "filters": [
-            ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
-            ("recommendation.language.filters", "SimpleLocaleFilter"),
+            #("recommendation.filter_owned.filters", "FilterOwnedFilter"),
+            #("recommendation.language.filters", "SimpleLocaleFilter"),
         ],
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called

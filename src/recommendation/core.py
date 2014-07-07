@@ -80,7 +80,7 @@ class InterfaceController(object):
         :return: The matrix of apps.
         """
 
-    def online_user_factors(self, Y, user_item_ids, p_param = 10, lambda_param = 0.01):
+    def online_user_factors(self, Y, user_item_ids, p_param=10, lambda_param=0.01):
         """
         :param Y: application matrix Y.shape = (#apps, #factors)
         :param user_item_ids: the rows that correspond to installed applications in Y matrix
@@ -116,14 +116,14 @@ class InterfaceController(object):
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
 
-        if user.pk-1 > u_matrix.shape[0]:  # We have a new user, so lets construct factors for him:
-            apps_idx = [a.pk - 1 for a in user.items.all() if a.pk - 1 < a_matrix.shape[1]]
+        if user.pk-1 >= u_matrix.shape[0]:  # We have a new user, so lets construct factors for him:
+            apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= a_matrix.shape[0]]
             if len(apps_idx) < 3:
                 raise ValueError
-            u_factors = self.online_user_factors(a_matrix.transpose(), apps_idx)
-            return np.squeeze(np.asarray((u_factors * a_matrix)))
+            u_factors = self.online_user_factors(a_matrix, apps_idx)
+            return np.squeeze(np.asarray((u_factors * a_matrix.transpose())))
         else:
-            return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] * a_matrix)))
+            return np.squeeze(np.asarray((u_matrix[user.pk-1] * a_matrix.transpose())))
 
     def get_popularity(self):
         """
@@ -146,8 +146,8 @@ class InterfaceController(object):
         try:
             result = self.get_app_significance_list(user=user, u_matrix=self.get_user_matrix(),
                                                     a_matrix=self.get_apps_matrix())
-        except ValueError:
-            print("POPULARITY")
+        except (ValueError, IndexError):
+            print("Popularity")
             result = self.get_popularity()
         logging.debug("Matrix loaded or generated")
         for f in self.filters:

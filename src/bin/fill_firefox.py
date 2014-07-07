@@ -273,10 +273,10 @@ def put_items(objects):
     for external_id in details_to_enter:
         description, url, slug = items[external_id][3]
         if description:
-            description = str(description)
+            description = str(description) if sys.version_info >= (3, 0) else url.encode('utf-8')
             # description = bytes(description, "utf-8").decode("unicode_escape")
             description = description.replace('"', "'")
-        url = bytes(url, "utf-8").decode("unicode_escape")
+        url = (bytes(url, "utf-8") if sys.version_info >= (3, 0) else url.encode('utf-8')).decode("unicode_escape")
         details.append('(%s, "%s", "%s", "%s")' % (str(items_with_no_detail[str(external_id)]), description, url, slug))
     cursor.execute(BULK_QUERY % {
         "table": "firefox_itemdetail",
@@ -358,11 +358,11 @@ def put_users(objects):
             bulk_locale_user.append('("%s", "%s")' % (locales[locale], uid))
 
     cursor = connection.cursor()
-
-    cursor.execute(BULK_QUERY % {
-        "table": "language_locale_users",
-        "columns": "(locale_id, user_id)",
-        "values": ", ".join(bulk_locale_user)})
+    if len(bulk_locale_user) > 0:
+        cursor.execute(BULK_QUERY % {
+            "table": "language_locale_users",
+            "columns": "(locale_id, user_id)",
+            "values": ", ".join(bulk_locale_user)})
     print("New locale relations created ...")
 
     # Create inventory

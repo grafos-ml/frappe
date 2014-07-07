@@ -19,16 +19,15 @@ from django.db import models
 from django.utils.translation import ugettext as _
 import base64
 import numpy as np
-from recommendation.model_factory import JavaTensorCoFi, Popularity
+import pandas as pd
+from recommendation.model_factory import TensorCoFi
+from testfm.models.baseline_model import Popularity
 from django.utils.six import with_metaclass
 import sys
 from recommendation.decorators import PutInThreadQueue
 from django.core.cache import get_cache
 if sys.version_info >= (3, 0):
     basestring = unicode = str
-else:
-    def bytes(string, *args, **kwargs):
-        return str(string)
 
 
 class NotCached(Exception):
@@ -61,10 +60,10 @@ class Matrix(with_metaclass(models.SubfieldBase, models.TextField)):
         :rtype: numpy.Array
         """
         if isinstance(value, basestring):
-            prep = bytes(value, "utf-8")
-            return np.fromstring(self.DECODE_MATRIX(prep), dtype=np.float64)
+            prep = bytes(value, "utf-8") if sys.version_info >= (3, 0) else bytes(value)
+            return np.fromstring(self.DECODE_MATRIX(prep), dtype=np.float32)
         elif isinstance(value, bytes):
-            return np.fromstring(self.DECODE_MATRIX(value), dtype=np.float64)
+            return np.fromstring(self.DECODE_MATRIX(value), dtype=np.float32)
         return value
 
     def get_prep_value(self, value):
@@ -96,7 +95,7 @@ class Recommendation(with_metaclass(models.SubfieldBase, models.TextField)):
         :param value: string of a list for a recommendation
         """
         if isinstance(value, basestring):
-            prep = bytes(value, "utf-8")
+            prep = bytes(value, "utf-8") if sys.version_info >= (3, 0) else bytes(value)
             return np.fromstring(self.DECODE_MATRIX(prep), dtype=np.float64)
         return value
 
@@ -283,11 +282,15 @@ class TensorModel(models.Model):
         """
         Trains the model in to data base
         """
-        data = Inventory.objects.all().order_by("user").values_list("user", "item")
-        np_data = np.matrix([(u, i) for u, i in data])
-        tensor = JavaTensorCoFi()
-        tensor.train(np_data, users_len=len(User.objects.all()), items_len=len(Item.objects.all()))
+        #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        #data = pd.DataFrame({"item": users, "user": items})
+        data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count(), n_iterations=9.0,
+                            n_factors=18.0, c_lambda=0.95, c_alpha=40)
+        tensor.train(data)
         users, items = tensor.get_model()
+        print users, users.shape
+        print items, items.shape
         users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
         users.save()
         items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
@@ -340,9 +343,18 @@ class PopularityModel(models.Model):
         Train the popular model
         :return:
         """
-        popular_recommendation = Popularity.get_popular_items(Item)
-        PopularityModel.objects.create(recommendation=popular_recommendation,
-                                       number_of_items=len(popular_recommendation))
+        popular_model = Popularity()
+        users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        data = pd.DataFrame({"item": items, "user": users})
+        popular_model.fit(data)
+        d = []
+        for i in range(Item.objects.all().count()):
+            try:
+                d.append(popular_model._counts[i+1])
+            except (IndexError, KeyError):
+                d.append(float("-inf"))
+        pop_rec = np.array(d)
+        PopularityModel.objects.create(recommendation=pop_rec, number_of_items=len(pop_rec))
 
 
 from django.contrib import admin
