@@ -121,9 +121,9 @@ class InterfaceController(object):
             if len(apps_idx) < 3:
                 raise ValueError
             u_factors = self.online_user_factors(a_matrix, apps_idx)
-            return np.squeeze(np.asarray((u_factors * a_matrix)))
+            return np.squeeze(np.asarray((u_factors * a_matrix.transpose())))
         else:
-            return np.squeeze(np.asarray((u_matrix[user.pk-1] * a_matrix)))
+            return np.array(u_matrix[user.pk-1] * a_matrix.transpose()).squeeze()
 
     def get_popularity(self):
         """
@@ -196,7 +196,7 @@ class Recommender(InterfaceController):
 
         :return: The matrix of users.
         """
-        return TensorModel.get_user_matrix().numpy_matrix
+        return TensorModel.get_user_matrix()
 
     def get_apps_matrix(self):
         """
@@ -204,7 +204,7 @@ class Recommender(InterfaceController):
 
         :return: The matrix of apps.
         """
-        return TensorModel.get_item_matrix().numpy_matrix
+        return TensorModel.get_item_matrix()
 
 DEFAULT_SETTINGS = {
     "default": {

@@ -95,7 +95,7 @@ function loadInstalledApps(user) {
 }
 
 function loadRecommendations(user) {
-    uri = "/api/v2/recommend/16/"+user+".json";
+    uri = "/api/v2/recommend/32/"+user+".json";
     $.getJSON(uri, function(data) {
         var items = [];
         $.each(data.recommendations, function(index) {
@@ -105,7 +105,8 @@ function loadRecommendations(user) {
                 elem_data.removed_date = data.recommendations[index].dropped_date;
                 elem_data.install_or_remove = "plus";
                 elem_data.install_or_remove_color = "success";
-                elem_data.action = "item_acquire('"+user+"','"+elem_data.external_id+"');"
+                elem_data.action = "item_acquire('"+user+"','"+elem_data.external_id+"');";
+                elem_data.index = index+1;
                 items.push(elem_data);
                 if(data.recommendations.length == index+1) {
                     window.setTimeout(function () {

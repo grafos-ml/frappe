@@ -170,6 +170,10 @@ class User(models.Model):
         self.save()
         if language:
             language.users.add(self)
+        cache = get_cache("model")
+        all_users = User.all_users()
+        all_users[self.external_id] = self
+        cache.set("recommendation_users", self, None)
 
     def get_owned_items(self):
         """
@@ -183,6 +187,20 @@ class User(models.Model):
         users = User.objects.all()
         for u in users:
             cache.set("user<%s>.owned_items" % u.external_id, list(u.get_owned_items()), None)
+
+    @staticmethod
+    def load_to_cache():
+        users = {user.external_id: user for user in User.objects.all()}
+        cache = get_cache("models")
+        cache.set("recommendation_users", users, None)
+
+    @staticmethod
+    def all_users():
+        """
+        Get all items from cache
+        """
+        cache = get_cache("models")
+        return cache.get("recommendation_users")
 
 
 class Inventory(models.Model):
@@ -228,7 +246,7 @@ class TensorModel(models.Model):
         Shape the matrix in to whatever
         """
         self.matrix.shape = self.rows, self.columns
-        return self.matrix
+        return np.matrix(self.matrix)  # No Kidding. Using numpy.matrix instead numpy.array improves performance in %73
 
     def save(self, **kwargs):
         super(TensorModel, self).save(**kwargs)
@@ -247,8 +265,8 @@ class TensorModel(models.Model):
         users = TensorModel.objects.filter(dim=0).order_by("-id")[0]
         items = TensorModel.objects.filter(dim=1).order_by("-id")[0]
         cache = get_cache("models")
-        cache.set("tensorcofi_%s" % users.get_type(), users, None)
-        cache.set("tensorcofi_%s" % items.get_type(), items, None)
+        cache.set("tensorcofi_%s" % users.get_type(), users.numpy_matrix, None)
+        cache.set("tensorcofi_%s" % items.get_type(), items.numpy_matrix, None)
 
     @staticmethod
     def get_user_matrix():
@@ -259,7 +277,7 @@ class TensorModel(models.Model):
         """
         cache = get_cache("models")
         user_matrix = cache.get("tensorcofi_users")
-        if not user_matrix:
+        if user_matrix == None:
             raise NotCached("There is no user matrix in cache")
         return user_matrix
 
@@ -272,7 +290,7 @@ class TensorModel(models.Model):
         """
         cache = get_cache("models")
         item_matrix = cache.get("tensorcofi_items")
-        if not item_matrix:
+        if item_matrix == None:
             raise NotCached("There is no item matrix in cache")
         return item_matrix
 
@@ -284,8 +302,9 @@ class TensorModel(models.Model):
         #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
         #data = pd.DataFrame({"item": users, "user": items})
         data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
-        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count(), n_iterations=9.0,
-                            n_factors=18.0, c_lambda=0.95, c_alpha=40)
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count()#, n_iterations=9.0,
+                            #n_factors=18.0, c_lambda=0.95, c_alpha=40
+        )
         tensor.train(data)
         users, items = tensor.get_model()
         users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
