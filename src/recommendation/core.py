@@ -12,8 +12,9 @@ import numpy as np
 from django.conf import settings
 from recommendation.models import Item
 from recommendation.caches import CacheUser
-from recommendation.models import TensorModel, PopularityModel
+from recommendation.models import PopularityModel
 from recommendation.records.decorators import LogRecommendedApps
+from recommendation.model_factory import TensorCoFi
 import logging
 
 
@@ -66,18 +67,12 @@ class InterfaceController(object):
         """
         return self._re_rankers[:]
 
-    def get_user_matrix(self):
+    @staticmethod
+    def get_model():
         """
-        Catch the user matrix from database
+        Catch model
 
-        :return: The matrix of users.
-        """
-
-    def get_apps_matrix(self):
-        """
-        Catch the app matrix from database
-
-        :return: The matrix of apps.
+        :return: The Model
         """
 
     def online_user_factors(self, Y, user_item_ids, p_param=10, lambda_param=0.01):
@@ -103,7 +98,7 @@ class InterfaceController(object):
         return u_factors
 
     @CacheUser()
-    def get_app_significance_list(self, user, u_matrix, a_matrix):
+    def get_app_significance_list(self, user, model):
         """
         Get a List of significance values for each app
 
@@ -116,14 +111,15 @@ class InterfaceController(object):
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
 
-        if user.pk-1 >= u_matrix.shape[0]:  # We have a new user, so lets construct factors for him:
-            apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= a_matrix.shape[0]]
+        if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
+            print "Chocos"
+            apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
                 raise ValueError
-            u_factors = self.online_user_factors(a_matrix, apps_idx)
-            return np.squeeze(np.asarray((u_factors * a_matrix.transpose())))
+            u_factors = model.online_user_factors(apps_idx)
+            return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
         else:
-            return np.array(u_matrix[user.pk-1] * a_matrix.transpose()).squeeze()
+            return model.get_recommendation(user)
 
     def get_popularity(self):
         """
@@ -145,8 +141,7 @@ class InterfaceController(object):
         """
         try:
         #if True:
-            result = self.get_app_significance_list(user=user, u_matrix=self.get_user_matrix(),
-                                                    a_matrix=self.get_apps_matrix())
+            result = self.get_app_significance_list(user=user, model=self.get_model())
         except (ValueError, IndexError, TypeError):
             print("Popularity")
             result = self.get_popularity()
@@ -154,23 +149,12 @@ class InterfaceController(object):
         for f in self.filters:
             result = f(user, result, size=n)
         logging.debug("Filters finished")
-        result = [aid+1 for aid, _ in sorted(enumerate(result.tolist()), key=lambda x: x[1], reverse=True)]
+        result = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
         for r in self.rerankers:
             result = r(user, result, size=n)
         logging.debug("Re-rankers finished")
         return result[:n]
-
-    def get_recommendations_items(self, user, n=10):
-        """
-        Returns the recommendations with a list of external_is's
-
-        :param user: See parent
-        :param n: See parent
-        :return: Item external id list
-        """
-        result = self.get_recommendation(user=user, n=n)
-        rs = {app.pk: app for app in Item.objects.filter(pk__in=result)}
-        return [rs[r] for r in result]
+        #return self.run_re_rankers(recommendation=list(enumerate(result, start=1)), n=n)
 
     def get_external_id_recommendations(self, user, n=10):
         """
@@ -182,35 +166,44 @@ class InterfaceController(object):
         """
         result = self.get_recommendation(user=user, n=n)
         rs = Item.all_items()
-        return [rs[r] for r in result]
+        #return [rs[r] for r in result]
+        return [rs[r]["external_id"] for r in result]
+
+    def run_re_rankers(self, recommendation, n):
+        """
+
+        """
+        result, dropped = [], []
+        while len(result) < n:
+            item = max(recommendation, key=lambda x: x[1])
+            recommendation.remove(item)
+            if all(map(lambda x: x(item, result, dropped), self.rerankers)):
+                result.append(item[0])
+            else:
+                dropped.append(item)
+        return result
 
 
-class Recommender(InterfaceController):
+class TensorCoFiRecommender(InterfaceController):
     """
     Get the matrix from the Model
     """
 
-    def get_user_matrix(self):
+    @staticmethod
+    def get_model():
         """
-        Catch the user matrix from database
+        Catch model
 
-        :return: The matrix of users.
+        :return: The Model
         """
-        return TensorModel.get_user_matrix()
-
-    def get_apps_matrix(self):
-        """
-        Cathe matrix from model
-
-        :return: The matrix of apps.
-        """
-        return TensorModel.get_item_matrix()
+        return TensorCoFi.get_model()
 
 DEFAULT_SETTINGS = {
     "default": {
-        "core": ("recommendation.core", "Recommender"),
+        "core": ("recommendation.core", "TensorCoFiRecommender"),
         "filters": [
-
+            ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
+            ("recommendation.language.filters", "SimpleLocaleFilter"),
         ],
         "rerankers": [
             ("recommendation.records.rerankers", "SimpleLogReRanker"),

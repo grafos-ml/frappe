@@ -27,7 +27,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["gabriela"]
 
 
 # Application definition
@@ -42,10 +42,10 @@ INSTALLED_APPS = (
     #"django_nose",
     #"debug_toolbar",
     #"django_coverage",
-    "rest_framework",
+    #"rest_framework",
     #"templatetag_handlebars",
     "recommendation",
-    "recommendation.records",
+    #"recommendation.records",
     "recommendation.diversity",
     "recommendation.language",
     "recommendation.api",
@@ -55,8 +55,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = ()
-"""
-    "django.contrib.sessions.middleware.SessionMiddleware",
+"""    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     #"django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -66,7 +65,7 @@ MIDDLEWARE_CLASSES = ()
     "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.cache.FetchFromCacheMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    "recommendation.middleware.NonHtmlDebugToolbarMiddleware",
+    #"recommendation.middleware.NonHtmlDebugToolbarMiddleware",
 )
 """
 ROOT_URLCONF = "firefox.urls"
@@ -145,7 +144,7 @@ DEBUG_TOOLBAR_PANELS = (
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
-    }
+}
 
 # Rest Framework Settings
 
@@ -161,16 +160,22 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     } if DEBUG else {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "/var/tmp/django_cache",
-        "TIMEOUT": 60,
-        "OPTIONS": {
-            "MAX_ENTRIES": 100000
-        }
+        #"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        #"LOCATION": "/var/tmp/django_cache",
+        #"TIMEOUT": 60,
+        #"OPTIONS": {
+        #    "MAX_ENTRIES": 100000
+        #}
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": "unix:/tmp/frappe_models"
     },
     "models": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "/var/tmp/django_models_cache",
+        #"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        #"LOCATION": "/var/tmp/django_models_cache",
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": [
+            "unix:/tmp/frappe_models",
+        ]
     }
 }
 
@@ -178,7 +183,7 @@ CACHES = {
 
 RECOMMENDATION_SETTINGS = {
     "default": {
-        "core": ("recommendation.core", "Recommender"),
+        "core": ("recommendation.core", "TensorCoFiRecommender"),
         "filters": [
             ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
             ("recommendation.language.filters", "SimpleLocaleFilter"),

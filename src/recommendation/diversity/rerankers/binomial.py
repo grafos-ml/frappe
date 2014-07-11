@@ -13,6 +13,7 @@ __author__ = "joaonrb"
 from scipy.stats import binom
 from collections import Counter
 from itertools import chain
+from django.core.cache import get_cache
 from recommendation.diversity.models import Genre
 from recommendation.diversity.rerankers.utils import weighted_p, normalize
 
@@ -50,7 +51,7 @@ class BinomialDiversity(object):
         self.alpha_constant = alpha_constant
         user_genres = {}
         self.user_items_count = 0
-        for iid, genre in Genre.objects.filter(items__in=user.owned_items.all()).values_list("items__id", "name"):
+        for iid, genre in Genre.objects.filter(items__in=user.owned_items).values_list("items__id", "name"):
             user_genres[genre] = user_genres.get(genre, 1.) + 1.
             self.user_items_count += 1
         self.p_genre_cache = {}
@@ -167,7 +168,7 @@ class BinomialDiversityReRanker(object):
         """
         size_boost = 100
         recommendation_set = recommendation[:size_boost]
-        diversity = TurboBinomialDiversity(user, recommendation_set, size, self.alpha_constant, self.lambda_constant)
+        diversity = NeoBinomialDiversity(user, recommendation_set, size, self.alpha_constant, self.lambda_constant)
         new_recommendation = []
         for _ in range(size):
             div_list = ((item, diversity(new_recommendation, (index, item)))
@@ -175,9 +176,9 @@ class BinomialDiversityReRanker(object):
             chosen_item = max(div_list, key=lambda x: x[1])[0]
             recommendation_set.remove(chosen_item)
             new_recommendation.append(chosen_item)
-
+            diversity.update()
         result = new_recommendation + recommendation_set + recommendation[size_boost:]
-        assert len(result) == len(recommendation), "The result lost or gained elements"
+        #assert len(result) == len(recommendation), "The result lost or gained elements"
         return result
 
 
@@ -204,6 +205,152 @@ class TurboBinomialDiversity(BinomialDiversity):
         self.mapped_results = {
             "P": {}
         }
+
+    def coverage(self, recommendation):
+        """
+        This measure the coverage for this recommendation
+
+        :param recommendation: A proposal for recommendation to get the coverage.
+        :type recommendation: iterable
+        :return: The coverage of the recommendation
+        :rtype: float
+        """
+        if len(recommendation) == 0:
+            cor = list(self.genres.keys())
+            cov = 1.
+            try:
+                self.mapped_results["[]"]["cor"] = cor
+                self.mapped_results["[]"]["coverage"] = 1.
+            except KeyError:
+                self.mapped_results["[]"] = {
+                    "cor": cor, "coverage": cov
+                }
+            return 1.
+
+        # Search in cached results
+        cache_key = str(recommendation)
+        cached_results = self.mapped_results.get(cache_key, {})
+        try:
+            return cached_results["coverage"]
+        except KeyError:
+            pass
+
+        # Calculate new coverage value
+        result = 1.
+        try:
+            genres_out_recommendation = cached_results["cor"]
+        except KeyError:
+            genres_out_recommendation = \
+                self.mapped_results[str(recommendation[:-1])]["cor"][:]
+            for g in self.genre_by_item[recommendation[-1]]:
+                try:
+                    genres_out_recommendation.remove(g)
+                except ValueError:
+                    pass
+            cached_results["cor"] = genres_out_recommendation
+        for name in genres_out_recommendation:
+            p_get_genre = self.p_genre_cache[name]
+            try:
+                probability_of_genre = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+            except KeyError:
+                self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] = \
+                    binom.pmf(0, len(recommendation), p_get_genre)
+                probability_of_genre = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+
+            result *= (probability_of_genre ** (1./len(self.genres)))
+
+        cached_results["coverage"] = result
+        self.mapped_results[cache_key] = cached_results
+        return result
+
+    def non_redundancy(self, recommendation):
+        """
+        This measure the coverage for this recommendation
+
+        :param recommendation: A proposal for recommendation to get the coverage.
+        :type recommendation: iterable
+        :return: The coverage of the recommendation
+        :rtype: float
+        """
+        if len(recommendation) == 0:
+            nr = 1,
+            cf = Counter()
+            try:
+                self.mapped_results["[]"]["non redundancy"] = nr
+                self.mapped_results["[]"]["cf"] = cf
+            except KeyError:
+                self.mapped_results["[]"] = {
+                    "non redundancy": nr, "cf": cf
+                }
+            return 1.
+
+        # Search in cached results
+        cache_key = str(recommendation)
+        cached_results = self.mapped_results.get(cache_key, {})
+        try:
+            return cached_results["non redundancy"]
+        except KeyError:
+            pass
+
+        # Calculate new non-redundancy value
+        cached_results["cf"] = genre_frequency = \
+            (self.mapped_results[str(recommendation[:-1])]["cf"] + Counter(self.genre_by_item[recommendation[-1]]))
+
+        result = 1.
+        for name, genre_count in genre_frequency.items():
+            p_get_genre = self.p_genre_cache[name]
+            if p_get_genre != 0:
+                try:
+                    probability_of_genre = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+                except KeyError:
+                    self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))] = \
+                        binom.pmf(0, len(recommendation), p_get_genre)
+                    probability_of_genre = self.mapped_results["P"]["p(%s=0)N=%d" % (name, len(recommendation))]
+                p_greater_0 = 1. - probability_of_genre
+
+                try:
+                    p_greater_0_and_greater_k = self.mapped_results["P"]["p(%s>=%d)N=%d" % (name, genre_count,
+                                                                                            len(recommendation))]
+                except KeyError:
+                    gc = genre_count-1 if genre_count else 0
+                    p_greater_0_and_greater_k = 1. - binom.cdf(gc, len(recommendation), p_get_genre)
+                    self.mapped_results["P"]["p(%s>=%d)N=%d" % (name, genre_count, len(recommendation))] = \
+                        p_greater_0_and_greater_k
+
+                probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0)
+            else:
+                probability_non_redundancy = 0.
+
+            result *= (probability_non_redundancy ** (1./len(genre_frequency)))
+
+        cached_results["non redundancy"] = result
+        self.mapped_results[cache_key] = cached_results
+        return cached_results["non redundancy"]
+
+
+class NeoBinomialDiversity(BinomialDiversity):
+    """
+    Binomial diversity implementation of the paper that is described in the module
+    """
+
+    mapped_results = None
+
+    def __init__(self, user, items, size, alpha_constant, lambda_constant):
+        """
+        Constructor
+
+        :param items: A list with the items ids
+        :type items: list
+        :param size: The size of the recommendation
+        :type size: int
+        :param lambda_constant: Lambda constant. Must be between 0 and 1.
+        :type lambda_constant: float
+        """
+        super(NeoBinomialDiversity, self).__init__(user, items, size, alpha_constant, lambda_constant)
+        self.mapped_results = get_cache("default").get("diversity_p", {"P": {}})
+
+    def update(self):
+        get_cache("default").set("diversity_p", self.mapped_results)
 
     def coverage(self, recommendation):
         """

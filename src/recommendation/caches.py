@@ -32,8 +32,9 @@ class CacheUser(object):
             u_id = kwargs["user"]
             if isinstance(u_id, basestring):
                 all_users = User.all_users()
-                user = all_users[u_id]
-                if not user:
+                try:
+                    user = all_users[u_id]
+                except KeyError:
                     user = User(external_id=u_id)
                     en = Locale.objects.get(language_code="en")
                     user.save_with(language=en)

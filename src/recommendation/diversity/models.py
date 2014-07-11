@@ -11,7 +11,12 @@ __author__ = "joaonrb"
 
 from django.utils.translation import ugettext as _
 from django.db import models
-from recommendation.models import Item
+from django.core.cache import get_cache
+from recommendation.models import Item, User
+from django.db.models import Count
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib import admin
 
 
 class Genre(models.Model):
@@ -29,5 +34,24 @@ class Genre(models.Model):
     def __str__(self):
         return self.name
 
-from django.contrib import admin
+    @staticmethod
+    def load_to_cache():
+        """
+        Load size of items per genre
+        :return:
+        """
+        cache = get_cache("default")
+        cache.set("diversity_counts", dict(
+            Genre.objects.all().annotate(count=Count("items")).values_list("name", "count")), None)
+
+    def get_count(self, name):
+        cache = get_cache("default")
+        return cache.get("diversity_counts")[name]
+    #colocar items => genres na cache
+
+@receiver(post_save, sender=Item)
+def reload_genres_cache(sender, **kwargs):
+    Genre.load_to_cache()
+
+
 admin.site.register([Genre])

@@ -20,20 +20,12 @@ from django.utils.translation import ugettext as _
 import base64
 import numpy as np
 import pandas as pd
-from recommendation.model_factory import TensorCoFi, FFPopularity
 from django.utils.six import with_metaclass
 import sys
 from recommendation.decorators import PutInThreadQueue
 from django.core.cache import get_cache
 if sys.version_info >= (3, 0):
     basestring = unicode = str
-
-
-class NotCached(Exception):
-    """
-    Exception when some value not in cache
-    """
-    pass
 
 
 class Matrix(with_metaclass(models.SubfieldBase, models.TextField)):
@@ -127,7 +119,9 @@ class Item(models.Model):
 
     @staticmethod
     def load_to_cache():
-        items = {app_id: app_eid for app_id, app_eid in Item.objects.all().values_list("pk", "external_id")}
+        items = {app["id"]: app for app in Item.objects.all().prefetch_related().values("id", "name", "external_id",
+                                                                                        "available_locales",
+                                                                                        "genres__name")}
         cache = get_cache("models")
         cache.set("recommendation_items", items, None)
 
@@ -161,6 +155,13 @@ class User(models.Model):
         """
         cache = get_cache("models")
         return cache.get("user<%s>.owned_items" % self.external_id, None)
+
+    @owned_items.setter
+    def owned_items(self, value):
+        cache = get_cache("models")
+        items = cache.get("user<%s>.owned_items" % self.external_id, None)
+        items.append(value)
+        cache.set("user<%s>.owned_items" % self.external_id, items, None)
 
     @PutInThreadQueue()
     def save_with(self, language=None):
@@ -223,6 +224,10 @@ class Inventory(models.Model):
             "state": _("dropped") if self.dropped_date else _("owned"), "item": self.item.name,
             "user": self.user.external_id}
 
+    def save(self, *args, **kwargs):
+        super(Inventory, self).save(*args, **kwargs)
+        self.user.owned_items = self.item
+
 
 class TensorModel(models.Model):
     """
@@ -246,12 +251,7 @@ class TensorModel(models.Model):
         Shape the matrix in to whatever
         """
         self.matrix.shape = self.rows, self.columns
-        return np.matrix(self.matrix)  # No Kidding. Using numpy.matrix instead numpy.array improves performance in %73
-
-    def save(self, **kwargs):
-        super(TensorModel, self).save(**kwargs)
-        cache = get_cache("models")
-        cache.set("tensorcofi_%s" % self.get_type(), self, None)
+        return np.matrix(self.matrix)
 
     def get_type(self):
         """
@@ -259,69 +259,6 @@ class TensorModel(models.Model):
         :return: users if user factors and item otherwise
         """
         return "users" if self.dim == 0 else "items"
-
-    @staticmethod
-    def load_to_cache():
-        users = TensorModel.objects.filter(dim=0).order_by("-id")[0]
-        items = TensorModel.objects.filter(dim=1).order_by("-id")[0]
-        cache = get_cache("models")
-        cache.set("tensorcofi_%s" % users.get_type(), users.numpy_matrix, None)
-        cache.set("tensorcofi_%s" % items.get_type(), items.numpy_matrix, None)
-
-    @staticmethod
-    def get_user_matrix():
-        """
-        Return the user matrix from cache
-        :return: TensorModel for users.
-        :exception NotCached is raised when no user matrix on cache
-        """
-        cache = get_cache("models")
-        user_matrix = cache.get("tensorcofi_users")
-        if user_matrix == None:
-            raise NotCached("There is no user matrix in cache")
-        return user_matrix
-
-    @staticmethod
-    def get_item_matrix():
-        """
-        Return the item matrix from cache
-        :return: TensorModel for items.
-        :exception NotCached is raised when no item matrix on cache
-        """
-        cache = get_cache("models")
-        item_matrix = cache.get("tensorcofi_items")
-        if item_matrix == None:
-            raise NotCached("There is no item matrix in cache")
-        return item_matrix
-
-    @staticmethod
-    def train():
-        """
-        Trains the model in to data base
-        """
-        #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
-        #data = pd.DataFrame({"item": users, "user": items})
-        data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
-        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count()#, n_iterations=9.0,
-                            #n_factors=18.0, c_lambda=0.95, c_alpha=40
-        )
-        tensor.train(data)
-        users, items = tensor.get_model()
-        users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
-        users.save()
-        items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
-        items.save()
-        return users, items
-
-    @staticmethod
-    def to_imodel():
-        """
-        Return the testfm model
-        """
-        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count(), n_iterations=9.0,
-                            n_factors=18.0, c_lambda=0.95, c_alpha=40)
-        tensor.factors = [TensorModel.get_user_matrix().numpy_matrix, TensorModel.get_item_matrix().numpy_matrix]
-        return tensor
 
 
 class PopularityModel(models.Model):
@@ -384,3 +321,5 @@ class PopularityModel(models.Model):
 
 from django.contrib import admin
 admin.site.register([Item, User, Inventory, TensorModel, PopularityModel])
+
+# TODO import FFPopularity to testfm

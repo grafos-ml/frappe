@@ -18,12 +18,21 @@ import subprocess
 import recommendation
 from pkg_resources import resource_filename
 import shutil
+from django.core.cache import get_cache
 from django.db.models import Count
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity
+from recommendation.models import TensorModel, Inventory, User, Item
 
 USER = "user"
 ITEM = "item"
+
+
+class NotCached(Exception):
+    """
+    Exception when some value not in cache
+    """
+    pass
 
 
 class MySQLMapDummy:
@@ -63,6 +72,43 @@ class TensorCoFi(PyTensorCoFi):
 
     def get_score(self, user, item):
         return np.dot(self.factors[0][user-1], self.factors[1][item-1])
+
+    def get_recommendation(self, user, **context):
+        """
+        Get the recommendation for this user
+        """
+        return self.get_not_mapped_recommendation(user.pk, **context)
+
+    @staticmethod
+    def load_to_cache():
+        users = TensorModel.objects.filter(dim=0).order_by("-id")[0]
+        items = TensorModel.objects.filter(dim=1).order_by("-id")[0]
+
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        tensor.factors = [users.numpy_matrix, items.numpy_matrix]
+        cache = get_cache("models")
+        cache.set("tensorcofi", tensor, None)
+
+    @staticmethod
+    def get_model():
+        return get_cache("models").get("tensorcofi")
+
+    @staticmethod
+    def train():
+        """
+        Trains the model in to data base
+        """
+        #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        #data = pd.DataFrame({"item": users, "user": items})
+        data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        tensor.train(data)
+        users, items = tensor.get_model()
+        users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
+        users.save()
+        items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
+        items.save()
+        return users, items
 
 
 class FFPopularity(Popularity):
