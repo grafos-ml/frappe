@@ -45,7 +45,7 @@ INSTALLED_APPS = (
     #"rest_framework",
     #"templatetag_handlebars",
     "recommendation",
-    #"recommendation.records",
+    "recommendation.records",
     "recommendation.diversity",
     "recommendation.language",
     "recommendation.api",
@@ -160,22 +160,20 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     } if DEBUG else {
-        #"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        #"LOCATION": "/var/tmp/django_cache",
-        #"TIMEOUT": 60,
-        #"OPTIONS": {
-        #    "MAX_ENTRIES": 100000
-        #}
-        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
-        "LOCATION": "unix:/tmp/frappe_models"
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "/var/tmp/django_cache",
+        "TIMEOUT": 60,
+        "OPTIONS": {
+            "MAX_ENTRIES": 100000
+        }
+        #"BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        #"LOCATION": "unix:/tmp/frappe_models"
     },
     "models": {
-        #"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        #"LOCATION": "/var/tmp/django_models_cache",
-        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
-        "LOCATION": [
-            "unix:/tmp/frappe_models",
-        ]
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "/var/tmp/django_models_cache",
+        #"BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        #"LOCATION": "unix:/tmp/frappe_models"
     }
 }
 
@@ -191,7 +189,9 @@ RECOMMENDATION_SETTINGS = {
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called
             #("recommendation.records.rerankers", "SimpleLogReRanker"),
-            #("recommendation.diversity.rerankers", "DynamicDiversityReRanker")
+            #("recommendation.diversity.rerankers", "DynamicDiversityReRanker"),
+            #("recommendation.diversity.rerankers.diversity_reranker", "DiversityReRanker"),
+            ("recommendation.diversity.rerankers.simple", "SimpleDiversityReRanker")
         ]
     }
 }

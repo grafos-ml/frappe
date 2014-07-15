@@ -112,7 +112,6 @@ class InterfaceController(object):
         # previous user.
 
         if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
-            print "Chocos"
             apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
                 raise ValueError

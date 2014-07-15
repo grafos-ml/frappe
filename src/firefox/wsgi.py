@@ -15,7 +15,7 @@ from django.core.cache import get_cache
 from recommendation.models import PopularityModel, Item, User
 from recommendation.language.models import Locale
 from recommendation.model_factory import TensorCoFi
-#from recommendation.diversity.models import Genre
+from recommendation.diversity.models import Genre
 
 get_cache("default").clear()
 get_cache("models").clear()
@@ -26,4 +26,4 @@ Item.load_to_cache()
 User.load_to_cache()
 User.load_owned_items()
 Locale.load_unsupported_items_by_locale()
-#Genre.load_to_cache()
+Genre.load_to_cache()
