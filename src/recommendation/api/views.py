@@ -9,6 +9,7 @@ The views for the Recommend API.
 """
 __author__ = "joaonrb"
 
+import random
 from django.conf import settings
 from django.db import connection
 from django.db.utils import OperationalError, IntegrityError
@@ -191,7 +192,7 @@ class UserRecommendationAPI(RecommendationAPI):
         "get"
     ]
 
-    def get(self, request, user_external_id, number_of_recommendations):
+    def get(self, request, user_external_id="", number_of_recommendations=5):
         """
         Get method to request recommendations
 
@@ -202,6 +203,8 @@ class UserRecommendationAPI(RecommendationAPI):
         :type number_of_recommendations: int
         :return: A HTTP response with a list of recommendations.
         """
+        if user_external_id == "":
+            user_external_id = random.sample(User.all_users(), 1)[0]
         recommended_apps = DEFAULT_RECOMMENDATION.get_external_id_recommendations(user_external_id,
                                                                                   n=int(number_of_recommendations))
         data = {"user": user_external_id, "recommendations": recommended_apps}

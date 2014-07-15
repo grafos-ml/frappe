@@ -43,7 +43,7 @@ class Binomial(IDiversity):
         :param p: Probability of success
         :return: The probability
         """
-        key = "PxEk_xISbinom_nIS%d_pIS%f_AND_kIS%d" % (k, n, p)
+        key = "PxEk_xISbinom_nIS%d_pIS%f_AND_kIS%d" % (n, p, k)
         result = self.cache.get(key)
         if not result:
             result = binom.pmf(k, n, p)
@@ -58,7 +58,7 @@ class Binomial(IDiversity):
         :param p: Probability of success
         :return: The probability
         """
-        key = "PxMEk_xISbinom_nIS%d_pIS%f_AND_kIS%d" % (k, n, p)
+        key = "PxMEk_xISbinom_nIS%d_pIS%f_AND_kIS%d" % (n, p, k)
         result = self.cache.get(key)
         if not result:
             result = binom.cdf(k, n, p)
@@ -74,31 +74,30 @@ class Binomial(IDiversity):
         :param p_item_has_genre: List of probabilities for genre to appear in a random item.
         :return: The amount of coverage such a recommendation achieve.
         """
-        key = "cv_%d_%d_%s" % (recommendation_size, genre_size, p_item_has_genre)
-        coverage = self.cache.get(key)
-        if not coverage:
+        #key = "cv_%d_%d_%s" % (recommendation_size, genre_size, p_item_has_genre)
+        #coverage = self.cache.get(key)
+        #if not coverage:
         #if True:
-            coverage = 1.
-            for p_genre in p_item_has_genre:
-                probability_of_genre = self.binomial_pmf(0, recommendation_size, p_genre) ** (1./genre_size)
-                coverage *= probability_of_genre
-            self.cache.set(key, coverage)
+        coverage = 1.
+        for p_genre in p_item_has_genre:
+            probability_of_genre = self.binomial_pmf(0, recommendation_size, p_genre) ** (1./genre_size)
+            coverage *= probability_of_genre
+        #    self.cache.set(key, coverage)
         return coverage
 
     def non_redundancy(self, recommendation_size, genre_p_and_freq_in_rec):
-        key = "nr_%d_%s" % (recommendation_size, genre_p_and_freq_in_rec)
-        non_redundancy = self.cache.get(key)
-        if not non_redundancy:
+        #key = "nr_%d_%s" % (recommendation_size, genre_p_and_freq_in_rec)
+        #non_redundancy = self.cache.get(key)
+        #if not non_redundancy:
         #if True:
-            non_redundancy = 1.
-            for p_genre, frequency_genre in genre_p_and_freq_in_rec:
-                p_greater_0 = 1 - self.binomial_pmf(0, recommendation_size, p_genre)
-                p_greater_0_and_greater_k = 1. - self.binomial_cdf(frequency_genre-1 if frequency_genre else 0,
-                                                                   recommendation_size, p_genre)
-                probability_non_redundancy = \
-                    (p_greater_0_and_greater_k/p_greater_0) ** (1./len(genre_p_and_freq_in_rec))
-                non_redundancy *= probability_non_redundancy
-            self.cache.set(key, non_redundancy)
+        non_redundancy = 1.
+        for p_genre, frequency_genre in genre_p_and_freq_in_rec:
+            p_greater_0 = 1. - self.binomial_pmf(0, recommendation_size, p_genre)
+            p_greater_0_and_greater_k = 1. - self.binomial_cdf(frequency_genre-1 if frequency_genre else 0,
+                                                               recommendation_size, p_genre)
+            p_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(genre_p_and_freq_in_rec))
+            non_redundancy *= p_non_redundancy
+        #    self.cache.set(key, non_redundancy)
         return non_redundancy
 
     def get_diversity(self, recommendation):
@@ -114,7 +113,7 @@ class Binomial(IDiversity):
         genre_size = Genre.count_all()
         items_size = len(Item.all_items())
         genres = Genre.genre_in(recommendation)  # frequency in rec, frequency in DB
-        get_p = lambda x: weighted_p(x[1]/items_size, x[0]/self.user_items, self.alpha_constant)
+        get_p = lambda x: weighted_p(float(x[1])/items_size, float(x[0])/self.user_items, self.alpha_constant)
         p_item_has_genre = map(get_p, genres)
         genre_gp_and_lfreq = map(lambda x: (get_p(x), x[0]), genres)
         return self.coverage(rec_size, genre_size, p_item_has_genre) * self.non_redundancy(rec_size, genre_gp_and_lfreq)
@@ -172,14 +171,20 @@ class DiversityReRanker(object):
         :return: The re-ranked recommendation
         :rtype: list
         """
-        depth = size if "depth" in kwargs else kwargs["depht"]
-        r_set = recommendation
+        depth = size if "depth" not in kwargs else kwargs["depth"]
+        r_set = recommendation[:]
         #diversity = TurboBinomialDiversity(user, recommendation_set, size, self.alpha_constant, self.lambda_constant)
         diversity = Binomial(user, self.alpha_constant, self.lambda_constant)
         new_recommendation = []
         while len(new_recommendation) != size:
-            div_list = ((r_set[i], diversity(new_recommendation, (i+1, r_set[1]))) for i in range(depth))
-            chosen_item, _ = max(div_list, key=lambda x: x[1])
+            #div_list = ((r_set[i], diversity(new_recommendation, (i+1, r_set[i]))) for i in range(depth))
+            #div_list = list(div_list)
+            #chosen_item, _ = max(div_list, key=lambda x: x[1])
+            acceptance, chosen_item = diversity(new_recommendation, (1, r_set[0])), r_set[0]
+            for i, item in enumerate(r_set[1:], start=2):
+                if diversity(new_recommendation, (i, item)) > acceptance or i >= depth:
+                    chosen_item = item
+                    break
             r_set.remove(chosen_item)
             new_recommendation.append(chosen_item)
             #diversity.update()

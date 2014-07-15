@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ["gabriela"]
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     #"django.contrib.admin",
     #"django.contrib.auth",
     #"django.contrib.contenttypes",
@@ -52,7 +52,13 @@ INSTALLED_APPS = (
     #"firefox",
     #"firefox.api",
     #"firefox.gui",
-)
+]
+if DEBUG:
+    INSTALLED_APPS += [
+        "django.contrib.admin",
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        ]
 
 MIDDLEWARE_CLASSES = ()
 """    "django.contrib.sessions.middleware.SessionMiddleware",

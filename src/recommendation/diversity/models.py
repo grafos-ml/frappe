@@ -59,11 +59,12 @@ class Genre(models.Model):
         items = cache.get("diversity_genre_per_item")
         result = {}
         for genres in (items[item] for item in item_list):
-            for genre in ([genres] if isinstance(genres, (str, unicode)) else genres):
-                try:
-                    result[genre] = result[genre][0]+1, result[genre][1]
-                except KeyError:
-                    result[genre] = 1, d_counts[genre]
+            if genres != None:
+                for genre in ([genres] if isinstance(genres, (str, unicode)) else genres):
+                    try:
+                        result[genre] = result[genre][0]+1, result[genre][1]
+                    except KeyError:
+                        result[genre] = 1, d_counts[genre]
         return result.values()
     #colocar items => genres na cache
 
