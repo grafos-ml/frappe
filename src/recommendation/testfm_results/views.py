@@ -11,7 +11,8 @@ from rest_framework.views import APIView
 import pandas as pd
 import testfm
 from testfm.evaluation.evaluator import Evaluator
-from recommendation.models import Inventory, PopularityModel, TensorModel
+from recommendation.models import Inventory, Item
+from recommendation.model_factory import TensorCoFi, Popularity
 
 
 class AnalyzeModels(APIView):
@@ -29,10 +30,10 @@ class AnalyzeModels(APIView):
         users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
         df = pd.DataFrame({"user": users, "item": items})
         evaluator = Evaluator(use_multi_threading=False)
-        training, testing = testfm.split.holdoutByRandom(df, 0.2)
-        tensor = TensorModel.to_imodel()
-        pop = PopularityModel.to_imodel()
-        items = training.item.unique()
+        #training, testing = testfm.split.holdoutByRandom(df, 0.2)
+        tensor = TensorCoFi.get_model()
+        pop = Popularity.get_model()
+        items = pd.Series(list(range(1, len(Item.all_items())+1)))
         response = {
             tensor.get_name(): evaluator.evaluate_model(tensor, df, all_items=items, non_relevant_count=non_rel),
             pop.get_name(): evaluator.evaluate_model(pop, df, all_items=items, non_relevant_count=non_rel)

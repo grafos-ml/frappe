@@ -40,7 +40,10 @@ class NotCached(Exception):
 
 class MySQLMapDummy:
     def __getitem__(self, item):
-        return np.int32(item-1)
+        return int(item-1)
+
+    def __setitem__(self, item, value):
+        pass
 
 
 class TensorCoFi(PyTensorCoFi):
@@ -54,6 +57,7 @@ class TensorCoFi(PyTensorCoFi):
         if not isinstance(n_items, int) or not isinstance(n_users, int):
             raise AttributeError("Parameter n_items and n_users must have integer")
         super(TensorCoFi, self).__init__(**kwargs)
+        self.dimensions = [n_users, n_items]
         self.n_users = n_users
         self.n_items = n_items
         self.data_map = {
@@ -74,7 +78,11 @@ class TensorCoFi(PyTensorCoFi):
         return self.n_items
 
     def get_score(self, user, item):
-        return np.dot(self.factors[0][user-1], self.factors[1][item-1])
+        #print self.factors[0][user-1].shape, self.factors[1][item-1].shape
+        #result = super(TensorCoFi, self).get_score(user, item)
+        #print result
+        #return result
+        return np.dot(self.factors[0][user-1], self.factors[1][item-1].transpose())
 
     def get_recommendation(self, user, **context):
         """
@@ -146,6 +154,10 @@ class Popularity(TestFMPopulariy):
         self.popularity_recommendation = [self._counts[i+1] for i in range(self.n_items)]
         self.popularity_recommendation = np.array(self.popularity_recommendation)
 
+    #def get_score(self, user, item, **kwargs):
+    #    print self._counts
+    #    super(Popularity, self).get_score(user, item, **kwargs)
+
     @property
     def recommendation(self):
         return self.popularity_recommendation
@@ -158,7 +170,7 @@ class Popularity(TestFMPopulariy):
     @staticmethod
     def load_to_cache():
         pop = PopularityModel.objects.all().order_by("-id")[0]
-        model = Popularity(n_items=PopularityModel.objects.all().count())
+        model = Popularity(n_items=Item.objects.all().count())
         model.recommendation = pop.recommendation
         cache = get_cache("models")
         cache.set("popularity", model, None)

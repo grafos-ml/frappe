@@ -31,6 +31,5 @@ urlpatterns = patterns("",
         name='user_items_file_api'),
     url(r'^users/(?P<data_format>\w+)/$', views.UsersAPI().as_view(), name='user_api'),
     url(r'^users/$', views.UsersAPI().as_view(), name='user_no_format_api'),
-    url(r'^users.(?P<data_format>\w+)$', views.UsersAPI().as_view(), name='user_file_api'),
-    url(r"^testfm/$", AnalyzeModels.as_view())
+    url(r'^users.(?P<data_format>\w+)$', views.UsersAPI().as_view(), name='user_file_api')
 )
