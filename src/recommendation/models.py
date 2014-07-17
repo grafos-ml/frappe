@@ -154,7 +154,7 @@ class User(models.Model):
         Get the owned items from cache
         """
         cache = get_cache("models")
-        return cache.get("user<%s>.owned_items" % self.external_id, None)
+        return cache.get("user<%s>.owned_items" % self.external_id, [])
 
     @owned_items.setter
     def owned_items(self, value):
