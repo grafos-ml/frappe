@@ -281,43 +281,6 @@ class PopularityModel(models.Model):
         cache = get_cache("models")
         cache.set("popularity", self, None)
 
-    @staticmethod
-    def get_popularity():
-        """
-        Return the popularity recommendation
-        :return: Latest PopularityModel.
-        :exception NotCached is raised when no popularity model is on cache
-        """
-        cache = get_cache("models")
-        user_matrix = cache.get("popularity")
-        if not user_matrix:
-            raise NotCached("There is no popular recommendation in cache")
-        return user_matrix
-
-    @staticmethod
-    def load_to_cache():
-        pop = PopularityModel.objects.all().order_by("-id")[0]
-        cache = get_cache("models")
-        cache.set("popularity", pop, None)
-
-    @staticmethod
-    def train():
-        """
-        Train the popular model
-        :return:
-        """
-        popular_model = FFPopularity(n_items=Item.objects.all().count())
-        users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
-        data = pd.DataFrame({"item": items, "user": users})
-        popular_model.fit(data)
-        PopularityModel.objects.create(recommendation=popular_model.recommendation,
-                                       number_of_items=len(popular_model.recommendation))
-
-    @staticmethod
-    def to_imodel():
-        p = FFPopularity(n_items=Item.objects.all().count())
-        p.recommendation = PopularityModel.get_popularity().recommendation
-        return p
 
 from django.contrib import admin
 admin.site.register([Item, User, Inventory, TensorModel, PopularityModel])

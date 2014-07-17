@@ -23,7 +23,7 @@ MAX_THREADS = 4
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = bool(1)
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -49,16 +49,16 @@ INSTALLED_APPS = [
     "recommendation.diversity",
     "recommendation.language",
     "recommendation.api",
-    #"firefox",
-    #"firefox.api",
-    #"firefox.gui",
+    "firefox",
+    "firefox.api",
+    "firefox.gui",
 ]
 if DEBUG:
     INSTALLED_APPS += [
         "django.contrib.admin",
         "django.contrib.auth",
         "django.contrib.contenttypes",
-        ]
+    ]
 
 MIDDLEWARE_CLASSES = ()
 """    "django.contrib.sessions.middleware.SessionMiddleware",

@@ -12,9 +12,8 @@ import numpy as np
 from django.conf import settings
 from recommendation.models import Item
 from recommendation.caches import CacheUser
-from recommendation.models import PopularityModel
 from recommendation.records.decorators import LogRecommendedApps
-from recommendation.model_factory import TensorCoFi
+from recommendation.model_factory import TensorCoFi, Popularity
 import logging
 
 
@@ -98,7 +97,7 @@ class InterfaceController(object):
         return u_factors
 
     @CacheUser()
-    def get_app_significance_list(self, user, model):
+    def get_recommendation_from_model(self, user):
         """
         Get a List of significance values for each app
 
@@ -110,7 +109,7 @@ class InterfaceController(object):
         """
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
-
+        model = self.get_model()
         if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
             apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
@@ -120,12 +119,13 @@ class InterfaceController(object):
         else:
             return model.get_recommendation(user)
 
-    def get_popularity(self):
+    @staticmethod
+    def get_alternative(user):
         """
         Return the popular items
         :return: list
         """
-        return PopularityModel.get_popularity().recommendation
+        return Popularity.get_model().recommendation
 
     @CacheUser()
     @LogRecommendedApps()
@@ -139,11 +139,10 @@ class InterfaceController(object):
         :rtype: list
         """
         try:
-        #if True:
-            result = self.get_app_significance_list(user=user, model=self.get_model())
-        except (ValueError, IndexError, TypeError):
-            print("Popularity")
-            result = self.get_popularity()
+            result = self.get_recommendation_from_model(user=user)
+        except Exception:
+            print("Wild error appear in core recommendation")
+            result = self.get_alternative(user)
         logging.debug("Matrix loaded or generated")
         for f in self.filters:
             result = f(user, result, size=n)

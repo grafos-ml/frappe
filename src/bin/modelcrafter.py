@@ -48,7 +48,7 @@ from pkg_resources import resource_filename
 sys.path.append(resource_filename(__name__, "/../"))
 
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
-from recommendation.models import TensorModel, PopularityModel
+from recommendation.model_factory import TensorCoFi, Popularity
 
 
 class ModelCrafterError(Exception):
@@ -88,8 +88,8 @@ class TimeInterval(object):
         return job
 
 MODELS = {
-    "tensorcofi": TensorModel,
-    "popularity": PopularityModel
+    "tensorcofi": TensorCoFi,
+    "popularity": Popularity
 }
 
 

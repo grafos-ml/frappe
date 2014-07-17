@@ -11,18 +11,21 @@
 
 __author__ = "joaonrb"
 
+"""
 import os
-import numpy as np
 import datetime
 import subprocess
 import recommendation
 from pkg_resources import resource_filename
 import shutil
-from django.core.cache import get_cache
 from django.db.models import Count
+"""
+import pandas as pd
+import numpy as np
+from django.core.cache import get_cache
 from testfm.models.tensorcofi import PyTensorCoFi
-from testfm.models.baseline_model import Popularity
-from recommendation.models import TensorModel, Inventory, User, Item
+from testfm.models.baseline_model import Popularity as TestFMPopulariy
+from recommendation.models import TensorModel, PopularityModel, Inventory, User, Item
 
 USER = "user"
 ITEM = "item"
@@ -102,8 +105,8 @@ class TensorCoFi(PyTensorCoFi):
         #data = pd.DataFrame({"item": users, "user": items})
         data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
         tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
-        tensor.train(data)
-        users, items = tensor.get_model()
+        super(TensorCoFi, tensor).train(data)
+        users, items = super(TensorCoFi, tensor).get_model()
         users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
         users.save()
         items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
@@ -111,7 +114,7 @@ class TensorCoFi(PyTensorCoFi):
         return users, items
 
 
-class FFPopularity(Popularity):
+class Popularity(TestFMPopulariy):
     """
 
     """
@@ -120,7 +123,7 @@ class FFPopularity(Popularity):
 
         if not isinstance(n_items, int):
             raise AttributeError("Parameter n_items must have integer")
-        super(FFPopularity, self).__init__(*args, **kwargs)
+        super(Popularity, self).__init__(*args, **kwargs)
         self.n_items = n_items
         self.data_map = {
             self.get_user_column(): MySQLMapDummy(),
@@ -134,7 +137,7 @@ class FFPopularity(Popularity):
         :param training_data: DataFrame training data
         :return:
         """
-        super(FFPopularity, self).fit(training_data)
+        super(Popularity, self).fit(training_data)
         for i in range(self.n_items):
             try:
                 self._counts[i+1] = self._counts[i+1]
@@ -152,7 +155,38 @@ class FFPopularity(Popularity):
         self.popularity_recommendation = value
         self._counts = {i+1: value[i] for i in range(self.n_items)}
 
+    @staticmethod
+    def load_to_cache():
+        pop = PopularityModel.objects.all().order_by("-id")[0]
+        model = Popularity(n_items=PopularityModel.objects.all().count())
+        model.recommendation = pop.recommendation
+        cache = get_cache("models")
+        cache.set("popularity", model, None)
 
+    @staticmethod
+    def get_model():
+        return get_cache("models").get("popularity")
+
+    def get_recommendation(self, user, **context):
+        """
+        Get the recommendation for this user
+        """
+        return self.recommendation
+
+    @staticmethod
+    def train():
+        """
+        Train the popular model
+        :return:
+        """
+        popular_model = Popularity(n_items=Item.objects.all().count())
+        users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        data = pd.DataFrame({"item": items, "user": users})
+        popular_model.fit(data)
+        PopularityModel.objects.create(recommendation=popular_model.recommendation,
+                                       number_of_items=len(popular_model.recommendation))
+
+'''
 class JavaTensorCoFi(object):
     """
     Loads the tensor from the database based on file exchange
@@ -273,3 +307,5 @@ class Popularity(object):
         toSting like
         """
         return "Popularity"
+
+'''
