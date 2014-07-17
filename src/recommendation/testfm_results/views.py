@@ -9,7 +9,6 @@ __author__ = "joaonrb"
 from recommendation.api.views import JSONResponse
 from rest_framework.views import APIView
 import pandas as pd
-import testfm
 from testfm.evaluation.evaluator import Evaluator
 from recommendation.models import Inventory, Item
 from recommendation.model_factory import TensorCoFi, Popularity

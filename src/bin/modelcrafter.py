@@ -97,7 +97,7 @@ def craft_model():
     """
     This crafts a model for the recommendation system.
     """
-    MODELS[sys.argv[2]].train()
+    MODELS[sys.argv[2]].train_from_db()
 
 
 def work(every):

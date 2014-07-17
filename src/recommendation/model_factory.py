@@ -101,20 +101,35 @@ class TensorCoFi(PyTensorCoFi):
         cache.set("tensorcofi", tensor, None)
 
     @staticmethod
-    def get_model():
+    def get_model(*args, **kwargs):
         return get_cache("models").get("tensorcofi")
 
     @staticmethod
-    def train():
+    def train_from_db(*args, **kwargs):
         """
         Trains the model in to data base
         """
         #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
         #data = pd.DataFrame({"item": users, "user": items})
-        data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
+
         tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
         super(TensorCoFi, tensor).train(data)
         users, items = super(TensorCoFi, tensor).get_model()
+        users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
+        users.save()
+        items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
+        items.save()
+        return users, items
+
+    def train(self, data):
+        """
+        Trains the model in to data base
+        """
+        #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        #data = pd.DataFrame({"item": users, "user": items})
+        super(TensorCoFi, self).train(data)
+        users, items = super(TensorCoFi, self).get_model()
         users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
         users.save()
         items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
@@ -197,6 +212,7 @@ class Popularity(TestFMPopulariy):
         popular_model.fit(data)
         PopularityModel.objects.create(recommendation=popular_model.recommendation,
                                        number_of_items=len(popular_model.recommendation))
+    train_from_db = train
 
 '''
 class JavaTensorCoFi(object):
