@@ -227,8 +227,8 @@ except AttributeError:
 RECOMMENDATION_ENGINES = {}
 for engine, engine_settings in RECOMMENDATION_SETTINGS.items():
     rec_mod, rec_class = engine_settings["core"]
-
-    RECOMMENDATION_ENGINES[engine] = getattr(__import__(rec_mod, fromlist=[""]), rec_class)()
+    args, kwargs = engine_settings.get("core params", ((), {}))
+    RECOMMENDATION_ENGINES[engine] = getattr(__import__(rec_mod, fromlist=[""]), rec_class)(*args, **kwargs)
 
     # Register Filters
     for mod, filter_class in engine_settings["filters"]:

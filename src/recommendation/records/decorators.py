@@ -46,6 +46,13 @@ class LogRecommendedApps(object):
 
     def __init__(self):
         self.is_this_installed = "recommendation.records" in settings.INSTALLED_APPS
+        if hasattr(settings, "RECOMMENDATION_LOGGER"):
+            full_path = settings.RECOMMENDATION_LOGGER
+            parts = full_path.split(".")
+            mod, cls = ".".join(parts[:-1]), parts[-1]
+            self.logger = getattr(__import__(mod, fromlist=[""]), cls)
+        else:
+            self.logger = Record
 
     def __call__(self, function):
         """
@@ -59,6 +66,6 @@ class LogRecommendedApps(object):
                     user = kwargs["user"]
                 except KeyError:
                     user = args[0]
-                Record.recommended(user, *result)
+                self.logger.recommended(user, *result)
             return result
         return decorated

@@ -242,7 +242,7 @@ def put_items(objects):
         for item_eid, item_id in new_items.items():
             for genre in items[item_eid][1]:
                 relation.append("(%s, %s)" % (str(genres[genre].id), item_id))
-        cursor.execute(BULK_QUERY % {
+        p = cursor.execute(BULK_QUERY % {
             "table": "diversity_genre_items",
             "columns": "(genre_id, item_id)",
             "values": ", ".join(relation)})
