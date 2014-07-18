@@ -73,6 +73,15 @@ class InterfaceController(object):
 
         :return: The Model
         """
+        raise NotImplemented
+
+    @staticmethod
+    def get_alternative(user):
+        """
+        Return the popular items
+        :return: list
+        """
+        raise NotImplemented
 
     def online_user_factors(self, Y, user_item_ids, p_param=10, lambda_param=0.01):
         """
@@ -118,14 +127,6 @@ class InterfaceController(object):
             return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
         else:
             return model.get_recommendation(user)
-
-    @staticmethod
-    def get_alternative(user):
-        """
-        Return the popular items
-        :return: list
-        """
-        return Popularity.get_model().recommendation
 
     @CacheUser()
     @LogRecommendedApps()
@@ -195,6 +196,14 @@ class TensorCoFiRecommender(InterfaceController):
         :return: The Model
         """
         return TensorCoFi.get_model()
+
+    @staticmethod
+    def get_alternative(user):
+        """
+        Return the popular items
+        :return: list
+        """
+        return Popularity.get_model().recommendation
 
 DEFAULT_SETTINGS = {
     "default": {
