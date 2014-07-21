@@ -13,6 +13,8 @@ __author__ = {
 }
 
 from recommendation.records.models import Record
+from recommendation.decorators import ILogger
+from recommendation.models import Item
 import functools
 from django.conf import settings
 
@@ -46,13 +48,6 @@ class LogRecommendedApps(object):
 
     def __init__(self):
         self.is_this_installed = "recommendation.records" in settings.INSTALLED_APPS
-        #if hasattr(settings, "RECOMMENDATION_LOGGER"):
-        #    full_path = settings.RECOMMENDATION_LOGGER
-        #    parts = full_path.split(".")
-        #    mod, cls = ".".join(parts[:-1]), parts[-1]
-        #    self.logger = getattr(__import__(mod, fromlist=[""]), cls)
-        #else:
-        self.logger = Record
 
     def __call__(self, function):
         """
@@ -66,6 +61,31 @@ class LogRecommendedApps(object):
                     user = kwargs["user"]
                 except KeyError:
                     user = args[0]
-                self.logger.recommended(user, *result)
+                Record.recommended(user, *result)
+            return result
+        return decorated
+
+
+class LogEventInRecords(ILogger):
+    """
+    Log invents into database
+    """
+
+    CLICK = Record.CLICK
+    ACQUIRE = Record.INSTALL
+    REMOVE = Record.REMOVE
+    RECOMMEND = Record.RECOMMEND
+
+    def __init__(self, log_type, *args, **kwargs):
+        self.log_type = log_type
+
+    def __call__(self, function):
+        @functools.wraps(function)
+        def decorated(*args, **kwargs):
+            user_external_id, item_external_id = args[0], args[1]
+            result = function(*args, **kwargs)
+            r = Record(user_id=user_external_id, item=Item.objects.get(external_id=item_external_id),
+                       type=self.log_type)
+            r.save()
             return result
         return decorated

@@ -82,7 +82,7 @@ if DEBUG:
         "django.middleware.cache.UpdateCacheMiddleware",
         "django.middleware.cache.FetchFromCacheMiddleware",
         "debug_toolbar.middleware.DebugToolbarMiddleware",
-        "recommendation.middleware.NonHtmlDebugToolbarMiddleware",
+        #"recommendation.middleware.NonHtmlDebugToolbarMiddleware",
     ]
 ROOT_URLCONF = "firefox.urls"
 
@@ -212,3 +212,5 @@ RECOMMENDATION_SETTINGS = {
         ]
     }
 }
+
+RECOMMENDATION_LOGGER = "recommendation.records.decorators.LogEventInRecords"

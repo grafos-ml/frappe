@@ -19,7 +19,6 @@ from django.db import models
 from django.utils.translation import ugettext as _
 import base64
 import numpy as np
-import pandas as pd
 from django.utils.six import with_metaclass
 import sys
 from recommendation.decorators import PutInThreadQueue

@@ -30,3 +30,30 @@ class PutInThreadQueue(object):
             tread_pool.submit(function, *args, **kwargs)
             return None
         return decorated
+
+
+class ILogger(object):
+    """
+    Logger for the recommendation system
+    """
+    CLICK = 0
+    ACQUIRE = 0
+    REMOVE = 0
+    RECOMMEND = 0
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, function):
+        raise NotImplemented
+
+
+class NoLogger(ILogger):
+    """
+    Don't log
+    """
+    def __call__(self, function):
+        @functools.wraps(function)
+        def decorated(*args, **kwargs):
+            return function(*args, **kwargs)
+        return decorated

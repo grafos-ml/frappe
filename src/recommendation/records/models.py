@@ -94,4 +94,5 @@ class Record(models.Model):
         Record.objects.bulk_create(logs)
         post_save.send(sender=Record, instance=logs)
 
+
 site.register([Record])
