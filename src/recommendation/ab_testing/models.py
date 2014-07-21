@@ -9,6 +9,7 @@ Models for ab testing
 
 from django.utils.translation import ugettext as _
 from django.contrib import admin
+from django.db import models
 from recommendation.models import User
 from recommendation.records.models import Record
 from recommendation.decorators import PutInThreadQueue
@@ -18,6 +19,8 @@ class ABEvent(Record):
     """
     Model to associate recommendation.record with ab test records
     """
+    model = models.CharField(_("model"), max_length=255)
+    model_identifier = models.SmallIntegerField("model id")
 
     class Meta:
         verbose_name = _("ab testing event")
@@ -25,18 +28,17 @@ class ABEvent(Record):
 
     @staticmethod
     @PutInThreadQueue()
-    def recommended(user, *recommended):
+    def recommended(user, model_id, model, *recommended):
         """
         Log Recommended Apps
 
         :param user: User
         :param recommended: List of items ids
         """
-        print recommended
         if isinstance(user, User):
             user = user.external_id
         for rank, e_id in enumerate(recommended, start=1):
-            ABEvent(user_id=user, item_id=e_id, value=rank).save()
+            ABEvent(user_id=user, item_id=e_id, value=rank, model=model.get_name(), model_identifier=model_id).save()
         #logs = [ABEvent(user_id=user, item_id=e_id, value=rank) for rank, e_id in enumerate(recommended, start=1)]
         #ABEvent.objects.bulk_create(logs)
         #post_save.send(sender=Record, instance=logs)

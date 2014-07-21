@@ -100,7 +100,7 @@ DATABASES = {
         "NAME": "recommender_v12",
         "USER": "FFOS",
         "PASSWORD": "pasteldenata",
-       #"HOST": "172.16.51.128"
+        #"HOST": "172.16.51.128"
         "HOST": "ana"
     },
     #"default": {
@@ -197,7 +197,8 @@ CACHES = {
 
 RECOMMENDATION_SETTINGS = {
     "default": {
-        "core": ("recommendation.core", "TensorCoFiRecommender"),
+        #"core": ("recommendation.core", "TensorCoFiRecommender"),
+        "core": ("recommendation.ab_testing.rec_controller", "ABTesting"),
         "filters": [
             ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
             ("recommendation.language.filters", "SimpleLocaleFilter"),
@@ -211,5 +212,3 @@ RECOMMENDATION_SETTINGS = {
         ]
     }
 }
-
-RECOMMENDATION_LOGGER = "recommendation.ab_testing.models.ABEvent"

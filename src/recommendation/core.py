@@ -17,7 +17,7 @@ from recommendation.model_factory import TensorCoFi, Popularity
 import logging
 
 
-class InterfaceController(object):
+class IController(object):
     """
     An abstract controller
     """
@@ -66,8 +66,7 @@ class InterfaceController(object):
         """
         return self._re_rankers[:]
 
-    @staticmethod
-    def get_model():
+    def get_model(self, user):
         """
         Catch model
 
@@ -75,8 +74,7 @@ class InterfaceController(object):
         """
         raise NotImplemented
 
-    @staticmethod
-    def get_alternative(user):
+    def get_alternative(self, user):
         """
         Return the popular items
         :return: list
@@ -105,7 +103,6 @@ class InterfaceController(object):
                                                                        y.shape[0])).dot(np.ones(y.shape[0]).transpose())
         return u_factors
 
-    @CacheUser()
     def get_recommendation_from_model(self, user):
         """
         Get a List of significance values for each app
@@ -118,7 +115,7 @@ class InterfaceController(object):
         """
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
-        model = self.get_model()
+        model = self.get_model(user)
         if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
             apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
@@ -183,13 +180,12 @@ class InterfaceController(object):
         return result
 
 
-class TensorCoFiRecommender(InterfaceController):
+class TensorCoFiRecommender(IController):
     """
     Get the matrix from the Model
     """
 
-    @staticmethod
-    def get_model():
+    def get_model(self, user):
         """
         Catch model
 
@@ -197,8 +193,7 @@ class TensorCoFiRecommender(InterfaceController):
         """
         return TensorCoFi.get_model()
 
-    @staticmethod
-    def get_alternative(user):
+    def get_alternative(self, user):
         """
         Return the popular items
         :return: list
