@@ -211,5 +211,6 @@ RECOMMENDATION_SETTINGS = {
             "recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
         ]
     },
-    "logger": "recommendation.records.decorators.LogEventInRecords"
+    #"logger": "recommendation.records.decorators.LogEventInRecords"
+    "logger": "recommendation.ab_testing.decorators.ABEventLogger"
 }

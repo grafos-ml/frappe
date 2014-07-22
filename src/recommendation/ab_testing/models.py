@@ -19,8 +19,8 @@ class ABEvent(Record):
     """
     Model to associate recommendation.record with ab test records
     """
-    model = models.CharField(_("model"), max_length=255)
-    model_identifier = models.SmallIntegerField("model id")
+    model = models.CharField(_("model"), max_length=255, null=True, blank=True)
+    model_identifier = models.SmallIntegerField("model id", null=True, blank=True)
 
     class Meta:
         verbose_name = _("ab testing event")
