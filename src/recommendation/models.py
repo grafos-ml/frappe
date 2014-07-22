@@ -159,7 +159,7 @@ class User(models.Model):
     def owned_items(self, value):
         cache = get_cache("models")
         items = cache.get("user<%s>.owned_items" % self.external_id, None)
-        items.append(value)
+        items.add(value)
         cache.set("user<%s>.owned_items" % self.external_id, items, None)
 
     @PutInThreadQueue()
@@ -225,7 +225,8 @@ class Inventory(models.Model):
 
     def save(self, *args, **kwargs):
         super(Inventory, self).save(*args, **kwargs)
-        self.user.owned_items = self.item
+        cache = get_cache("models")
+        cache.set("user<%s>.owned_items" % self.user.external_id, list(self.user.get_owned_items()), None)
 
 
 class TensorModel(models.Model):

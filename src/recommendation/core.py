@@ -15,6 +15,9 @@ from recommendation.caches import CacheUser
 from recommendation.records.decorators import LogRecommendedApps
 from recommendation.model_factory import TensorCoFi, Popularity
 import logging
+import sys
+if sys.version_info >= (3, 0):
+    basestring = unicode = str
 
 
 class IController(object):
@@ -202,16 +205,17 @@ class TensorCoFiRecommender(IController):
 
 DEFAULT_SETTINGS = {
     "default": {
-        "core": ("recommendation.core", "TensorCoFiRecommender"),
+        "core": "recommendation.core.TensorCoFiRecommender",
         "filters": [
-            ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
-            ("recommendation.language.filters", "SimpleLocaleFilter"),
+            "recommendation.filter_owned.filters.FilterOwnedFilter",
+            "recommendation.language.filters.SimpleLocaleFilter",
         ],
         "rerankers": [
-            ("recommendation.records.rerankers", "SimpleLogReRanker"),
-            ("recommendation.diversity.rerankers", "DiversityReRanker")
+            "recommendation.records.rerankers.SimpleLogReRanker",
+            "recommendation.diversity.rerankers.DiversityReRanker"
         ]
-    }
+    },
+    "logger": "recommendation.decorators.NoLogger"
 }
 
 try:
@@ -219,22 +223,64 @@ try:
 except AttributeError:
     RECOMMENDATION_SETTINGS = DEFAULT_SETTINGS
 
+
+def get_class(cls):
+    """
+    Return a tuple with the class, a tuple with args and a dict with keyword args.
+    :param cls:
+    :return:
+    """
+    if isinstance(cls, basestring):
+        cls_str, args, kwargs = cls, (), {}
+    elif isinstance(cls, tuple) and isinstance(cls[0], basestring):
+        if len(cls) == 2:
+            if isinstance(cls[1], (tuple, list)):
+                cls_str, args, kwargs = cls[0], cls[1], {}
+            elif isinstance(cls[1], dict):
+                cls_str, args, kwargs = cls[0], (), cls[1]
+            else:
+                raise AttributeError("The second element in tuple must be list, tuple or dict with python native structs.")
+        elif len(cls) == 3:
+            if isinstance(cls[1], (tuple, list)) and isinstance(cls[2], dict):
+                cls_str, args, kwargs = cls
+            else:
+                raise AttributeError("The second element in tuple must be list or and the third must be dict.")
+        else:
+            raise AttributeError("Tuple must be size 2 or 3.")
+    else:
+        raise AttributeError("Attribute must be string or tuple with the first element string.")
+    parts = cls_str.split(".")
+    module, cls = ".".join(parts[:-1]), parts[-1]
+    return getattr(__import__(module, fromlist=[""]), cls), args, kwargs
+
+
 RECOMMENDATION_ENGINES = {}
+log_event = None
 for engine, engine_settings in RECOMMENDATION_SETTINGS.items():
-    rec_mod, rec_class = engine_settings["core"]
-    args, kwargs = engine_settings.get("core params", ((), {}))
-    RECOMMENDATION_ENGINES[engine] = getattr(__import__(rec_mod, fromlist=[""]), rec_class)(*args, **kwargs)
+    if engine != "logger":
+        cls, args, kwargs = get_class(engine_settings["core"])
+        RECOMMENDATION_ENGINES[engine] = cls(*args, **kwargs)
 
-    # Register Filters
-    for mod, filter_class in engine_settings["filters"]:
-        RECOMMENDATION_ENGINES[engine].register_filter(getattr(__import__(mod, fromlist=[""]), filter_class)())
+        # Register Filters
+        for filter_cls in engine_settings["filters"]:
+            cls, args, kwargs = get_class(filter_cls)
+            RECOMMENDATION_ENGINES[engine].register_filter(cls(*args, **kwargs))
 
-    # Register re-rankers
-    for mod, reranker_class in RECOMMENDATION_SETTINGS["default"]["rerankers"]:
-        RECOMMENDATION_ENGINES[engine].register_reranker(getattr(__import__(mod, fromlist=[""]), reranker_class)())
+        # Register re-rankers
+        for reranker_cls in RECOMMENDATION_SETTINGS["default"]["rerankers"]:
+            cls, args, kwargs = get_class(reranker_cls)
+            RECOMMENDATION_ENGINES[engine].register_reranker(cls(*args, **kwargs))
+    else:
+        cls, _, _ = get_class(engine_settings)
+        log_event = cls
+
+if not log_event:
+    cls, _, _ = get_class(DEFAULT_SETTINGS["logger"])
+    log_event = cls
 
 # Set default Recommendation engine
 DEFAULT_RECOMMENDATION = RECOMMENDATION_ENGINES["default"]
+
 
 if __name__ == "__main__":
     import doctest

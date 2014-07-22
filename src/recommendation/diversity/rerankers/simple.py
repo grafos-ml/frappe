@@ -89,7 +89,7 @@ class SimpleDiversityReRanker(object):
         diversity = SimpleDiversity(recommendation, size, user, self.alpha_constant, self.lambda_constant)
         new_recommendation = []
         dropped_items = []
-        for item in recommendation:
+        for item in recommendation[:int(2*len(recommendation)/3)]:
             new_recommendation0 = diversity(new_recommendation, item)
             if len(new_recommendation0) != len(new_recommendation) + 1:
                 dropped_items.append(item)

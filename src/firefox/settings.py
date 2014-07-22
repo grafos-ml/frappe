@@ -197,20 +197,19 @@ CACHES = {
 
 RECOMMENDATION_SETTINGS = {
     "default": {
-        #"core": ("recommendation.core", "TensorCoFiRecommender"),
-        "core": ("recommendation.ab_testing.rec_controller", "ABTesting"),
+        #"core": "recommendation.core.TensorCoFiRecommender"
+        "core": "recommendation.ab_testing.rec_controller.ABTesting",
         "filters": [
-            ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
-            ("recommendation.language.filters", "SimpleLocaleFilter"),
+            "recommendation.filter_owned.filters.FilterOwnedFilter",
+            "recommendation.language.filters.SimpleLocaleFilter",
         ],
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called
-            #("recommendation.records.rerankers", "SimpleLogReRanker"),
-            #("recommendation.diversity.rerankers", "DynamicDiversityReRanker"),
-            #("recommendation.diversity.rerankers.diversity_reranker", "DiversityReRanker"),
-            ("recommendation.diversity.rerankers.simple", "SimpleDiversityReRanker")
+            #"recommendation.records.rerankers.SimpleLogReRanker",
+            #"recommendation.diversity.rerankers.DynamicDiversityReRanker",
+            #"recommendation.diversity.rerankers.diversity_reranker.DiversityReRanker",
+            "recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
         ]
-    }
+    },
+    "logger": "recommendation.records.decorators.LogEventInRecords"
 }
-
-RECOMMENDATION_LOGGER = "recommendation.records.decorators.LogEventInRecords"

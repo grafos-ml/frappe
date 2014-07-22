@@ -22,8 +22,7 @@ from recommendation.models import User, Inventory
 from recommendation.records.models import Record
 from recommendation.core import DEFAULT_RECOMMENDATION
 from recommendation.decorators import PutInThreadQueue
-from recommendation.logger import log_event, CLICK as L_CLICK, ACQUIRE as L_ACQUIRE, \
-    REMOVE as L_REMOVE
+from recommendation.core import log_event
 
 JSON = "json"
 XML = "xml"
@@ -149,7 +148,7 @@ class AbstractGoToItem(APIView):
     }
 
     @PutInThreadQueue()
-    @log_event(L_CLICK)
+    @log_event(log_event.CLICK)
     def click(self, user_external_id, item_external_id, click_type, rank=None):
         """
         Click on an app.
@@ -284,7 +283,7 @@ class UserItemsAPI(RecommendationAPI):
 
     @staticmethod
     @PutInThreadQueue()
-    @log_event(L_ACQUIRE)
+    @log_event(log_event.ACQUIRE)
     def insert_acquisition(user_external_id, item_external_id):
         """
         Insert a new in user installed apps
@@ -313,7 +312,7 @@ class UserItemsAPI(RecommendationAPI):
 
     @staticmethod
     @PutInThreadQueue()
-    @log_event(L_REMOVE)
+    @log_event(log_event.REMOVE)
     def delete_acquisition(user_external_id, item_external_id):
         """
         Update a certain item to remove in the uninstall datetime field
