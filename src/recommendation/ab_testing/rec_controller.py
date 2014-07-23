@@ -41,6 +41,8 @@ class UniformPicker(IPicker):
 
 class ABTesting(IController):
 
+    __picker = None
+
     def __init__(self, picker=None, *args, **kwargs):
         """
         Constructor. May receive a
@@ -49,12 +51,17 @@ class ABTesting(IController):
         :return:
         """
         super(ABTesting, self).__init__(*args, **kwargs)
-        if picker:
-            if not isinstance(picker, IPicker):
-                raise TypeError("The picker parameter must be an instance of IPicker or None")
-            self.__picker = picker
-        else:
-            self.__picker = UniformPicker(Popularity, TensorCoFi)
+        self.picker = picker if picker else UniformPicker(Popularity, TensorCoFi)
+
+    @property
+    def picker(self):
+        return self.__picker
+
+    @picker.setter
+    def picker(self, value):
+        if not value or not isinstance(value, IPicker):
+            raise TypeError("The picker parameter must be an instance of IPicker or None")
+        self.__picker = value
 
     def get_model(self, user):
         """
@@ -78,22 +85,19 @@ class ABTesting(IController):
         Get a List of significance values for each app
 
         :param user: The user to get the recommendation
-        :param u_matrix: A matrix with one row for each user
-        :param a_matrix: A matrix with one row for each app in system
-
         :return: An array with the app scores for that user
         """
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
         pos, model = self.get_model(user)
-        if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
-            apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= model.factors[1].shape[0]]
-            if len(apps_idx) < 3:
-                raise ValueError
-            u_factors = model.online_user_factors(apps_idx)
-            return pos, model, np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
-        else:
-            return pos, model, model.get_recommendation(user)
+        #if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
+        #    apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= model.factors[1].shape[0]]
+        #    if len(apps_idx) < 3:
+        #        raise ValueError
+        #    u_factors = model.online_user_factors(apps_idx)
+        #    return pos, model, np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
+        #else:
+        return pos, model, model.get_recommendation(user)
 
     @CacheUser()
     @ABLogger()
@@ -106,6 +110,7 @@ class ABTesting(IController):
         :return: A Python list the recommendation apps ids.
         :rtype: list
         """
+        #if True:
         try:
             pos, model, result = self.get_recommendation_from_model(user=user)
         except Exception:

@@ -232,7 +232,7 @@ def get_class(cls):
     """
     if isinstance(cls, basestring):
         cls_str, args, kwargs = cls, (), {}
-    elif isinstance(cls, tuple) and isinstance(cls[0], basestring):
+    elif isinstance(cls, (tuple, list)) and isinstance(cls[0], basestring):
         if len(cls) == 2:
             if isinstance(cls[1], (tuple, list)):
                 cls_str, args, kwargs = cls[0], cls[1], {}

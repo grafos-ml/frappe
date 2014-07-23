@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from django.views.generic import TemplateView
 from recommendation.api.views import JSONResponse
-from recommendation.ab_testing.models import ABVersion, ABEvent
+from recommendation.ab_testing.models import Experiment, Event
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
@@ -55,10 +55,11 @@ class ABEventsAPI(APIView):
     def get(self, request, version=None):
         kwargs = {}
         if version:
-            kwargs["test_version"] = get_object_or_404(ABVersion, pk=version)
+            kwargs["experiment"] = get_object_or_404(Experiment, pk=version)
         else:
-            kwargs["test_version"] = ABVersion.cached_version()
-        if not kwargs["test_version"]:
+            kwargs["experiment"] = Experiment.cached_version()
+        print Experiment.cached_version()
+        if not kwargs["experiment"]:
             return JSONResponse({"message": "No ab-test started", "code": 404}, status=404)
         try:
             kwargs["timestamp__gt"] = request.GET["starting"]
@@ -69,7 +70,7 @@ class ABEventsAPI(APIView):
         except KeyError:
             pass
         print kwargs
-        events = ABEvent.objects.filter(**kwargs).values("model", "timestamp", "version", "type", "value",
+        events = Event.objects.filter(**kwargs).values("model", "timestamp", "experiment", "type", "value",
                                                          "user__external_id", "item__external_id")
         return JSONResponse(events)
 

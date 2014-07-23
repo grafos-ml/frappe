@@ -16,6 +16,7 @@ from recommendation.models import Item, User
 from recommendation.language.models import Locale
 from recommendation.model_factory import TensorCoFi, Popularity
 from recommendation.diversity.models import Genre
+from recommendation.ab_testing.models import Experiment
 
 get_cache("default").clear()
 get_cache("models").clear()
@@ -27,3 +28,4 @@ User.load_to_cache()
 User.load_owned_items()
 Locale.load_unsupported_items_by_locale()
 Genre.load_to_cache()
+Experiment.load_to_cache()
