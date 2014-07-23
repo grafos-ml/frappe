@@ -63,7 +63,7 @@ if DEBUG:
         "django.contrib.messages",
         "django.contrib.staticfiles",
         "django_nose",
-        "debug_toolbar",
+        #"debug_toolbar",
         "django_coverage",
         "rest_framework",
         "templatetag_handlebars",
@@ -214,3 +214,15 @@ RECOMMENDATION_SETTINGS = {
     #"logger": "recommendation.records.decorators.LogEventInRecords"
     "logger": "recommendation.ab_testing.decorators.ABEventLogger"
 }
+
+TEMPLATE_LOADERS = (
+    (
+        "pyjade.ext.django.Loader", (
+            "django.template.loaders.filesystem.Loader",
+            "django.template.loaders.app_directories.Loader",
+        )
+    ),
+    "django.template.loaders.filesystem.Loader",
+    "django.template.loaders.app_directories.Loader",
+    "django.template.loaders.eggs.Loader"
+)

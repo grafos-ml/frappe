@@ -9,6 +9,7 @@ https://github.com/grafos-ml/test.fm/archive/v1.0.3.tar.gz
 
 # for frontend
 https://github.com/joaonrb/django-templatetag-handlebars/archive/master.zip
+pyjade
 
 # for debug
 nose

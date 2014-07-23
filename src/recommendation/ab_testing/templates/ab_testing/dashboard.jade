@@ -1,0 +1,48 @@
+- extends "ab_testing/base.jade"
+- load staticfiles i18n
+- block "js"
+    | {{ block.super }}
+    script
+        var ab_events = [];
+        var last = null;
+        function upload_data() {
+            $.ajax({
+                url: "{% url "ab_events" %}",
+                type: "GET",
+                dataType: "json",
+                success: function() {
+
+                }
+            });
+        }
+
+- block "body"
+    nav(role="navigarion").navbar.navbar-inverse
+        div.container-fluid
+            div.navbar-header
+                button(type="button", data-toggle="collapse", data-target="#ab-dashboard-navbar").navbar-toggle
+                    span.sr-only Toggle navigation
+                    span.icon-bar
+                    span.icon-bar
+                    span.icon-bar
+                a(href!="{% url "ab_dashboard" %}").navbar-brand  A/B Dashboard
+            div.collapse.navbar-collapse#ab-dashboard-navbar
+                ul.nav.navbar-nav
+                    li.active
+                        a(href="#") Stats
+
+
+    div#main
+        div.row
+            div.col-md-2.col-md-offset-2
+                h5 Create A/B test
+                form
+
+            div.col-md-6
+                h4 AB Frequencies
+                div#abfreqplaceholder
+                script
+                    function abFrequencies() {
+
+                    }
+                    abFrequencies();

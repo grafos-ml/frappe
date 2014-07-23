@@ -1,0 +1,22 @@
+- load staticfiles i18n
+doctype html
+html
+    head
+        meta(http-equiv="Content-Type", content="text/html; charset=utf-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(name="description", content!="{{ "meta_description" }}")
+        meta(name="author", content="João Nuno")
+        title
+            | {{ title }}
+
+        - block "css"
+            link(href!="{% static "css/bootstrap.min.css" %}", rel="stylesheet", type="text/css")
+            link(href!="{% static "css/bootstrap-theme.min.css" %}", rel="stylesheet", type="text/css")
+
+        - block "js"
+            script(src!="{% static "js/jquery-2.1.1.min.js" %}")
+            script(src!="{% static "js/bootstrap.min.js" %}")
+
+    body
+        - block "body"
+            div
