@@ -2,19 +2,44 @@
 - load staticfiles i18n
 - block "js"
     | {{ block.super }}
+    script(src!="{% static "js/Chart.min.js" %}")
     script
+        var ab_callbacks = [];
         var ab_events = [];
-        var last = null;
+        var model_a = null;
+        var model_b = null;
+        var ab_last = null;
+        var ab_limit = 100000;
         function upload_data() {
             $.ajax({
-                url: "{% url "ab_events" %}",
+                url: "{% url "ab_events" %}"+(window.ab_last != null ? ("?starting="+window.ab_last) : ""),
                 type: "GET",
                 dataType: "json",
-                success: function() {
-
+                success: function(data) {
+                    if(data.length != 0) {
+                        window.ab_last = data[0].timestamp;
+                        window.ab_events = window.ab_events.concat(data);
+                        if(window.ab_events.length > window.ab_limit)
+                            window.ab_events.splice(0, window.ab_events.length-window.ab_limit);
+                        if(window.model_a == null || window.model_b == null)
+                            $.each(data, function(index, value) {
+                                if(window.model_a == null) {
+                                    window.model_a = value.model;
+                                    $("#model_a-label").html(window.model_a);
+                                } else if(window.model_b == null && window.model_a != value.model) {
+                                    window.model_b = value.model;
+                                    $("#model_b-label").html(window.model_b);
+                                    return true;
+                                }
+                            });
+                        $.each(ab_callbacks, function(index, value) {
+                            value(window.ab_events);
+                        });
+                    }
                 }
             });
         }
+        var ab_getter = setInterval(function(){upload_data()}, 10000);
 
 - block "body"
     nav(role="navigarion").navbar.navbar-inverse
@@ -40,9 +65,51 @@
 
             div.col-md-6
                 h4 AB Frequencies
-                div#abfreqplaceholder
+                div#row
+                    div.col-md-2
+                        ul.list-group
+                            li.list-group-item
+                                span.badge(style="background-color:rgba(220,220,220,0.5);") # 
+                                #model_a-label Model A
+                            li.list-group-item
+                                span.badge(style="background-color:rgba(151,187,205,0.5);") #
+                                #model_b-label Model B
+                    div.col-md-8
+                        canvas(width="400")#ab_frequencies
                 script
-                    function abFrequencies() {
-
+                    function abFrequencies(data) {
+                        var datas = [[0, 0, 0, 0], [0, 0, 0, 0]];
+                        $.each(data, function(index, value) {
+                            if(value.model == model_a)
+                                datas[0][value.type]++;
+                            else
+                                datas[1][value.type]++;
+                        });
+                        var ctx = $("#ab_frequencies").get(0).getContext("2d");
+                        console.log(ctx);
+                        var chart = new Chart(ctx).Bar(
+                            {
+                                labels: ["Recommended", "Installed", "Clicked", "Removed"],
+                                datasets: [
+                                    {
+                                        label: window.model_a,
+                                        fillColor: "rgba(220,220,220,0.5)",
+                                        strokeColor: "rgba(220,220,220,0.8)",
+                                        highlightFill: "rgba(220,220,220,0.75)",
+                                        highlightStroke: "rgba(220,220,220,1)",
+                                        data: datas[0]
+                                    },
+                                    {
+                                        label: window.model_b,
+                                        fillColor: "rgba(151,187,205,0.5)",
+                                        strokeColor: "rgba(151,187,205,0.8)",
+                                        highlightFill: "rgba(151,187,205,0.75)",
+                                        highlightStroke: "rgba(151,187,205,1)",
+                                        data: datas[1]
+                                    }
+                                ]
+                            });
                     }
-                    abFrequencies();
+                    abFrequencies([]);
+                    ab_callbacks.push(abFrequencies);
+
