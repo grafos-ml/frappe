@@ -3,7 +3,26 @@
 - block "js"
     | {{ block.super }}
     script(src!="{% static "js/Chart.min.js" %}")
+    script(src!="{% static "js/spin.min.js" %}")
     script
+        var spinner = new Spinner({
+          lines: 13, // The number of lines to draw
+          length: 20, // The length of each line
+          width: 10, // The line thickness
+          radius: 30, // The radius of the inner circle
+          corners: 1, // Corner roundness (0..1)
+          rotate: 0, // The rotation offset
+          direction: 1, // 1: clockwise, -1: counterclockwise
+          color: '#000', // #rgb or #rrggbb or array of colors
+          speed: 1, // Rounds per second
+          trail: 60, // Afterglow percentage
+          shadow: false, // Whether to render a shadow
+          hwaccel: false, // Whether to use hardware acceleration
+          className: 'spinner', // The CSS class to assign to the spinner
+          zIndex: 2e9, // The z-index (defaults to 2000000000)
+          top: '50%', // Top position relative to parent
+          left: '50%' // Left position relative to parent
+        });
         var ab_callbacks = [];
         var ab_events = [];
         var model_a = null;
@@ -17,6 +36,7 @@
                 dataType: "json",
                 success: function(data) {
                     if(data.length != 0) {
+                        window.spinner.spin($("#ab_frequencies_container").get(0));
                         window.ab_last = data[0].timestamp;
                         window.ab_events = window.ab_events.concat(data);
                         if(window.ab_events.length > window.ab_limit)
@@ -35,11 +55,13 @@
                         $.each(ab_callbacks, function(index, value) {
                             value(window.ab_events);
                         });
+                        $(".spinner").remove();
                     }
                 }
             });
         }
         var ab_getter = setInterval(function(){upload_data()}, 10000);
+        upload_data();
 
 - block "body"
     nav(role="navigarion").navbar.navbar-inverse
@@ -59,14 +81,14 @@
 
     div#main
         div.row
-            div.col-md-2.col-md-offset-2
+            div.col-md-2.col-md-offset-1
                 h5 Create A/B test
                 form
 
-            div.col-md-6
-                h4 AB Frequencies
+            div.col-md-7
+                h2 AB Frequencies
                 div#row
-                    div.col-md-2
+                    div.col-md-4
                         ul.list-group
                             li.list-group-item
                                 span.badge(style="background-color:rgba(220,220,220,0.5);") # 
@@ -74,22 +96,24 @@
                             li.list-group-item
                                 span.badge(style="background-color:rgba(151,187,205,0.5);") #
                                 #model_b-label Model B
-                    div.col-md-8
-                        canvas(width="400")#ab_frequencies
+                        dic.btn-group
+                            button.btn(action="upload_data();")
+                                span.glyphicon.glyphicon-refresh
+                    div.col-md-8#ab_frequencies_container
+                        canvas(width="500", height="400")#ab_frequencies
                 script
                     function abFrequencies(data) {
                         var datas = [[0, 0, 0, 0], [0, 0, 0, 0]];
                         $.each(data, function(index, value) {
-                            if(value.model == model_a)
+                           if(value.model == window.model_a)
                                 datas[0][value.type]++;
                             else
                                 datas[1][value.type]++;
                         });
                         var ctx = $("#ab_frequencies").get(0).getContext("2d");
-                        console.log(ctx);
                         var chart = new Chart(ctx).Bar(
                             {
-                                labels: ["Recommended", "Installed", "Clicked", "Removed"],
+                                labels: ["Recommended", "Clicked", "Installed", "Removed"],
                                 datasets: [
                                     {
                                         label: window.model_a,
@@ -108,8 +132,12 @@
                                         data: datas[1]
                                     }
                                 ]
+                            },
+                            {
+                                showTooltips: true,
+                                tooltipEvents: ["mousemove", "touchstart", "touchmove"],
                             });
                     }
-                    abFrequencies([]);
+                    //abFrequencies(ab_events);
                     ab_callbacks.push(abFrequencies);
 

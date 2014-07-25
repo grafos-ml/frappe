@@ -48,9 +48,10 @@ class ABEventLogger(LogEventInRecords):
             if ab_version:
                 item = Item.objects.get(external_id=item_external_id)
 
-                r0 = Event.objects.filter(user_id=user_external_id, item=item).order_by("-pk").first()
+                r0 = Event.objects.filter(user_id=user_external_id, item=item, 
+                                          experiment=ab_version).order_by("-pk").first()
                 r = Event(user_id=user_external_id, item=item, type=self.log_type, model=r0.model,
-                          model_identifier=r0.model_identifier)
+                          model_identifier=r0.model_identifier, experiment=ab_version)
                 r.save()
             return result
         return decorated
