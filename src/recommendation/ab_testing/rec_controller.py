@@ -6,7 +6,6 @@ from recommendation.model_factory import TensorCoFi, Popularity
 from recommendation.caches import CacheUser
 from recommendation.ab_testing.decorators import ABLogger
 import random
-import numpy as np
 
 
 class IPicker(object):

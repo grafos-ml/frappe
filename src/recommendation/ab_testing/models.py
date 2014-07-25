@@ -25,7 +25,7 @@ class Experiment(models.Model):
     AB test version
     """
     name = models.CharField(_("name"), max_length=255, unique=True)
-    version = models.PositiveIntegerField(_("version"), max_length=7)
+    version = models.PositiveIntegerField(_("version"), max_length=7, default=100000)
     settings = models.TextField(_("settings"))
     is_active = models.BooleanField(_("is active?"), default=False)
 

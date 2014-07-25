@@ -7,6 +7,7 @@ from recommendation.api.views import JSONResponse
 from recommendation.ab_testing.models import Experiment, Event
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+import json
 
 '''
 class ABPopulationStats(APIView):
@@ -44,6 +45,30 @@ class ABPopulationStats(APIView):
 '''
 
 
+class ABExperimentAPI(APIView):
+    """
+    View for event list
+    """
+    http_method_names = [
+        "get",
+        "post",
+        "delete"
+    ]
+
+    def get(self, request):
+        kwargs = {}
+        if request.GET.get("version", None):
+            kwargs["pk"] = get_object_or_404(Experiment, pk=request.GET.get("version"))
+        #print kwargs
+        experiments = Experiment.objects.filter(**kwargs).values("name", "settings", "is_active", "pk")
+        response = [{"name": values["name"], "is_active": values["is_active"], "id": values["pk"],
+                     "models": json.loads(values["settings"])["picker"]["args"]} for values in experiments]
+        return JSONResponse(response)
+
+    def post(self, request):
+        pass
+
+
 class ABEventsAPI(APIView):
     """
     View for event list
@@ -52,10 +77,10 @@ class ABEventsAPI(APIView):
         "get"
     ]
 
-    def get(self, request, version=None):
+    def get(self, request):
         kwargs = {}
-        if version:
-            kwargs["experiment"] = get_object_or_404(Experiment, pk=version)
+        if request.GET.get("version", None):
+            kwargs["experiment"] = get_object_or_404(Experiment, pk=request.GET.get("version"))
         else:
             kwargs["experiment"] = Experiment.cached_version()
         #print Experiment.cached_version()
