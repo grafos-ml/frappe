@@ -50,7 +50,7 @@ class BinomialDiversity(object):
         self.alpha_constant = alpha_constant
         user_genres = {}
         self.user_items_count = 0
-        for iid, genre in Genre.objects.filter(items__in=user.owned_items.all()).values_list("items__id", "name"):
+        for iid, genre in Genre.objects.filter(items__in=user.owned_items).values_list("items__id", "name"):
             user_genres[genre] = user_genres.get(genre, 1.) + 1.
             self.user_items_count += 1
         self.p_genre_cache = {}
@@ -97,7 +97,6 @@ class BinomialDiversity(object):
             gc = genre_count-1 if genre_count else 0
             p_greater_0_and_greater_k = 1. - binom.cdf(gc, len(recommendation), p_get_genre)
             probability_non_redundancy = (p_greater_0_and_greater_k/p_greater_0) ** (1./len(genres_frequency))
-
             result *= probability_non_redundancy
         return result
 
@@ -175,9 +174,9 @@ class BinomialDiversityReRanker(object):
             chosen_item = max(div_list, key=lambda x: x[1])[0]
             recommendation_set.remove(chosen_item)
             new_recommendation.append(chosen_item)
-
+            #diversity.update()
         result = new_recommendation + recommendation_set + recommendation[size_boost:]
-        assert len(result) == len(recommendation), "The result lost or gained elements"
+        #assert len(result) == len(recommendation), "The result lost or gained elements"
         return result
 
 

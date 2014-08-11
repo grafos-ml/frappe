@@ -27,47 +27,63 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["gabriela"]
 
 
 # Application definition
 
-INSTALLED_APPS = (
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django_nose",
-    "debug_toolbar",
-    "django_coverage",
-    "rest_framework",
-    "templatetag_handlebars",
+INSTALLED_APPS = [
+    #"django.contrib.admin",
+    #"django.contrib.auth",
+    #"django.contrib.contenttypes",
+    #"django.contrib.sessions",
+    #"django.contrib.messages",
+    #"django.contrib.staticfiles",
+    #"django_nose",
+    #"debug_toolbar",
+    #"django_coverage",
+    #"rest_framework",
+    #"templatetag_handlebars",
     "recommendation",
     "recommendation.records",
     "recommendation.diversity",
     "recommendation.language",
+    "recommendation.ab_testing",
     "recommendation.api",
     "firefox",
     "firefox.api",
     "firefox.gui",
-)
+]
+if DEBUG:
+    INSTALLED_APPS += [
+        "django.contrib.admin",
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.contrib.staticfiles",
+        "django_nose",
+        #"debug_toolbar",
+        "django_coverage",
+        "rest_framework",
+        "templatetag_handlebars",
+    ]
 
-MIDDLEWARE_CLASSES = (
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.transaction.TransactionMiddleware",
-    "django.middleware.cache.UpdateCacheMiddleware",
-    "django.middleware.cache.FetchFromCacheMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-    #"recommendation.middleware.NonHtmlDebugToolbarMiddleware",
-)
-
+MIDDLEWARE_CLASSES = []
+if DEBUG:
+    MIDDLEWARE_CLASSES += [
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        #"django.middleware.csrf.CsrfViewMiddleware",
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        "django.contrib.messages.middleware.MessageMiddleware",
+        "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "django.middleware.transaction.TransactionMiddleware",
+        "django.middleware.cache.UpdateCacheMiddleware",
+        "django.middleware.cache.FetchFromCacheMiddleware",
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+        #"recommendation.middleware.NonHtmlDebugToolbarMiddleware",
+    ]
 ROOT_URLCONF = "firefox.urls"
 
 WSGI_APPLICATION = "firefox.wsgi.application"
@@ -79,18 +95,19 @@ WSGI_APPLICATION = "firefox.wsgi.application"
 
 
 DATABASES = {
-    #"default": {
-    #    "ENGINE": "django.db.backends.mysql",
-    #    "NAME": "recommender_v12",
-    #    "USER": "FFOS",
-    #    "PASSWORD": "pasteldenata",
-        #"HOST": "172.16.51.128"
-    #    "HOST": "ana"
-    #},
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "recommender_v12.db"
-    }
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "recommender_v12",
+        "USER": "FFOS",
+        "PASSWORD": "pasteldenata",
+        #"HOST": "172.16.51.128"
+        "HOST": "ana"
+    },
+    #"default": {
+    #    "ENGINE": "django.db.backends.sqlite3",
+    #    "NAME": "recommender_v12.db",
+    #    'ATOMIC_REQUESTS': True
+    #}
 }
 
 # Internationalization
@@ -100,11 +117,7 @@ LANGUAGE_CODE = "en-en"
 
 TIME_ZONE = "Europe/Madrid"
 
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
+USE_I18N = USE_L10N = USE_TZ = DEBUG
 
 
 # Static files (CSS, JavaScript, Images)
@@ -147,7 +160,7 @@ DEBUG_TOOLBAR_PANELS = (
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
-    }
+}
 
 # Rest Framework Settings
 
@@ -169,10 +182,14 @@ CACHES = {
         "OPTIONS": {
             "MAX_ENTRIES": 100000
         }
+        #"BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        #"LOCATION": "unix:/tmp/frappe_models"
     },
     "models": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "/var/tmp/django_models_cache",
+        #"BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        #"LOCATION": "unix:/tmp/frappe_models"
     }
 }
 
@@ -180,15 +197,32 @@ CACHES = {
 
 RECOMMENDATION_SETTINGS = {
     "default": {
-        "core": ("recommendation.core", "Recommender"),
+        #"core": "recommendation.core.TensorCoFiRecommender"
+        "core": "recommendation.ab_testing.rec_controller.ABTesting",
         "filters": [
-            ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
-            ("recommendation.language.filters", "SimpleLocaleFilter"),
+            "recommendation.filter_owned.filters.FilterOwnedFilter",
+            "recommendation.language.filters.SimpleLocaleFilter",
         ],
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called
-            #("recommendation.records.rerankers", "SimpleLogReRanker"),
-            #("recommendation.diversity.rerankers", "DynamicDiversityReRanker")
+            #"recommendation.records.rerankers.SimpleLogReRanker",
+            #"recommendation.diversity.rerankers.DynamicDiversityReRanker",
+            #"recommendation.diversity.rerankers.diversity_reranker.DiversityReRanker",
+            "recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
         ]
-    }
+    },
+    #"logger": "recommendation.records.decorators.LogEventInRecords"
+    "logger": "recommendation.ab_testing.decorators.ABEventLogger"
 }
+
+TEMPLATE_LOADERS = (
+    (
+        "pyjade.ext.django.Loader", (
+            "django.template.loaders.filesystem.Loader",
+            "django.template.loaders.app_directories.Loader",
+        )
+    ),
+    "django.template.loaders.filesystem.Loader",
+    "django.template.loaders.app_directories.Loader",
+    "django.template.loaders.eggs.Loader"
+)

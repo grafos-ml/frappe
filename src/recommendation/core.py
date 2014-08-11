@@ -12,12 +12,15 @@ import numpy as np
 from django.conf import settings
 from recommendation.models import Item
 from recommendation.caches import CacheUser
-from recommendation.models import TensorModel, PopularityModel
 from recommendation.records.decorators import LogRecommendedApps
+from recommendation.model_factory import TensorCoFi, Popularity
 import logging
+import sys
+if sys.version_info >= (3, 0):
+    basestring = unicode = str
 
 
-class InterfaceController(object):
+class IController(object):
     """
     An abstract controller
     """
@@ -66,21 +69,22 @@ class InterfaceController(object):
         """
         return self._re_rankers[:]
 
-    def get_user_matrix(self):
+    def get_model(self, user):
         """
-        Catch the user matrix from database
+        Catch model
 
-        :return: The matrix of users.
+        :return: The Model
         """
+        raise NotImplemented
 
-    def get_apps_matrix(self):
+    def get_alternative(self, user):
         """
-        Catch the app matrix from database
-
-        :return: The matrix of apps.
+        Return the popular items
+        :return: list
         """
+        raise NotImplemented
 
-    def online_user_factors(self, Y, user_item_ids, p_param = 10, lambda_param = 0.01):
+    def online_user_factors(self, Y, user_item_ids, p_param=10, lambda_param=0.01):
         """
         :param Y: application matrix Y.shape = (#apps, #factors)
         :param user_item_ids: the rows that correspond to installed applications in Y matrix
@@ -102,8 +106,7 @@ class InterfaceController(object):
                                                                        y.shape[0])).dot(np.ones(y.shape[0]).transpose())
         return u_factors
 
-    @CacheUser()
-    def get_app_significance_list(self, user, u_matrix, a_matrix):
+    def get_recommendation_from_model(self, user):
         """
         Get a List of significance values for each app
 
@@ -115,22 +118,15 @@ class InterfaceController(object):
         """
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
-
-        if user.pk-1 > u_matrix.shape[0]:  # We have a new user, so lets construct factors for him:
-            apps_idx = [a.pk - 1 for a in user.items.all() if a.pk - 1 < a_matrix.shape[1]]
+        model = self.get_model(user)
+        if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
+            apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
                 raise ValueError
-            u_factors = self.online_user_factors(a_matrix.transpose(), apps_idx)
-            return np.squeeze(np.asarray((u_factors * a_matrix)))
+            u_factors = model.online_user_factors(apps_idx)
+            return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
         else:
-            return np.squeeze(np.asarray((u_matrix.transpose()[user.pk-1] * a_matrix)))
-
-    def get_popularity(self):
-        """
-        Return the popular items
-        :return: list
-        """
-        return PopularityModel.get_popularity().recommendation
+            return model.get_recommendation(user)
 
     @CacheUser()
     @LogRecommendedApps()
@@ -144,32 +140,20 @@ class InterfaceController(object):
         :rtype: list
         """
         try:
-            result = self.get_app_significance_list(user=user, u_matrix=self.get_user_matrix(),
-                                                    a_matrix=self.get_apps_matrix())
-        except ValueError:
-            print("POPULARITY")
-            result = self.get_popularity()
+            result = self.get_recommendation_from_model(user=user)
+        except Exception:
+            print("Wild error appear in core recommendation")
+            result = self.get_alternative(user)
         logging.debug("Matrix loaded or generated")
         for f in self.filters:
             result = f(user, result, size=n)
         logging.debug("Filters finished")
-        result = [aid+1 for aid, _ in sorted(enumerate(result.tolist()), key=lambda x: x[1], reverse=True)]
+        result = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
         for r in self.rerankers:
             result = r(user, result, size=n)
         logging.debug("Re-rankers finished")
         return result[:n]
-
-    def get_recommendations_items(self, user, n=10):
-        """
-        Returns the recommendations with a list of external_is's
-
-        :param user: See parent
-        :param n: See parent
-        :return: Item external id list
-        """
-        result = self.get_recommendation(user=user, n=n)
-        rs = {app.pk: app for app in Item.objects.filter(pk__in=result)}
-        return [rs[r] for r in result]
+        #return self.run_re_rankers(recommendation=list(enumerate(result, start=1)), n=n)
 
     def get_external_id_recommendations(self, user, n=10):
         """
@@ -181,41 +165,57 @@ class InterfaceController(object):
         """
         result = self.get_recommendation(user=user, n=n)
         rs = Item.all_items()
-        return [rs[r] for r in result]
+        #return [rs[r] for r in result]
+        return [rs[r]["external_id"] for r in result]
+
+    def run_re_rankers(self, recommendation, n):
+        """
+
+        """
+        result, dropped = [], []
+        while len(result) < n:
+            item = max(recommendation, key=lambda x: x[1])
+            recommendation.remove(item)
+            if all(map(lambda x: x(item, result, dropped), self.rerankers)):
+                result.append(item[0])
+            else:
+                dropped.append(item)
+        return result
 
 
-class Recommender(InterfaceController):
+class TensorCoFiRecommender(IController):
     """
     Get the matrix from the Model
     """
 
-    def get_user_matrix(self):
+    def get_model(self, user):
         """
-        Catch the user matrix from database
+        Catch model
 
-        :return: The matrix of users.
+        :return: The Model
         """
-        return TensorModel.get_user_matrix().numpy_matrix
+        return TensorCoFi.get_model()
 
-    def get_apps_matrix(self):
+    def get_alternative(self, user):
         """
-        Cathe matrix from model
-
-        :return: The matrix of apps.
+        Return the popular items
+        :return: list
         """
-        return TensorModel.get_item_matrix().numpy_matrix
+        return Popularity.get_model().recommendation
 
 DEFAULT_SETTINGS = {
     "default": {
-        "core": ("recommendation.core", "Recommender"),
+        "core": "recommendation.core.TensorCoFiRecommender",
         "filters": [
-
+            "recommendation.filter_owned.filters.FilterOwnedFilter",
+            "recommendation.language.filters.SimpleLocaleFilter",
         ],
         "rerankers": [
-            ("recommendation.records.rerankers", "SimpleLogReRanker"),
-            ("recommendation.diversity.rerankers", "DiversityReRanker")
+            "recommendation.records.rerankers.SimpleLogReRanker",
+            "recommendation.diversity.rerankers.DiversityReRanker"
         ]
-    }
+    },
+    "logger": "recommendation.decorators.NoLogger"
 }
 
 try:
@@ -223,22 +223,64 @@ try:
 except AttributeError:
     RECOMMENDATION_SETTINGS = DEFAULT_SETTINGS
 
+
+def get_class(cls):
+    """
+    Return a tuple with the class, a tuple with args and a dict with keyword args.
+    :param cls:
+    :return:
+    """
+    if isinstance(cls, basestring):
+        cls_str, args, kwargs = cls, (), {}
+    elif isinstance(cls, (tuple, list)) and isinstance(cls[0], basestring):
+        if len(cls) == 2:
+            if isinstance(cls[1], (tuple, list)):
+                cls_str, args, kwargs = cls[0], cls[1], {}
+            elif isinstance(cls[1], dict):
+                cls_str, args, kwargs = cls[0], (), cls[1]
+            else:
+                raise AttributeError("The second element in tuple must be list, tuple or dict with python native structs.")
+        elif len(cls) == 3:
+            if isinstance(cls[1], (tuple, list)) and isinstance(cls[2], dict):
+                cls_str, args, kwargs = cls
+            else:
+                raise AttributeError("The second element in tuple must be list or and the third must be dict.")
+        else:
+            raise AttributeError("Tuple must be size 2 or 3.")
+    else:
+        raise AttributeError("Attribute must be string or tuple with the first element string.")
+    parts = cls_str.split(".")
+    module, cls = ".".join(parts[:-1]), parts[-1]
+    return getattr(__import__(module, fromlist=[""]), cls), args, kwargs
+
+
 RECOMMENDATION_ENGINES = {}
+log_event = None
 for engine, engine_settings in RECOMMENDATION_SETTINGS.items():
-    rec_mod, rec_class = engine_settings["core"]
+    if engine != "logger":
+        cls, args, kwargs = get_class(engine_settings["core"])
+        RECOMMENDATION_ENGINES[engine] = cls(*args, **kwargs)
 
-    RECOMMENDATION_ENGINES[engine] = getattr(__import__(rec_mod, fromlist=[""]), rec_class)()
+        # Register Filters
+        for filter_cls in engine_settings["filters"]:
+            cls, args, kwargs = get_class(filter_cls)
+            RECOMMENDATION_ENGINES[engine].register_filter(cls(*args, **kwargs))
 
-    # Register Filters
-    for mod, filter_class in engine_settings["filters"]:
-        RECOMMENDATION_ENGINES[engine].register_filter(getattr(__import__(mod, fromlist=[""]), filter_class)())
+        # Register re-rankers
+        for reranker_cls in RECOMMENDATION_SETTINGS["default"]["rerankers"]:
+            cls, args, kwargs = get_class(reranker_cls)
+            RECOMMENDATION_ENGINES[engine].register_reranker(cls(*args, **kwargs))
+    else:
+        cls, _, _ = get_class(engine_settings)
+        log_event = cls
 
-    # Register re-rankers
-    for mod, reranker_class in RECOMMENDATION_SETTINGS["default"]["rerankers"]:
-        RECOMMENDATION_ENGINES[engine].register_reranker(getattr(__import__(mod, fromlist=[""]), reranker_class)())
+if not log_event:
+    cls, _, _ = get_class(DEFAULT_SETTINGS["logger"])
+    log_event = cls
 
 # Set default Recommendation engine
 DEFAULT_RECOMMENDATION = RECOMMENDATION_ENGINES["default"]
+
 
 if __name__ == "__main__":
     import doctest

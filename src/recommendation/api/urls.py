@@ -12,6 +12,7 @@ __author__ = "joaonrb"
 
 from django.conf.urls import patterns, url
 from recommendation.api import views
+from recommendation.testfm_results.views import AnalyzeModels
 
 urlpatterns = patterns("",
     url(r'^recommend/(?P<number_of_recommendations>[0-9]+)/(?P<user_external_id>\w[\w/-]*)/(?P<data_format>\w+)/$',
@@ -20,6 +21,8 @@ urlpatterns = patterns("",
         views.UserRecommendationAPI().as_view(), name='recommender_no_format_api'),
     url(r'^recommend/(?P<number_of_recommendations>[0-9]+)/(?P<user_external_id>\w[\w/-]*).(?P<data_format>\w+)$',
         views.UserRecommendationAPI().as_view(), name='recommender_file_api'),
+    url(r'^recommend/(?P<number_of_recommendations>[0-9]+)/$',
+        views.UserRecommendationAPI().as_view(), name='recommender_no_format_api'),
     url(r'^user-items/(?P<user_external_id>\w[\w/-]*)/(?P<data_format>\w+)/$', views.UserItemsAPI().as_view(),
         name='user_item_api'),
     url(r'^user-items/(?P<user_external_id>\w[\w/-]*)/$', views.UserItemsAPI().as_view(),
@@ -28,5 +31,5 @@ urlpatterns = patterns("",
         name='user_items_file_api'),
     url(r'^users/(?P<data_format>\w+)/$', views.UsersAPI().as_view(), name='user_api'),
     url(r'^users/$', views.UsersAPI().as_view(), name='user_no_format_api'),
-    url(r'^users.(?P<data_format>\w+)$', views.UsersAPI().as_view(), name='user_file_api'),
+    url(r'^users.(?P<data_format>\w+)$', views.UsersAPI().as_view(), name='user_file_api')
 )

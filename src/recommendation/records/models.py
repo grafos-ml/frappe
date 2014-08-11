@@ -15,6 +15,7 @@ from django.contrib.admin import site
 from django.db import models
 from recommendation.models import Item, User
 from recommendation.decorators import PutInThreadQueue
+from django.db.models.signals import post_save
 
 
 class Record(models.Model):
@@ -87,7 +88,11 @@ class Record(models.Model):
         """
         if isinstance(user, User):
             user = user.external_id
+        #for rank, e_id in enumerate(recommended, start=1):
+        #    Record(user_id=user, item_id=e_id, value=rank).save()
         logs = [Record(user_id=user, item_id=e_id, value=rank) for rank, e_id in enumerate(recommended, start=1)]
         Record.objects.bulk_create(logs)
+        post_save.send(sender=Record, instance=logs)
+
 
 site.register([Record])

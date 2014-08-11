@@ -19,23 +19,12 @@ from django.db import models
 from django.utils.translation import ugettext as _
 import base64
 import numpy as np
-from recommendation.model_factory import JavaTensorCoFi, Popularity
 from django.utils.six import with_metaclass
 import sys
 from recommendation.decorators import PutInThreadQueue
 from django.core.cache import get_cache
 if sys.version_info >= (3, 0):
     basestring = unicode = str
-else:
-    def bytes(string, *args, **kwargs):
-        return str(string)
-
-
-class NotCached(Exception):
-    """
-    Exception when some value not in cache
-    """
-    pass
 
 
 class Matrix(with_metaclass(models.SubfieldBase, models.TextField)):
@@ -61,10 +50,10 @@ class Matrix(with_metaclass(models.SubfieldBase, models.TextField)):
         :rtype: numpy.Array
         """
         if isinstance(value, basestring):
-            prep = bytes(value, "utf-8")
-            return np.fromstring(self.DECODE_MATRIX(prep), dtype=np.float64)
+            prep = bytes(value, "utf-8") if sys.version_info >= (3, 0) else bytes(value)
+            return np.fromstring(self.DECODE_MATRIX(prep), dtype=np.float32)
         elif isinstance(value, bytes):
-            return np.fromstring(self.DECODE_MATRIX(value), dtype=np.float64)
+            return np.fromstring(self.DECODE_MATRIX(value), dtype=np.float32)
         return value
 
     def get_prep_value(self, value):
@@ -96,7 +85,7 @@ class Recommendation(with_metaclass(models.SubfieldBase, models.TextField)):
         :param value: string of a list for a recommendation
         """
         if isinstance(value, basestring):
-            prep = bytes(value, "utf-8")
+            prep = bytes(value, "utf-8") if sys.version_info >= (3, 0) else bytes(value)
             return np.fromstring(self.DECODE_MATRIX(prep), dtype=np.float64)
         return value
 
@@ -129,7 +118,9 @@ class Item(models.Model):
 
     @staticmethod
     def load_to_cache():
-        items = {app_id: app_eid for app_id, app_eid in Item.objects.all().values_list("pk", "external_id")}
+        items = {app["id"]: app for app in Item.objects.all().prefetch_related().values("id", "name", "external_id",
+                                                                                        "available_locales",
+                                                                                        "genres__name")}
         cache = get_cache("models")
         cache.set("recommendation_items", items, None)
 
@@ -162,7 +153,14 @@ class User(models.Model):
         Get the owned items from cache
         """
         cache = get_cache("models")
-        return cache.get("user<%s>.owned_items" % self.external_id, None)
+        return cache.get("user<%s>.owned_items" % self.external_id, [])
+
+    @owned_items.setter
+    def owned_items(self, value):
+        cache = get_cache("models")
+        items = cache.get("user<%s>.owned_items" % self.external_id, None)
+        items.add(value)
+        cache.set("user<%s>.owned_items" % self.external_id, items, None)
 
     @PutInThreadQueue()
     def save_with(self, language=None):
@@ -172,6 +170,10 @@ class User(models.Model):
         self.save()
         if language:
             language.users.add(self)
+        cache = get_cache("model")
+        all_users = User.all_users()
+        all_users[self.external_id] = self
+        cache.set("recommendation_users", self, None)
 
     def get_owned_items(self):
         """
@@ -185,6 +187,20 @@ class User(models.Model):
         users = User.objects.all()
         for u in users:
             cache.set("user<%s>.owned_items" % u.external_id, list(u.get_owned_items()), None)
+
+    @staticmethod
+    def load_to_cache():
+        users = {user.external_id: user for user in User.objects.all()}
+        cache = get_cache("models")
+        cache.set("recommendation_users", users, None)
+
+    @staticmethod
+    def all_users():
+        """
+        Get all items from cache
+        """
+        cache = get_cache("models")
+        return cache.get("recommendation_users")
 
 
 class Inventory(models.Model):
@@ -206,6 +222,11 @@ class Inventory(models.Model):
         return _("%(state)s %(item)s item for user %(user)s") % {
             "state": _("dropped") if self.dropped_date else _("owned"), "item": self.item.name,
             "user": self.user.external_id}
+
+    def save(self, *args, **kwargs):
+        super(Inventory, self).save(*args, **kwargs)
+        cache = get_cache("models")
+        cache.set("user<%s>.owned_items" % self.user.external_id, list(self.user.get_owned_items()), None)
 
 
 class TensorModel(models.Model):
@@ -232,67 +253,12 @@ class TensorModel(models.Model):
         self.matrix.shape = self.rows, self.columns
         return np.matrix(self.matrix)
 
-    def save(self, **kwargs):
-        super(TensorModel, self).save(**kwargs)
-        cache = get_cache("models")
-        cache.set("tensorcofi_%s" % self.get_type(), self, None)
-
     def get_type(self):
         """
         Return the type of this factor matrix
         :return: users if user factors and item otherwise
         """
         return "users" if self.dim == 0 else "items"
-
-    @staticmethod
-    def load_to_cache():
-        users = TensorModel.objects.filter(dim=0).order_by("-id")[0]
-        items = TensorModel.objects.filter(dim=1).order_by("-id")[0]
-        cache = get_cache("models")
-        cache.set("tensorcofi_%s" % users.get_type(), users, None)
-        cache.set("tensorcofi_%s" % items.get_type(), items, None)
-
-    @staticmethod
-    def get_user_matrix():
-        """
-        Return the user matrix from cache
-        :return: TensorModel for users.
-        :exception NotCached is raised when no user matrix on cache
-        """
-        cache = get_cache("models")
-        user_matrix = cache.get("tensorcofi_users")
-        if not user_matrix:
-            raise NotCached("There is no user matrix in cache")
-        return user_matrix
-
-    @staticmethod
-    def get_item_matrix():
-        """
-        Return the item matrix from cache
-        :return: TensorModel for items.
-        :exception NotCached is raised when no item matrix on cache
-        """
-        cache = get_cache("models")
-        item_matrix = cache.get("tensorcofi_items")
-        if not item_matrix:
-            raise NotCached("There is no item matrix in cache")
-        return item_matrix
-
-    @staticmethod
-    def train():
-        """
-        Trains the model in to data base
-        """
-        data = Inventory.objects.all().order_by("user").values_list("user", "item")
-        np_data = np.matrix([(u, i) for u, i in data])
-        tensor = JavaTensorCoFi()
-        tensor.train(np_data, users_len=len(User.objects.all()), items_len=len(Item.objects.all()))
-        users, items = tensor.get_model()
-        users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
-        users.save()
-        items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
-        items.save()
-        return users, items
 
 
 class PopularityModel(models.Model):
@@ -315,35 +281,8 @@ class PopularityModel(models.Model):
         cache = get_cache("models")
         cache.set("popularity", self, None)
 
-    @staticmethod
-    def get_popularity():
-        """
-        Return the popularity recommendation
-        :return: Latest PopularityModel.
-        :exception NotCached is raised when no popularity model is on cache
-        """
-        cache = get_cache("models")
-        user_matrix = cache.get("popularity")
-        if not user_matrix:
-            raise NotCached("There is no popular recommendation in cache")
-        return user_matrix
-
-    @staticmethod
-    def load_to_cache():
-        pop = PopularityModel.objects.all().order_by("-id")[0]
-        cache = get_cache("models")
-        cache.set("popularity", pop, None)
-
-    @staticmethod
-    def train():
-        """
-        Train the popular model
-        :return:
-        """
-        popular_recommendation = Popularity.get_popular_items(Item)
-        PopularityModel.objects.create(recommendation=popular_recommendation,
-                                       number_of_items=len(popular_recommendation))
-
 
 from django.contrib import admin
 admin.site.register([Item, User, Inventory, TensorModel, PopularityModel])
+
+# TODO import FFPopularity to testfm

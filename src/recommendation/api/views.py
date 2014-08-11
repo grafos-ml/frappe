@@ -9,6 +9,7 @@ The views for the Recommend API.
 """
 __author__ = "joaonrb"
 
+import random
 from django.conf import settings
 from django.db import connection
 from django.db.utils import OperationalError, IntegrityError
@@ -21,7 +22,7 @@ from recommendation.models import User, Inventory
 from recommendation.records.models import Record
 from recommendation.core import DEFAULT_RECOMMENDATION
 from recommendation.decorators import PutInThreadQueue
-
+from recommendation.core import log_event
 
 JSON = "json"
 XML = "xml"
@@ -147,6 +148,7 @@ class AbstractGoToItem(APIView):
     }
 
     @PutInThreadQueue()
+    @log_event(log_event.CLICK)
     def click(self, user_external_id, item_external_id, click_type, rank=None):
         """
         Click on an app.
@@ -191,7 +193,7 @@ class UserRecommendationAPI(RecommendationAPI):
         "get"
     ]
 
-    def get(self, request, user_external_id, number_of_recommendations):
+    def get(self, request, user_external_id="", number_of_recommendations=5):
         """
         Get method to request recommendations
 
@@ -202,6 +204,8 @@ class UserRecommendationAPI(RecommendationAPI):
         :type number_of_recommendations: int
         :return: A HTTP response with a list of recommendations.
         """
+        if user_external_id == "":
+            user_external_id = random.sample(User.all_users(), 1)[0]
         recommended_apps = DEFAULT_RECOMMENDATION.get_external_id_recommendations(user_external_id,
                                                                                   n=int(number_of_recommendations))
         data = {"user": user_external_id, "recommendations": recommended_apps}
@@ -278,7 +282,8 @@ class UserItemsAPI(RecommendationAPI):
     ]
 
     @staticmethod
-    @PutInThreadQueue()
+    #@PutInThreadQueue()
+    @log_event(log_event.ACQUIRE)
     def insert_acquisition(user_external_id, item_external_id):
         """
         Insert a new in user installed apps
@@ -307,6 +312,7 @@ class UserItemsAPI(RecommendationAPI):
 
     @staticmethod
     @PutInThreadQueue()
+    @log_event(log_event.REMOVE)
     def delete_acquisition(user_external_id, item_external_id):
         """
         Update a certain item to remove in the uninstall datetime field

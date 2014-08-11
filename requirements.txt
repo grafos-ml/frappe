@@ -1,13 +1,15 @@
 django>=1.6
 djangorestframework
-numpy
-scipy
-pandas
+#numpy
+#scipy
+#pandas
 pymysql
 django-cors-headers
+https://github.com/grafos-ml/test.fm/archive/v1.0.3.tar.gz
 
 # for frontend
 https://github.com/joaonrb/django-templatetag-handlebars/archive/master.zip
+pyjade
 
 # for debug
 nose

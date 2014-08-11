@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: 
-    :platform: 
-    :synopsis: 
+.. module::
+    :platform:
+    :synopsis:
      3/11/14
 
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
@@ -11,142 +11,210 @@
 
 __author__ = "joaonrb"
 
+"""
 import os
-import numpy as np
-import math
 import datetime
 import subprocess
 import recommendation
 from pkg_resources import resource_filename
 import shutil
 from django.db.models import Count
+"""
+import pandas as pd
+import numpy as np
+from django.core.cache import get_cache
+from testfm.models.tensorcofi import PyTensorCoFi
+from testfm.models.baseline_model import Popularity as TestFMPopulariy
+from recommendation.models import TensorModel, PopularityModel, Inventory, User, Item
 
 USER = "user"
 ITEM = "item"
 
 
-class TensorCoFi(object):
+class NotCached(Exception):
+    """
+    Exception when some value not in cache
+    """
+    pass
+
+
+class MySQLMapDummy:
+    def __getitem__(self, item):
+        return int(item-1)
+
+    def __setitem__(self, item, value):
+        pass
+
+
+class TensorCoFi(PyTensorCoFi):
     """
     A creator of TensorCoFi models
     """
 
-    def __init__(self, d=20, iterations=5, lambda_value=0.05, alpha_value=40, dimensions=[0, 0]):
+    def __init__(self, n_users=None, n_items=None, **kwargs):
         """
+        """
+        if not isinstance(n_items, int) or not isinstance(n_users, int):
+            raise AttributeError("Parameter n_items and n_users must have integer")
+        super(TensorCoFi, self).__init__(**kwargs)
+        self.dimensions = [n_users, n_items]
+        self.n_users = n_users
+        self.n_items = n_items
+        self.data_map = {
+            self.get_user_column(): MySQLMapDummy(),
+            self.get_item_column(): MySQLMapDummy()
+        }
 
-        :param d:
-        :param iterations:
-        :param lambda_value:
-        :param alpha_value:
-        :param dimensions:
+    def users_size(self):
+        """
+        Return the number of users
+        """
+        return self.n_users
+
+    def items_size(self):
+        """
+        Return the number of items
+        """
+        return self.n_items
+
+    def get_score(self, user, item):
+        #print self.factors[0][user-1].shape, self.factors[1][item-1].shape
+        #result = super(TensorCoFi, self).get_score(user, item)
+        #print result
+        #return result
+        return np.dot(self.factors[0][user-1], self.factors[1][item-1].transpose())
+
+    def get_recommendation(self, user, **context):
+        """
+        Get the recommendation for this user
+        """
+        return self.get_not_mapped_recommendation(user.pk, **context)
+
+    @staticmethod
+    def load_to_cache():
+        users = TensorModel.objects.filter(dim=0).order_by("-id")[0]
+        items = TensorModel.objects.filter(dim=1).order_by("-id")[0]
+
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        tensor.factors = [users.numpy_matrix, items.numpy_matrix]
+        cache = get_cache("models")
+        cache.set("tensorcofi", tensor, None)
+
+    @staticmethod
+    def get_model(*args, **kwargs):
+        return get_cache("models").get("tensorcofi")
+
+    @staticmethod
+    def train_from_db(*args, **kwargs):
+        """
+        Trains the model in to data base
+        """
+        #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        #data = pd.DataFrame({"item": users, "user": items})
+
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
+        super(TensorCoFi, tensor).train(data)
+        users, items = super(TensorCoFi, tensor).get_model()
+        users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
+        users.save()
+        items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
+        items.save()
+        return users, items
+
+    def train(self, data):
+        """
+        Trains the model in to data base
+        """
+        #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        #data = pd.DataFrame({"item": users, "user": items})
+        super(TensorCoFi, self).train(data)
+        users, items = super(TensorCoFi, self).get_model()
+        users = TensorModel(matrix=users, rows=users.shape[0], columns=users.shape[1], dim=0)
+        users.save()
+        items = TensorModel(matrix=items, rows=items.shape[0], columns=items.shape[1], dim=1)
+        items.save()
+        return users, items
+
+
+class Popularity(TestFMPopulariy):
+    """
+
+    """
+
+    def __init__(self, n_items=None, *args, **kwargs):
+
+        if not isinstance(n_items, int):
+            raise AttributeError("Parameter n_items must have integer")
+        super(Popularity, self).__init__(*args, **kwargs)
+        self.n_items = n_items
+        self.data_map = {
+            self.get_user_column(): MySQLMapDummy(),
+            self.get_item_column(): MySQLMapDummy()
+        }
+        self.popularity_recommendation = []
+
+    def fit(self, training_data):
+        """
+        Computes number of times the item was used by a user.
+        :param training_data: DataFrame training data
         :return:
         """
-        self.d = d
-        self.dimensions = dimensions
-        self.lambda_value = lambda_value
-        self.alpha_value = alpha_value
-        self.iterations = iterations
+        super(Popularity, self).fit(training_data)
+        for i in range(self.n_items):
+            try:
+                self._counts[i+1] = self._counts[i+1]
+            except KeyError:
+                self._counts[i+1] = float("-inf")
+        self.popularity_recommendation = [self._counts[i+1] for i in range(self.n_items)]
+        self.popularity_recommendation = np.array(self.popularity_recommendation)
 
-        self.factors = []
-        self.counts = []
-        for dim in dimensions:
-            self.factors.append(np.random.rand(d, dim))
-            self.counts.append(np.zeros((dim, 1)))
-        self.regularizer = None
-        self.matrix_vector_product = None
-        self.one = None
-        self.invertible = None
-        self.tmp = None
+    #def get_score(self, user, item, **kwargs):
+    #    print self._counts
+    #    super(Popularity, self).get_score(user, item, **kwargs)
 
-    def iterate(self, tensor, data_array):
+    @property
+    def recommendation(self):
+        return self.popularity_recommendation
+
+    @recommendation.setter
+    def recommendation(self, value):
+        self.popularity_recommendation = value
+        self._counts = {i+1: value[i] for i in range(self.n_items)}
+
+    @staticmethod
+    def load_to_cache():
+        pop = PopularityModel.objects.all().order_by("-id")[0]
+        model = Popularity(n_items=Item.objects.all().count())
+        model.recommendation = pop.recommendation
+        cache = get_cache("models")
+        cache.set("popularity", model, None)
+
+    @staticmethod
+    def get_model():
+        return get_cache("models").get("popularity")
+
+    def get_recommendation(self, user, **context):
         """
-        Iterate  over each Factor Matrix
-        :param tensor:
+        Get the recommendation for this user
+        """
+        return self.recommendation
+
+    @staticmethod
+    def train():
+        """
+        Train the popular model
         :return:
         """
-        dimension_range = list(range(len(self.dimensions)))
-        for i, dimension in enumerate(self.dimensions):
+        popular_model = Popularity(n_items=Item.objects.all().count())
+        users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        data = pd.DataFrame({"item": items, "user": users})
+        popular_model.fit(data)
+        PopularityModel.objects.create(recommendation=popular_model.recommendation,
+                                       number_of_items=len(popular_model.recommendation))
+    train_from_db = train
 
-            # The base computation
-            if len(self.dimensions) == 2:
-                base = self.factors[1 - len(self.dimensions)]
-                base = np.dot(base, base.transpose())
-            else:
-                base = np.ones((self.d, self.d))
-                for j in dimension_range:
-                    if j != i:
-                        base = np.dot(self.factors[j], self.factors[j].transpose())
-
-            if not i:  # i == 0
-                for entry in range(dimension):
-                    count = sum((1 for j in range(data_array.shape[0]) if data_array[j, i] == entry)) or 1
-                    self.counts[i][entry, 0] = count
-
-            for entry in range(dimension):
-                if entry in tensor[i]:
-                    data_row_list = tensor[i][entry]
-                    for data in data_row_list:
-                        self.tmp = self.tmp * 0. + 1.
-                        self.tmp = self.tmp * self.factors[i][:, data_array[data, i]]
-                        score = data_array[data_array.shape[1], i]
-                        weight = 1. + self.alpha_value * math.log(1. + abs(score))
-
-                        self.invertible += (1. - weight) * self.tmp * self.tmp.transpose()
-                        self.matrix_vector_product += self.tmp * np.sign(score) * weight
-
-                        self.invertible += base
-                        self.regularizer = self.regularizer * 1. / self.dimensions[i]
-                        self.invertible += self.regularizer
-
-                        self.invertible = np.linalg.solve(self.invertible, self.one)
-
-                        # Put the calculated factor back into place
-
-                        self.factors[i][:, entry] = np.dot(self.matrix_vector_product, self.invertible)
-
-                        # Reset invertible and matrix_vector_product
-                        self.invertible *= 0.
-                        self.matrix_vector_product *= 0.
-
-    def prepare_tensor(self, data_array):
-        """
-        Prepare the data
-
-        :param data_array: Data to convert in to tensor model
-        """
-
-        self.regularizer = np.multiply(np.identity(self.d), self.lambda_value)
-        self.matrix_vector_product = np.zeros((1, self.d))
-        self.one = np.identity(self.d)
-        self.invertible = np.zeros((self.d, self.d))
-        self.tmp = np.ones((1, self.d))
-        tensor = {}
-        for i, dim in enumerate(self.dimensions):
-            tensor[i] = {}
-            for j, row in enumerate(data_array):
-                try:
-                    tensor[i][row[0, i]].append(j)
-                except KeyError:
-                    tensor[i][row[0, i]] = [j]
-        return tensor
-
-    def train(self, data_array):
-        """
-        Implementation of TensorCoFi training in Python
-
-        :param data_array: Data to convert in to tensor model
-        """
-        tensor = self.prepare_tensor(data_array)
-        # Starting loops
-        for _ in range(self.iterations):
-            self.iterate(tensor, data_array)
-
-    def get_model(self):
-        """
-        TODO
-        """
-        return self.factors
-
-
+'''
 class JavaTensorCoFi(object):
     """
     Loads the tensor from the database based on file exchange
@@ -267,3 +335,5 @@ class Popularity(object):
         toSting like
         """
         return "Popularity"
+
+'''

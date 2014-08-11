@@ -20,7 +20,7 @@
                                     </a>
                                 </td>
 								<td>
-                                    {% for item in u.owned_items.all|slice:":8" %}
+                                    {% for item in u.owned_items|slice:":8" %}
                                         {% if forloop.counter < 8 or u.owned_items.all == 8 %}
                                         <img src="" alt="{{ item.name }}" class="ff-small-icon" id="{{ item.external_id }}">
                                         {% else %}

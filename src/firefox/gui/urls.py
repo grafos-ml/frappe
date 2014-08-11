@@ -2,7 +2,7 @@
 Url for recommendation API
 
 """
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from django.views.decorators.cache import cache_page
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout
@@ -17,4 +17,5 @@ urlpatterns = patterns('',
         name='recommendfor'),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
     url(r'^accounts/logout/$', logout, name='logout'),
+    url(r"^ab/", include("recommendation.ab_testing.urls"))
 )

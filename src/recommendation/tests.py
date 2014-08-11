@@ -13,7 +13,7 @@ import numpy as np
 from recommendation.models import TensorModel, Inventory, Item, User
 from pkg_resources import resource_filename
 sys.path.append(resource_filename(__name__, "/../bin"))
-import fill
+import fill_firefox as fill
 
 
 class TestModels(object):

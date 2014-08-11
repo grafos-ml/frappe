@@ -19,7 +19,8 @@ class SimpleDiversity(object):
     """
 
     def __init__(self, items, size, user, alpha_constant, lambda_constant):
-        genres = Genre.objects.filter(items__id__in=items).values_list("items__id", "name")
+        #genres = Genre.objects.filter(items__id__in=items).values_list("items__id", "name")
+        genres = Genre.genre_in(items)
         self.genre_by_item = {item: [] for item in items}
         self.genres = {}
         for item_id, genre in genres:
@@ -31,7 +32,8 @@ class SimpleDiversity(object):
         self.alpha_constant = alpha_constant
         user_genres = {}
         self.user_items_count = 0
-        for iid, genre in Genre.objects.filter(items__in=user.owned_items.all()).values_list("items__id", "name"):
+        #for iid, genre in Genre.objects.filter(items__in=user.owned_items.all()).values_list("items__id", "name"):
+        for iid, genre in Genre.genre_in([i.pk for i in user.owned_items]):
             user_genres[genre] = user_genres.get(genre, 1.) + 1.
             self.user_items_count += 1
         self.counter = {}
@@ -40,7 +42,7 @@ class SimpleDiversity(object):
             p_local = user_genres.get(genre, 0.) / self.user_items_count if self.user_items_count else 0.
             self.counter[genre] = weighted_p(p_global, p_local, self.alpha_constant) * size
             self.counter[genre] = int(self.counter[genre])
-        print(self.counter)
+        #print(self.counter)
 
     def __call__(self, recommendation, item):
         recommendation = recommendation[:]
@@ -87,7 +89,7 @@ class SimpleDiversityReRanker(object):
         diversity = SimpleDiversity(recommendation, size, user, self.alpha_constant, self.lambda_constant)
         new_recommendation = []
         dropped_items = []
-        for item in recommendation:
+        for item in recommendation[:int(2*len(recommendation)/3)]:
             new_recommendation0 = diversity(new_recommendation, item)
             if len(new_recommendation0) != len(new_recommendation) + 1:
                 dropped_items.append(item)
