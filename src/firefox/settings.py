@@ -197,8 +197,8 @@ CACHES = {
 
 RECOMMENDATION_SETTINGS = {
     "default": {
-        #"core": "recommendation.core.TensorCoFiRecommender"
-        "core": "recommendation.ab_testing.rec_controller.ABTesting",
+        "core": "recommendation.core.TensorCoFiRecommender",
+        #"core": "recommendation.ab_testing.rec_controller.ABTesting",
         "filters": [
             "recommendation.filter_owned.filters.FilterOwnedFilter",
             "recommendation.language.filters.SimpleLocaleFilter",
@@ -211,8 +211,8 @@ RECOMMENDATION_SETTINGS = {
             "recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
         ]
     },
-    #"logger": "recommendation.records.decorators.LogEventInRecords"
-    "logger": "recommendation.ab_testing.decorators.ABEventLogger"
+    "logger": "recommendation.records.decorators.LogEventInRecords"
+    #"logger": "recommendation.ab_testing.decorators.ABEventLogger"
 }
 
 TEMPLATE_LOADERS = (
