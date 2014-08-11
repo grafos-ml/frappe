@@ -96,15 +96,19 @@ left items with highest scores are returned as a result.</p>
 <p>To get started with the Recommendation framework, you first need to set a Django environment. Do all the thing you need
 to do in order to start a django project. If you don&#8217;t now how to do it just check
 the <a class="reference external" href="http://djangoproject.com">Django</a> website and see if it&#8217;s what you&#8217;re looking for.</p>
-<div class="section" id="installation">
-<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
-<p>Like all the good python packages you just use &#8220;<cite>pip install recommendation-framework</cite>&#8221; and you&#8217;re ready to go.
-Unfortunately this project doesn&#8217;t even got a real name. As far as I&#8217;m concerned it will be called frappe or something
-coffee and cream related. Why? This project is the younger brother of the <a class="reference external" href="http://frappe.cc/">Frappé</a> another recommendation project developed by <a class="reference external" href="http://www.linkedin.com/profile/view?id=34647483">Linas Baltrunas</a>, the same guy behind this here. So, in this alpha stage of the
-project, to get it just ask nicely to <a class="reference external" href="mailto:linas&#46;baltrunas&#37;&#52;&#48;gmail&#46;com">Linas</a> or <a class="reference external" href="mailto:joaonrb&#37;&#52;&#48;gmail&#46;com">João</a>
-and we will think about it. If for some reason they think you are worthy, then you just have to add the package to you
-environment.</p>
-<p>After that just add it to the installed apps in Django settings:</p>
+<p>We also use MySQL Database for the project to store the models, applications, etc.
+You need to install standard mysql (5.1) DB server and edit the connection settings in the &#8216;src/firefox/settings.py&#8217;
+file. When you create the database please use collation: utf8_general_ci.</p>
+<p>Next, you will need to install the python module requirements from requirements.txt:</p>
+<div class="highlight-python"><div class="highlight"><pre>pip install -r ../requirements.txt
+</pre></div>
+</div>
+<div class="section" id="installation-of-the-modules">
+<h3>Installation of the Modules<a class="headerlink" href="#installation-of-the-modules" title="Permalink to this headline">¶</a></h3>
+<p>For a moment we have a very manual installation process. This will be replaced with pip style installs any time soon.</p>
+<ol class="arabic simple">
+<li>First you need to add recommendation module to the installed apps in Django settings of the main project:</li>
+</ol>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
@@ -120,16 +124,29 @@ environment.</p>
 <span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<p>Okay, now you should be able to retrieve recommendations from the system. Link your users to the
-recommendation.models.User and the items you want to be subject of recommendation to recommendation.models.Item.</p>
-</div>
-<div class="section" id="model-generation">
-<h3>Model Generation<a class="headerlink" href="#model-generation" title="Permalink to this headline">¶</a></h3>
-<p>One more thing. To retrieve recommendations a recommendation model (statistical representation of your data) must be built.
+<ol class="arabic simple" start="2">
+<li>Next, you need to create the Django modules using.</li>
+</ol>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre>&gt;&gt;&gt; <span class="nb">cd</span> /Users/mumas/devel/ffos/src
+&gt;&gt;&gt; <span class="nv">PYTHONPATH</span><span class="o">=</span>/Users/mumas/devel/ffos/src/ python manage.py syncdb
+</pre></div>
+</td></tr></table></div>
+<p>3. Now you have to fill the database with applications and user data. For the example we use a dummy data
+from the data folder. You should replace the path to the real path of the marketplace dumps. For now,
+lets start with the dummy data.</p>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre>&gt;&gt;&gt; <span class="nb">cd</span> /Users/mumas/devel/ffos/src
+&gt;&gt;&gt; <span class="nv">PYTHONPATH</span><span class="o">=</span>/Users/mumas/devel/ffos/src/ bin/fill_firefox.py items bin/data/app/
+&gt;&gt;&gt; <span class="nv">PYTHONPATH</span><span class="o">=</span>/Users/mumas/devel/ffos/src/ bin/fill_firefox.py users bin/data/user
+</pre></div>
+</td></tr></table></div>
+<p>4. To retrieve recommendations a recommendation model (statistical representation of your data) must be built.
 To have it built you have to run the script:</p>
 <div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2</pre></div></td><td class="code"><div class="highlight"><pre>&gt;&gt;&gt; modelcrafter.py train tensorcofi  <span class="c"># For tensorcofi model</span>
-&gt;&gt;&gt; modelcrafter.py train popularity  <span class="c"># For Popularity</span>
+2</pre></div></td><td class="code"><div class="highlight"><pre>&gt;&gt;&gt; <span class="nv">PYTHONPATH</span><span class="o">=</span>/Users/mumas/devel/ffos/src/ bin/modelcrafter.py train tensorcofi  <span class="c"># For tensorcofi model</span>
+&gt;&gt;&gt; <span class="nv">PYTHONPATH</span><span class="o">=</span>/Users/mumas/devel/ffos/src/ bin/modelcrafter.py train popularity  <span class="c"># For Popularity</span>
 </pre></div>
 </td></tr></table></div>
 <div class="admonition note">
@@ -141,6 +158,14 @@ information about a user. And the TF in case that the system has some (&gt;3 app
 <p>This script is shipping with the recommendation framework and builds this matrix. You will want to continue to build
 the matrix for new users and items to be included. Keep that in mind.</p>
 <p>And voilá, you got your self a recommendation system for your precious little web site. It&#8217;s a bit static though.</p>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre>&gt;&gt;&gt; <span class="nv">PYTHONPATH</span><span class="o">=</span>/Users/mumas/devel/ffos/src/ python manage.py runserver
+&gt;&gt;&gt; open firefox at http://127.0.0.1:8000/
+</pre></div>
+</td></tr></table></div>
+<p>5. Now you can try to access also the REST API. The full documentation of APIs can be found through the Table of Content.
+For example, to generate JSON response just point your web browser to
+<a class="reference external" href="http://localhost:8000/api/v2/recommend/5/002c50b7dae6a30ded5372ae1033da43bba90b4d477733375994791e758fbee0.json">http://localhost:8000/api/v2/recommend/5/002c50b7dae6a30ded5372ae1033da43bba90b4d477733375994791e758fbee0.json</a>:</p>
 </div>
 <div class="section" id="plugin-installations">
 <h3>Plugin Installations<a class="headerlink" href="#plugin-installations" title="Permalink to this headline">¶</a></h3>
@@ -152,7 +177,8 @@ that you also have to use a special settings environment called RECOMMENDATION_S
 much like a static configuration. You also have a default standard and might have more to use in special situations. Basically, it
 a core engine(the structure that request the recommendation and use the filters and re-rankers), A list of filters and
 another list for re-rankers. Typically, the filters will execute first and re-rankers after and the execute in the same
-order that they are registered in RECOMMENDATION_SETTINGS.</p>
+order that they are registered in RECOMMENDATION_SETTINGS. It will also need a logger class. The logger class is a
+decorator that will record the events in some way.</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -188,18 +214,18 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
 
 <span class="n">RECOMMENDATION_SETTINGS</span> <span class="o">=</span> <span class="p">{</span>
      <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
-         <span class="s">&quot;core&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s">&quot;recommendation.core&quot;</span><span class="p">,</span> <span class="s">&quot;Recommender&quot;</span><span class="p">),</span>
+         <span class="s">&quot;core&quot;</span><span class="p">:</span> <span class="s">&quot;recommendation.core.TensorCoFiRecommender&quot;</span><span class="p">,</span>
          <span class="s">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
-             <span class="p">(</span><span class="s">&quot;recommendation.filter_owned.filters&quot;</span><span class="p">,</span> <span class="s">&quot;FilterOwnedFilter&quot;</span><span class="p">),</span>
-             <span class="p">(</span><span class="s">&quot;recommendation.language.filters&quot;</span><span class="p">,</span> <span class="s">&quot;SimpleLocaleFilter&quot;</span><span class="p">),</span>
+             <span class="s">&quot;recommendation.filter_owned.filters.FilterOwnedFilter&quot;</span><span class="p">,</span>
+             <span class="s">&quot;recommendation.language.filters.SimpleLocaleFilter&quot;</span><span class="p">,</span>
          <span class="p">],</span>
          <span class="s">&quot;rerankers&quot;</span><span class="p">:</span> <span class="p">[</span>
-             <span class="c"># The order witch the re-rankers or filters are setted here represent the order that they are called</span>
-             <span class="c">#(&quot;recommendation.records.rerankers&quot;, &quot;SimpleLogReRanker&quot;),</span>
-             <span class="p">(</span><span class="s">&quot;recommendation.diversity.rerankers&quot;</span><span class="p">,</span> <span class="s">&quot;DynamicDiversityReRanker&quot;</span><span class="p">)</span>
+             <span class="s">&quot;recommendation.records.rerankers.SimpleLogReRanker&quot;</span><span class="p">,</span>
+             <span class="s">&quot;recommendation.diversity.rerankers.DiversityReRanker&quot;</span>
          <span class="p">]</span>
-     <span class="p">}</span>
- <span class="p">}</span>
+     <span class="p">},</span>
+     <span class="s">&quot;logger&quot;</span><span class="p">:</span> <span class="s">&quot;recommendation.decorators.NoLogger&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </td></tr></table></div>
 <p>Now you have an awesome recommendation system.</p>
@@ -219,8 +245,7 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
 <li><a class="reference internal" href="#api-documentation">API Documentation</a></li>
 <li><a class="reference internal" href="#how-it-works">How it works</a></li>
 <li><a class="reference internal" href="#get-started">Get Started</a><ul>
-<li><a class="reference internal" href="#installation">Installation</a></li>
-<li><a class="reference internal" href="#model-generation">Model Generation</a></li>
+<li><a class="reference internal" href="#installation-of-the-modules">Installation of the Modules</a></li>
 <li><a class="reference internal" href="#plugin-installations">Plugin Installations</a></li>
 </ul>
 </li>

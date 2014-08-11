@@ -48,19 +48,20 @@ To get started with the Recommendation framework, you first need to set a Django
 to do in order to start a django project. If you don't now how to do it just check
 the `Django <http://djangoproject.com>`_ website and see if it's what you're looking for.
 
-Installation
-____________
+We also use MySQL Database for the project to store the models, applications, etc. 
+You need to install standard mysql (5.1) DB server and edit the connection settings in the 'src/firefox/settings.py'
+file. When you create the database please use collation: utf8_general_ci.
 
-Like all the good python packages you just use "`pip install recommendation-framework`" and you're ready to go.
-Unfortunately this project doesn't even got a real name. As far as I'm concerned it will be called frappe or something
-coffee and cream related. Why? This project is the younger brother of the `Frappé
-<http://frappe.cc/>`_ another recommendation project developed by `Linas Baltrunas
-<http://www.linkedin.com/profile/view?id=34647483>`_, the same guy behind this here. So, in this alpha stage of the
-project, to get it just ask nicely to `Linas <mailto:linas.baltrunas@gmail.com>`_ or `João <mailto:joaonrb@gmail.com>`_
-and we will think about it. If for some reason they think you are worthy, then you just have to add the package to you
-environment.
+Next, you will need to install the python module requirements from requirements.txt::
 
-After that just add it to the installed apps in Django settings:
+     pip install -r ../requirements.txt 
+
+Installation of the Modules
+____________________________
+
+For a moment we have a very manual installation process. This will be replaced with pip style installs any time soon.
+
+1. First you need to add recommendation module to the installed apps in Django settings of the main project:
 
 .. code-block:: python
    :linenos:
@@ -73,19 +74,34 @@ After that just add it to the installed apps in Django settings:
         ...
    )
 
-Okay, now you should be able to retrieve recommendations from the system. Link your users to the
-recommendation.models.User and the items you want to be subject of recommendation to recommendation.models.Item.
 
-Model Generation
-________________
-One more thing. To retrieve recommendations a recommendation model (statistical representation of your data) must be built. 
+2. Next, you need to create the Django modules using.
+
+.. code-block:: bash
+   :linenos:
+   
+   >>> cd /Users/mumas/devel/ffos/src    
+   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ python manage.py syncdb
+    
+3. Now you have to fill the database with applications and user data. For the example we use a dummy data
+from the data folder. You should replace the path to the real path of the marketplace dumps. For now,
+lets start with the dummy data.
+
+.. code-block:: bash
+   :linenos:
+   
+   >>> cd /Users/mumas/devel/ffos/src
+   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ bin/fill_firefox.py items bin/data/app/
+   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ bin/fill_firefox.py users bin/data/user
+
+4. To retrieve recommendations a recommendation model (statistical representation of your data) must be built. 
 To have it built you have to run the script:
 
 .. code-block:: bash
    :linenos:
 
-   >>> modelcrafter.py train tensorcofi  # For tensorcofi model
-   >>> modelcrafter.py train popularity  # For Popularity
+   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ bin/modelcrafter.py train tensorcofi  # For tensorcofi model
+   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ bin/modelcrafter.py train popularity  # For Popularity
 
 .. note:: This models are static and represent popularity recommendation and tensorCoFi (TF) factor matrix for the user and \
     item population at the moment they are build. Because of that, it doesn't make sense to build any model with no \
@@ -99,6 +115,18 @@ This script is shipping with the recommendation framework and builds this matrix
 the matrix for new users and items to be included. Keep that in mind.
 
 And voilá, you got your self a recommendation system for your precious little web site. It's a bit static though.
+
+.. code-block:: bash
+   :linenos:
+
+   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ python manage.py runserver
+   >>> open firefox at http://127.0.0.1:8000/ 
+
+
+5. Now you can try to access also the REST API. The full documentation of APIs can be found through the Table of Content.
+For example, to generate JSON response just point your web browser to 
+http://localhost:8000/api/v2/recommend/5/002c50b7dae6a30ded5372ae1033da43bba90b4d477733375994791e758fbee0.json:
+
 
 Plugin Installations
 ____________________
