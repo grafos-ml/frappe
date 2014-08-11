@@ -20,6 +20,6 @@ class FilterOwnedFilter(object):
         :param kwargs:
         :return:
         """
-        for iid, in user.owned_items.values_list("id"):
-            early_recommendation[iid-1] = float("-inf")
+        for i in user.owned_items:
+            early_recommendation[i.id-1] = float("-inf")
         return early_recommendation

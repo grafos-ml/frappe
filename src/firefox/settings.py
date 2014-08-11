@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+# Thread Pool
+MAX_THREADS = 4
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -25,7 +27,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ["10.22.113.20"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -55,14 +57,15 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    #"django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.transaction.TransactionMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
-    #"django.middleware.cache.FetchFromCacheMiddleware",
-    #"debug_toolbar.middleware.DebugToolbarMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    #"recommendation.middleware.NonHtmlDebugToolbarMiddleware",
 )
 
 ROOT_URLCONF = "firefox.urls"
@@ -76,13 +79,17 @@ WSGI_APPLICATION = "firefox.wsgi.application"
 
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "recommender_v12",
-        "USER": "FFOS",
-        "PASSWORD": "pasteldenata",
+    #"default": {
+    #    "ENGINE": "django.db.backends.mysql",
+    #    "NAME": "recommender_v12",
+    #    "USER": "FFOS",
+    #    "PASSWORD": "pasteldenata",
         #"HOST": "172.16.51.128"
-        "HOST": "ana"
+    #    "HOST": "ana"
+    #},
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "recommender_v12.db"
     }
 }
 
@@ -122,7 +129,25 @@ logging.basicConfig(format=FORMAT, level=logging.DEBUG if DEBUG else logging.WAR
 # Nose settings
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
+#DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+DEBUG_TOOLBAR_PANELS = (
+    'debug_toolbar.panels.version.VersionDebugPanel',
+    'debug_toolbar.panels.timer.TimerDebugPanel',
+    #'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
+    'debug_toolbar.panels.headers.HeaderDebugPanel',
+    #'debug_toolbar.panels.profiling.ProfilingDebugPanel',
+    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
+    'debug_toolbar.panels.sql.SQLDebugPanel',
+    'debug_toolbar.panels.template.TemplateDebugPanel',
+    'debug_toolbar.panels.cache.CacheDebugPanel',
+    'debug_toolbar.panels.signals.SignalDebugPanel',
+    #'debug_toolbar.panels.logger.LoggingPanel',
+)
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+    }
 
 # Rest Framework Settings
 
@@ -142,8 +167,12 @@ CACHES = {
         "LOCATION": "/var/tmp/django_cache",
         "TIMEOUT": 60,
         "OPTIONS": {
-            "MAX_ENTRIES": 1000
-        },
+            "MAX_ENTRIES": 100000
+        }
+    },
+    "models": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "/var/tmp/django_models_cache",
     }
 }
 
@@ -159,7 +188,7 @@ RECOMMENDATION_SETTINGS = {
         "rerankers": [
             # The order witch the re-rankers or filters are setted here represent the order that they are called
             #("recommendation.records.rerankers", "SimpleLogReRanker"),
-            ("recommendation.diversity.rerankers", "DynamicDiversityReRanker")
+            #("recommendation.diversity.rerankers", "DynamicDiversityReRanker")
         ]
     }
 }

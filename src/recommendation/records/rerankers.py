@@ -14,7 +14,7 @@ from django.db.models import Count, Sum, Q
 
 MAX_LOG = 120000
 #SIMPLE_RANK_CALCULATOR = lambda rank, mean, count, size: rank + ((size - mean) ** count)
-SIMPLE_RANK_CALCULATOR = lambda rank, mean, count, size: mean + ((size - mean) ** count)
+#SIMPLE_RANK_CALCULATOR = lambda rank, mean, count, size: mean + ((size - mean) ** count)
 """
 Default rank calculator. Makes the item new rank be equal to the *mean* of it position in the recommendation *plus*
 the *number of recommendations for request* minus mean elevated to the *number of recommendation that this item has
@@ -25,6 +25,13 @@ experienced*.
 :param count: Number of recommendation that this item has been so far.
 :param size: Size of this recommendation set.
 """
+
+
+def SIMPLE_RANK_CALCULATOR(rank, mean, count, size):
+    try:
+        return mean + ((size - mean) ** count)
+    except OverflowError:
+        return float("inf")
 
 
 class SimpleLogReRanker(object):
@@ -67,7 +74,7 @@ class SimpleLogReRanker(object):
         :rtype: A list of items ids(int).
         """
         size = size or len(early_recommendation)
-        owned_items = [item["pk"] for item in user.owned_items.values("pk")]
+        owned_items = [item.pk for item in user.owned_items]
         # Push the installed app to the back. This is needed because this algorithm rearrange rank values
         # For already installed apps the stronger push down variables.
         #mapped_items = {item_id: (float("inf"), 1) for item_id in owned_items}
@@ -81,7 +88,7 @@ class SimpleLogReRanker(object):
         logs = logs.annotate(count=Count("item__pk"), sum=Sum("value"))
 
         # Mapping the logged items
-        for log_info in logs:
+        for log_info in logs[:50]:
             item_pk, count, sum_value = log_info["item__pk"], log_info["count"], log_info["sum"]
             mapped_items[item_pk] = count, float(sum_value)
 

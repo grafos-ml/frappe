@@ -6,7 +6,7 @@ Created on 11 February 2014
 
 .. moduleauthor:: joaonrb <joaonrb@gmail.com   >
 """
-__author__ = 'joaonrb'
+__author__ = "joaonrb"
 
 from django.http import HttpResponseRedirect
 from recommendation.records.decorators import ClickApp

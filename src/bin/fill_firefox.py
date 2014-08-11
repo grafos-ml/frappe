@@ -400,8 +400,10 @@ def main(obj_type, directory):
     :return:
     """
     try:
-        objects = parse_dir(directory)
-        TYPE_METHOD[obj_type](objects)
+        objects = list(parse_dir(directory))
+        for i in range(0, len(objects), 100):
+            j = i+100
+            TYPE_METHOD[obj_type](objects[i:j])
     except KeyError:
         print("Wrong parameter for data type")
         traceback.print_exc()

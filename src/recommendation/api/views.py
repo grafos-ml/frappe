@@ -20,6 +20,7 @@ from rest_framework.views import APIView
 from recommendation.models import User, Inventory
 from recommendation.records.models import Record
 from recommendation.core import DEFAULT_RECOMMENDATION
+from recommendation.decorators import PutInThreadQueue
 
 
 JSON = "json"
@@ -145,6 +146,7 @@ class AbstractGoToItem(APIView):
         CLICK: Record.CLICK
     }
 
+    @PutInThreadQueue()
     def click(self, user_external_id, item_external_id, click_type, rank=None):
         """
         Click on an app.
@@ -189,11 +191,11 @@ class UserRecommendationAPI(RecommendationAPI):
         "get"
     ]
 
-    def get(self, _, user_external_id, number_of_recommendations):
+    def get(self, request, user_external_id, number_of_recommendations):
         """
         Get method to request recommendations
 
-        :param _: This is the request. It is not needed but has to be here because of the django interface with views.
+        :param request: This is the request. It is not needed but has to be here because of the django interface with views.
         :param user_external_id: The user that want the recommendation ore the object of the recommendations.
         :type user_external_id: str
         :param number_of_recommendations: Number of recommendations that are requested.
@@ -248,7 +250,7 @@ class UsersAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
         try:
-            User.objects.create(external_id=new_user_external_id)
+            PutInThreadQueue()(User.objects.create)(external_id=new_user_external_id)
         except IntegrityError:
             return self.format_response(self.EXTERNAL_ID_EXISTS_ERROR_MESSAGE, status=500)
         return self.format_response(SUCCESS_MESSAGE)
@@ -276,6 +278,7 @@ class UserItemsAPI(RecommendationAPI):
     ]
 
     @staticmethod
+    @PutInThreadQueue()
     def insert_acquisition(user_external_id, item_external_id):
         """
         Insert a new in user installed apps
@@ -303,6 +306,7 @@ class UserItemsAPI(RecommendationAPI):
             raise OperationalError("Item not inserted")
 
     @staticmethod
+    @PutInThreadQueue()
     def delete_acquisition(user_external_id, item_external_id):
         """
         Update a certain item to remove in the uninstall datetime field
