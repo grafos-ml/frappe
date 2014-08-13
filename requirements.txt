@@ -5,7 +5,7 @@ djangorestframework
 #pandas
 pymysql
 django-cors-headers
-https://github.com/grafos-ml/test.fm/archive/v1.0.3.tar.gz
+https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
 
 # for frontend
 https://github.com/joaonrb/django-templatetag-handlebars/archive/master.zip

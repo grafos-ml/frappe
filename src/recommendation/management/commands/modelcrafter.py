@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 """
 Created at March 11, 2014
 
@@ -49,6 +47,7 @@ sys.path.append(resource_filename(__name__, "/../"))
 
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from recommendation.model_factory import TensorCoFi, Popularity
+from django.core.management.base import BaseCommand, CommandError
 
 
 class ModelCrafterError(Exception):
@@ -93,14 +92,14 @@ MODELS = {
 }
 
 
-def craft_model():
+def craft_model(options=[]):
     """
     This crafts a model for the recommendation system.
     """
-    MODELS[sys.argv[2]].train_from_db()
+    MODELS[options].train_from_db()
 
 
-def work(every):
+def work(every, **kwargs):
     """
     Make the job to work
     :param every:
@@ -128,7 +127,7 @@ OPTIONS = {
 }
 
 
-def main(command, every=TimeInterval(1, "minute")):
+def main(command, options, every=TimeInterval(1, "minute")):
     """
 
     :param command:
@@ -136,9 +135,20 @@ def main(command, every=TimeInterval(1, "minute")):
     :return:
     """
     opt = locals()
-    OPTIONS[command]["command"](*(opt[attr] for attr in OPTIONS[command]["args"]))
+    OPTIONS[command]["command"](*(opt[attr] for attr in OPTIONS[command]["args"]), options=options)
 
-if __name__ == "__main__":
-    command = sys.argv[1]
-    main(command=command)
-    # TODO
+#if __name__ == "__main__":
+#    command = sys.argv[1]
+#    main(command=command)
+#    # TODO
+
+
+class Command(BaseCommand):
+    args = "<action option>"
+    help = "Trains the model. Currently implemented: train tensorcofi, train popularity."
+
+    def handle(self, *args, **options):
+        try:
+            main(args[0], args[1])
+        except Exception:
+            raise CommandError("Wild error appear!!!")

@@ -1,0 +1,7 @@
+include copyright.txt
+include README.md
+recursive-include src/recommendation/ab_testing/templates *
+recursive-include src/recommendation/ab_testing/static *
+recursive-include src/firefox/gui/templates *
+recursive-include src/firefox/gui/static *
+recursive-include src/bin/data *

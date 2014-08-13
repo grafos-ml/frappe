@@ -143,6 +143,7 @@ from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre
 from recommendation.language.models import Locale
 from django.db import connection
+from django.core.management.base import BaseCommand, CommandError
 
 BULK_QUERY = "INSERT INTO %(table)s %(columns)s VALUES %(values)s;"
 
@@ -420,5 +421,16 @@ def main(obj_type, directory):
 
 # Script main
 
-if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+#if __name__ == '__main__':
+#    main(sys.argv[1], sys.argv[2])
+
+
+class Command(BaseCommand):
+    args = "<option path>"
+    help = "Fill the database with data. Use: manage fill items /path/to/items. Always fill items before users."
+
+    def handle(self, *args, **options):
+        try:
+            main(args[0], args[1])
+        except Exception:
+            raise CommandError("Wild error appear!!!")
