@@ -34,6 +34,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="webservice.v2.html" title="App Recommendation Webservice Version 1.2"
              accesskey="N">next</a> |</li>
         <li><a href="#">Recommendation Framework 1.0 documentation</a> &raquo;</li> 
@@ -152,7 +155,8 @@ that you also have to use a special settings environment called RECOMMENDATION_S
 much like a static configuration. You also have a default standard and might have more to use in special situations. Basically, it
 a core engine(the structure that request the recommendation and use the filters and re-rankers), A list of filters and
 another list for re-rankers. Typically, the filters will execute first and re-rankers after and the execute in the same
-order that they are registered in RECOMMENDATION_SETTINGS.</p>
+order that they are registered in RECOMMENDATION_SETTINGS. It will also need a logger class. The logger class is a
+decorator that will record the events in some way.</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -188,18 +192,18 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
 
 <span class="n">RECOMMENDATION_SETTINGS</span> <span class="o">=</span> <span class="p">{</span>
      <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
-         <span class="s">&quot;core&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s">&quot;recommendation.core&quot;</span><span class="p">,</span> <span class="s">&quot;Recommender&quot;</span><span class="p">),</span>
+         <span class="s">&quot;core&quot;</span><span class="p">:</span> <span class="s">&quot;recommendation.core.TensorCoFiRecommender&quot;</span><span class="p">,</span>
          <span class="s">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
-             <span class="p">(</span><span class="s">&quot;recommendation.filter_owned.filters&quot;</span><span class="p">,</span> <span class="s">&quot;FilterOwnedFilter&quot;</span><span class="p">),</span>
-             <span class="p">(</span><span class="s">&quot;recommendation.language.filters&quot;</span><span class="p">,</span> <span class="s">&quot;SimpleLocaleFilter&quot;</span><span class="p">),</span>
+             <span class="s">&quot;recommendation.filter_owned.filters.FilterOwnedFilter&quot;</span><span class="p">,</span>
+             <span class="s">&quot;recommendation.language.filters.SimpleLocaleFilter&quot;</span><span class="p">,</span>
          <span class="p">],</span>
          <span class="s">&quot;rerankers&quot;</span><span class="p">:</span> <span class="p">[</span>
-             <span class="c"># The order witch the re-rankers or filters are setted here represent the order that they are called</span>
-             <span class="c">#(&quot;recommendation.records.rerankers&quot;, &quot;SimpleLogReRanker&quot;),</span>
-             <span class="p">(</span><span class="s">&quot;recommendation.diversity.rerankers&quot;</span><span class="p">,</span> <span class="s">&quot;DynamicDiversityReRanker&quot;</span><span class="p">)</span>
+             <span class="s">&quot;recommendation.records.rerankers.SimpleLogReRanker&quot;</span><span class="p">,</span>
+             <span class="s">&quot;recommendation.diversity.rerankers.DiversityReRanker&quot;</span>
          <span class="p">]</span>
-     <span class="p">}</span>
- <span class="p">}</span>
+     <span class="p">},</span>
+     <span class="s">&quot;logger&quot;</span><span class="p">:</span> <span class="s">&quot;recommendation.decorators.NoLogger&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </td></tr></table></div>
 <p>Now you have an awesome recommendation system.</p>
@@ -259,6 +263,9 @@ order that they are registered in RECOMMENDATION_SETTINGS.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="webservice.v2.html" title="App Recommendation Webservice Version 1.2"
              >next</a> |</li>

@@ -18,7 +18,7 @@ from django.utils.translation import ugettext as _
 from rest_framework.renderers import JSONRenderer, XMLRenderer
 from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
-from recommendation.models import User, Inventory
+from recommendation.models import User, Inventory, Item
 from recommendation.records.models import Record
 from recommendation.core import DEFAULT_RECOMMENDATION
 from recommendation.decorators import PutInThreadQueue
@@ -387,6 +387,8 @@ class UserItemsAPI(RecommendationAPI):
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
         self.insert_acquisition(user_external_id, item_id)
+        items = Item.all_items_eid()
+        User.all_users()[user_external_id].owned_items = Item.all_items_eid()[item_id]
         return self.format_response(SUCCESS_MESSAGE)
 
     def delete(self, request, user_external_id):

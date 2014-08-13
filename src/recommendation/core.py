@@ -166,7 +166,7 @@ class IController(object):
         result = self.get_recommendation(user=user, n=n)
         rs = Item.all_items()
         #return [rs[r] for r in result]
-        return [rs[r]["external_id"] for r in result]
+        return [rs[r].external_id for r in result]
 
     def run_re_rankers(self, recommendation, n):
         """

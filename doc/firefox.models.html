@@ -32,6 +32,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="index.html">Recommendation Framework 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -45,8 +48,40 @@
 <h1>Data Models<a class="headerlink" href="#data-models" title="Permalink to this headline">¶</a></h1>
 <p>The FireFox OS Store Models for database connection. This first version
 as models for users, apps and every model to support it.</p>
-<div class="section" id="module">
-<h2>Module<a class="headerlink" href="#module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-firefox.models">
+<span id="module"></span><h2>Module<a class="headerlink" href="#module-firefox.models" title="Permalink to this headline">¶</a></h2>
+<p>Created March 5, 2014</p>
+<p>Models for FireFox recommendation system</p>
+<dl class="class">
+<dt id="firefox.models.ItemDetail">
+<em class="property">class </em><tt class="descclassname">firefox.models.</tt><tt class="descname">ItemDetail</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#firefox.models.ItemDetail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some item Details for the FireFox apps to use th recommendation</p>
+<dl class="method">
+<dt id="firefox.models.ItemDetail.place_url">
+<tt class="descname">place_url</tt><big>(</big><big>)</big><a class="headerlink" href="#firefox.models.ItemDetail.place_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return this item url place</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="firefox.models.ItemDetail.slug_to_item_place">
+<em class="property">static </em><tt class="descname">slug_to_item_place</tt><big>(</big><em>slug</em><big>)</big><a class="headerlink" href="#firefox.models.ItemDetail.slug_to_item_place" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives the item slug to retrieve the item place url.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>slug</strong> (<em>str</em>) &#8211; Slug of the item</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The item url place</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 
@@ -59,7 +94,7 @@ as models for users, apps and every model to support it.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Data Models</a><ul>
-<li><a class="reference internal" href="#module">Module</a></li>
+<li><a class="reference internal" href="#module-firefox.models">Module</a></li>
 </ul>
 </li>
 </ul>
@@ -92,6 +127,9 @@ as models for users, apps and every model to support it.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="index.html">Recommendation Framework 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>

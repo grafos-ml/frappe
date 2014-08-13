@@ -111,7 +111,8 @@ that you also have to use a special settings environment called RECOMMENDATION_S
 much like a static configuration. You also have a default standard and might have more to use in special situations. Basically, it
 a core engine(the structure that request the recommendation and use the filters and re-rankers), A list of filters and 
 another list for re-rankers. Typically, the filters will execute first and re-rankers after and the execute in the same 
-order that they are registered in RECOMMENDATION_SETTINGS.
+order that they are registered in RECOMMENDATION_SETTINGS. It will also need a logger class. The logger class is a 
+decorator that will record the events in some way.
 
 .. code-block:: python
    :linenos:
@@ -128,18 +129,19 @@ order that they are registered in RECOMMENDATION_SETTINGS.
 
    RECOMMENDATION_SETTINGS = {
         "default": {
-            "core": ("recommendation.core", "Recommender"),
+            "core": "recommendation.core.TensorCoFiRecommender",
             "filters": [
-                ("recommendation.filter_owned.filters", "FilterOwnedFilter"),
-                ("recommendation.language.filters", "SimpleLocaleFilter"),
+                "recommendation.filter_owned.filters.FilterOwnedFilter",
+                "recommendation.language.filters.SimpleLocaleFilter",
             ],
             "rerankers": [
-                # The order witch the re-rankers or filters are setted here represent the order that they are called
-                #("recommendation.records.rerankers", "SimpleLogReRanker"),
-                ("recommendation.diversity.rerankers", "DynamicDiversityReRanker")
+                "recommendation.records.rerankers.SimpleLogReRanker",
+                "recommendation.diversity.rerankers.DiversityReRanker"
             ]
-        }
-    }
+        },
+        "logger": "recommendation.decorators.NoLogger"
+   }
+    
     
 Now you have an awesome recommendation system.
 

@@ -118,11 +118,17 @@ class Item(models.Model):
 
     @staticmethod
     def load_to_cache():
-        items = {app["id"]: app for app in Item.objects.all().prefetch_related().values("id", "name", "external_id",
-                                                                                        "available_locales",
-                                                                                        "genres__name")}
+        #items = {app["id"]: app for app in Item.objects.all().prefetch_related().values("id", "name", "external_id",
+        #                                                                                "available_locales",
+        #                                                                                "genres__name")}
+        #
+        items, items_by_eid = {}, {}
+        for app in Item.objects.all().prefetch_related():
+            items[app.pk] = app
+            items_by_eid[app.external_id] = app
         cache = get_cache("models")
         cache.set("recommendation_items", items, None)
+        cache.set("recommendation_items_by_eid", items_by_eid, None)
 
     @staticmethod
     def all_items():
@@ -131,6 +137,14 @@ class Item(models.Model):
         """
         cache = get_cache("models")
         return cache.get("recommendation_items")
+
+    @staticmethod
+    def all_items_eid():
+        """
+        Get all items from cache
+        """
+        cache = get_cache("models")
+        return cache.get("recommendation_items_by_eid")
 
 
 class User(models.Model):
@@ -159,7 +173,7 @@ class User(models.Model):
     def owned_items(self, value):
         cache = get_cache("models")
         items = cache.get("user<%s>.owned_items" % self.external_id, None)
-        items.add(value)
+        items.append(value)
         cache.set("user<%s>.owned_items" % self.external_id, items, None)
 
     @PutInThreadQueue()
@@ -179,7 +193,7 @@ class User(models.Model):
         """
         Return the installed only apps
         """
-        return self.items.filter(inventory__dropped_date=None)
+        return list(self.items.filter(inventory__dropped_date=None))
 
     @staticmethod
     def load_owned_items():
