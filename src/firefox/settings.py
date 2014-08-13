@@ -97,7 +97,7 @@ WSGI_APPLICATION = "firefox.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "recommender_v12",
+        "NAME": "ffos",
         "USER": "FFOS",
         "PASSWORD": "pasteldenata",
         #"HOST": "172.16.51.128"
