@@ -52,9 +52,21 @@ We also use MySQL Database for the project to store the models, applications, et
 You need to install standard mysql (5.1) DB server and edit the connection settings in the 'src/firefox/settings.py'
 file. When you create the database please use collation: utf8_general_ci.
 
-Next, you will need to install the python module requirements from requirements.txt::
+Next, you will need to install the python module test.fm independently of the rest:
 
-     pip install -r ../requirements.txt 
+.. code-block:: bash
+   :linenos:
+
+   >>> pip install https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
+
+Then run the setup on the package or from the link:
+
+.. code-block:: bash
+   :linenos:
+
+   >>> ./setup.py install
+   or
+   >>> pip install release.url
 
 Installation of the Modules
 ____________________________
@@ -71,17 +83,80 @@ For a moment we have a very manual installation process. This will be replaced w
    INSTALLED_APPS = (
         ...  # A ton of cool Django apps
         "recommendation",
+        "recommendation.records",
+        "recommendation.diversity",
+        "recommendation.language",
+        "recommendation.api",
+        "firefox",
+        "firefox.api",
         ...
+        # This if you want to use frontend example and debug tools
+        "firefox.gui",
+        "django.contrib.admin",
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.contrib.staticfiles",
+        "django_nose",
+        "debug_toolbar",
+        "django_coverage",
+        "rest_framework",
+        "templatetag_handlebars",
    )
 
+   # The pure recommender don't need middleware but if you want the debug or frontend tools use
+   MIDDLEWARE_CLASSES = [
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        "django.contrib.messages.middleware.MessageMiddleware",
+        "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "django.middleware.transaction.TransactionMiddleware",
+        "django.middleware.cache.UpdateCacheMiddleware",
+        "django.middleware.cache.FetchFromCacheMiddleware",
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+   ]
+
+   # Need to have a default cache and a models one.
+   CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "/var/tmp/django_default_cache"
+        },
+        "models": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "/var/tmp/django_models_cache"
+        }
+    }
+
+You will also to change the wsgi.py file to import the application variable from firefox wsgi.py:
+
+.. code-block:: python
+   :linenos:
+
+   # wsgi.py
+
+   import os
+   os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_django_app.settings")
+
+   from firefox.wsgi import application
+
+And last file the urls.py on your project to:
+
+.. code-block:: python
+   :linenos:
+
+   from django.conf.urls import patterns, include, url
+
+   urlpatterns = patterns('', url(r'^', include("firefox.urls")))
 
 2. Next, you need to create the Django modules using.
 
 .. code-block:: bash
    :linenos:
    
-   >>> cd /Users/mumas/devel/ffos/src    
-   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ python manage.py syncdb
+   >>> ./manage.py syncdb
     
 3. Now you have to fill the database with applications and user data. For the example we use a dummy data
 from the data folder. You should replace the path to the real path of the marketplace dumps. For now,
@@ -89,10 +164,9 @@ lets start with the dummy data.
 
 .. code-block:: bash
    :linenos:
-   
-   >>> cd /Users/mumas/devel/ffos/src
-   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ bin/fill_firefox.py items bin/data/app/
-   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ bin/fill_firefox.py users bin/data/user
+
+   >>> ./manage.py fill items recommender/package/path/src/bin/data/app/
+   >>> ./manage.py fill users recommender/package/path/src/bin/data/user
 
 4. To retrieve recommendations a recommendation model (statistical representation of your data) must be built. 
 To have it built you have to run the script:
@@ -100,8 +174,8 @@ To have it built you have to run the script:
 .. code-block:: bash
    :linenos:
 
-   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ bin/modelcrafter.py train tensorcofi  # For tensorcofi model
-   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ bin/modelcrafter.py train popularity  # For Popularity
+   >>> ./manage.py modelcrafter train tensorcofi  # For tensorcofi model
+   >>> ./manage.py modelcrafter train popularity  # For Popularity
 
 .. note:: This models are static and represent popularity recommendation and tensorCoFi (TF) factor matrix for the user and \
     item population at the moment they are build. Because of that, it doesn't make sense to build any model with no \
@@ -119,14 +193,18 @@ And voilá, you got your self a recommendation system for your precious little w
 .. code-block:: bash
    :linenos:
 
-   >>> PYTHONPATH=/Users/mumas/devel/ffos/src/ python manage.py runserver
-   >>> open firefox at http://127.0.0.1:8000/ 
+   >>> ./manage.py runserver
+
+Open firefox browser at http://127.0.0.1:8000/
 
 
 5. Now you can try to access also the REST API. The full documentation of APIs can be found through the Table of Content.
 For example, to generate JSON response just point your web browser to 
 http://localhost:8000/api/v2/recommend/5/002c50b7dae6a30ded5372ae1033da43bba90b4d477733375994791e758fbee0.json:
 
+.. note:: This is the example settings for the firefox dummy data that the developer is working with. The module firefox
+ is a working example with a mysql DB that I am working locally. If you change the db settings in firefox module you can
+ use the script manager_firefox.py that is installed with setup and avoid major deployment.
 
 Plugin Installations
 ____________________
@@ -164,7 +242,7 @@ decorator that will record the events in some way.
             ],
             "rerankers": [
                 "recommendation.records.rerankers.SimpleLogReRanker",
-                "recommendation.diversity.rerankers.DiversityReRanker"
+                "recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
             ]
         },
         "logger": "recommendation.decorators.NoLogger"

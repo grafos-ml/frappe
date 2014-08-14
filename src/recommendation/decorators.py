@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from django.conf import settings
 import functools
 
-tread_pool = ThreadPoolExecutor(max_workers=settings.MAX_THREADS)
+tread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 1))
 
 
 def close():

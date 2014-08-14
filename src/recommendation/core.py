@@ -212,7 +212,7 @@ DEFAULT_SETTINGS = {
         ],
         "rerankers": [
             "recommendation.records.rerankers.SimpleLogReRanker",
-            "recommendation.diversity.rerankers.DiversityReRanker"
+            "recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
         ]
     },
     "logger": "recommendation.decorators.NoLogger"
