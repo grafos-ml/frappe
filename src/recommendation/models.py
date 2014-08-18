@@ -8,11 +8,12 @@ __author__ = "joaonrb"
 
 from django.db import models
 from django.utils.translation import ugettext as _
+from django.core.cache import get_cache
 import base64
 import numpy as np
 from django.utils.six import with_metaclass
 import sys
-from django.core.cache import get_cache
+from testfm.models.tensorcofi import PyTensorCoFi
 if sys.version_info >= (3, 0):
     basestring = unicode = str
 
@@ -180,3 +181,111 @@ class Inventory(models.Model):
         return _("%(state)s %(item)s item for user %(user)s") % {
             "state": _("dropped") if self.dropped_date else _("owned"), "item": self.item.name,
             "user": self.user.external_id}
+
+
+class Matrix(models.Model):
+    """
+    Numpy Matrix in database
+    """
+
+    name = models.CharField(_("name"), max_length=255)
+    numpy = NPArray(_("numpy array"))
+    timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("matrix")
+        verbose_name_plural = _("matrix")
+
+
+from django.contrib import admin
+admin.site.register([Item, User, Inventory, Matrix])
+
+# Create test.fm models
+
+
+class MySQLMapDummy:
+    def __getitem__(self, item):
+        return int(item-1)
+
+    def __setitem__(self, item, value):
+        pass
+
+
+class TensorCoFi(PyTensorCoFi):
+    """
+    A creator of TensorCoFi models
+    """
+
+    cache = CacheManager("tensorcofi")
+
+    def __init__(self, n_users=None, n_items=None, **kwargs):
+        """
+        """
+        if not isinstance(n_items, int) or not isinstance(n_users, int):
+            raise AttributeError("Parameter n_items and n_users must have integer")
+        super(TensorCoFi, self).__init__(**kwargs)
+        self.dimensions = [n_users, n_items]
+        self.n_users = n_users
+        self.n_items = n_items
+        self.data_map = {
+            self.get_user_column(): MySQLMapDummy(),
+            self.get_item_column(): MySQLMapDummy()
+        }
+
+    def users_size(self):
+        """
+        Return the number of users
+        """
+        return self.n_users
+
+    def items_size(self):
+        """
+        Return the number of items
+        """
+        return self.n_items
+
+    #def get_score(self, user, item):
+    #    return np.dot(self.factors[0][user-1], self.factors[1][item-1].transpose())
+
+    def get_recommendation(self, user, **context):
+        """
+        Get the recommendation for this user
+        """
+        return self.get_not_mapped_recommendation(user.pk, **context)
+
+    @staticmethod
+    def load_to_cache():
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+
+        users = Matrix.objects.filter(name="%s_users" % tensor.get_name()).order_by("-id")[0]
+        items = Matrix.objects.filter(name="%s_items" % tensor.get_name()).order_by("-id")[0]
+
+        tensor.factors = [users.numpy, items.numpy]
+        TensorCoFi.cache[""] = tensor
+
+    @staticmethod
+    def get_model(*args, **kwargs):
+        return TensorCoFi.cache[""]
+
+    @staticmethod
+    def train_from_db(*args, **kwargs):
+        """
+        Trains the model in to data base
+        """
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
+        return tensor.train(data)
+
+    def train(self, data):
+        """
+        Trains the model in to data base
+        """
+        #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        #data = pd.DataFrame({"item": users, "user": items})
+        super(TensorCoFi, self).train(data)
+        users, items = super(TensorCoFi, self).get_model()
+        users = Matrix(name="%s_users" % self.get_name(), numpy=users)
+        users.save()
+        items = Matrix(name="%s_items" % self.get_name(), numpy=items)
+        items.save()
+        return users, items
