@@ -6,14 +6,16 @@ amd connection between them.
 __author__ = "joaonrb"
 
 
+import sys
+import base64
+import numpy as np
+import pandas as pd
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.core.cache import get_cache
-import base64
-import numpy as np
 from django.utils.six import with_metaclass
-import sys
 from testfm.models.tensorcofi import PyTensorCoFi
+from testfm.models.baseline_model import Popularity as TestFMPopulariy
 if sys.version_info >= (3, 0):
     basestring = unicode = str
 
@@ -189,6 +191,7 @@ class Matrix(models.Model):
     """
 
     name = models.CharField(_("name"), max_length=255)
+    matrix_id = models.SmallIntegerField(_("model id"), null=True, blank=True)
     numpy = NPArray(_("numpy array"))
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
 
@@ -201,6 +204,13 @@ from django.contrib import admin
 admin.site.register([Item, User, Inventory, Matrix])
 
 # Create test.fm models
+
+
+class NotCached(Exception):
+    """
+    Exception when some value not in cache
+    """
+    pass
 
 
 class MySQLMapDummy:
@@ -257,8 +267,11 @@ class TensorCoFi(PyTensorCoFi):
     def load_to_cache():
         tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
 
-        users = Matrix.objects.filter(name="%s_users" % tensor.get_name()).order_by("-id")[0]
-        items = Matrix.objects.filter(name="%s_items" % tensor.get_name()).order_by("-id")[0]
+        try:
+            users = Matrix.objects.filter(name=tensor.get_name(), model_id=0).order_by("-id")[0]
+            items = Matrix.objects.filter(name=tensor.get_name(), model_id=1).order_by("-id")[0]
+        except IndexError:
+            raise NotCached("%s not in db" % tensor.get_name())
 
         tensor.factors = [users.numpy, items.numpy]
         TensorCoFi.cache[""] = tensor
@@ -284,8 +297,86 @@ class TensorCoFi(PyTensorCoFi):
         #data = pd.DataFrame({"item": users, "user": items})
         super(TensorCoFi, self).train(data)
         users, items = super(TensorCoFi, self).get_model()
-        users = Matrix(name="%s_users" % self.get_name(), numpy=users)
+        users = Matrix(name=self.get_name(), model_id=0, numpy=users)
         users.save()
-        items = Matrix(name="%s_items" % self.get_name(), numpy=items)
+        items = Matrix(name=self.get_name(), model_id=0, numpy=items)
         items.save()
         return users, items
+
+
+class Popularity(TestFMPopulariy):
+    """
+    Popularity connector for db and test.fm
+    """
+
+    cache = CacheManager("popularity")
+
+    def __init__(self, n_items=None, *args, **kwargs):
+
+        if not isinstance(n_items, int):
+            raise AttributeError("Parameter n_items must have integer")
+        super(Popularity, self).__init__(*args, **kwargs)
+        self.n_items = n_items
+        self.data_map = {
+            self.get_user_column(): MySQLMapDummy(),
+            self.get_item_column(): MySQLMapDummy()
+        }
+        self.popularity_recommendation = []
+
+    def fit(self, training_data):
+        """
+        Computes number of times the item was used by a user.
+        :param training_data: DataFrame training data
+        :return:
+        """
+        super(Popularity, self).fit(training_data)
+        for i in range(self.n_items):
+            try:
+                self._counts[i+1] = self._counts[i+1]
+            except KeyError:
+                self._counts[i+1] = float("-inf")
+        self.popularity_recommendation = [self._counts[i+1] for i in range(self.n_items)]
+        self.popularity_recommendation = np.array(self.popularity_recommendation)
+
+    #def get_score(self, user, item, **kwargs):
+    #    print self._counts
+    #    super(Popularity, self).get_score(user, item, **kwargs)
+
+    @property
+    def recommendation(self):
+        return self.popularity_recommendation
+
+    @recommendation.setter
+    def recommendation(self, value):
+        self.popularity_recommendation = value
+        self._counts = {i+1: value[i] for i in range(self.n_items)}
+
+    @staticmethod
+    def load_to_cache():
+        model = Popularity(n_items=Item.objects.all().count())
+        pop = Matrix.objects.filter(name=model.get_name()).order_by("-id")[0]
+        model.recommendation = pop.recommendation
+        Popularity.cache[""] = model
+
+    @staticmethod
+    def get_model():
+        return Popularity.cache[""]
+
+    def get_recommendation(self, user, **context):
+        """
+        Get the recommendation for this user
+        """
+        return self.recommendation
+
+    @staticmethod
+    def train():
+        """
+        Train the popular model
+        :return:
+        """
+        popular_model = Popularity(n_items=Item.objects.all().count())
+        users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        data = pd.DataFrame({"item": items, "user": users})
+        popular_model.fit(data)
+        Matrix.objects.create(name=popular_model.get_name(), numpy=popular_model.recommendation)
+    train_from_db = train
