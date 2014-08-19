@@ -20,7 +20,7 @@ if sys.version_info >= (3, 0):
     basestring = unicode = str
 
 
-class NPArray(with_metaclass(models.SubfieldBase, models.TextField)):
+class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
     """
     Numpy Array field to store numpy arrays in database
 
@@ -46,8 +46,9 @@ class NPArray(with_metaclass(models.SubfieldBase, models.TextField)):
         if isinstance(value, bytes):
             parts = value.split(":")
             dim, rest = int(parts[0]), parts[1:]
-            shape, matrix = rest[:dim], rest[dim:]
-            return np.fromstring(self.DECODE_MATRIX(matrix), dtype=np.float32)
+            shape, matrix = rest[:dim], np.fromstring(self.DECODE_MATRIX(":".join(rest[dim:])), dtype=np.float32)
+            matrix.shape = tuple(int(i) for i in shape)
+            return matrix
         return value
 
     def get_prep_value(self, value):
@@ -83,7 +84,7 @@ class CacheManager(object):
     def __setitem__(self, key, value):
         k = "%s%s" % (self._prefix, key)
         self._cache.set(k, value, None)
-        self._cache.get(self._prefix).append(value)  # TODO Test this
+        self._cache.get(self._prefix).append(value)
 
     def __iter__(self):
         return (i for i in self._cache.get(self._prefix))
@@ -192,7 +193,7 @@ class Matrix(models.Model):
 
     name = models.CharField(_("name"), max_length=255)
     matrix_id = models.SmallIntegerField(_("model id"), null=True, blank=True)
-    numpy = NPArray(_("numpy array"))
+    numpy = NPArrayField(_("numpy array"))
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
 
     class Meta:
