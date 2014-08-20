@@ -14,6 +14,8 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from django.core.cache import get_cache
 from django.utils.six import with_metaclass
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity as TestFMPopularity
 if sys.version_info >= (3, 0):
@@ -95,6 +97,12 @@ class CacheManager(object):
     def __len__(self):
         return len(self._cache.get(self._list))
 
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
 
 class Item(models.Model):
     """
@@ -120,6 +128,16 @@ class Item(models.Model):
         for app in Item.objects.all().prefetch_related():
             Item.item_by_id[app.pk] = app
             Item.item_by_external_id[app.external_id] = app
+
+
+@receiver(post_save, sender=Item)
+def add_item_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):
+    """
+    Add item to cache upon creation
+    """
+    if created:
+        Item.item_by_id[instance.pk] = instance
+        Item.item_by_external_id[instance.external_id] = instance
 
 
 class User(models.Model):
@@ -158,14 +176,43 @@ class User(models.Model):
     @staticmethod
     def load_to_cache():
         for user in User.objects.all():
-            User.user_by_id[user.pk] = user
-            User.user_by_external_id[user.external_id] = user
-            user.__user_items[user.pk] = []
-            user.__user_owned_items[user.pk] = []
-            for item in user.items.all():
-                user.__user_items[user.pk].append(item.pk)
-                if item.inventory.dropped_date is None:
-                    user.__user_owned_items[user.pk].append(item.pk)
+            user.load_user()
+
+    def load_user(self):
+        """
+        Load a single user to cache
+        """
+        User.user_by_id[self.pk] = self
+        User.user_by_external_id[self.external_id] = self
+        user_items = self.__user_items.get(self.pk, set([]))
+        user_owned_items = self.__user_owned_items.get(self.pk, set([]))
+        for item in self.items.all():
+            user_items.add(item.pk)
+            if Inventory.objects.get(user=self, item=item).dropped_date is None:
+                user_owned_items.add(item.pk)
+        self.__user_items[self.pk] = user_items
+        self.__user_owned_items[self.pk] = user_owned_items
+
+    def load_new_item(self, item):
+        """
+        Load a single item to inventory
+        """
+        user_items = self.__user_items.get(self.pk, set([]))
+        user_owned_items = self.__user_owned_items.get(self.pk, set([]))
+        user_items.add(item.pk)
+        if Inventory.objects.get(user=self, item=item).dropped_date is None:
+            user_owned_items.add(item.pk)
+        self.__user_items[self.pk] = user_items
+        self.__user_owned_items[self.pk] = user_owned_items
+
+
+@receiver(post_save, sender=User)
+def add_user_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):
+    """
+    Add item to cache upon creation
+    """
+    if created:
+        instance.load_user()
 
 
 class Inventory(models.Model):
@@ -187,6 +234,15 @@ class Inventory(models.Model):
         return _("%(state)s %(item)s item for user %(user)s") % {
             "state": _("dropped") if self.dropped_date else _("owned"), "item": self.item.name,
             "user": self.user.external_id}
+
+
+@receiver(post_save, sender=Inventory)
+def add_inventory_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):
+    """
+    Add item to cache upon creation
+    """
+    if created:
+        instance.user.load_new_item(instance.item)
 
 
 class Matrix(models.Model):
