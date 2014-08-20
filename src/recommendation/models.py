@@ -15,7 +15,7 @@ from django.utils.translation import ugettext as _
 from django.core.cache import get_cache
 from django.utils.six import with_metaclass
 from testfm.models.tensorcofi import PyTensorCoFi
-from testfm.models.baseline_model import Popularity as TestFMPopulariy
+from testfm.models.baseline_model import Popularity as TestFMPopularity
 if sys.version_info >= (3, 0):
     basestring = unicode = str
 
@@ -72,7 +72,8 @@ class CacheManager(object):
     def __init__(self, prefix, cache="default"):
         self._cache = get_cache(cache)
         self._prefix = prefix
-        self._cache.set(self._prefix, [], None)
+        self._list = "%s.list" % prefix
+        self._cache.set(self._list, set([]), None)
 
     def __getitem__(self, key):
         k = "%s%s" % (self._prefix, key)
@@ -83,14 +84,16 @@ class CacheManager(object):
 
     def __setitem__(self, key, value):
         k = "%s%s" % (self._prefix, key)
+        keys = self._cache.get(self._list)
+        keys.add(k)
+        self._cache.set(self._list, keys, None)
         self._cache.set(k, value, None)
-        self._cache.get(self._prefix).append(value)
 
     def __iter__(self):
-        return (i for i in self._cache.get(self._prefix))
+        return iter(self._cache.get_many(list(self._cache.get(self._list))).values())
 
     def __len__(self):
-        return len(self._cache.get(self._prefix))
+        return len(self._cache.get(self._list))
 
 
 class Item(models.Model):
@@ -305,7 +308,7 @@ class TensorCoFi(PyTensorCoFi):
         return users, items
 
 
-class Popularity(TestFMPopulariy):
+class Popularity(TestFMPopularity):
     """
     Popularity connector for db and test.fm
     """
