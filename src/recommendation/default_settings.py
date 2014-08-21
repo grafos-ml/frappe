@@ -138,15 +138,15 @@ CACHES = {
 
 RECOMMENDATION_SETTINGS = {
     "default": {
-        "core": "recommendation.core.TensorCoFiRecommender",
-        #"core": "recommendation.ab_testing.rec_controller.ABTesting",
+        "core": "recommendation.core.TensorCoFiController",
         "filters": [
-            "recommendation.filter_owned.filters.FilterOwnedFilter",
-            "recommendation.language.filters.SimpleLocaleFilter",
+            #"recommendation.filter_owned.filters.FilterOwnedFilter",
+            #"recommendation.language.filters.SimpleLocaleFilter",
             ],
         "rerankers": [
-            "recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
+            #"recommendation.records.rerankers.SimpleLogReRanker",
+            #"recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
         ]
     },
-    "logger": "recommendation.records.decorators.LogEventInRecords"
+    "logger": "recommendation.decorators.NoLogger"
 }

@@ -7,7 +7,6 @@ from django.conf import settings
 import functools
 import atexit
 
-
 tread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 1))
 atexit.register(tread_pool.shutdown)
 

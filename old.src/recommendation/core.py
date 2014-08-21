@@ -239,7 +239,8 @@ def get_class(cls):
             elif isinstance(cls[1], dict):
                 cls_str, args, kwargs = cls[0], (), cls[1]
             else:
-                raise AttributeError("The second element in tuple must be list, tuple or dict with python native structs.")
+                raise AttributeError("The second element in tuple must be list, tuple or dict with python native "
+                                     "structs.")
         elif len(cls) == 3:
             if isinstance(cls[1], (tuple, list)) and isinstance(cls[2], dict):
                 cls_str, args, kwargs = cls
