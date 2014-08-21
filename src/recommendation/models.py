@@ -18,6 +18,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity as TestFMPopularity
+from recommendation.decorators import GoToThreadQueue
 if sys.version_info >= (3, 0):
     basestring = unicode = str
 
@@ -102,6 +103,16 @@ class CacheManager(object):
             return self[key]
         except KeyError:
             return default
+
+
+class IRecommendationModel(models.Model):
+    """
+    Abstract class that implement some special routines for all models
+    """
+
+    @GoToThreadQueue()
+    def save(self, *args, **kwargs):
+        super(IRecommendationModel, self).save(*args, **kwargs)
 
 
 class Item(models.Model):
