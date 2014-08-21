@@ -6,11 +6,17 @@ __author__ = "joaonrb"
 
 import sys
 import numpy as np
+import pandas as pd
+import testfm
+import warnings
+from pkg_resources import resource_filename
 from django.utils import timezone as dt
 from django.test import TestCase
-from recommendation.models import CacheManager, Matrix, Item, User, Inventory
+from recommendation.models import CacheManager, Matrix, Item, User, Inventory, TensorCoFi
 if sys.version_info >= (3, 0):
     from functools import reduce
+
+warnings.simplefilter('ignore', Warning)
 
 
 def get_coordinates(shape, n):
@@ -30,7 +36,7 @@ def get_coordinates(shape, n):
 
 class TestNPArrayField(TestCase):
     """
-    Test suit for NPArray field
+    Test suite for NPArray field
 
     Must test:
         - Integrity of array on enter
@@ -85,7 +91,7 @@ class TestNPArrayField(TestCase):
 
 class TestCacheManager(TestCase):
     """
-    Test suit for cache manager
+    Test suite for cache manager
 
     Must test:
         - Put data
@@ -295,3 +301,55 @@ class TestUser(TestCase):
                 ivent = user.all_items[i]
                 ivent.dropped_date = None
                 user.load_item(ivent)
+
+
+class TestTensorCoFi(TestCase):
+    """
+    Test suite for the tensorCoFi implementation for this recommendation
+    """
+
+    @classmethod
+    def setup_class(cls, *args, **kwargs):
+        """
+        Put elements in db
+        """
+        cls.df = pd.read_csv(resource_filename(testfm.__name__, "data/movielenshead.dat"), sep="::", header=None,
+                             names=["user", "item", "rating", "date", "title"])
+        cls.df = cls.df.head(n=100)
+
+    @classmethod
+    def teardown_class(cls, *args, **kwargs):
+        """
+        Take elements from db
+        """
+        Item.objects.all().delete()
+        User.objects.all().delete()
+
+    def test_fit(self):
+        """
+        [recommendation.models.TensorCoFi] Test size of matrix after tensorCoFi fit
+        """
+        tf = TensorCoFi(n_users=len(self.df.user.unique()), n_items=len(self.df.item.unique()), n_factors=2)
+        tf.fit(self.df)
+        #item and user are row vectors
+        self.assertEqual(len(self.df.user.unique()), tf.factors[0].shape[0])
+        self.assertEqual(len(self.df.item.unique()), tf.factors[1].shape[0])
+
+    def test_score(self):
+        """
+        [recommendation.models.TensorCoFi] Test score in matrix
+        """
+        tf = TensorCoFi(n_users=len(self.df.user.unique()), n_items=len(self.df.item.unique()), n_factors=2)
+        inp = [{"user": 10, "item": 100},
+               {"user": 10, "item": 110},
+               {"user": 12, "item": 120}]
+        inp = pd.DataFrame(inp)
+        tf.fit(inp)
+        uid = tf.data_map[tf.get_user_column()][10]
+        iid = tf.data_map[tf.get_item_column()][100]
+        tf.factors[0][uid, 0] = 0
+        tf.factors[0][uid, 1] = 1
+        tf.factors[1][iid, 0] = 1
+        tf.factors[1][iid, 1] = 5
+        self.assertEqual(0*1+1*5, tf.get_score(10, 100))
+
