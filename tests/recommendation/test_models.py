@@ -272,8 +272,26 @@ class TestUser(TestCase):
                 assert isinstance(user, User), "Cached user is not instance of User."
                 assert user.pk == u["id"], "Id is not correct"
 
+    def test_user_items(self):
+        """
+        [recommendation.models.User] Test user items
+        """
+        for u in USERS:
+            user = User.user_by_id[u["id"]]
+            for i in u["items"]:
+                assert i in user.all_items, "Item %d is not in user %s" % (i, user.external_id)
+
     def test_owned_items(self):
         """
-
-        :return:
+        [recommendation.models.User] Test owned items
         """
+        for u in USERS:
+            user = User.user_by_id[u["id"]]
+            for i in u["items"]:
+                ivent = user.all_items[i]
+                ivent.dropped_date = dt.now()
+                user.load_item(ivent)
+                assert i not in user.owned_items, "Item %d is in user %s owned items" % (i, user.external_id)
+                ivent = user.all_items[i]
+                ivent.dropped_date = None
+                user.load_item(ivent)

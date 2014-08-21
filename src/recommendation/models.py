@@ -150,7 +150,6 @@ class User(models.Model):
     user_by_id = CacheManager("recusid")
     user_by_external_id = CacheManager("recusei")
     __user_items = CacheManager("recusit")
-    __user_owned_items = CacheManager("recusoit")
 
     class Meta:
         verbose_name = _("user")
@@ -162,16 +161,16 @@ class User(models.Model):
     @property
     def all_items(self):
         """
-        All items from this user
+        All items from this user. Key item id and value the inventory register
         """
-        return {i: Item.item_by_id[i] for i in User.__user_items[self.pk]}
+        return {k: v for k, v in User.__user_items[self.pk].items()}
 
     @property
     def owned_items(self):
         """
-        Get the owned items from cache
+        Get the owned items from cache. Key item id and value the inventory register
         """
-        return {i: Item.item_by_id[i] for i in User.__user_owned_items[self.pk]}
+        return {k: v for k, v in User.__user_items[self.pk].items() if v.dropped_date is None}
 
     @staticmethod
     def load_to_cache():
@@ -184,26 +183,18 @@ class User(models.Model):
         """
         User.user_by_id[self.pk] = self
         User.user_by_external_id[self.external_id] = self
-        user_items = self.__user_items.get(self.pk, set([]))
-        user_owned_items = self.__user_owned_items.get(self.pk, set([]))
-        for item in self.items.all():
-            user_items.add(item.pk)
-            if Inventory.objects.get(user=self, item=item).dropped_date is None:
-                user_owned_items.add(item.pk)
+        user_items = self.__user_items.get(self.pk, {})
+        for item in Inventory.objects.filter(user=self):
+            user_items[item.item.pk] = item
         self.__user_items[self.pk] = user_items
-        self.__user_owned_items[self.pk] = user_owned_items
 
-    def load_new_item(self, item):
+    def load_item(self, item):
         """
         Load a single item to inventory
         """
-        user_items = self.__user_items.get(self.pk, set([]))
-        user_owned_items = self.__user_owned_items.get(self.pk, set([]))
-        user_items.add(item.pk)
-        if Inventory.objects.get(user=self, item=item).dropped_date is None:
-            user_owned_items.add(item.pk)
+        user_items = self.__user_items.get(self.pk, {})
+        user_items[item.item.pk] = item
         self.__user_items[self.pk] = user_items
-        self.__user_owned_items[self.pk] = user_owned_items
 
 
 @receiver(post_save, sender=User)
@@ -242,7 +233,7 @@ def add_inventory_to_cache(sender, instance, created, raw, using, update_fields,
     Add item to cache upon creation
     """
     if created:
-        instance.user.load_new_item(instance.item)
+        instance.user.load_item(instance)
 
 
 class Matrix(models.Model):
