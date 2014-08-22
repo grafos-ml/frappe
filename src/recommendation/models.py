@@ -406,18 +406,18 @@ class Popularity(TestFMPopularity):
 
     @property
     def recommendation(self):
-        return self.popularity_recommendation
+        return np.array(self.popularity_recommendation).astype(np.float32)
 
     @recommendation.setter
     def recommendation(self, value):
-        self.popularity_recommendation = value
+        self.popularity_recommendation = value.tolist()
         self._counts = {i+1: value[i] for i in range(self.n_items)}
 
     @staticmethod
     def load_to_cache():
         model = Popularity(n_items=Item.objects.all().count())
         pop = Matrix.objects.filter(name=model.get_name()).order_by("-id")[0]
-        model.recommendation = pop.recommendation
+        model.recommendation = pop.numpy
         Popularity.cache[""] = model
 
     @staticmethod

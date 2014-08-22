@@ -17,11 +17,11 @@ except AttributeError:
     RECOMMENDATION_SETTINGS = getattr(default_settings, "RECOMMENDATION_SETTINGS")
 
 try:
-    logger, args, kwargs = initialize(RECOMMENDATION_SETTINGS["logger"])
+    logger, _, _ = initialize(RECOMMENDATION_SETTINGS["logger"])
 except KeyError:
-    logger, args, kwargs = initialize(getattr(default_settings, "RECOMMENDATION_SETTINGS")["logger"])
+    logger, _, _ = initialize(getattr(default_settings, "RECOMMENDATION_SETTINGS")["logger"])
 
-log_event = logger(*args, **kwargs)
+log_event = logger
 
 
 class IController(object):
@@ -102,7 +102,7 @@ class IController(object):
         # previous user.
         model = self.get_model(user)
         if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
-            apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= model.factors[1].shape[0]]
+            apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
                 raise ValueError
             u_factors = model.online_user_factors(apps_idx)
@@ -110,7 +110,7 @@ class IController(object):
         else:
             return model.get_recommendation(user)
 
-    @log_event
+    @log_event(log_event.RECOMMEND)
     def get_recommendation(self, user, n=10):
         """
         Method to get recommendation according with some user id
@@ -185,4 +185,23 @@ for engine, engine_settings in RECOMMENDATION_SETTINGS.items():
 
 
 # Set default Recommendation engine
-DEFAULT_RECOMMENDATION = RECOMMENDATION_ENGINES["default"]
+default_recommendation = RECOMMENDATION_ENGINES["default"]
+
+
+class ControllerNotDefined(Exception):
+    """
+    Exception for when controller is not defined on settings
+    """
+    pass
+
+
+def get_controller(name="default"):
+    """
+    Get the recommendation controller
+    :param name: The name of the controller
+    :return: A controller or raise NotImplemented exception
+    """
+    try:
+        return RECOMMENDATION_ENGINES[name]
+    except KeyError:
+        raise ControllerNotDefined
