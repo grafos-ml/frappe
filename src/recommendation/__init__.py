@@ -1,3 +1,3 @@
-__author__ = 'joaonrb'
+__author__ = "joaonrb"
 
 from recommendation import core
