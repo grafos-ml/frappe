@@ -61,3 +61,6 @@ class TestRecommendation(TestCase):
         """
         response = self.client.get("/api/v2/recommend/5/")
         assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
+        rec = json.loads(response.content)
+        assert rec["user"] in map(lambda x: x.external_id, User.user_by_external_id), "User don't exist in cache"
+        assert len(rec["recommendations"]) == 5, "Size of recommendation not 5"
