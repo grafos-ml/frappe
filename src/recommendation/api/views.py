@@ -205,10 +205,11 @@ class UserRecommendationAPI(RecommendationAPI):
         :return: A HTTP response with a list of recommendations.
         """
         if user_external_id == "":
-            user_external_id = random.sample(User.all_users(), 1)[0]
-        recommended_apps = get_controller().get_external_id_recommendations(user_external_id,
-                                                                            n=int(number_of_recommendations))
-        data = {"user": user_external_id, "recommendations": recommended_apps}
+            user = random.sample(User.user_by_external_id, 1)[0]
+        else:
+            user = User.user_by_external_id[user_external_id]
+        recommended_apps = get_controller().get_external_id_recommendations(user, n=int(number_of_recommendations))
+        data = {"user": user.external_id, "recommendations": recommended_apps}
         return self.format_response(data)
 
 

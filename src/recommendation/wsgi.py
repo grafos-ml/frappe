@@ -10,11 +10,10 @@ if "DJANGO_SETTINGS_MODULE" not in os.environ:
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "recommendation.default_settings")
 
 from django.core.wsgi import get_wsgi_application
-from recommendation.models import Item, User, TensorCoFi, Popularity
-
 
 application = get_wsgi_application()
 
+from recommendation.models import Item, User, TensorCoFi, Popularity
 # Load user and items
 Item.load_to_cache()
 User.load_to_cache()

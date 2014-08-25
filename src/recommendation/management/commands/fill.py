@@ -237,16 +237,16 @@ def put_items(objects):
 
     cursor = connection.cursor()
     # Create genre relations
-    if new_items:
-        relation = []
-        for item_eid, item_id in new_items.items():
-            for genre in items[item_eid][1]:
-                relation.append("(%s, %s)" % (str(genres[genre].id), item_id))
-        p = cursor.execute(BULK_QUERY % {
-            "table": "diversity_genre_items",
-            "columns": "(genre_id, item_id)",
-            "values": ", ".join(relation)})
-        print("New genre relations created ...")
+    #if new_items:
+    #    relation = []
+    #    for item_eid, item_id in new_items.items():
+    #        for genre in items[item_eid][1]:
+    #            relation.append("(%s, %s)" % (str(genres[genre].id), item_id))
+    #    p = cursor.execute(BULK_QUERY % {
+    #        "table": "diversity_genre_items",
+    #        "columns": "(genre_id, item_id)",
+    #        "values": ", ".join(relation)})
+    #    print("New genre relations created ...")
 
     # Create locale relations
     #if new_locales:
@@ -429,6 +429,10 @@ class Command(BaseCommand):
     help = "Fill the database with data. Use: manage fill items /path/to/items. Always fill items before users."
 
     def handle(self, *args, **options):
+        if len(args) != 2:
+            raise CommandError("Not enough args.")
+        if args[0] not in TYPE_METHOD:
+            raise CommandError("First command must be in %s" % str(tuple(TYPE_METHOD.keys())))
         try:
             main(args[0], args[1])
         except Exception:

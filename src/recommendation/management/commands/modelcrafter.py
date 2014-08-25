@@ -148,6 +148,11 @@ class Command(BaseCommand):
     help = "Trains the model. Currently implemented: train tensorcofi, train popularity."
 
     def handle(self, *args, **options):
+
+        if len(args) != 2:
+            raise CommandError("Not enough args.")
+        if args[0] not in OPTIONS:
+            raise CommandError("First command must be in %s" % str(tuple(OPTIONS.keys())))
         try:
             main(args[0], args[1])
         except Exception:

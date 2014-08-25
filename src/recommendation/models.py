@@ -76,7 +76,7 @@ class CacheManager(object):
         self._cache = get_cache(cache)
         self._prefix = prefix
         self._list = "%s.list" % prefix
-        self._cache.set(self._list, set([]), None)
+        self._cache.set(self._list, self._cache.get(self._list) or set([]), None)
 
     def __getitem__(self, key):
         k = "%s%s" % (self._prefix, key)
@@ -134,6 +134,9 @@ class Item(models.Model):
     def __str__(self):
         return self.name
 
+    def __unicode__(self):
+        return unicode(self.name)
+
     @staticmethod
     def load_to_cache():
         for app in Item.objects.all().prefetch_related():
@@ -168,6 +171,9 @@ class User(models.Model):
 
     def __str__(self):
         return self.external_id
+
+    def __unicode__(self):
+        return unicode(self.external_id)
 
     @property
     def all_items(self):
@@ -233,6 +239,11 @@ class Inventory(models.Model):
         unique_together = ("user", "item")
 
     def __str__(self):
+        return _("%(state)s %(item)s item for user %(user)s") % {
+            "state": _("dropped") if self.dropped_date else _("owned"), "item": self.item.name,
+            "user": self.user.external_id}
+
+    def __unicode__(self):
         return _("%(state)s %(item)s item for user %(user)s") % {
             "state": _("dropped") if self.dropped_date else _("owned"), "item": self.item.name,
             "user": self.user.external_id}

@@ -141,9 +141,7 @@ class IController(object):
         :return: Item external id list
         """
         result = self.get_recommendation(user=user, n=n)
-        rs = Item.all_items()
-        #return [rs[r] for r in result]
-        return [rs[r].external_id for r in result]
+        return [Item.item_by_id[r].external_id for r in result]
 
 
 class TensorCoFiController(IController):
