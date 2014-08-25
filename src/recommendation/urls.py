@@ -5,5 +5,6 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     "",
+    url(r"^api/", include("recommendation.api.urls")),
     url(r"^admin/", include(admin.site.urls))
 )

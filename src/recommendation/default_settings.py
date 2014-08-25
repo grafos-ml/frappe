@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "recommendation",
+    "recommendation.api"
 ]
 if DEBUG:
     INSTALLED_APPS += [

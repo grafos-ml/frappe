@@ -4,7 +4,7 @@ django-cors-headers
 https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
 
 
-#djangorestframework
+djangorestframework
 #numpy
 #scipy
 #pandas
