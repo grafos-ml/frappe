@@ -103,16 +103,7 @@ class CacheManager(object):
             return self[key]
         except KeyError:
             return default
-
-
-class IRecommendationModel(models.Model):
-    """
-    Abstract class that implement some special routines for all models
-    """
-
-    @GoToThreadQueue()
-    def save(self, *args, **kwargs):
-        super(IRecommendationModel, self).save(*args, **kwargs)
+    #    super(IRecommendationModel, self).save(*args, **kwargs)
 
 
 class Item(models.Model):

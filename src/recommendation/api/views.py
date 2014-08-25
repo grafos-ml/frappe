@@ -147,7 +147,6 @@ class AbstractGoToItem(APIView):
         CLICK: log_event.CLICK
     }
 
-    @GoToThreadQueue()
     @log_event(log_event.CLICK)
     def click(self, user_external_id, item_external_id, click_type, rank=None):
         """
@@ -208,7 +207,8 @@ class UserRecommendationAPI(RecommendationAPI):
             user = random.sample(User.user_by_external_id, 1)[0]
         else:
             user = User.user_by_external_id[user_external_id]
-        recommended_apps = get_controller().get_external_id_recommendations(user, n=int(number_of_recommendations))
+        recommended_apps = log_event(log_event.RECOMMEND)(
+            get_controller().get_external_id_recommendations(user, n=int(number_of_recommendations)))
         data = {"user": user.external_id, "recommendations": recommended_apps}
         return self.format_response(data)
 

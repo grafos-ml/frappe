@@ -8,8 +8,7 @@ import unittest as ut
 from django.test import TestCase
 from django.utils import timezone as dt
 from recommendation.models import Item, User, Inventory, Matrix, TensorCoFi, Popularity
-from recommendation.core import IController, TensorCoFiController, get_controller, RECOMMENDATION_SETTINGS, \
-    ControllerNotDefined
+from recommendation.core import IController, get_controller, RECOMMENDATION_SETTINGS, ControllerNotDefined
 
 
 class TestGetController(TestCase):
