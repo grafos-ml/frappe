@@ -208,7 +208,7 @@ class UserRecommendationAPI(RecommendationAPI):
         else:
             user = User.user_by_external_id[user_external_id]
         recommended_apps = log_event(log_event.RECOMMEND)(
-            get_controller().get_external_id_recommendations(user, n=int(number_of_recommendations)))
+            get_controller().get_external_id_recommendations)(user, n=int(number_of_recommendations))
         data = {"user": user.external_id, "recommendations": recommended_apps}
         return self.format_response(data)
 

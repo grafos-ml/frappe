@@ -5,8 +5,10 @@ This test package test the recommendation api
 __author__ = "joaonrb"
 
 import unittest as ut
+import json
 from pkg_resources import resource_filename
 from django.test import TestCase
+from django.test.client import Client
 from django.core.cache import get_cache
 from django.utils import timezone as dt
 import recommendation
@@ -42,6 +44,7 @@ class TestRecommendation(TestCase):
         # Load main models
         Popularity.load_to_cache()
         TensorCoFi.load_to_cache()
+        cls.client = Client()
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -56,4 +59,5 @@ class TestRecommendation(TestCase):
         """
         [recommendation.api.GetRecommendation] Get recommendation as json
         """
-        pass
+        response = self.client.get("/api/v2/recommend/5/")
+        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
