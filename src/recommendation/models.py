@@ -245,8 +245,8 @@ def add_inventory_to_cache(sender, instance, created, raw, using, update_fields,
     """
     Add item to cache upon creation
     """
-    if created:
-        instance.user.load_item(instance)
+    instance.user.load_item(instance)
+
 
 
 class Matrix(models.Model):

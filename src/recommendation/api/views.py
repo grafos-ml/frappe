@@ -311,10 +311,12 @@ class UserItemsAPI(RecommendationAPI):
         #if a == 0:
         #    raise OperationalError("Item not inserted")
         ##########
-        Inventory.objects.create(item__external_id=item_external_id, user__external_id=user_external_id)
+        Inventory.objects.create(item=Item.item_by_external_id[item_external_id],
+                                 user=User.user_by_external_id[user_external_id], acquisition_date=now())
+        #User.user_by_external_id[user_external_id].items.add(Item.item_by_external_id[item_external_id])
 
     @staticmethod
-    @GoToThreadQueue()
+    #@GoToThreadQueue()
     @log_event(log_event.REMOVE)
     def delete_acquisition(user_external_id, item_external_id):
         """
@@ -343,7 +345,8 @@ class UserItemsAPI(RecommendationAPI):
         #a = cursor.execute(query)
         #if a == 0:
         #    raise OperationalError("Item not deleted")
-        i = Inventory.objects.get(item__external_id=item_external_id, user__external_id=user_external_id)
+        i = Inventory.objects.get(item=Item.item_by_external_id[item_external_id],
+                                  user=User.user_by_external_id[user_external_id])
         i.dropped_date = now()
         i.save()
 
@@ -393,7 +396,7 @@ class UserItemsAPI(RecommendationAPI):
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
         self.insert_acquisition(user_external_id, item_id)
-        User.user_by_external_id[user_external_id].owned_items = Item.item_by_external_id[item_id]
+        #User.user_by_external_id[user_external_id].owned_items = Item.item_by_external_id[item_id]
         return self.format_response(SUCCESS_MESSAGE)
 
     def delete(self, request, user_external_id):
