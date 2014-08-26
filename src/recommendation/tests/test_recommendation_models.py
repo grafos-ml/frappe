@@ -11,7 +11,6 @@ import testfm
 from pkg_resources import resource_filename
 from django.utils import timezone as dt
 from django.test import TestCase
-from django.core.cache import get_cache
 from recommendation.models import CacheManager, Matrix, Item, User, Inventory, TensorCoFi
 if sys.version_info >= (3, 0):
     from functools import reduce

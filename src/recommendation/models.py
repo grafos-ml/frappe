@@ -318,8 +318,15 @@ class TensorCoFi(PyTensorCoFi):
         """
         return self.n_items
 
-    #def get_score(self, user, item):
-    #    return np.dot(self.factors[0][user-1], self.factors[1][item-1].transpose())
+    def get_score(self, user, item):
+        #print self.factors[0].shape, self.factors[1].shape
+        #try:
+        return np.dot(self.factors[0][self.data_map[self.get_user_column()][user]],
+                      self.factors[1][self.data_map[self.get_item_column()][item]].transpose())
+        #except Exception as e:
+        #    print user, item, self.factors[0].shape, self.factors[1].shape, len(self.factors)
+        #    raise e
+        #return super(TensorCoFi, self).get_score(int(user), int(item))
 
     def get_recommendation(self, user, **context):
         """
@@ -341,16 +348,23 @@ class TensorCoFi(PyTensorCoFi):
         TensorCoFi.cache[""] = tensor
 
     @staticmethod
-    def get_model(*args, **kwargs):
+    def get_model_from_cache(*args, **kwargs):
         return TensorCoFi.cache[""]
+
+    @staticmethod
+    def get_model(*args, **kwargs):
+        return TensorCoFi.get_model_from_cache(args, **kwargs).factors
 
     @staticmethod
     def train_from_db(*args, **kwargs):
         """
         Trains the model in to data base
         """
+        #data = map(lambda x: {"user": x["user_id"], "item": x["item_id"]},
+        #           Inventory.objects.all().values("user_id", "item_id"))
+        #data = pd.DataFrame(data)
         tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
-        data = np.array(sorted([(u-1, i-1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
+        data = np.array(sorted([(u-1, i-1, 1.) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
         return tensor.train(data)
 
     def train(self, data):
