@@ -4,7 +4,7 @@ Plugin to remove owned items
 """
 
 __author__ = 'joaonrb'
-
+from recommendation.models import Item
 
 class FilterOwned(object):
     """
@@ -20,6 +20,6 @@ class FilterOwned(object):
         :param kwargs: Extra parameters
         :return:
         """
-        for i in user.owned_items:
-            recommendation[i.id-1] = float("-inf")
+        for i in user.owned_items.values():
+            recommendation[i.item.id-1] = float("-inf")
         return recommendation
