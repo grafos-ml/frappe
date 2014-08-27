@@ -283,7 +283,7 @@ class UserItemsAPI(RecommendationAPI):
     ]
 
     @staticmethod
-    @GoToThreadQueue()
+    #@GoToThreadQueue()
     @log_event(log_event.ACQUIRE)
     def insert_acquisition(user_external_id, item_external_id):
         """

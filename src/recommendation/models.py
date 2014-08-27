@@ -248,7 +248,6 @@ def add_inventory_to_cache(sender, instance, created, raw, using, update_fields,
     instance.user.load_item(instance)
 
 
-
 class Matrix(models.Model):
     """
     Numpy Matrix in database
