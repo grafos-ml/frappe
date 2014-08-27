@@ -40,22 +40,22 @@ class TestGetController(TestCase):
 
 
 ITEMS = [
-    {"id": 1, "name": "facemagazine", "external_id": "10001"},
-    {"id": 2, "name": "twister", "external_id": "10002"},
-    {"id": 3, "name": "gfail", "external_id": "10003"},
-    {"id": 4, "name": "appwhat", "external_id": "10004"},
-    {"id": 5, "name": "pissedoffbirds", "external_id": "98766"},
+    {"name": "facemagazine", "external_id": "10001"},
+    {"name": "twister", "external_id": "10002"},
+    {"name": "gfail", "external_id": "10003"},
+    {"name": "appwhat", "external_id": "10004"},
+    {"name": "pissedoffbirds", "external_id": "98766"},
 ]
 
 
 USERS = [
-    {"id": 1, "external_id": "joaonrb", "items": [1, 3, 4]},
-    {"id": 2, "external_id": "mumas", "items": [3, 4, 5]},
-    {"id": 3, "external_id": "alex", "items": [3]},
-    {"id": 4, "external_id": "rob", "items": [3, 4]},
-    {"id": 5, "external_id": "gabriela", "items": [2, 5]},
-    {"id": 6, "external_id": "ana", "items": []},
-    {"id": 7, "external_id": "margarida", "items": [1, 5]},
+    {"external_id": "joaonrb", "items": ["10001", "10003", "10004"]},
+    {"external_id": "mumas", "items": ["10003", "10004", "98766"]},
+    {"external_id": "alex", "items": ["10003"]},
+    {"external_id": "rob", "items": ["10003", "10004"]},
+    {"external_id": "gabriela", "items": ["10002", "98766"]},
+    {"external_id": "ana", "items": []},
+    {"external_id": "margarida", "items": ["10001", "98766"]},
 ]
 
 
@@ -72,9 +72,9 @@ class TestTensorCoFiController(TestCase):
         for app in ITEMS:
             Item.objects.create(**app)
         for u in USERS:
-            user = User.objects.create(id=u["id"], external_id=u["external_id"])
+            user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.item_by_id[i], acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
         TensorCoFi.train_from_db()
         Popularity.train_from_db()
         TensorCoFi.load_to_cache()
@@ -96,7 +96,7 @@ class TestTensorCoFiController(TestCase):
         """
         rec_controller = get_controller()
         for u in USERS:
-            recommendation = rec_controller.get_recommendation(User.user_by_id[u["id"]], n=5)
+            recommendation = rec_controller.get_recommendation(User.user_by_external_id[u["external_id"]], n=5)
             assert len(recommendation) == 5, "Size of recommendation is not wright"
 
     @ut.skipIf("default" not in RECOMMENDATION_SETTINGS, "Default recommendation is not defined")

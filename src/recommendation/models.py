@@ -140,9 +140,8 @@ def add_item_to_cache(sender, instance, created, raw, using, update_fields, *arg
     """
     Add item to cache upon creation
     """
-    if created:
-        Item.item_by_id[instance.pk] = instance
-        Item.item_by_external_id[instance.external_id] = instance
+    Item.item_by_id[instance.pk] = instance
+    Item.item_by_external_id[instance.external_id] = instance
 
 
 class User(models.Model):
@@ -210,8 +209,7 @@ def add_user_to_cache(sender, instance, created, raw, using, update_fields, *arg
     """
     Add item to cache upon creation
     """
-    if created:
-        instance.load_user()
+    instance.load_user()
 
 
 class Inventory(models.Model):

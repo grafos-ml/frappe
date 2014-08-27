@@ -73,7 +73,7 @@ WSGI_APPLICATION = "recommendation.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "recommender.db",
+        "NAME": os.path.join(BASE_DIR, "recommender.db"),
         "ATOMIC_REQUESTS": True
     }
 }
