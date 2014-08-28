@@ -75,6 +75,37 @@ class CacheManager(object):
     def __init__(self, prefix, cache="default"):
         self._cache = get_cache(cache)
         self._prefix = prefix
+
+    def __getitem__(self, key):
+        k = "%s%s" % (self._prefix, key)
+        result = self._cache.get(k)
+        if result is None:
+            raise KeyError(k)
+        return result
+
+    def __setitem__(self, key, value):
+        k = "%s%s" % (self._prefix, key)
+        self._cache.set(k, value, None)
+
+    def __delitem__(self, key):
+        # TODO Test of this
+        k = "%s%s" % (self._prefix, key)
+        self._cache.delete(k)
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+
+class IterableCacheManager(CacheManager):
+    """
+    An iterable structure that holds in the settings default cache to keep for fast access.
+    """
+
+    def __init__(self, prefix, cache="default"):
+        super(IterableCacheManager, self).__init__(prefix, cache)
         self._list = "%s.list" % prefix
         self._cache.set(self._list, self._cache.get(self._list) or set([]), None)
 
@@ -110,13 +141,6 @@ class CacheManager(object):
     def __len__(self):
         return len(self._cache.get(self._list))
 
-    def get(self, key, default=None):
-        try:
-            return self[key]
-        except KeyError:
-            return default
-            #    super(IRecommendationModel, self).save(*args, **kwargs)
-
 
 class Item(models.Model):
     """
@@ -127,8 +151,8 @@ class Item(models.Model):
 
     # Cache Managers
 
-    item_by_id = CacheManager("recitid")
-    item_by_external_id = CacheManager("recitei")
+    item_by_id = IterableCacheManager("recitid")
+    item_by_external_id = IterableCacheManager("recitei")
 
     class Meta:
         verbose_name = _("item")
@@ -163,9 +187,9 @@ class User(models.Model):
     external_id = models.CharField(_("external id"), max_length=255, unique=True)
     items = models.ManyToManyField(Item, verbose_name=_("items"), blank=True, through="Inventory")
 
-    user_by_id = CacheManager("recusid")
-    user_by_external_id = CacheManager("recusei")
-    __user_items = CacheManager("recusit")
+    user_by_id = IterableCacheManager("recusid")
+    user_by_external_id = IterableCacheManager("recusei")
+    __user_items = IterableCacheManager("recusit")
 
     class Meta:
         verbose_name = _("user")
