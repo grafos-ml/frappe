@@ -73,3 +73,15 @@ class TestFilterOwnedItems(TestCase):
             for item in user.owned_items:
                 assert item in new_rec[0-n:], "Item %d is not in the last in recommendation %s. User owned items %s" % \
                     (item, new_rec, list(user.owned_items.keys()))
+
+    def test_recommendation_size_after_filter(self):
+        """
+        [recommendation.filter.OwnedIems] Test the size of the recommendation after the filter
+        """
+        rfilter = FilterOwned()
+        for u in USERS:
+            user = User.user_by_external_id[u["external_id"]]
+            recommendation = [random.random() for i in range(len(ITEMS))]
+            result = rfilter(user, recommendation)
+            new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
+            assert len(new_rec) == len(ITEMS), "Recommendation size changed (%d != %s)" % (len(new_rec), len(ITEMS))

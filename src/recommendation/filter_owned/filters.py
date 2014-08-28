@@ -3,8 +3,8 @@ Plugin to remove owned items
 
 """
 
-__author__ = 'joaonrb'
-from recommendation.models import Item
+__author__ = "joaonrb"
+
 
 class FilterOwned(object):
     """
