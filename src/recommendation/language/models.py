@@ -81,9 +81,9 @@ def add_item_locale_to_cache(sender, instance, action, reverse, model, pk_set, u
     """
     if action == "post_add":
         for i in pk_set:
-            Locale.item_locales[i] = Locale.item_locales.get(i, set([]).union((instance.pk,)))
+            Locale.item_locales[i] = Locale.item_locales.get(i, set([])).union((instance.pk,))
             Locale.items_by_locale[instance.pk] = Locale.items_by_locale.get(instance.pk, set([])).union((i,))
-    if action == "post_remove":
+    elif action == "post_remove":
         for i in pk_set:
             l = Locale.item_locales.get(i, set([]))
             l.discard(instance.pk)
@@ -100,9 +100,9 @@ def add_user_locale_to_cache(sender, instance, action, reverse, model, pk_set, u
     """
     if action == "post_add":
         for u in pk_set:
-            Locale.user_locales[u] = Locale.user_locales.get(u, set([]).union((instance.pk,)))
+            Locale.user_locales[u] = Locale.user_locales.get(u, set([])).union((instance.pk,))
             Locale.users_by_locale[instance.pk] = Locale.users_by_locale.get(instance.pk, set([]).union((u,)))
-    if action == "post_remove":
+    elif action == "post_remove":
         for u in pk_set:
             l = Locale.user_locales.get(u, set([]))
             l.discard(instance.pk)

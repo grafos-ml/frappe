@@ -31,7 +31,7 @@ USERS = [
     {"external_id": "joaonrb", "items": ["10001", "10003", "10004"], "languages": ["en", "pt"], "last_apps": []},
     {"external_id": "mumas", "items": ["10003", "10004", "98766"], "languages": ["en", "fr"], "last_apps": ["98766"]},
     {"external_id": "alex", "items": ["10003"], "languages": ["en", "fr"], "last_apps": ["98766"]},
-    {"external_id": "rob", "items": ["10003", "10004"], "languages": ["en"], "last_apps": ["10001"]},
+    {"external_id": "rob", "items": ["10003", "10004"], "languages": ["en"], "last_apps": ["10001", "98766"]},
     {"external_id": "gabriela", "items": ["10002", "98766"], "languages": ["en", "pt", "fr"], "last_apps": []},
     {"external_id": "ana", "items": [], "languages": ["fr"], "last_apps": ["10002", "98766"]},
     {"external_id": "margarida", "items": ["10001", "98766"], "languages": ["pt", "fr"], "last_apps": []},
@@ -112,8 +112,9 @@ class TestLanguageFilter(TestCase):
                     "Recommendation is not the same when not apps to filter(%s != %s)" % (new_rec, app_rec)
             else:
                 for item in u["last_apps"]:
-                    assert item in new_rec[0-n:], "Item %s is not in the last in recommendation %s. Items filtered" \
-                                                  " %s" % (item, new_rec, list(u["last_apps"]))
+                    assert item in new_rec[0-n:], \
+                        "Item %s for user %s is not in the last in recommendation %s. Items filtered %s." % \
+                        (item, user, new_rec, list(u["last_apps"]))
 
     def test_recommendation_size_after_filter(self):
         """

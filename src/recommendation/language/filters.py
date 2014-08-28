@@ -31,6 +31,7 @@ class SimpleLocaleFilter(object):
         for l in unsupported_langs:
             unsupported_items = unsupported_items.union(Locale.items_by_locale[l])
         for item in unsupported_items:
-            early_recommendation[item-1] = float("-inf")
+            if not any(map(lambda x: x in Locale.item_locales[item], Locale.user_locales[user.pk])):
+                early_recommendation[item-1] = float("-inf")
         return early_recommendation
 
