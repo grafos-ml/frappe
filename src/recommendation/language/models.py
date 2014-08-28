@@ -23,8 +23,10 @@ class Locale(models.Model):
     users = models.ManyToManyField(User, verbose_name=_("users"), related_name="required_locales", blank=True)
 
     all_locales = CacheManager("locallid")
-    items_locales = CacheManager("locits")
+    item_locales = CacheManager("locits")
     user_locales = CacheManager("locusr")
+    items_by_locale = CacheManager("locitsb")
+    users_by_locale = CacheManager("locusrb")
 
     class Meta:
         verbose_name = _("locale")
@@ -45,9 +47,8 @@ class Locale(models.Model):
         self.country_code = self.country_code.lower()
         super(Locale, self).save(*args, **kwargs)
 
-    """
     @staticmethod
-    def load_unsupported_items_by_locale():
+    def load_locale():
         cache = get_cache("models")
         users = User.objects.all()
         for u in users:
@@ -56,11 +57,6 @@ class Locale(models.Model):
             unsupported_items = unsupported_items_or_null.exclude(available_locales__isnull=True)
             cache.set("user<%s>.unsupported_items" % u.external_id, list(unsupported_items), None)
 
-    @staticmethod
-    def get_unsupported_items_by_locale(user):
-        cache = get_cache("models")
-        return cache.get("user<%s>.unsupported_items" % user.external_id)
-    """
 
 @receiver(post_save, sender=Locale)
 def add_locale_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):
@@ -75,7 +71,14 @@ def add_item_locale_to_cache(sender, instance, action, reverse, model, pk_set, u
     """
     Add item to locale cache upon creation
     """
-    print(sender, instance, action, reverse, model, pk_set, using, args, kwargs)
+    if action == "post_save":
+        for i in pk_set:
+            Locale.item_locales[i] = Locale.item_locales.get(1, set([]).union((instance.pk,)))
+    if action == "post_remove":
+        for i in pk_set:
+            l = Locale.item_locales.get(i, set([]))
+            l.discard(instance.pk)
+            Locale.item_locales[i] = l
 
 
 @receiver(m2m_changed, sender=Locale.users.through)
@@ -84,8 +87,13 @@ def add_user_locale_to_cache(sender, instance, action, reverse, model, pk_set, u
     Add users to locale cache upon creation
     """
     if action == "post_save":
-
-    print(sender, instance, action, reverse, model, pk_set, using, args, kwargs)
+        for u in pk_set:
+            Locale.user_locales[u] = Locale.user_locales.get(u, set([]).union((instance.pk,)))
+    if action == "post_remove":
+        for u in pk_set:
+            l = Locale.user_locales.get(u, set([]))
+            l.discard(instance.pk)
+            Locale.user_locales[u] = l
 
 
 from django.contrib import admin
