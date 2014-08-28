@@ -64,10 +64,10 @@ class TestFilterOwnedItems(TestCase):
         [recommendation.filter.OwnedIems] Test a filter owned items on recommendation
         """
         rfilter = FilterOwned()
+        recommendation = [random.random() for _ in range(len(ITEMS))]
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]
-            recommendation = [random.random() for i in range(len(ITEMS))]
-            result = rfilter(user, recommendation)
+            result = rfilter(user, recommendation[:])
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             n = len(user.owned_items)
             for item in user.owned_items:
@@ -79,9 +79,9 @@ class TestFilterOwnedItems(TestCase):
         [recommendation.filter.OwnedIems] Test the size of the recommendation after the filter
         """
         rfilter = FilterOwned()
+        recommendation = [random.random() for _ in range(len(ITEMS))]
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]
-            recommendation = [random.random() for i in range(len(ITEMS))]
-            result = rfilter(user, recommendation)
+            result = rfilter(user, recommendation[:])
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             assert len(new_rec) == len(ITEMS), "Recommendation size changed (%d != %s)" % (len(new_rec), len(ITEMS))

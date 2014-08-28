@@ -6,7 +6,7 @@ __author__ = "joaonrb"
 
 
 from django.db import models
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _
 from recommendation.models import Item, User, CacheManager, IterableCacheManager
@@ -66,12 +66,20 @@ def add_locale_to_cache(sender, instance, created, raw, using, update_fields, *a
     Locale.all_locales[instance.pk] = instance
 
 
+@receiver(post_delete, sender=Locale)
+def remove_locale_to_cache(sender, instance, using, **kwargs):
+    """
+    Remove locale to cache upon creation
+    """
+    del Locale.all_locales[instance.pk]
+
+
 @receiver(m2m_changed, sender=Locale.items.through)
 def add_item_locale_to_cache(sender, instance, action, reverse, model, pk_set, using, *args, **kwargs):
     """
     Add item to locale cache upon creation
     """
-    if action == "post_save":
+    if action == "post_add":
         for i in pk_set:
             Locale.item_locales[i] = Locale.item_locales.get(i, set([]).union((instance.pk,)))
             Locale.items_by_locale[instance.pk] = Locale.items_by_locale.get(instance.pk, set([])).union((i,))
@@ -80,9 +88,9 @@ def add_item_locale_to_cache(sender, instance, action, reverse, model, pk_set, u
             l = Locale.item_locales.get(i, set([]))
             l.discard(instance.pk)
             Locale.item_locales[i] = l
-            l = Locale.items_by_locales.get(instance.pk, set([]))
+            l = Locale.items_by_locale.get(instance.pk, set([]))
             l.discard(i)
-            Locale.items_by_locales[instance.pk] = l
+            Locale.items_by_locale[instance.pk] = l
 
 
 @receiver(m2m_changed, sender=Locale.users.through)
@@ -90,18 +98,18 @@ def add_user_locale_to_cache(sender, instance, action, reverse, model, pk_set, u
     """
     Add users to locale cache upon creation
     """
-    if action == "post_save":
+    if action == "post_add":
         for u in pk_set:
             Locale.user_locales[u] = Locale.user_locales.get(u, set([]).union((instance.pk,)))
-            Locale.users_by_locales[instance.pk] = Locale.users_by_locales.get(instance.pk, set([]).union((u,)))
+            Locale.users_by_locale[instance.pk] = Locale.users_by_locale.get(instance.pk, set([]).union((u,)))
     if action == "post_remove":
         for u in pk_set:
             l = Locale.user_locales.get(u, set([]))
             l.discard(instance.pk)
             Locale.user_locales[u] = l
-            l = Locale.users_by_locales.get(instance.pk, set([]))
+            l = Locale.users_by_locale.get(instance.pk, set([]))
             l.discard(u)
-            Locale.users_by_locales[instance.pk] = l
+            Locale.users_by_locale[instance.pk] = l
 
 
 from django.contrib import admin

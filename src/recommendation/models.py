@@ -88,7 +88,6 @@ class CacheManager(object):
         self._cache.set(k, value, None)
 
     def __delitem__(self, key):
-        # TODO Test of this
         k = "%s%s" % (self._prefix, key)
         self._cache.delete(k)
 

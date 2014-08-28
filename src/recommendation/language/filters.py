@@ -29,8 +29,7 @@ class SimpleLocaleFilter(object):
         unsupported_langs = Locale.user_locales[user.pk].symmetric_difference(l.pk for l in Locale.all_locales)
         unsupported_items = set([])
         for l in unsupported_langs:
-            unsupported_items.union(Locale.items_by_locale[l])
-
+            unsupported_items = unsupported_items.union(Locale.items_by_locale[l])
         for item in unsupported_items:
             early_recommendation[item-1] = float("-inf")
         return early_recommendation
