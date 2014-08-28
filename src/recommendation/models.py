@@ -87,10 +87,22 @@ class CacheManager(object):
 
     def __setitem__(self, key, value):
         k = "%s%s" % (self._prefix, key)
+        # This might need a lock
         keys = self._cache.get(self._list)
         keys.add(k)
         self._cache.set(self._list, keys, None)
+        #########################
         self._cache.set(k, value, None)
+
+    def __delitem__(self, key):
+        # TODO Test of this
+        k = "%s%s" % (self._prefix, key)
+        # This might need a lock
+        keys = self._cache.get(self._list)
+        keys.remove(k)
+        self._cache.set(self._list, keys, None)
+        #########################
+        self._cache.delete(k)
 
     def __iter__(self):
         return iter(self._cache.get_many(list(self._cache.get(self._list))).values())
