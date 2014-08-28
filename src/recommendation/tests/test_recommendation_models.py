@@ -11,7 +11,7 @@ import testfm
 from pkg_resources import resource_filename
 from django.utils import timezone as dt
 from django.test import TestCase
-from recommendation.models import CacheManager, Matrix, Item, User, Inventory, TensorCoFi
+from recommendation.models import IterableCacheManager, CacheManager, Matrix, Item, User, Inventory, TensorCoFi
 if sys.version_info >= (3, 0):
     from functools import reduce
 
@@ -109,6 +109,7 @@ class TestCacheManager(TestCase):
             "k4": {"this": "is", "just": "an", "example": "."}
         }
         cls.cache = CacheManager("test_suite")
+        cls.icache = IterableCacheManager("test_suit_i")
 
     def test_input_in_cache(self):
         """
@@ -136,12 +137,12 @@ class TestCacheManager(TestCase):
         """
         # Adding values
         for key, value in self.data.items():
-            self.cache[key] = value
+            self.icache[key] = value
         values = list(self.data.values())
-        for value in self.cache:
+        for value in self.icache:
             assert value in values, "Item in cache iterator is not in test data (%s not in %s)" % (value, values)
         for _, value in self.data.items():
-            assert value in self.cache, "Test item not in cache (%s not in %s)" % (value, list(self.cache))
+            assert value in self.icache, "Test item not in cache (%s not in %s)" % (value, list(self.icache))
 
     def test_cache_size(self):
         """
@@ -149,12 +150,12 @@ class TestCacheManager(TestCase):
         """
         # Adding values
         for key, value in self.data.items():
-            self.cache[key] = value
+            self.icache[key] = value
         # Two times to check for replications
         for key, value in self.data.items():
-            self.cache[key] = value
-        assert len(self.cache) == len(self.data), "Size of test data and cache are not the same (%d != %d)" % \
-                                                  (len(self.cache), len(self.data))
+            self.icache[key] = value
+        assert len(self.icache) == len(self.data), "Size of test data and cache are not the same (%d != %d)" % \
+                                                   (len(self.icache), len(self.data))
 
 
 ITEMS = [

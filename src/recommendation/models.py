@@ -14,7 +14,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from django.core.cache import get_cache
 from django.utils.six import with_metaclass
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity as TestFMPopularity
@@ -180,6 +180,15 @@ def add_item_to_cache(sender, instance, created, raw, using, update_fields, *arg
     Item.item_by_external_id[instance.external_id] = instance
 
 
+@receiver(post_delete, sender=Item)
+def delete_item_to_cache(sender, instance, using, **kwargs):
+    """
+    Add item to cache upon creation
+    """
+    del Item.item_by_id[instance.pk]
+    del Item.item_by_external_id[instance.external_id]
+
+
 class User(models.Model):
     """
     User to own items in recommendation system.
@@ -189,7 +198,7 @@ class User(models.Model):
 
     user_by_id = IterableCacheManager("recusid")
     user_by_external_id = IterableCacheManager("recusei")
-    __user_items = IterableCacheManager("recusit")
+    user_items = IterableCacheManager("recusit")
 
     class Meta:
         verbose_name = _("user")
@@ -206,14 +215,14 @@ class User(models.Model):
         """
         All items from this user. Key item id and value the inventory register
         """
-        return {k: v for k, v in User.__user_items[self.pk].items()}
+        return {k: v for k, v in User.user_items[self.pk].items()}
 
     @property
     def owned_items(self):
         """
         Get the owned items from cache. Key item id and value the inventory register
         """
-        return {k: v for k, v in User.__user_items[self.pk].items() if v.dropped_date is None}
+        return {k: v for k, v in User.user_items[self.pk].items() if v.dropped_date is None}
 
     @staticmethod
     def load_to_cache():
@@ -226,18 +235,18 @@ class User(models.Model):
         """
         User.user_by_id[self.pk] = self
         User.user_by_external_id[self.external_id] = self
-        user_items = self.__user_items.get(self.pk, {})
+        user_items = self.user_items.get(self.pk, {})
         for item in Inventory.objects.filter(user=self):
             user_items[item.item.pk] = item
-        self.__user_items[self.pk] = user_items
+        self.user_items[self.pk] = user_items
 
     def load_item(self, item):
         """
         Load a single item to inventory
         """
-        user_items = self.__user_items.get(self.pk, {})
+        user_items = self.user_items.get(self.pk, {})
         user_items[item.item.pk] = item
-        self.__user_items[self.pk] = user_items
+        self.user_items[self.pk] = user_items
 
 
 @receiver(post_save, sender=User)
@@ -246,6 +255,16 @@ def add_user_to_cache(sender, instance, created, raw, using, update_fields, *arg
     Add item to cache upon creation
     """
     instance.load_user()
+
+
+@receiver(post_delete, sender=User)
+def delete_user_to_cache(sender, instance, using, *args, **kwargs):
+    """
+    Add item to cache upon creation
+    """
+    del User.user_by_id[instance.pk]
+    del User.user_by_external_id[instance.external_id]
+    del User.user_items[instance.pk]
 
 
 class Inventory(models.Model):
@@ -280,6 +299,16 @@ def add_inventory_to_cache(sender, instance, created, raw, using, update_fields,
     Add item to cache upon creation
     """
     instance.user.load_item(instance)
+
+
+@receiver(post_delete, sender=Inventory)
+def delete_inventory_to_cache(sender, instance, using, *args, **kwargs):
+    """
+    Add item to cache upon creation
+    """
+    user_items = User.user_items.get(instance.user.pk, {})
+    del user_items[instance.item.pk]
+    User.user_items[instance.user.pk] = user_items
 
 
 class Matrix(models.Model):
