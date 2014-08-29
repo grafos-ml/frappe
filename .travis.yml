@@ -14,4 +14,4 @@ before_script:
 - cd src
 - python manage.py syncdb --noinput
 script:
-- python manage.py test -v2
+- echo "yes" | python manage.py test -v2

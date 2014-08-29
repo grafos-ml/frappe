@@ -68,6 +68,7 @@ class TestSimpleLoggerDecorator(TestCase):
         logger = LogEvent(LogEvent.RECOMMEND)
         user = User.user_by_external_id["joaonrb"]
         recommendation = logger(lambda user: ["10001", "10002", "10003", "10004", "98766"])(user)
+        time.sleep(0.5)
         logs = list(LogEntry.objects.filter(user=user, type=logger.RECOMMEND).order_by("-timestamp", "value"))
 
         assert len(logs) == 5, "Number of register is not correct %s" % logs

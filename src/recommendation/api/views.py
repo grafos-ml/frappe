@@ -285,7 +285,7 @@ class UserItemsAPI(RecommendationAPI):
     ]
 
     @staticmethod
-    #@GoToThreadQueue()
+    @GoToThreadQueue()
     @log_event(log_event.ACQUIRE)
     def insert_acquisition(user_external_id, item_external_id):
         """
@@ -318,7 +318,7 @@ class UserItemsAPI(RecommendationAPI):
         #User.user_by_external_id[user_external_id].items.add(Item.item_by_external_id[item_external_id])
 
     @staticmethod
-    #@GoToThreadQueue()
+    @GoToThreadQueue()
     @log_event(log_event.REMOVE)
     def delete_acquisition(user_external_id, item_external_id):
         """
