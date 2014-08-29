@@ -69,6 +69,13 @@ class TestSimpleLoggerDecorator(TestCase):
         user = User.user_by_external_id["joaonrb"]
         recommendation = logger(lambda user: ["10001", "10002", "10003", "10004", "98766"])(user)
         time.sleep(0.5)
-        logs = list(LogEntry.objects.filter(user=user, type=logger.RECOMMEND).order_by("-timestamp", "value"))
-
+        logs = list(LogEntry.objects.filter(user=user, type=logger.RECOMMEND).order_by("value"))
         assert len(logs) == 5, "Number of register is not correct %s" % logs
+        logs_iter = iter(logs)
+        for i, item in enumerate(recommendation, start=1):
+            log = logs_iter.next()
+            assert item == log.item.external_id, "The item in position %d is not the same that in recommendation " \
+                                                 "(%s != %s)" % (i, item, log.item.external_id)
+            assert i == log.value, "The item in position %d do not have the right value. (%d)" % (i, log.value)
+
+
