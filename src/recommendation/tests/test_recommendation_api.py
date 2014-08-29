@@ -51,7 +51,7 @@ class TestRecommendation(TestCase):
         """
         # This for sqlite delete
         while Item.objects.all().count() != 0:
-            Item.objects.all()[:100].delete()
+            Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
         User.objects.all().delete()
         Matrix.objects.all().delete()
 
@@ -140,7 +140,7 @@ class TestUserItems(TestCase):
         """
         # This for sqlite delete
         while Item.objects.all().count() != 0:
-            Item.objects.all()[:100].delete()
+            Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
         User.objects.all().delete()
         Matrix.objects.all().delete()
 
