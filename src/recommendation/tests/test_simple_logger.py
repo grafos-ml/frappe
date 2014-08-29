@@ -78,4 +78,41 @@ class TestSimpleLoggerDecorator(TestCase):
                                                  "(%s != %s)" % (i, item, log.item.external_id)
             assert i == log.value, "The item in position %d do not have the right value. (%d)" % (i, log.value)
 
+    def test_click_logging(self):
+        """
+        [recommendation.decorator.SimpleLogger] Test if a clicked item is logged
+        """
+        logger = LogEvent(LogEvent.CLICK)
+        user = User.user_by_external_id["joaonrb"]
+        logger(lambda uid, iid: None)("joaonrb", "10004")
+        time.sleep(0.5)
+        logs = list(LogEntry.objects.filter(user=user, type=logger.CLICK))
+        assert len(logs) == 1, "Number of register is not correct %s" % logs
+        assert "10004" == logs[0].item.external_id, \
+            "The item in log is incorrect(1004 != %s)" % logs[0].item.external_id
 
+    def test_remove_logging(self):
+        """
+        [recommendation.decorator.SimpleLogger] Test if a removed item is logged
+        """
+        logger = LogEvent(LogEvent.REMOVE)
+        user = User.user_by_external_id["joaonrb"]
+        logger(lambda uid, iid: None)("joaonrb", "10004")
+        time.sleep(0.5)
+        logs = list(LogEntry.objects.filter(user=user, type=logger.REMOVE))
+        assert len(logs) == 1, "Number of register is not correct %s" % logs
+        assert "10004" == logs[0].item.external_id, \
+            "The item in log is incorrect(1004 != %s)" % logs[0].item.external_id
+
+    def test_acquire_logging(self):
+        """
+        [recommendation.decorator.SimpleLogger] Test if a acquired item is logged
+        """
+        logger = LogEvent(LogEvent.ACQUIRE)
+        user = User.user_by_external_id["joaonrb"]
+        logger(lambda uid, iid: None)("joaonrb", "10004")
+        time.sleep(0.5)
+        logs = list(LogEntry.objects.filter(user=user, type=logger.ACQUIRE))
+        assert len(logs) == 1, "Number of register is not correct %s" % logs
+        assert "10004" == logs[0].item.external_id, \
+            "The item in log is incorrect(1004 != %s)" % logs[0].item.external_id

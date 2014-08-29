@@ -49,8 +49,8 @@ class LogEvent(ILogger):
         def decorated(*args, **kwargs):
             uid, iid = args[0], args[1]
             result = function(*args, **kwargs)
-            GoToThreadQueue(LogEntry.objects.create)(user_id=uid, item=Item.item_by_item_external_id[iid],
-                                                     type=self.log_type)
+            GoToThreadQueue()(LogEntry.objects.create)(user_id=uid, item=Item.item_by_external_id[iid],
+                                                       type=self.log_type)
             return result
         return decorated
 

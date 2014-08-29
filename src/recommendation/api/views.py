@@ -320,7 +320,7 @@ class UserItemsAPI(RecommendationAPI):
     @staticmethod
     @GoToThreadQueue()
     @log_event(log_event.REMOVE)
-    def delete_acquisition(user_external_id, item_external_id):
+    def remove_item(user_external_id, item_external_id):
         """
         Update a certain item to remove in the uninstall datetime field
 
@@ -418,5 +418,5 @@ class UserItemsAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        self.delete_acquisition(user_external_id, item_id)
+        self.remove_item(user_external_id, item_id)
         return self.format_response(SUCCESS_MESSAGE)
