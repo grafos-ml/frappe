@@ -1,3 +1,4 @@
+#! -*- encoding: utf-8 -*-
 """
 Plugin to remove owned items
 
