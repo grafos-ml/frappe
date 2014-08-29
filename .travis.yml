@@ -11,6 +11,8 @@ install:
 - pip install ghp-import
 - pip install https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
 - pip install -r requirements.txt
+before_script:
 - cd src
+- python manage.py syncdb --noinput
 script:
-- ./manage.py test -v2
+- python manage.py test -v2
