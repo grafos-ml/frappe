@@ -27,7 +27,9 @@ class LogEvent(ILogger):
         super(LogEvent, self).__init__(*args, **kwargs)
         self.log_type = log_type
         if self.log_type == self.RECOMMEND:
-            self.__call__ = self.log_recommendation
+            self.do_call = self.log_recommendation
+        else:
+            self.do_call = self.std
 
     def log_recommendation(self, function):
         """
@@ -36,12 +38,13 @@ class LogEvent(ILogger):
         @functools.wraps(function)
         def decorated(user, *args, **kwargs):
             result = function(user, *args, **kwargs)
-            r = [LogEntry(user=user, item=Item.item_by_external_id[eid], type=self.log_type) for eid in result]
-            GoToThreadQueue(LogEntry.objects.bulk_create)(r)
+            r = [LogEntry(user=user, item=Item.item_by_external_id[eid], type=self.log_type, value=i)
+                 for i, eid in enumerate(result, start=1)]
+            GoToThreadQueue()(LogEntry.objects.bulk_create)(r)
             return result
         return decorated
 
-    def __call__(self, function):
+    def std(self, function):
         @functools.wraps(function)
         def decorated(*args, **kwargs):
             uid, iid = args[0], args[1]
@@ -50,3 +53,6 @@ class LogEvent(ILogger):
                                                      type=self.log_type)
             return result
         return decorated
+
+    def __call__(self, function):
+        return self.do_call(function)

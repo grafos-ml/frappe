@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     "recommendation",
     "recommendation.api",
     "recommendation.filter_owned",
-    "recommendation.language"
+    "recommendation.language",
+    "recommendation.simple_logging"
 ]
 if DEBUG:
     INSTALLED_APPS += [

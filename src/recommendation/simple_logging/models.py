@@ -61,4 +61,4 @@ class LogEntry(models.Model):
             "item": str(self.item.external_id)
         }
 
-site.register([Record])
+site.register([LogEntry])
