@@ -4,6 +4,8 @@ This test package simple logger
 """
 __author__ = "joaonrb"
 
+import numpy as np
+import random
 import unittest as un
 import time
 from random import shuffle
@@ -13,6 +15,7 @@ from django.conf import settings
 from recommendation.models import Item, User, Inventory
 from recommendation.simple_logging.models import LogEntry, LOGGER_MAX_LOGS
 from recommendation.simple_logging.decorators import LogEvent
+from recommendation.simple_logging.filters import SimpleLogFilter
 
 
 ITEMS = [
@@ -126,7 +129,8 @@ class TestSimpleLoggerCache(TestCase):
     Test suite for recommendation simple logger cache
 
     Test:
-        - Filter recommendation
+        - cache max
+        - cache results
     """
 
     @classmethod
@@ -172,3 +176,51 @@ class TestSimpleLoggerCache(TestCase):
             user = User.user_by_external_id[user["external_id"]]
             assert len(LogEntry.logs_for[user.pk]) == 10, \
                 "logs size are bigger than predicted (%s != 10)" % len(LogEntry.logs_for[user.pk])
+
+
+class TestFilterByLog(TestCase):
+    """
+    Test suite for recommendation filter for log system
+
+    Test:
+        - Filter recommendation
+    """
+
+    @classmethod
+    def setup_class(cls, *args, **kwargs):
+        """
+        Put elements in db
+        """
+        logger = LogEvent(LogEvent.RECOMMEND)
+        for app in ITEMS:
+            Item.objects.create(**app)
+        for u in USERS:
+            user = User.objects.create(external_id=u["external_id"])
+            for i in u["items"]:
+                Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
+            for _ in range(3):
+                recommendation = ["10001", "10002", "10003", "10004", "98766"]
+                shuffle(recommendation)
+                logger(lambda user: recommendation)(user)
+        time.sleep(0.5)
+
+    @classmethod
+    def teardown_class(cls, *args, **kwargs):
+        """
+        Take elements from db
+        """
+        Item.objects.all().delete()
+        User.objects.all().delete()
+        LogEntry.objects.all().delete()
+
+    def test_recommendation_size_after_filter(self):
+        """
+        [recommendation.filter.SimpleLog] Test the size of the recommendation after the filter
+        """
+        rfilter = SimpleLogFilter()
+        recommendation = [random.random() for _ in range(len(ITEMS))]
+        for u in USERS:
+            user = User.user_by_external_id[u["external_id"]]
+            result = rfilter(user, np.array(recommendation[:]))
+            new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
+            assert len(new_rec) == len(ITEMS), "Recommendation size changed (%d != %s)" % (len(new_rec), len(ITEMS))

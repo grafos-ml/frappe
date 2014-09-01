@@ -4,6 +4,7 @@ This test package test the filter language based
 """
 __author__ = "joaonrb"
 
+import numpy as np
 import random
 from django.test import TestCase
 from django.utils import timezone as dt
@@ -103,7 +104,7 @@ class TestLanguageFilter(TestCase):
                    for aid, _ in sorted(enumerate(recommendation), key=lambda x: x[1], reverse=True)]
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]
-            result = rfilter(user, recommendation[:])
+            result = rfilter(user, np.array(recommendation[:]))
             new_rec = [Item.item_by_id[aid+1].external_id
                        for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             n = len(u["last_apps"])
@@ -124,6 +125,6 @@ class TestLanguageFilter(TestCase):
         recommendation = [random.random() for _ in range(len(ITEMS))]
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]
-            result = rfilter(user, recommendation[:])
+            result = rfilter(user, np.array(recommendation[:]))
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             assert len(new_rec) == len(ITEMS), "Recommendation size changed (%d != %s)" % (len(new_rec), len(ITEMS))

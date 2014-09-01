@@ -34,7 +34,7 @@ class SimpleLogFilter(object):
     }
     @staticmethod
     def evaluate(log):
-        return SimpleLogFilter[log.type](log)
+        return SimpleLogFilter.points[log.type](log)
 
     def __call__(self, user, recommendation, size=4, **kwargs):
         """

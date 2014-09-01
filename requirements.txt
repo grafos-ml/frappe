@@ -20,4 +20,4 @@ django-coverage
 django-debug-toolbar
 
 # for Documentation
-#sphinx
+sphinx
