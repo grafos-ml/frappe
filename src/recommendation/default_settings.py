@@ -152,13 +152,14 @@ RECOMMENDATION_SETTINGS = {
     "default": {
         "core": "recommendation.core.TensorCoFiController",
         "filters": [
-            #"recommendation.filter_owned.filters.FilterOwnedFilter",
+            #"recommendation.filter_owned.filters.FilterOwned",
             #"recommendation.language.filters.SimpleLocaleFilter",
+            #"recommendation.simple_logging.filters.SimpleLogFilter",
             ],
         "rerankers": [
-            #"recommendation.records.rerankers.SimpleLogReRanker",
             #"recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
         ]
     },
+    #"logger": "recommendation.simple_logger.decorators.LogEvent"
     "logger": "recommendation.decorators.NoLogger"
 }
