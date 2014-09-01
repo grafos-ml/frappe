@@ -18,7 +18,6 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity as TestFMPopularity
-from recommendation.decorators import GoToThreadQueue
 if sys.version_info >= (3, 0):
     basestring = unicode = str
 
