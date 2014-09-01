@@ -40,7 +40,7 @@ class LogEvent(ILogger):
             result = function(user, *args, **kwargs)
             r = [LogEntry(user=user, item=Item.item_by_external_id[eid], type=self.log_type, value=i)
                  for i, eid in enumerate(result, start=1)]
-            GoToThreadQueue()(LogEntry.objects.bulk_create)(r)
+            GoToThreadQueue()(lambda x: LogEntry.objects.bulk_create(r) and LogEntry.load_user(user))(r)
             return result
         return decorated
 

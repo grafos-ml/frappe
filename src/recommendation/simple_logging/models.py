@@ -10,6 +10,7 @@ Models for the logging system
 __author__ = "joaonrb"
 
 from collections import deque
+from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.admin import site
 from django.db import models
@@ -17,7 +18,8 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from recommendation.models import Item, User, CacheManager
 
-MAX_LOGS_IN_CACHE = 1000
+LOGGER_MAX_LOGS = 10 if settings.TESTING_MODE else getattr(settings, "LOGGER_MAX_LOGS", 1000)
+
 
 class LogEntry(models.Model):
     """
@@ -44,7 +46,7 @@ class LogEntry(models.Model):
     value = models.FloatField(_("value"), null=True, default=None)
     type = models.SmallIntegerField(_("type"), choices=TYPES.items(), default=RECOMMEND)
 
-    entries = CacheManager("slentries")
+    logs_for = CacheManager("slentries")
 
     class Meta:
         verbose_name = _("log entry")
@@ -70,20 +72,24 @@ class LogEntry(models.Model):
     @staticmethod
     def load_to_cache():
         for user in User.objects.all():
-            LogEntry.entries[user.pk] = \
-                deque(LogEntry.objects.filter(user=user).order_by("timestamp")[0-MAX_LOGS_IN_CACHE:], MAX_LOGS_IN_CACHE)
+            LogEntry.load_user(user)
 
+    @staticmethod
+    def load_user(user):
+        """
+        Load a single user to cache
+        """
+        logs = LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]
+        LogEntry.logs_for[user.pk] = deque(reversed(logs), LOGGER_MAX_LOGS)
 
 @receiver(post_save, sender=LogEntry)
 def add_log_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):
     """
     Add log to cache upon creation
     """
-    logs = LogEntry.entries.get(instance.user.pk, deque([], MAX_LOGS_IN_CACHE))
+    logs = LogEntry.logs_for.get(instance.user.pk, deque([], LOGGER_MAX_LOGS))
     logs.append(instance)
-    LogEntry.entries[instance.user.pk] = logs
-    Item.item_by_id[instance.pk] = instance
-    Item.item_by_external_id[instance.external_id] = instance
+    LogEntry.logs_for[instance.user.pk] = logs
 
 
 @receiver(post_delete, sender=User)
@@ -91,6 +97,6 @@ def delete_user_to_cache(sender, instance, using, **kwargs):
     """
     Add log to cache upon creation
     """
-    del LogEntry.entries[instance.pk]
+    del LogEntry.logs_for[instance.pk]
 
 site.register([LogEntry])

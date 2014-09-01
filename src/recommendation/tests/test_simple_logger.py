@@ -4,11 +4,14 @@ This test package simple logger
 """
 __author__ = "joaonrb"
 
+import unittest as un
 import time
+from random import shuffle
 from django.test import TestCase
 from django.utils import timezone as dt
+from django.conf import settings
 from recommendation.models import Item, User, Inventory
-from recommendation.simple_logging.models import LogEntry
+from recommendation.simple_logging.models import LogEntry, LOGGER_MAX_LOGS
 from recommendation.simple_logging.decorators import LogEvent
 
 
@@ -116,3 +119,56 @@ class TestSimpleLoggerDecorator(TestCase):
         assert len(logs) == 1, "Number of register is not correct %s" % logs
         assert "10004" == logs[0].item.external_id, \
             "The item in log is incorrect(1004 != %s)" % logs[0].item.external_id
+
+
+class TestSimpleLoggerCache(TestCase):
+    """
+    Test suite for recommendation simple logger cache
+
+    Test:
+        - Filter recommendation
+    """
+
+    @classmethod
+    def setup_class(cls, *args, **kwargs):
+        """
+        Put elements in db
+        """
+        logger = LogEvent(LogEvent.RECOMMEND)
+        for app in ITEMS:
+            Item.objects.create(**app)
+        for u in USERS:
+            user = User.objects.create(external_id=u["external_id"])
+            for i in u["items"]:
+                Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
+            for _ in range(3):
+                recommendation = ["10001", "10002", "10003", "10004", "98766"]
+                shuffle(recommendation)
+                logger(lambda user: recommendation)(user)
+        time.sleep(0.5)
+
+    @classmethod
+    def teardown_class(cls, *args, **kwargs):
+        """
+        Take elements from db
+        """
+        Item.objects.all().delete()
+        User.objects.all().delete()
+        LogEntry.objects.all().delete()
+
+    @un.skipIf(not settings.TESTING_MODE, "Testing mode is not set to true")
+    def test_max_log_is_10(self):
+        """
+        [recommendation.cache.SimpleLogger] Test if the cache limit in debug mode is 10
+        """
+        assert LOGGER_MAX_LOGS == 10, "Log cache limit is not set to 10"
+
+    @un.skipIf(not settings.TESTING_MODE, "Testing mode is not set to true")
+    def test_size_of_logs_in_cache(self):
+        """
+        [recommendation.cache.SimpleLogger] Test size of cache is 10 for all users in system
+        """
+        for user in USERS:
+            user = User.user_by_external_id[user["external_id"]]
+            assert len(LogEntry.logs_for[user.pk]) == 10, \
+                "logs size are bigger than predicted (%s != 10)" % len(LogEntry.logs_for[user.pk])
