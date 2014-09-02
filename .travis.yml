@@ -12,5 +12,6 @@ install:
 - pip install -r requirements.dev.txt
 before_script:
 - cd src
+- ls
 script:
-- echo "yes" | python manage.py test -v2
+- echo "yes" | ./manage.py test -v2
