@@ -399,8 +399,8 @@ class TensorCoFi(PyTensorCoFi):
         tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
 
         try:
-            users = Matrix.objects.filter(name=tensor.get_name(), matrix_id=0).order_by("-id")[0]
-            items = Matrix.objects.filter(name=tensor.get_name(), matrix_id=1).order_by("-id")[0]
+            users = Matrix.objects.filter(name=tensor.get_name(), model_id=0).order_by("-id")[0]
+            items = Matrix.objects.filter(name=tensor.get_name(), model_id=1).order_by("-id")[0]
         except IndexError:
             raise NotCached("%s not in db" % tensor.get_name())
 
@@ -435,9 +435,9 @@ class TensorCoFi(PyTensorCoFi):
         #data = pd.DataFrame({"item": users, "user": items})
         super(TensorCoFi, self).train(data)
         users, items = super(TensorCoFi, self).get_model()
-        users = Matrix(name=self.get_name(), matrix_id=0, numpy=users)
+        users = Matrix(name=self.get_name(), model_id=0, numpy=users)
         users.save()
-        items = Matrix(name=self.get_name(), matrix_id=1, numpy=items)
+        items = Matrix(name=self.get_name(), model_id=1, numpy=items)
         items.save()
         return users, items
 

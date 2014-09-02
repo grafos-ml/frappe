@@ -32,6 +32,7 @@ class SimpleLogFilter(object):
         LogEntry.REMOVE: lambda x: 10,
         LogEntry.CLICK: lambda x: -3,
     }
+
     @staticmethod
     def evaluate(log):
         return SimpleLogFilter.points[log.type](log)

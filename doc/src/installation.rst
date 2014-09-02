@@ -118,9 +118,11 @@ For a moment we have a very manual installation process. This will be replaced w
        >>> ./manage.py modelcrafter train tensorcofi  # For tensorcofi model
        >>> ./manage.py modelcrafter train popularity  # For Popularity
 
-.. note:: This models are static and represent popularity recommendation and tensorCoFi (TF) factor matrix for the user and \
-item population at the moment they are build. Because of that, it doesn't make sense to build any model with no \
-    users or items in the database. Also, you will want to rebuild the models once in a while, as the users and items \
+.. note::
+
+    This models are static and represent popularity recommendation and tensorCoFi (TF) factor matrix for the user and
+    item population at the moment they are build. Because of that, it doesn't make sense to build any model with no
+    users or items in the database. Also, you will want to rebuild the models once in a while, as the users and items
     will be added and new connections between user and item are created.
 
 In reality, you will need some data about users and items in your system. The popularity model is used when the system has few
