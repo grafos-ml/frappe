@@ -69,7 +69,7 @@ Then run the setup on the package or from the link:
    >>> pip install https://bitbucket.org/mumas/ffos/get/1.0.dev.zip
 
 Installation of the Modules
-____________________________
+___________________________
 
 For a moment we have a very manual installation process. This will be replaced with pip style installs any time soon.
 

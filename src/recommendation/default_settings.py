@@ -22,7 +22,7 @@ pymysql.install_as_MySQLdb()
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -30,13 +30,13 @@ TESTING_MODE = 'test' in sys.argv
 
 MAX_THREADS = 1
 
-ALLOWED_HOSTS = ["gabriela"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
 
-INSTALLED_APPS = (
-    #"django.contrib.admin",
+INSTALLED_APPS = [
+    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -47,22 +47,22 @@ INSTALLED_APPS = (
     "recommendation.filter_owned",
     "recommendation.language",
     "recommendation.simple_logging",
-    "django_nose",
-    #"debug_toolbar",
-    "django_coverage",
-)
+
+] + ["django_nose",
+     #"debug_toolbar",
+     "django_coverage"] if DEBUG else []
 
 MIDDLEWARE_CLASSES = (
-        "django.contrib.sessions.middleware.SessionMiddleware",
-        "django.middleware.common.CommonMiddleware",
-        #"django.middleware.csrf.CsrfViewMiddleware",
-        "django.contrib.auth.middleware.AuthenticationMiddleware",
-        #"django.contrib.messages.middleware.MessageMiddleware",
-        #"django.middleware.clickjacking.XFrameOptionsMiddleware",
-        "django.middleware.transaction.TransactionMiddleware",
-        "django.middleware.cache.UpdateCacheMiddleware",
-        "django.middleware.cache.FetchFromCacheMiddleware",
-        #"debug_toolbar.middleware.DebugToolbarMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    #"django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    #"django.contrib.messages.middleware.MessageMiddleware",
+    #"django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.transaction.TransactionMiddleware",
+    "django.middleware.cache.UpdateCacheMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
+    #"debug_toolbar.middleware.DebugToolbarMiddleware",
 )
 
 ROOT_URLCONF = "recommendation.urls"
@@ -73,19 +73,12 @@ WSGI_APPLICATION = "recommendation.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "recommender.db"),
         "ATOMIC_REQUESTS": True,
         "TEST_NAME": "test_default.db"
-
-        #"ENGINE": "django.db.backends.mysql",
-        #"NAME": "ffos",
-        #"USER": "FFOS",
-        #"PASSWORD": "pasteldenata",
-        #"HOST": "ana"
     }
 }
 

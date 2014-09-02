@@ -4,20 +4,3 @@ django-cors-headers
 https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
 python-memcached
 djangorestframework
-
-#numpy
-#scipy
-#pandas
-# for frontend
-#https://github.com/joaonrb/django-templatetag-handlebars/archive/master.zip
-#pyjade
-
-# for debug
-nose
-django-nose
-coverage
-django-coverage
-django-debug-toolbar
-
-# for Documentation
-sphinx

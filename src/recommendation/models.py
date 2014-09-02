@@ -315,7 +315,7 @@ class Matrix(models.Model):
     """
 
     name = models.CharField(_("name"), max_length=255)
-    matrix_id = models.SmallIntegerField(_("model id"), null=True, blank=True)
+    model_id = models.SmallIntegerField(_("model id"), null=True, blank=True)
     numpy = NPArrayField(_("numpy array"))
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
 

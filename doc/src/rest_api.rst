@@ -1,6 +1,8 @@
+.. _restful_api:
 
-App Recommendation Webservice Version 1.2
-=========================================
+===========
+RESTFul API
+===========
 
 About
 -----

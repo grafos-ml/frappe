@@ -1,0 +1,17 @@
+django
+pymysql
+django-cors-headers
+https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
+python-memcached
+djangorestframework
+
+######
+nose
+django-nose
+coverage
+django-coverage
+django-debug-toolbar
+
+# for Documentation
+sphinx
+sphinx_rtd_theme
