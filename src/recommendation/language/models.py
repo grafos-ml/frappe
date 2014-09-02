@@ -48,14 +48,18 @@ class Locale(models.Model):
         super(Locale, self).save(*args, **kwargs)
 
     @staticmethod
-    def load_locale():
+    def load_to_cache():
+        for u in User.objects.all():
+            Locale.user_locales[u.pk] = set([])
+        for i in Item.objects.all():
+            Locale.item_locales[i.pk] = set([])
         for instance in Locale.objects.all():
             for i in instance.items.all():
-                Locale.item_locales[i] = Locale.item_locales.get(i, set([]).union((instance.pk,)))
+                Locale.item_locales[i.pk] = Locale.item_locales.get(i.pk, set([]).union((instance.pk,)))
                 Locale.items_by_locale[instance.pk] = Locale.items_by_locale.get(instance.pk, set([])).union((i,))
             for u in instance.users.all():
-                Locale.user_locales[u] = Locale.user_locales.get(u, set([]).union((instance.pk,)))
-                Locale.users_by_locales[instance.pk] = Locale.users_by_locales.get(instance.pk, set([]).union((u,)))
+                Locale.user_locales[u.pk] = Locale.user_locales.get(u.pk, set([]).union((instance.pk,)))
+                Locale.users_by_locale[instance.pk] = Locale.users_by_locale.get(instance.pk, set([]).union((u,)))
 
 
 @receiver(post_save, sender=Locale)

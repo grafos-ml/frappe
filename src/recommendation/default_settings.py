@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 import sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+import pymysql
+pymysql.install_as_MySQLdb()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -20,51 +22,48 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
 TESTING_MODE = 'test' in sys.argv
 
-ALLOWED_HOSTS = []
+MAX_THREADS = 1
+
+ALLOWED_HOSTS = ["gabriela"]
 
 
 # Application definition
 
-INSTALLED_APPS = [
+INSTALLED_APPS = (
+    #"django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    #"django.contrib.messages",
+    "django.contrib.staticfiles",
     "recommendation",
     "recommendation.api",
     "recommendation.filter_owned",
     "recommendation.language",
-    "recommendation.simple_logging"
-]
-if DEBUG:
-    INSTALLED_APPS += [
-        "django.contrib.admin",
-        "django.contrib.auth",
-        "django.contrib.contenttypes",
-        "django.contrib.sessions",
-        "django.contrib.messages",
-        "django.contrib.staticfiles",
-        "django_nose",
-        "debug_toolbar",
-        "django_coverage",
-    ]
+    "recommendation.simple_logging",
+    "django_nose",
+    #"debug_toolbar",
+    "django_coverage",
+)
 
-MIDDLEWARE_CLASSES = []
-if DEBUG:
-    MIDDLEWARE_CLASSES += [
+MIDDLEWARE_CLASSES = (
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
-        "django.middleware.csrf.CsrfViewMiddleware",
+        #"django.middleware.csrf.CsrfViewMiddleware",
         "django.contrib.auth.middleware.AuthenticationMiddleware",
-        "django.contrib.messages.middleware.MessageMiddleware",
-        "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        #"django.contrib.messages.middleware.MessageMiddleware",
+        #"django.middleware.clickjacking.XFrameOptionsMiddleware",
         "django.middleware.transaction.TransactionMiddleware",
         "django.middleware.cache.UpdateCacheMiddleware",
         "django.middleware.cache.FetchFromCacheMiddleware",
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
-    ]
+        #"debug_toolbar.middleware.DebugToolbarMiddleware",
+)
 
 ROOT_URLCONF = "recommendation.urls"
 
@@ -81,6 +80,12 @@ DATABASES = {
         "NAME": os.path.join(BASE_DIR, "recommender.db"),
         "ATOMIC_REQUESTS": True,
         "TEST_NAME": "test_default.db"
+
+        #"ENGINE": "django.db.backends.mysql",
+        #"NAME": "ffos",
+        #"USER": "FFOS",
+        #"PASSWORD": "pasteldenata",
+        #"HOST": "ana"
     }
 }
 
@@ -91,7 +96,8 @@ LANGUAGE_CODE = "en-en"
 
 TIME_ZONE = "Europe/Madrid"
 
-USE_I18N = USE_L10N = USE_TZ = DEBUG
+USE_I18N = USE_L10N = DEBUG
+USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
@@ -120,10 +126,6 @@ DEBUG_TOOLBAR_PANELS = (
     #'debug_toolbar.panels.logger.LoggingPanel',
 )
 
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-}
-
 # Rest Framework Settings
 
 REST_FRAMEWORK = {
@@ -151,15 +153,15 @@ CACHES = {
 RECOMMENDATION_SETTINGS = {
     "default": {
         "core": "recommendation.core.TensorCoFiController",
-        "filters": [
-            #"recommendation.filter_owned.filters.FilterOwned",
-            #"recommendation.language.filters.SimpleLocaleFilter",
-            #"recommendation.simple_logging.filters.SimpleLogFilter",
+        "filters": [] if TESTING_MODE else [
+            "recommendation.filter_owned.filters.FilterOwned",
+            "recommendation.language.filters.SimpleLocaleFilter",
+            "recommendation.simple_logging.filters.SimpleLogFilter",
             ],
         "rerankers": [
             #"recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
         ]
     },
-    #"logger": "recommendation.simple_logger.decorators.LogEvent"
-    "logger": "recommendation.decorators.NoLogger"
+    "logger": "recommendation.simple_logging.decorators.LogEvent"
+    #"logger": "recommendation.decorators.NoLogger"
 }

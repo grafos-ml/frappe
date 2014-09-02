@@ -96,7 +96,7 @@ class TestTensorCoFiController(TestCase):
         """
         rec_controller = get_controller()
         for u in USERS:
-            recommendation = rec_controller.get_recommendation(User.user_by_external_id[u["external_id"]], n=5)
+            recommendation = rec_controller.get_recommendation(user=User.user_by_external_id[u["external_id"]], n=5)
             assert len(recommendation) == 5, "Size of recommendation is not wright"
 
     @ut.skipIf("default" not in RECOMMENDATION_SETTINGS, "Default recommendation is not defined")
@@ -109,7 +109,7 @@ class TestTensorCoFiController(TestCase):
             [aid+1 for aid, _ in sorted(enumerate(Popularity.get_model().recommendation),
                                         key=lambda x: x[1], reverse=True)]
         for i in range(7):
-            user = User(external_id=str(i+len(USERS)))
-            recommendation = rec_controller.get_recommendation(user, n=5)
+            user = User.objects.create(external_id=str(i+len(USERS)))
+            recommendation = rec_controller.get_recommendation(user=user, n=5)
             assert len(recommendation) == 5, "Size of recommendation is not wright"
             assert recommendation == pop_result, "Recommendation is not popularity"

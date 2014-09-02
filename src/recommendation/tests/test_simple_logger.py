@@ -73,14 +73,15 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         logger = LogEvent(LogEvent.RECOMMEND)
         user = User.user_by_external_id["joaonrb"]
-        recommendation = logger(lambda user: ["10001", "10002", "10003", "10004", "98766"])(user)
+        recommendation = [Item.item_by_external_id[i].pk for i in ("10001", "10002", "10003", "10004", "98766")]
+        recommendation = logger(lambda user: recommendation)(user=user)
         time.sleep(0.5)
         logs = list(LogEntry.objects.filter(user=user, type=logger.RECOMMEND).order_by("value"))
         assert len(logs) == 5, "Number of register is not correct %s" % logs
         logs_iter = iter(logs)
         for i, item in enumerate(recommendation, start=1):
             log = logs_iter.next()
-            assert item == log.item.external_id, "The item in position %d is not the same that in recommendation " \
+            assert item == log.item.pk, "The item in position %d is not the same that in recommendation " \
                                                  "(%s != %s)" % (i, item, log.item.external_id)
             assert i == log.value, "The item in position %d do not have the right value. (%d)" % (i, log.value)
 
@@ -146,10 +147,10 @@ class TestSimpleLoggerCache(TestCase):
             for i in u["items"]:
                 Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
             for _ in range(3):
-                recommendation = ["10001", "10002", "10003", "10004", "98766"]
+                recommendation = [Item.item_by_external_id[i].pk for i in ("10001", "10002", "10003", "10004", "98766")]
                 shuffle(recommendation)
-                logger(lambda user: recommendation)(user)
-        time.sleep(0.5)
+                logger(lambda user: recommendation)(user=user)
+                time.sleep(0.5)
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -199,10 +200,10 @@ class TestFilterByLog(TestCase):
             for i in u["items"]:
                 Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
             for _ in range(3):
-                recommendation = ["10001", "10002", "10003", "10004", "98766"]
+                recommendation = [Item.item_by_external_id[i].pk for i in ("10001", "10002", "10003", "10004", "98766")]
                 shuffle(recommendation)
-                logger(lambda user: recommendation)(user)
-        time.sleep(0.5)
+                logger(lambda user: recommendation)(user=user)
+        time.sleep(0.8)
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -221,6 +222,6 @@ class TestFilterByLog(TestCase):
         recommendation = [random.random() for _ in range(len(ITEMS))]
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]
-            result = rfilter(user, np.array(recommendation[:]))
+            result = rfilter(user, recommendation=np.array(recommendation[:]))
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             assert len(new_rec) == len(ITEMS), "Recommendation size changed (%d != %s)" % (len(new_rec), len(ITEMS))

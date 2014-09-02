@@ -36,10 +36,11 @@ class LogEvent(ILogger):
         Record a recommendation to the database
         """
         @functools.wraps(function)
-        def decorated(user, *args, **kwargs):
-            result = function(user, *args, **kwargs)
-            r = [LogEntry(user=user, item=Item.item_by_external_id[eid], type=self.log_type, value=i)
-                 for i, eid in enumerate(result, start=1)]
+        def decorated(*args, **kwargs):
+            user = kwargs["user"]
+            result = function(*args, **kwargs)
+            r = [LogEntry(user=user, item=Item.item_by_id[iid], type=self.log_type, value=i)
+                 for i, iid in enumerate(result, start=1)]
             GoToThreadQueue()(lambda x: LogEntry.objects.bulk_create(r) and LogEntry.load_user(user))(r)
             return result
         return decorated

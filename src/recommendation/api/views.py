@@ -10,10 +10,8 @@ The views for the Recommend API.
 __author__ = "joaonrb"
 
 import random
-from django.conf import settings
-from django.db import connection
 from django.utils.timezone import now
-from django.db.utils import OperationalError, IntegrityError
+from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from rest_framework.renderers import JSONRenderer, XMLRenderer
@@ -209,8 +207,7 @@ class UserRecommendationAPI(RecommendationAPI):
             user = User.user_by_external_id[user_external_id]
 
         # Here is the decorator for recommendation
-        recommended_apps = log_event(log_event.RECOMMEND)(
-            get_controller().get_external_id_recommendations)(user, n=int(number_of_recommendations))
+        recommended_apps = get_controller().get_external_id_recommendations(user, n=int(number_of_recommendations))
         data = {"user": user.external_id, "recommendations": recommended_apps}
         return self.format_response(data)
 

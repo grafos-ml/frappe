@@ -7,18 +7,19 @@ __author__ = "joaonrb"
 
 import numpy as np
 from django.conf import settings
-from recommendation import default_settings
 from recommendation.models import Item, TensorCoFi, Popularity
 from recommendation.util import initialize
 
 try:
     RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")
 except AttributeError:
+    from recommendation import default_settings
     RECOMMENDATION_SETTINGS = getattr(default_settings, "RECOMMENDATION_SETTINGS")
 
 try:
     logger, _, _ = initialize(RECOMMENDATION_SETTINGS["logger"])
 except KeyError:
+    from recommendation import default_settings
     logger, _, _ = initialize(getattr(default_settings, "RECOMMENDATION_SETTINGS")["logger"])
 
 log_event = logger
@@ -155,7 +156,7 @@ class TensorCoFiController(IController):
 
         :return: The Model
         """
-        return TensorCoFi.get_model()
+        return TensorCoFi.get_model_from_cache()
 
     def get_alternative_recommendation(self, user):
         """
