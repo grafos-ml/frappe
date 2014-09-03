@@ -43,17 +43,19 @@ INSTALLED_APPS = [
     #"django.contrib.messages",
     "django.contrib.staticfiles",
     "recommendation",
-    "recommendation.api"
-] + ([
+    "recommendation.api",
     "recommendation.filter_owned",
     "recommendation.language",
     "recommendation.simple_logging",
     "recommendation.diversity"
+]
 
-] if TESTING_MODE else []) + [
-    "django_nose",
-    #"debug_toolbar",
-    "django_coverage"] if DEBUG else []
+if DEBUG:
+    INSTALLED_APPS += [
+        "django_nose",
+        #"debug_toolbar",
+        "django_coverage"
+    ]
 
 MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",

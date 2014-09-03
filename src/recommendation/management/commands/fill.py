@@ -144,6 +144,7 @@ from recommendation.language.models import Locale
 from django.db import connection
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from recommendation.default_settings import TESTING_MODE
 
 BULK_QUERY = "INSERT INTO %(table)s %(columns)s VALUES %(values)s;"
 
@@ -209,61 +210,59 @@ def put_items(objects):
         eid: iid for eid, iid in Item.objects.filter(external_id__in=new_items.keys()).values_list("external_id", "id")
     }
     print("New items created ...")
-
-
-    # Get the genres already in database
-    #genres = {genre.name: genre for genre in Genre.objects.filter(name__in=object_genres)}
-
-    # Create the missing genres
-    #missing_genres = [name for name in object_genres if name not in genres]
-    #new_genres = [Genre(name=name) for name in missing_genres]
-    #Genre.objects.bulk_create(new_genres)
-    #for genre in Genre.objects.filter(name__in=missing_genres):
-    #    genres[genre.name] = genre
-
-    print("New genres created ...")
-
-    #locales = [locale for locale in Locale.objects.all().values_list("language_code", "country_code")]
-
-    # Create locales
-    #new_locales = []
-    #for locale in object_locales:
-    #    if locale not in locales:
-    #        language_code, country_code = locale
-    #        new_locale = Locale(language_code=language_code, country_code=country_code)
-    #        new_locales.append(new_locale)
-
-    #Locale.objects.bulk_create(new_locales)
-
-    print("New locales created ...")
-
     cursor = connection.cursor()
-    # Create genre relations
-    #if new_items:
-    #    relation = []
-    #    for item_eid, item_id in new_items.items():
-    #        for genre in items[item_eid][1]:
-    #            relation.append("(%s, %s)" % (str(genres[genre].id), item_id))
-    #    p = cursor.execute(BULK_QUERY % {
-    #        "table": "diversity_genre_items",
-    #        "columns": "(genre_id, item_id)",
-    #        "values": ", ".join(relation)})
-    #    print("New genre relations created ...")
 
-    # Create locale relations
-    #if new_locales:
-    #    locales = {(locale.language_code, locale.country_code): locale for locale in Locale.objects.all()}
-    #    relations = []
-    #    for item_eid, item_id in new_items.items():
+    if "recommendation.diversity" in settings.INSTALLED_APPS and not TESTING_MODE:
+        # Get the genres already in database
+        genres = {genre.name: genre for genre in Genre.objects.filter(name__in=object_genres)}
 
-    #        for locale in items[item_eid][2]:
-    #            relations.append("(%s, %s)" % (str(locales[locale].id), item_id))
+        # Create the missing genres
+        missing_genres = [name for name in object_genres if name not in genres]
+        new_genres = [Genre(name=name) for name in missing_genres]
+        Genre.objects.bulk_create(new_genres)
+        for genre in Genre.objects.filter(name__in=missing_genres):
+            genres[genre.name] = genre
 
-    #    cursor.execute(BULK_QUERY % {
-    #        "table": "language_locale_items",
-    #        "columns": "(locale_id, item_id)",
-    #        "values": ", ".join(relations)})
-    #    print("New locale relations created ...")
+        print("New genres created ...")
+        # Create genre relations
+        if new_items:
+            relation = []
+            for item_eid, item_id in new_items.items():
+                for genre in items[item_eid][1]:
+                    relation.append(ItemGenre(item_id=item_id, type=genres[genre]))
+                    relation.append("(%s, %s)" % (str(genres[genre].id), item_id))
+            ItemGenre.objects.bulk_create(relation)
+            print("New genre relations created ...")
+
+    if "recommendation.language" in settings.INSTALLED_APPS and not TESTING_MODE:
+        locales = [locale for locale in Locale.objects.all().values_list("language_code", "country_code")]
+
+        # Create locales
+        new_locales = []
+        for locale in object_locales:
+            if locale not in locales:
+                language_code, country_code = locale
+                new_locale = Locale(language_code=language_code, country_code=country_code)
+                new_locales.append(new_locale)
+
+        Locale.objects.bulk_create(new_locales)
+
+        print("New locales created ...")
+
+        # Create locale relations
+        if new_locales:
+            locales = {(locale.language_code, locale.country_code): locale for locale in Locale.objects.all()}
+            relations = []
+            for item_eid, item_id in new_items.items():
+
+                for locale in items[item_eid][2]:
+                    relations.append("(%s, %s)" % (str(locales[locale].id), item_id))
+
+            cursor.execute(BULK_QUERY % {
+                "table": "language_locale_items",
+                "columns": "(locale_id, item_id)",
+                "values": ", ".join(relations)})
+            print("New locale relations created ...")
 
     # Create details
     #details_in_db = [eid for eid in ItemDetail.objects.filter(external_id__in=items.keys()).values_list("external_id")]
@@ -285,7 +284,7 @@ def put_items(objects):
     #    "columns": "(item_ptr_id, description, url, slug)",
     #    "values": ", ".join(details)
     #})
-    print("New details created ...")
+    #print("New details created ...")
 
 
 def put_users(objects):
@@ -338,34 +337,35 @@ def put_users(objects):
     User.objects.bulk_create(new_users)
     print("Users created ...")
 
-    # Create locales
-    #locales = [(locale.language_code, locale.country_code) for locale in Locale.objects.all()]
-    #new_locales = []
-    #for locale in locales_to_enter:
-    #    if locale not in locales:
-    #        language_code, country_code = locale
-    #        new_locale = Locale(language_code=language_code, country_code=country_code)
-    #        new_locales.append(new_locale)
+    if "recommendation.language" in settings.INSTALLED_APPS and not TESTING_MODE:
+        # Create locales
+        locales = [(locale.language_code, locale.country_code) for locale in Locale.objects.all()]
+        new_locales = []
+        for locale in locales_to_enter:
+            if locale not in locales:
+                language_code, country_code = locale
+                new_locale = Locale(language_code=language_code, country_code=country_code)
+                new_locales.append(new_locale)
 
-    #Locale.objects.bulk_create(new_locales)
+        Locale.objects.bulk_create(new_locales)
 
-    print("New locales created ...")
+        print("New locales created ...")
 
-    # Create locale relations
-    #locales = {(locale.language_code, locale.country_code): locale.id for locale in Locale.objects.all()}
-    #user_to_locales = User.objects.filter(external_id__in=user_locales).values_list("external_id", "id")
-    #bulk_locale_user = []
-    #for ueid, uid in user_to_locales:
-    #    for locale in user_locales[ueid]:
-    #        bulk_locale_user.append('("%s", "%s")' % (locales[locale], uid))
+        # Create locale relations
+        locales = {(locale.language_code, locale.country_code): locale.id for locale in Locale.objects.all()}
+        user_to_locales = User.objects.filter(external_id__in=user_locales).values_list("external_id", "id")
+        bulk_locale_user = []
+        for ueid, uid in user_to_locales:
+            for locale in user_locales[ueid]:
+                bulk_locale_user.append('("%s", "%s")' % (locales[locale], uid))
 
-    #cursor = connection.cursor()
-    #if len(bulk_locale_user) > 0:
-    #    cursor.execute(BULK_QUERY % {
-    #        "table": "language_locale_users",
-    #        "columns": "(locale_id, user_id)",
-    #        "values": ", ".join(bulk_locale_user)})
-    print("New locale relations created ...")
+        cursor = connection.cursor()
+        if len(bulk_locale_user) > 0:
+            cursor.execute(BULK_QUERY % {
+                "table": "language_locale_users",
+                "columns": "(locale_id, user_id)",
+                "values": ", ".join(bulk_locale_user)})
+        print("New locale relations created ...")
 
     # Create inventory
     database_items = Item.objects.filter(external_id__in=[str(i) for i in items]).values_list("external_id", "id")
