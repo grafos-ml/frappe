@@ -139,10 +139,11 @@ os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from django.utils.timezone import utc
 from datetime import datetime
 from recommendation.models import Item, User, Inventory
-#from recommendation.diversity.models import Genre
-#from recommendation.language.models import Locale
+from recommendation.diversity.models import Genre, ItemGenre
+from recommendation.language.models import Locale
 from django.db import connection
 from django.core.management.base import BaseCommand, CommandError
+from django.conf import settings
 
 BULK_QUERY = "INSERT INTO %(table)s %(columns)s VALUES %(values)s;"
 
@@ -208,6 +209,7 @@ def put_items(objects):
         eid: iid for eid, iid in Item.objects.filter(external_id__in=new_items.keys()).values_list("external_id", "id")
     }
     print("New items created ...")
+
 
     # Get the genres already in database
     #genres = {genre.name: genre for genre in Genre.objects.filter(name__in=object_genres)}

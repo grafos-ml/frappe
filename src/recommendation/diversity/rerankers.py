@@ -38,10 +38,10 @@ class SimpleDiversity(object):
         user_items_count = len(user_items)
 
         self.counter = {}
-        for genre, p in Genre.genres_count:
-            p_global = p / number_items
+        for genre in Genre.genre_by_id:
+            p_global = Genre.genres_count[genre.pk] / number_items
             p_local = user_genres.get(genre, 0.) / user_items_count if user_items_count else 0.
-            self.counter[genre] = int(weighted_p(p_global, p_local, self.alpha_constant) * size)
+            self.counter[genre.pk] = int(weighted_p(p_global, p_local, self.alpha_constant) * size)
 
     def __call__(self, recommendation, item):
         recommendation = recommendation[:]
@@ -98,4 +98,4 @@ class SimpleDiversityReRanker(object):
                 new_recommendation = new_recommendation0
             if len(new_recommendation) > size:
                 break
-        return new_recommendation + dropped_items + recommendation[size+len(dropped_items):]
+        return new_recommendation + dropped_items + recommendation[len(new_recommendation)+len(dropped_items):]

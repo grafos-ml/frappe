@@ -43,15 +43,17 @@ INSTALLED_APPS = [
     #"django.contrib.messages",
     "django.contrib.staticfiles",
     "recommendation",
-    "recommendation.api",
+    "recommendation.api"
+] + ([
     "recommendation.filter_owned",
     "recommendation.language",
     "recommendation.simple_logging",
     "recommendation.diversity"
 
-] + ["django_nose",
-     #"debug_toolbar",
-     "django_coverage"] if DEBUG else []
+] if TESTING_MODE else []) + [
+    "django_nose",
+    #"debug_toolbar",
+    "django_coverage"] if DEBUG else []
 
 MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -152,7 +154,7 @@ RECOMMENDATION_SETTINGS = {
             "recommendation.language.filters.SimpleLocaleFilter",
             "recommendation.simple_logging.filters.SimpleLogFilter",
             ],
-        "rerankers": [
+        "rerankers": [] if TESTING_MODE else [
             "recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },

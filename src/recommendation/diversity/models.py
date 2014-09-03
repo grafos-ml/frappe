@@ -96,7 +96,7 @@ class ItemGenre(models.Model):
 
     @staticmethod
     def genre_in(item_list):
-        return Counter(chain(*(ItemGenre.genre_by_item[item.pk] for item in item_list))).values()
+        return Counter(chain(*(ItemGenre.genre_by_item[item.pk] for item in item_list)))
 
     @staticmethod
     def count_all():
