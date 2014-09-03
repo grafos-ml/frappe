@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "recommendation.filter_owned",
     "recommendation.language",
     "recommendation.simple_logging",
+    "recommendation.diversity"
 
 ] + ["django_nose",
      #"debug_toolbar",
@@ -152,7 +153,7 @@ RECOMMENDATION_SETTINGS = {
             "recommendation.simple_logging.filters.SimpleLogFilter",
             ],
         "rerankers": [
-            #"recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
+            "recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
     "logger": "recommendation.simple_logging.decorators.LogEvent"

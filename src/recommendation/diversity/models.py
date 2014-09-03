@@ -28,7 +28,7 @@ class Genre(models.Model):
     name = models.CharField(_("name"), max_length=255)
 
     genre_by_id = IterableCacheManager("divallgen")
-    genres_count = CacheManager("divcount")
+    genres_count = IterableCacheManager("divcount")
 
     class Meta:
         verbose_name = _("genre")
