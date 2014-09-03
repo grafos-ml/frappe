@@ -12,5 +12,6 @@ install:
 - pip install -r requirements.dev.txt
 before_script:
 - cd src
+- ./manage.py syncdb --noinput
 script:
 - echo "yes" | ./manage.py test -v2
