@@ -31,6 +31,14 @@ class LogEvent(ILogger):
         else:
             self.do_call = self.std
 
+    @GoToThreadQueue()
+    def bulk_load(self, user, recommendation):
+        LogEntry.objects.bulk_create([
+            LogEntry(user=user, item=Item.item_by_id[iid], type=self.log_type, value=i)
+            for i, iid in enumerate(recommendation, start=1)
+        ])
+        LogEntry.load_user(user)
+
     def log_recommendation(self, function):
         """
         Record a recommendation to the database
@@ -39,9 +47,7 @@ class LogEvent(ILogger):
         def decorated(*args, **kwargs):
             user = kwargs["user"]
             result = function(*args, **kwargs)
-            r = [LogEntry(user=user, item=Item.item_by_id[iid], type=self.log_type, value=i)
-                 for i, iid in enumerate(result, start=1)]
-            GoToThreadQueue()(lambda x: LogEntry.objects.bulk_create(r) and LogEntry.load_user(user))(r)
+            self.bulk_load(user, result)
             return result
         return decorated
 

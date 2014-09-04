@@ -4,6 +4,7 @@ The filters for the locale functionality
 """
 __author__ = 'joaonrb'
 
+from itertools import chain
 from recommendation.language.models import Locale
 
 
@@ -27,11 +28,11 @@ class SimpleLocaleFilter(object):
         :rtype: A list of items ids(int).
         """
         unsupported_langs = Locale.user_locales[user.pk].symmetric_difference(l.pk for l in Locale.all_locales)
-        unsupported_items = set([])
-        for l in unsupported_langs:
-            unsupported_items = unsupported_items.union(Locale.items_by_locale[l])
+        #print list(Locale.items_by_locale[l] for l in unsupported_langs)
+        unsupported_items = set(chain(*(Locale.items_by_locale[l] for l in unsupported_langs)))
+
         for item in unsupported_items:
-            if not any(map(lambda x: x in Locale.item_locales[item], Locale.user_locales[user.pk])):
+            if not any(x in Locale.item_locales[item] for x in Locale.user_locales[user.pk]):
                 early_recommendation[item-1] = float("-inf")
         return early_recommendation
 

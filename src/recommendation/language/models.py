@@ -56,10 +56,10 @@ class Locale(models.Model):
         for instance in Locale.objects.all():
             for i in instance.items.all():
                 Locale.item_locales[i.pk] = Locale.item_locales.get(i.pk, set([]).union((instance.pk,)))
-                Locale.items_by_locale[instance.pk] = Locale.items_by_locale.get(instance.pk, set([])).union((i,))
+                Locale.items_by_locale[instance.pk] = Locale.items_by_locale.get(instance.pk, set([])).union((i.pk,))
             for u in instance.users.all():
                 Locale.user_locales[u.pk] = Locale.user_locales.get(u.pk, set([]).union((instance.pk,)))
-                Locale.users_by_locale[instance.pk] = Locale.users_by_locale.get(instance.pk, set([]).union((u,)))
+                Locale.users_by_locale[instance.pk] = Locale.users_by_locale.get(instance.pk, set([]).union((u.pk,)))
 
 
 @receiver(post_save, sender=Locale)

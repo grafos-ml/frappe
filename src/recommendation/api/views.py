@@ -194,7 +194,8 @@ class UserRecommendationAPI(RecommendationAPI):
         """
         Get method to request recommendations
 
-        :param request: This is the request. It is not needed but has to be here because of the django interface with views.
+        :param request: This is the request. It is not needed but has to be here because of the django interface with
+        views.
         :param user_external_id: The user that want the recommendation ore the object of the recommendations.
         :type user_external_id: str
         :param number_of_recommendations: Number of recommendations that are requested.
@@ -202,7 +203,7 @@ class UserRecommendationAPI(RecommendationAPI):
         :return: A HTTP response with a list of recommendations.
         """
         if user_external_id == "":
-            user = random.sample(User.user_by_external_id, 1)[0]
+            user = random.sample(list(User.user_by_external_id), 1)[0]
         else:
             user = User.user_by_external_id[user_external_id]
 

@@ -22,15 +22,15 @@ pymysql.install_as_MySQLdb()
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
 TESTING_MODE = 'test' in sys.argv
 
-MAX_THREADS = 1
+MAX_THREADS = 2
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -39,9 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
+    #"django.contrib.sessions",
     #"django.contrib.messages",
-    "django.contrib.staticfiles",
+    #"django.contrib.staticfiles",
     "recommendation",
     "recommendation.api",
     "recommendation.filter_owned",
@@ -58,15 +58,15 @@ if DEBUG:
     ]
 
 MIDDLEWARE_CLASSES = (
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    #"django.contrib.sessions.middleware.SessionMiddleware",
+    #"django.middleware.common.CommonMiddleware",
     #"django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    #"django.contrib.auth.middleware.AuthenticationMiddleware",
     #"django.contrib.messages.middleware.MessageMiddleware",
     #"django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.transaction.TransactionMiddleware",
-    "django.middleware.cache.UpdateCacheMiddleware",
-    "django.middleware.cache.FetchFromCacheMiddleware",
+    #"django.middleware.transaction.TransactionMiddleware",
+    #"django.middleware.cache.UpdateCacheMiddleware",
+    #"django.middleware.cache.FetchFromCacheMiddleware",
     #"debug_toolbar.middleware.DebugToolbarMiddleware",
 )
 
@@ -94,8 +94,8 @@ LANGUAGE_CODE = "en-en"
 
 TIME_ZONE = "Europe/Madrid"
 
-USE_I18N = USE_L10N = True
-USE_TZ = True
+USE_I18N = USE_L10N = False
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
@@ -154,12 +154,12 @@ RECOMMENDATION_SETTINGS = {
         "filters": [] if TESTING_MODE else [
             "recommendation.filter_owned.filters.FilterOwned",
             "recommendation.language.filters.SimpleLocaleFilter",
-            "recommendation.simple_logging.filters.SimpleLogFilter",
+            #"recommendation.simple_logging.filters.SimpleLogFilter",
             ],
         "rerankers": [] if TESTING_MODE else [
-            "recommendation.diversity.rerankers.SimpleDiversityReRanker"
+            #"recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
-    "logger": "recommendation.simple_logging.decorators.LogEvent"
-    #"logger": "recommendation.decorators.NoLogger"
+    #"logger": "recommendation.simple_logging.decorators.LogEvent"
+    "logger": "recommendation.decorators.NoLogger"
 }

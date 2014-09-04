@@ -136,8 +136,9 @@ import traceback
 from pkg_resources import resource_filename
 sys.path.append(resource_filename(__name__, "/../"))
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
-from django.utils.timezone import utc
-from datetime import datetime
+#from django.utils.timezone import utc
+#from datetime import datetime
+from django.utils.datetime_safe import datetime
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre, ItemGenre
 from recommendation.language.models import Locale
@@ -230,7 +231,6 @@ def put_items(objects):
             for item_eid, item_id in new_items.items():
                 for genre in items[item_eid][1]:
                     relation.append(ItemGenre(item_id=item_id, type=genres[genre]))
-                    relation.append("(%s, %s)" % (str(genres[genre].id), item_id))
             ItemGenre.objects.bulk_create(relation)
             print("New genre relations created ...")
 
@@ -306,7 +306,7 @@ def put_users(objects):
         users.add(external_id)
         for item in user["installed_apps"]:
             items.add(item["id"])
-            inventory[(external_id, item["id"])] = datetime.strptime(item["installed"], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=utc)
+            inventory[(external_id, item["id"])] = datetime.strptime(item["installed"], "%Y-%m-%dT%H:%M:%S")
         # Import locales
         locales = user["lang"]
         if isinstance(locales, str):
