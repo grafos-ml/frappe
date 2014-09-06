@@ -46,7 +46,7 @@ class LogEntry(models.Model):
     value = models.FloatField(_("value"), null=True, default=None)
     type = models.SmallIntegerField(_("type"), choices=TYPES.items(), default=RECOMMEND)
 
-    logs_for = CacheManager("slentries")
+    logs_for = CacheManager("slentries", "distributed")
 
     class Meta:
         verbose_name = _("log entry")

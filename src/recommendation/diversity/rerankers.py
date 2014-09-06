@@ -30,9 +30,7 @@ class SimpleDiversity(object):
 
     def __init__(self, items, size, user, alpha_constant, lambda_constant):
         number_items = len(items)
-        self.recommendation_size = size
-        self.lambda_constant = lambda_constant
-        self.alpha_constant = alpha_constant
+
         user_items = user.owned_items
         user_genres = ItemGenre.genre_in((i.item for i in user_items.values()))
         user_items_count = len(user_items)
@@ -41,21 +39,21 @@ class SimpleDiversity(object):
         for genre in Genre.genre_by_id:
             p_global = Genre.genres_count[genre.pk] / number_items
             p_local = user_genres.get(genre, 0.) / user_items_count if user_items_count else 0.
-            self.counter[genre.pk] = int(weighted_p(p_global, p_local, self.alpha_constant) * size)
+            self.counter[genre.pk] = int(weighted_p(p_global, p_local, alpha_constant) * size)
 
     def __call__(self, recommendation, item):
-        recommendation = recommendation[:]
         genres = ItemGenre.genre_by_item[item]
         dropped = 0
-        counter = self.counter
         for genre in genres:
-            counter[genre] -= 1
-            if counter[genre] < 0:
+            self.counter[genre] -= 1
+            if self.counter[genre] < 0:
                 dropped += 1
-        if dropped < len(genres):
-            self.counter = counter
-            recommendation.append(item)
-        return recommendation
+        # Change "<" to "<=" improve greatly
+        if dropped <= len(genres):
+            #recommendation.append(item)
+            return True
+        return False
+        #return recommendation
 
 
 class SimpleDiversityReRanker(object):
@@ -64,7 +62,7 @@ class SimpleDiversityReRanker(object):
      recommendation. It iterates this process until have a new recommendation.
     """
 
-    def __init__(self, alpha_constant=0.8, lambda_constant=1.):  # Set lambda lower to improve user tendencies
+    def __init__(self, alpha_constant=.8, lambda_constant=1.):  # Set lambda lower to improve user tendencies
         """
         Constructor
 
@@ -90,12 +88,17 @@ class SimpleDiversityReRanker(object):
         diversity = SimpleDiversity(recommendation, size, user, self.alpha_constant, self.lambda_constant)
         new_recommendation = []
         dropped_items = []
-        for item in recommendation[:int(2*len(recommendation)/3)]:
-            new_recommendation0 = diversity(new_recommendation, item)
-            if len(new_recommendation0) != len(new_recommendation) + 1:
-                dropped_items.append(item)
+        #for item in recommendation[:int(2*len(recommendation)/3)]:
+        for item in recommendation:
+            #new_recommendation0 = diversity(new_recommendation, item)
+            #if len(new_recommendation0) != len(new_recommendation) + 1:
+            #    dropped_items.append(item)
+            #else:
+            #    new_recommendation = new_recommendation0
+            if diversity(new_recommendation, item):
+                new_recommendation.append(item)
             else:
-                new_recommendation = new_recommendation0
+                dropped_items.append(item)
             if len(new_recommendation) > size:
                 break
         return new_recommendation + dropped_items + recommendation[len(new_recommendation)+len(dropped_items):]

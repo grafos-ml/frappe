@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+sb - Server Benchmark is a python script to test server application performance
+"""
+
