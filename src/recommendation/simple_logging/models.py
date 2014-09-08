@@ -18,7 +18,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from recommendation.models import Item, User, CacheManager
 
-LOGGER_MAX_LOGS = 10 if settings.TESTING_MODE else getattr(settings, "LOGGER_MAX_LOGS", 1000)
+LOGGER_MAX_LOGS = 10 if settings.TESTING_MODE else getattr(settings, "LOGGER_MAX_LOGS", 50)
 
 
 class LogEntry(models.Model):
@@ -39,9 +39,8 @@ class LogEntry(models.Model):
         CLICK: _("click")
     }
 
-    user = models.ForeignKey(User, to_field="external_id", verbose_name=_("user"), null=True, default=None,
-                             db_constraint=False)
-    item = models.ForeignKey(Item, to_field="external_id", verbose_name=_("item"), db_constraint=False)
+    user = models.ForeignKey(User, verbose_name=_("user"), null=True, default=None, db_constraint=False)
+    item = models.ForeignKey(Item, verbose_name=_("item"), db_constraint=False)
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
     value = models.FloatField(_("value"), null=True, default=None)
     type = models.SmallIntegerField(_("type"), choices=TYPES.items(), default=RECOMMEND)
@@ -81,6 +80,7 @@ class LogEntry(models.Model):
         """
         logs = LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]
         LogEntry.logs_for[user.pk] = deque(reversed(logs), LOGGER_MAX_LOGS)
+
 
 @receiver(post_save, sender=LogEntry)
 def add_log_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):

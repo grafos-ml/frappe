@@ -157,12 +157,12 @@ RECOMMENDATION_SETTINGS = {
         "filters": [] if TESTING_MODE else [
             "recommendation.filter_owned.filters.FilterOwned",
             "recommendation.language.filters.SimpleLocaleFilter",
-            #"recommendation.simple_logging.filters.SimpleLogFilter",
-            ],
+            "recommendation.simple_logging.filters.SimpleLogFilter",
+        ],
         "rerankers": [] if TESTING_MODE else [
             "recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
-    #"logger": "recommendation.simple_logging.decorators.LogEvent"
-    "logger": "recommendation.decorators.NoLogger"
+    "logger": "recommendation.simple_logging.decorators.LogEvent"
+    #"logger": "recommendation.decorators.NoLogger"
 }

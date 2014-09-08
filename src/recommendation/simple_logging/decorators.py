@@ -33,11 +33,14 @@ class LogEvent(ILogger):
 
     @GoToThreadQueue()
     def bulk_load(self, user, recommendation):
-        LogEntry.objects.bulk_create([
+        new_logs = [
             LogEntry(user=user, item=Item.item_by_id[iid], type=self.log_type, value=i)
             for i, iid in enumerate(recommendation, start=1)
-        ])
-        LogEntry.load_user(user)
+        ]
+        LogEntry.objects.bulk_create(new_logs)
+        logs = LogEntry.logs_for[user.pk]
+        logs.extend(new_logs)
+        LogEntry.logs_for[user.pk] = logs
 
     def log_recommendation(self, function):
         """

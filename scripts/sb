@@ -4,3 +4,27 @@
 sb - Server Benchmark is a python script to test server application performance
 """
 
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+import urllib
+import urllib2
+
+
+def get(url, params={}):
+    """
+    Make a http request with get method and the specific parameters
+    :param url:
+    :param params:
+    :return:
+    """
+    url_params = urllib.urlencode(params)
+    if url_params:
+        full_url = "?".join([url, url_params])
+    else:
+        full_url = url
+    request = urllib2.urlopen(full_url)
+    start = datetime.now()
+    response = urllib2.urlopen(request)
+    end = datetime.now()
+    print end - start
+    print response.read()

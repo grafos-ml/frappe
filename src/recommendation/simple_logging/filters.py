@@ -25,13 +25,13 @@ class SimpleLogFilter(object):
     way the changes will be smother.
 
     """
-    points = {
-        LogEntry.RECOMMEND: lambda x: (x.value-5)/2.,
-        LogEntry.CLICK_RECOMMENDED: lambda x: 0,
-        LogEntry.INSTALL: lambda x: 5,
-        LogEntry.REMOVE: lambda x: 10,
-        LogEntry.CLICK: lambda x: -3,
-    }
+    points = (
+        lambda x: (x.value-5)/2.,  # LogEntry.RECOMMEND
+        lambda x: 0,  # LogEntry.CLICK_RECOMMENDED
+        lambda x: 5,  # LogEntry.INSTALL
+        lambda x: 10,  # LogEntry.REMOVE
+        lambda x: -3,  # LogEntry.CLICK
+    )
 
     @staticmethod
     def evaluate(log):
@@ -41,15 +41,12 @@ class SimpleLogFilter(object):
         """
         Calculate the new rank based on logs
         """
-        try:
-            logs = LogEntry.logs_for[user.pk]
-        except KeyError:
-            pass
-        else:
-            m = recommendation.mean()
-            #rec = {v: k for k, v in enumerate(recommendation, start=1)}
-            for log in logs:
-                recommendation[log.item.pk-1] += (self.evaluate(log) * m)
+        logs = LogEntry.logs_for.get(user.pk, [])
+        #m = recommendation.mean()
+        #print m
+        #rec = {v: k for k, v in enumerate(recommendation, start=1)}
+        for log in logs:
+            recommendation[log.item_id-1] += (self.evaluate(log) * 0.01)
         return recommendation
 
 
