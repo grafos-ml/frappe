@@ -17,4 +17,4 @@ sphinx
 sphinx_rtd_theme
 
 # For scripts
-clint
+docopt

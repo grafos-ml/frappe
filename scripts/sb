@@ -2,29 +2,98 @@
 # -*- coding: utf-8 -*-
 """
 sb - Server Benchmark is a python script to test server application performance
+
+Usage:
+  sb <url> <n> [-c <nc>] [-p <np>] [-d <dfile>] [--repeat-url]
+  sb -f <ufile> <n> [-c <nc>] [-p <np>] [--repeat-url]
+  sb -h | --help
+  sb --version
+
+Options:
+  <n>                    Size of sample.
+  <url>                  Url to connect
+  -c --concurrency=<nc>  Concurrency level [default: 1].
+  -d --data=<dfile>      File with data for the request.
+  -f --file=<ufile>      Path to urls file.
+  -h --help              Show this screen.
+  -p --processes=<np>    Number of processes [default: 1]
+  --repeat-url           Use the same url concurrently.
+  -v --version           Show version.
 """
 
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-import urllib
 import urllib2
+from docopt import docopt
+from random import sample, choice
 
 
-def get(url, params={}):
-    """
-    Make a http request with get method and the specific parameters
-    :param url:
-    :param params:
-    :return:
-    """
-    url_params = urllib.urlencode(params)
-    if url_params:
-        full_url = "?".join([url, url_params])
-    else:
-        full_url = url
-    request = urllib2.urlopen(full_url)
-    start = datetime.now()
-    response = urllib2.urlopen(request)
-    end = datetime.now()
-    print end - start
-    print response.read()
+class ServerBenchmarkScript(object):
+
+    def __init__(self):
+        self.arguments = docopt(__doc__, version="Server Benchmark 1.0")
+        if not self.arguments:
+            exit(0)
+        if self.arguments["--file"]:
+            with open(self.arguments["--file"], "r") as f:
+                self.urls = list(f)
+        else:
+            url = self.arguments["<url>"]
+            if self.arguments["--data"]:
+                with open(self.arguments["--data"], "r") as f:
+                    self.urls = [(url % line.split(" ")) for line in f]
+            else:
+                self.urls = [url]
+        self.repeat_url = bool(self.arguments["--repeat-url"])
+        #self.request_method = "post" if self.arguments["--post"] else "get"
+        self.concurrency = int(self.arguments["--concurrency"])
+        self.processes = int(self.arguments["--processes"])
+        self.n = int(self.arguments["<n>"])
+
+    @staticmethod
+    def get(url):
+        """
+        Make a http request with get method and the specific parameters
+        :param url:
+        :param params:
+        :return:
+        """
+        start = datetime.now()
+        response = urllib2.urlopen(url)
+        end = datetime.now()
+
+        return dict(
+            time=(end - start).total_seconds() * 1000.,
+            code=response.code,
+            url=response.url,
+            msg=response.msg,
+            response=response.read()
+        )
+
+    def __call__(self):
+        print "This is Server Benchmark version 1.0"
+        print "Copyright 2014 João Nuno, Grafos, http://grafos.ml/"
+        if self.repeat_url:
+            get_url_sample = lambda x: (choice(self.urls) for _ in xrange(x))
+        elif self.concurrency < len(self.urls):
+            get_url_sample = lambda x: sample(self.urls, x)
+        else:
+            get_url_sample = lambda x: self.urls[:x]
+        with ThreadPoolExecutor(max_workers=self.processes) as pool:
+            tries = self.n
+            data = []
+            while tries > 0:
+                tries -= self.concurrency
+                results = [
+                    pool.submit(self.get, url)
+                    for url in get_url_sample(self.concurrency if tries > 0 else tries+self.concurrency)
+                ]
+                for future in results:
+                    result = future.result()
+                    print result
+                    data.append(result)
+        print data
+
+
+if __name__ == "__main__":
+    ServerBenchmarkScript()()
