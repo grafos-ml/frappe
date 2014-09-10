@@ -7,7 +7,8 @@ Tutorial
 Make a filter
 -------------
 
-A filter is a callable class that transform the recommendation in some way.
+A filter is a callable class that can be used to implement a business logic to filter out irrelevant recommendations.
+Filters are executed after a recommendation model (such as Collaborative Filtering) made user-item utility score predictions.
 
 .. code-block:: python
    :linenos:
@@ -27,9 +28,16 @@ A filter is a callable class that transform the recommendation in some way.
                 recommendation[item.pk-1] = float("-inf")
             return recommendation
 
-Here is an example for a filter. This filter go for the items that the user own and put the score as low as it can.
-After finish the filter it must be registered. In settings you should register it with the other filters on
-RECOMMENDATION_SETTINGS.
+Lets take a look at the filter, which removes items already owned by a user from the recommendation list.
+The idea is to take an original scores produced by an algorithm (passed as *recommendation*) and modify them
+to fit our needs. In this case, the filter traverses the list of items that the user owns and put the lowest 
+possible score for that item instead of the original score. We will recommend items with the highest scores,
+therefore, these items will not likely be ever recommended.
+
+
+After finished implementing the filter it must be registered to the system. 
+You should edit settings.py and modify *RECOMMENDATION_SETTINGS* variable by registering the new filter
+with the other filters.
 
 .. code-block:: python
    :linenos:
