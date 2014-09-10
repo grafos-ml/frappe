@@ -26,6 +26,8 @@ from datetime import datetime
 import urllib2
 from docopt import docopt
 from random import sample, choice
+import click
+import pandas as pd
 
 
 class ServerBenchmarkScript(object):
@@ -71,8 +73,9 @@ class ServerBenchmarkScript(object):
         )
 
     def __call__(self):
-        print "This is Server Benchmark version 1.0"
-        print "Copyright 2014 João Nuno, Grafos, http://grafos.ml/"
+        print
+        click.echo(click.style("This is Server Benchmark version 1.0", fg='blue'))
+        click.echo(click.style("Copyright 2014 João Nuno, Grafos, http://grafos.ml/", fg='blue'))
         if self.repeat_url:
             get_url_sample = lambda x: (choice(self.urls) for _ in xrange(x))
         elif self.concurrency < len(self.urls):
@@ -82,17 +85,30 @@ class ServerBenchmarkScript(object):
         with ThreadPoolExecutor(max_workers=self.processes) as pool:
             tries = self.n
             data = []
-            while tries > 0:
-                tries -= self.concurrency
-                results = [
-                    pool.submit(self.get, url)
-                    for url in get_url_sample(self.concurrency if tries > 0 else tries+self.concurrency)
-                ]
-                for future in results:
-                    result = future.result()
-                    print result
-                    data.append(result)
-        print data
+            n = self.n / self.concurrency
+            if self.n % self.concurrency != 0:
+                n += 1
+            print
+            with click.progressbar(xrange(n), label="Making %d requests" % self.n) as bar:
+                for _ in bar:
+                    tries -= self.concurrency
+                    results = [
+                        pool.submit(self.get, url)
+                        for url in get_url_sample(self.concurrency if tries > 0 else tries+self.concurrency)
+                    ]
+                    for future in results:
+                        result = future.result()
+                        data.append(result)
+        self.print_data(data)
+
+    @staticmethod
+    def print_data(data):
+        print
+        print "Finished requests:", len(data)
+        codes = {}
+        for d in data:
+            codes[d["code"]] = codes.get(d["code"], []) + [d]
+
 
 
 if __name__ == "__main__":

@@ -7,3 +7,4 @@ djangorestframework
 
 # For scripts
 docopt
+click
