@@ -6,7 +6,7 @@ sb - Server Benchmark is a python script to test server application performance
 Usage:
   sb <url> <n> [-c <nc>] [-p <np>] [-d <dfile>] [--repeat-url]
   sb -f <ufile> <n> [-c <nc>] [-p <np>] [--repeat-url]
-  sb -h | --help
+  sb --help
   sb --version
 
 Options:
@@ -62,20 +62,19 @@ class ServerBenchmarkScript(object):
         """
         start = datetime.now()
         response = urllib2.urlopen(url)
-        end = datetime.now()
 
         return dict(
-            time=(end - start).total_seconds() * 1000.,
             code=response.code,
             url=response.url,
             msg=response.msg,
-            response=response.read()
+            response=response.read(),
+            time=(datetime.now() - start).total_seconds() * 1000.,
         )
 
     def __call__(self):
         print
-        click.echo(click.style("This is Server Benchmark version 1.0", fg='blue'))
-        click.echo(click.style("Copyright 2014 João Nuno, Grafos, http://grafos.ml/", fg='blue'))
+        click.echo(click.style("This is Server Benchmark version 1.0", fg="blue"))
+        click.echo(click.style("Copyright 2014 João Nuno, Grafos, http://grafos.ml/", fg="blue"))
         if self.repeat_url:
             get_url_sample = lambda x: (choice(self.urls) for _ in xrange(x))
         elif self.concurrency < len(self.urls):
@@ -89,6 +88,7 @@ class ServerBenchmarkScript(object):
             if self.n % self.concurrency != 0:
                 n += 1
             print
+            start = datetime.now()
             with click.progressbar(xrange(n), label="Making %d requests" % self.n) as bar:
                 for _ in bar:
                     tries -= self.concurrency
@@ -99,16 +99,37 @@ class ServerBenchmarkScript(object):
                     for future in results:
                         result = future.result()
                         data.append(result)
-        self.print_data(data)
+        self.print_data(data, start)
 
     @staticmethod
-    def print_data(data):
+    def print_data(data, start):
         print
-        print "Finished requests:", len(data)
+        print "Finished %d requests in %s" % (len(data), datetime.now()-start)
         codes = {}
         for d in data:
             codes[d["code"]] = codes.get(d["code"], []) + [d]
 
+        print "Status code"
+        print " ---"
+        print "\n".join(" %d\t\t %d" % (code, len(codes[code])) for code in [200, 301, 400, 404, 500] if code in codes)
+        success = pd.DataFrame(codes[200])
+        success.sort("time", inplace=True)
+        print
+        print "Stats for 200"
+        print " ---"
+        print " N\t\t\t\t%d" % len(success)
+        print " Mean(time)\t\t\t%.3f" % success.time.mean()
+        print " Standard deviation(time)\t%.3f" % success.time.std()
+        print " Percentile 50%%(time)\t\t%.0f" % success.time.quantile(0.5)
+        print " Percentile 66%%(time)\t\t%.0f" % success.time.quantile(0.66)
+        print " Percentile 75%%(time)\t\t%.0f" % success.time.quantile(0.75)
+        print " Percentile 90%%(time)\t\t%.0f" % success.time.quantile(0.9)
+        print " Percentile 95%%(time)\t\t%.0f" % success.time.quantile(0.95)
+        print " Percentile 96%%(time)\t\t%.0f" % success.time.quantile(0.96)
+        print " Percentile 97%%(time)\t\t%.0f" % success.time.quantile(0.97)
+        print " Percentile 98%%(time)\t\t%.0f" % success.time.quantile(0.98)
+        print " Percentile 99%%(time)\t\t%.0f" % success.time.quantile(0.99)
+        print " Percentile 100%%(time)\t\t%.0f" % success.time.quantile(1.)
 
 
 if __name__ == "__main__":
