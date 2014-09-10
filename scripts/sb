@@ -4,8 +4,8 @@
 sb - Server Benchmark is a python script to test server application performance
 
 Usage:
-  sb <url> <n> [-c <nc>] [-p <np>] [-d <dfile>] [--repeat-url]
-  sb -f <ufile> <n> [-c <nc>] [-p <np>] [--repeat-url]
+  sb <url> <n> [-c <nc>] [-p <np>] [-d <dfile>] [--repeat-url] [--dump <json>] [--no-verbose]
+  sb -f <ufile> <n> [-c <nc>] [-p <np>] [--repeat-url] [--dump <json>] [--no-verbose]
   sb --help
   sb --version
 
@@ -14,8 +14,10 @@ Options:
   <url>                  Url to connect
   -c --concurrency=<nc>  Concurrency level [default: 1].
   -d --data=<dfile>      File with data for the request.
+  --dump=<json>          Dumps the results into a json.
   -f --file=<ufile>      Path to urls file.
   -h --help              Show this screen.
+  --no-verbose           No verbose.
   -p --processes=<np>    Number of processes [default: 1]
   --repeat-url           Use the same url concurrently.
   -v --version           Show version.
@@ -28,6 +30,16 @@ from docopt import docopt
 from random import sample, choice
 import click
 import pandas as pd
+import json
+import sys
+
+
+class NullDevice():
+    def write(self, s):
+        pass
+    
+    def flush(self):
+        pass
 
 
 class ServerBenchmarkScript(object):
@@ -51,6 +63,8 @@ class ServerBenchmarkScript(object):
         self.concurrency = int(self.arguments["--concurrency"])
         self.processes = int(self.arguments["--processes"])
         self.n = int(self.arguments["<n>"])
+        self.no_verbose = self.arguments["--no-verbose"]
+        self.dump = self.arguments["--dump"]
 
     @staticmethod
     def get(url):
@@ -72,6 +86,9 @@ class ServerBenchmarkScript(object):
         )
 
     def __call__(self):
+        if self.no_verbose:
+            std_output = sys.stdout
+            sys.stdout = NullDevice()
         print
         click.echo(click.style("This is Server Benchmark version 1.0", fg="blue"))
         click.echo(click.style("Copyright 2014 João Nuno, Grafos, http://grafos.ml/", fg="blue"))
@@ -100,6 +117,11 @@ class ServerBenchmarkScript(object):
                         result = future.result()
                         data.append(result)
         self.print_data(data, start)
+        if self.dump:
+            with open(self.dump, "w") as f:
+                json.dump(data, f)
+        if self.no_verbose:
+            sys.stdout = std_output
 
     @staticmethod
     def print_data(data, start):
@@ -130,7 +152,6 @@ class ServerBenchmarkScript(object):
         print " Percentile 98%%(time)\t\t%.0f" % success.time.quantile(0.98)
         print " Percentile 99%%(time)\t\t%.0f" % success.time.quantile(0.99)
         print " Percentile 100%%(time)\t\t%.0f" % success.time.quantile(1.)
-
 
 if __name__ == "__main__":
     ServerBenchmarkScript()()
