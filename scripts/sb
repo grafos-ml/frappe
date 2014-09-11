@@ -37,7 +37,7 @@ import sys
 class NullDevice():
     def write(self, s):
         pass
-    
+
     def flush(self):
         pass
 

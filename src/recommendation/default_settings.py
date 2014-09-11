@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     "recommendation.diversity"
 ]
 
-if DEBUG:
+if TESTING_MODE:
     INSTALLED_APPS += [
         "django_nose",
         #"debug_toolbar",

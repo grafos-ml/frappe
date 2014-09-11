@@ -91,7 +91,7 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         logger = LogEvent(LogEvent.CLICK)
         user = User.user_by_external_id["joaonrb"]
-        logger(lambda uid, iid: None)("joaonrb", "10004")
+        logger(lambda uid, iid: None)(user.pk, "10004")
         time.sleep(0.5)
         logs = list(LogEntry.objects.filter(user=user, type=logger.CLICK))
         assert len(logs) == 1, "Number of register is not correct %s" % logs
@@ -104,7 +104,7 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         logger = LogEvent(LogEvent.REMOVE)
         user = User.user_by_external_id["joaonrb"]
-        logger(lambda uid, iid: None)("joaonrb", "10004")
+        logger(lambda uid, iid: None)(user.pk, "10004")
         time.sleep(0.5)
         logs = list(LogEntry.objects.filter(user=user, type=logger.REMOVE))
         assert len(logs) == 1, "Number of register is not correct %s" % logs
@@ -117,7 +117,7 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         logger = LogEvent(LogEvent.ACQUIRE)
         user = User.user_by_external_id["joaonrb"]
-        logger(lambda uid, iid: None)("joaonrb", "10004")
+        logger(lambda uid, iid: None)(user.pk, "10004")
         time.sleep(0.5)
         logs = list(LogEntry.objects.filter(user=user, type=logger.ACQUIRE))
         assert len(logs) == 1, "Number of register is not correct %s" % logs
