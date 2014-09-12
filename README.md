@@ -8,12 +8,12 @@ $ pip install frappe
 
 Nosetests
 =========
-# in the package src folder
+In the package src folder
 $ echo yes | ./manage.py test
 
 Build Documentation
 ===================
-# in the package doc folder
+In the package doc folder
 $ make html
 
 
