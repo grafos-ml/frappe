@@ -5,6 +5,7 @@ Installation
 You can check the official **documentation** [here](http://grafos-ml.github.io/frappe/).
 
 $ pip install https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
+
 $ pip install frappe
 
 Nosetests
