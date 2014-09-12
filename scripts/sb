@@ -91,7 +91,7 @@ class ServerBenchmarkScript(object):
             sys.stdout = NullDevice()
         print
         click.echo(click.style("This is Server Benchmark version 1.0", fg="blue"))
-        click.echo(click.style("Copyright 2014 João Nuno, Grafos, http://grafos.ml/", fg="blue"))
+        click.echo(click.style("Copyright 2014 Linas Baltrunas & João Nuno, Grafos, http://grafos.ml/", fg="blue"))
         if self.repeat_url:
             get_url_sample = lambda x: (choice(self.urls) for _ in xrange(x))
         elif self.concurrency < len(self.urls):

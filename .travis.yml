@@ -16,3 +16,9 @@ before_script:
 - python manage.py syncdb --noinput
 script:
 - echo "yes" | python manage.py test -v2
+after_success:
+- cd ../docs
+- make publish
+env:
+  global:
+  - secure: dMa5sKLUi7mjp4YHVj0YTVj4wZ+S+zUWKhPrWA30HpOPzd+s9BoV3fXU30x4Qc+fM/h8CYrtzDe8EZUdwRKNk/2jlIn6fou4UGoO081rRgNwPeKivpOo0uR7iuywyCHJJFQroUaWcJugJn55XtKMYxr0owwAjqI9z5fp4xMytA4=
