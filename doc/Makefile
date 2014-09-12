@@ -177,7 +177,7 @@ pseudoxml:
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
 publish:
-	@if [ $(TRAVIS_BRANCH) = v2.0.dev ]; then \
+	@if [ $(TRAVIS_BRANCH) = master ]; then \
 		$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html && \
 		ghp-import -n $(BUILDDIR)/html && \
 		cd $(BUILDDIR)/html && \
