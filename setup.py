@@ -2,6 +2,7 @@
 #! -*- encoding: utf-8 -*-
 
 __author__ = "joaonrb"
+VERSION = "2.0.1"
 
 try:
     import testfm
@@ -20,7 +21,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name="frappe",
-    version="2.0.1",
+    version=VERSION,
     description="Frappe recommendation system backend.",
     author="Linas Baltrunas",
     author_email="linas@tid.com",
@@ -43,6 +44,6 @@ setup(
     ],
     long_description=README,
     url = "https://github.com/grafos-ml/frappe",
-    download_url = "https://github.com/grafos-ml/frappe/archive/v2.0.tar.gz",
+    download_url = "https://github.com/grafos-ml/frappe/archive/v%star.gz" % VERSION,
     keywords = ["recommendation"],
 )
