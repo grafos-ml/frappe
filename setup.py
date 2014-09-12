@@ -11,15 +11,6 @@ except ImportError:
 import os
 from setuptools import setup
 from setuptools import find_packages
-from pkg_resources import resource_filename
-
-
-def get_requirements():
-    with open(resource_filename(__file__, "requirements.txt")) as reqs_file:
-        reqs = [x.replace("\n", "").strip() for x in reqs_file if bool(x.strip()) and not x.startswith("#") and
-                not x.startswith("https://")]
-        return reqs
-
 
 with open(os.path.join(os.path.dirname(__file__), "README.md")) as readme:
     README = readme.read()
@@ -41,7 +32,15 @@ setup(
     scripts = ["scripts/sb"],
     license="copyright.txt",
     include_package_data=True,
-    install_requires=get_requirements(),
+    install_requires=[
+        "django==1.6.7",
+        "pymysql",
+        "django-cors-headers",
+        "python-memcached",
+        "djangorestframework",
+        "docopt",
+        "click"
+    ],
     long_description=README,
     url = "https://github.com/grafos-ml/frappe",
     download_url = "https://github.com/grafos-ml/frappe/archive/v2.0.tar.gz",
