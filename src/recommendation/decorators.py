@@ -5,18 +5,13 @@ __author__ = "joaonrb"
 from concurrent.futures import ThreadPoolExecutor
 from django.conf import settings
 import functools
-
-tread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 1))
-
-
-def close():
-    tread_pool.shutdown()
-
 import atexit
-atexit.register(close)
+
+tread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
+atexit.register(tread_pool.shutdown)
 
 
-class PutInThreadQueue(object):
+class GoToThreadQueue(object):
     """
     Execute in threading pool
     """
@@ -27,8 +22,9 @@ class PutInThreadQueue(object):
         """
         @functools.wraps(function)
         def decorated(*args, **kwargs):
-            tread_pool.submit(function, *args, **kwargs)
-            return None
+            result = tread_pool.submit(function, *args, **kwargs)
+            return result
+            #return function(*args, **kwargs)
         return decorated
 
 
@@ -50,7 +46,7 @@ class ILogger(object):
 
 class NoLogger(ILogger):
     """
-    Don't log
+    Don't do any log
     """
     def __call__(self, function):
         @functools.wraps(function)

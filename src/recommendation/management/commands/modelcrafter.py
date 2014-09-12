@@ -46,7 +46,7 @@ from pkg_resources import resource_filename
 sys.path.append(resource_filename(__name__, "/../"))
 
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
-from recommendation.model_factory import TensorCoFi, Popularity
+from recommendation.models import TensorCoFi, Popularity
 from django.core.management.base import BaseCommand, CommandError
 
 
@@ -148,7 +148,9 @@ class Command(BaseCommand):
     help = "Trains the model. Currently implemented: train tensorcofi, train popularity."
 
     def handle(self, *args, **options):
-        try:
-            main(args[0], args[1])
-        except Exception:
-            raise CommandError("Wild error appear!!!")
+
+        if len(args) != 2:
+            raise CommandError("Not enough args.")
+        if args[0] not in OPTIONS:
+            raise CommandError("First command must be in %s" % str(tuple(OPTIONS.keys())))
+        main(args[0], args[1])

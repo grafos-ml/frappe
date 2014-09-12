@@ -1,0 +1,25 @@
+language: python
+python:
+- '2.7'
+services:
+- memcached
+before_install:
+- sudo apt-get update -qq
+- sudo apt-get -q install gfortran libatlas-base-dev libatlas-dev liblapack-dev
+install:
+- pip install ghp-import
+- pip install https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
+- pip install -r requirements.dev.txt
+before_script:
+- cd src
+- ls -l
+- python manage.py syncdb --noinput
+script:
+- echo "yes" | python manage.py test -v2
+after_success:
+- cd ../doc
+- ls -l
+- PYTHONPATH=../src make publish
+env:
+  global:
+  - secure: KCdiUWQy3BSpRl3wbHi2TKIAvHHc39dlM8klvF+ddLglb4ChYbKtvvpkw+16wDPnuYJV4cd4lBQlcPx5Dx1OnJuA6f3/1/Rzk6luQ2BmoOa9RbouqC+Le0cj8rMarf4L8gz9MabSK12gxIFIuMkabSPUK4ZY7flVgJqPIFhQc14=

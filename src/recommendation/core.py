@@ -1,23 +1,28 @@
-#-*- coding: utf-8 -*-
+#! -*- encoding: utf-8 -*-
 """
-.. py:module:: controller
-    :platform: Unix, Windows
-    :synopsis: Controller system that provides results. Created on Nov 29, 2013
-
-.. moduleauthor:: Joao Baptista <joaonrb@gmail.com>
-
+The core module for the recommendation system. Here is defined the flow for a recommendation request and settings.
 """
+
+__author__ = "joaonrb"
 
 import numpy as np
 from django.conf import settings
-from recommendation.models import Item
-from recommendation.caches import CacheUser
-from recommendation.records.decorators import LogRecommendedApps
-from recommendation.model_factory import TensorCoFi, Popularity
-import logging
-import sys
-if sys.version_info >= (3, 0):
-    basestring = unicode = str
+from recommendation.models import Item, TensorCoFi, Popularity
+from recommendation.util import initialize
+
+try:
+    RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")
+except AttributeError:
+    from recommendation import default_settings
+    RECOMMENDATION_SETTINGS = getattr(default_settings, "RECOMMENDATION_SETTINGS")
+
+try:
+    logger, _, _ = initialize(RECOMMENDATION_SETTINGS["logger"])
+except KeyError:
+    from recommendation import default_settings
+    logger, _, _ = initialize(getattr(default_settings, "RECOMMENDATION_SETTINGS")["logger"])
+
+log_event = logger
 
 
 class IController(object):
@@ -77,34 +82,12 @@ class IController(object):
         """
         raise NotImplemented
 
-    def get_alternative(self, user):
+    def get_alternative_recommendation(self, user):
         """
-        Return the popular items
+        Return an alternative recommendation when the first fail
         :return: list
         """
         raise NotImplemented
-
-    def online_user_factors(self, Y, user_item_ids, p_param=10, lambda_param=0.01):
-        """
-        :param Y: application matrix Y.shape = (#apps, #factors)
-        :param user_item_ids: the rows that correspond to installed applications in Y matrix
-        :param p_param: p parameter
-        :param lambda_param: regulerizer
-
-        >>> pyTF = PyTensorCoFi()
-        >>> Y = np.array([[-1.0920831, -0.01566422], [-0.8727925, 0.22307773], [0.8753245, -0.80181429], \
-                          [-0.1338534, -0.51448172], [-0.2144651, -0.96081265]])
-        >>> user_items = [1,3,4]
-        >>> pyTF.online_user_factors(Y, user_items, p_param=10, lambda_param=0.01)
-        array([-1.18324547, -0.95040477])
-        """
-        y = Y[user_item_ids]
-        base1 = Y.transpose().dot(Y)
-        base2 = y.transpose().dot(np.diag([p_param - 1] * y.shape[0])).dot(y)
-        base = base1 + base2 + np.diag([lambda_param] * base1.shape[0])
-        u_factors = np.linalg.inv(base).dot(y.transpose()).dot(np.diag([p_param] *
-                                                                       y.shape[0])).dot(np.ones(y.shape[0]).transpose())
-        return u_factors
 
     def get_recommendation_from_model(self, user):
         """
@@ -120,7 +103,7 @@ class IController(object):
         # previous user.
         model = self.get_model(user)
         if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
-            apps_idx = [a.pk - 1 for a in user.owned_items if a.pk - 1 <= model.factors[1].shape[0]]
+            apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
                 raise ValueError
             u_factors = model.online_user_factors(apps_idx)
@@ -128,8 +111,7 @@ class IController(object):
         else:
             return model.get_recommendation(user)
 
-    @CacheUser()
-    @LogRecommendedApps()
+    @log_event(log_event.RECOMMEND)
     def get_recommendation(self, user, n=10):
         """
         Method to get recommendation according with some user id
@@ -143,17 +125,13 @@ class IController(object):
             result = self.get_recommendation_from_model(user=user)
         except Exception:
             print("Wild error appear in core recommendation")
-            result = self.get_alternative(user)
-        logging.debug("Matrix loaded or generated")
+            result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
-        logging.debug("Filters finished")
         result = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
         for r in self.rerankers:
             result = r(user, result, size=n)
-        logging.debug("Re-rankers finished")
         return result[:n]
-        #return self.run_re_rankers(recommendation=list(enumerate(result, start=1)), n=n)
 
     def get_external_id_recommendations(self, user, n=10):
         """
@@ -164,26 +142,10 @@ class IController(object):
         :return: Item external id list
         """
         result = self.get_recommendation(user=user, n=n)
-        rs = Item.all_items()
-        #return [rs[r] for r in result]
-        return [rs[r].external_id for r in result]
-
-    def run_re_rankers(self, recommendation, n):
-        """
-
-        """
-        result, dropped = [], []
-        while len(result) < n:
-            item = max(recommendation, key=lambda x: x[1])
-            recommendation.remove(item)
-            if all(map(lambda x: x(item, result, dropped), self.rerankers)):
-                result.append(item[0])
-            else:
-                dropped.append(item)
-        return result
+        return [Item.item_by_id[r].external_id for r in result]
 
 
-class TensorCoFiRecommender(IController):
+class TensorCoFiController(IController):
     """
     Get the matrix from the Model
     """
@@ -194,94 +156,51 @@ class TensorCoFiRecommender(IController):
 
         :return: The Model
         """
-        return TensorCoFi.get_model()
+        return TensorCoFi.get_model_from_cache()
 
-    def get_alternative(self, user):
+    def get_alternative_recommendation(self, user):
         """
         Return the popular items
         :return: list
         """
         return Popularity.get_model().recommendation
 
-DEFAULT_SETTINGS = {
-    "default": {
-        "core": "recommendation.core.TensorCoFiRecommender",
-        "filters": [
-            "recommendation.filter_owned.filters.FilterOwnedFilter",
-            "recommendation.language.filters.SimpleLocaleFilter",
-        ],
-        "rerankers": [
-            "recommendation.records.rerankers.SimpleLogReRanker",
-            "recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
-        ]
-    },
-    "logger": "recommendation.decorators.NoLogger"
-}
-
-try:
-    RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")
-except AttributeError:
-    RECOMMENDATION_SETTINGS = DEFAULT_SETTINGS
-
-
-def get_class(cls):
-    """
-    Return a tuple with the class, a tuple with args and a dict with keyword args.
-    :param cls:
-    :return:
-    """
-    if isinstance(cls, basestring):
-        cls_str, args, kwargs = cls, (), {}
-    elif isinstance(cls, (tuple, list)) and isinstance(cls[0], basestring):
-        if len(cls) == 2:
-            if isinstance(cls[1], (tuple, list)):
-                cls_str, args, kwargs = cls[0], cls[1], {}
-            elif isinstance(cls[1], dict):
-                cls_str, args, kwargs = cls[0], (), cls[1]
-            else:
-                raise AttributeError("The second element in tuple must be list, tuple or dict with python native structs.")
-        elif len(cls) == 3:
-            if isinstance(cls[1], (tuple, list)) and isinstance(cls[2], dict):
-                cls_str, args, kwargs = cls
-            else:
-                raise AttributeError("The second element in tuple must be list or and the third must be dict.")
-        else:
-            raise AttributeError("Tuple must be size 2 or 3.")
-    else:
-        raise AttributeError("Attribute must be string or tuple with the first element string.")
-    parts = cls_str.split(".")
-    module, cls = ".".join(parts[:-1]), parts[-1]
-    return getattr(__import__(module, fromlist=[""]), cls), args, kwargs
-
 
 RECOMMENDATION_ENGINES = {}
-log_event = None
 for engine, engine_settings in RECOMMENDATION_SETTINGS.items():
     if engine != "logger":
-        cls, args, kwargs = get_class(engine_settings["core"])
+        cls, args, kwargs = initialize(engine_settings["core"])
         RECOMMENDATION_ENGINES[engine] = cls(*args, **kwargs)
 
         # Register Filters
         for filter_cls in engine_settings["filters"]:
-            cls, args, kwargs = get_class(filter_cls)
+            cls, args, kwargs = initialize(filter_cls)
             RECOMMENDATION_ENGINES[engine].register_filter(cls(*args, **kwargs))
 
         # Register re-rankers
         for reranker_cls in RECOMMENDATION_SETTINGS["default"]["rerankers"]:
-            cls, args, kwargs = get_class(reranker_cls)
+            cls, args, kwargs = initialize(reranker_cls)
             RECOMMENDATION_ENGINES[engine].register_reranker(cls(*args, **kwargs))
-    else:
-        cls, _, _ = get_class(engine_settings)
-        log_event = cls
 
-if not log_event:
-    cls, _, _ = get_class(DEFAULT_SETTINGS["logger"])
-    log_event = cls
 
 # Set default Recommendation engine
-DEFAULT_RECOMMENDATION = RECOMMENDATION_ENGINES["default"]
+default_recommendation = RECOMMENDATION_ENGINES["default"]
 
 
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
+class ControllerNotDefined(Exception):
+    """
+    Exception for when controller is not defined on settings
+    """
+    pass
+
+
+def get_controller(name="default"):
+    """
+    Get the recommendation controller
+    :param name: The name of the controller
+    :return: A controller or raise NotImplemented exception
+    """
+    try:
+        return RECOMMENDATION_ENGINES[name]
+    except KeyError:
+        raise ControllerNotDefined

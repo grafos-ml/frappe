@@ -10,18 +10,16 @@ The views for the Recommend API.
 __author__ = "joaonrb"
 
 import random
-from django.conf import settings
-from django.db import connection
-from django.db.utils import OperationalError, IntegrityError
+from django.utils.timezone import now
+from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from rest_framework.renderers import JSONRenderer, XMLRenderer
 from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from recommendation.models import User, Inventory, Item
-from recommendation.records.models import Record
-from recommendation.core import DEFAULT_RECOMMENDATION
-from recommendation.decorators import PutInThreadQueue
+from recommendation.core import get_controller
+from recommendation.decorators import GoToThreadQueue
 from recommendation.core import log_event
 
 JSON = "json"
@@ -143,11 +141,10 @@ class AbstractGoToItem(APIView):
     ANONYMOUS = "anonymous"
     source_types = [RECOMMENDED, CLICK]
     source_map = {
-        RECOMMENDED: Record.CLICK_RECOMMENDED,
-        CLICK: Record.CLICK
+        RECOMMENDED: log_event.RECOMMEND,
+        CLICK: log_event.CLICK
     }
 
-    @PutInThreadQueue()
     @log_event(log_event.CLICK)
     def click(self, user_external_id, item_external_id, click_type, rank=None):
         """
@@ -163,20 +160,20 @@ class AbstractGoToItem(APIView):
         :type rank: int
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        query = \
-            ("INSERT INTO %(database)s.records_record (id, user_id, item_id, timestamp, value, type) "
-             "VALUES (NULL, %(user)s, \"%(item)s\", NOW(), %(rank)s, %(type)s);") % \
-            {
-                "database": settings.DATABASES["default"]["NAME"],
-                "user": ('"%s"' % user_external_id) if user_external_id else "NULL",
-                "item": item_external_id,
-                "type": self.source_map[click_type],
-                "rank": rank or "NULL"
-            }
-        cursor = connection.cursor()
-        a = cursor.execute(query)
-        if a == 0:
-            raise OperationalError("Record not inserted")
+        #query = \
+        #    ("INSERT INTO %(database)s.records_record (id, user_id, item_id, timestamp, value, type) "
+        #     "VALUES (NULL, %(user)s, \"%(item)s\", NOW(), %(rank)s, %(type)s);") % \
+        #    {
+        #        "database": settings.DATABASES["default"]["NAME"],
+        #        "user": ('"%s"' % user_external_id) if user_external_id else "NULL",
+        #        "item": item_external_id,
+        #        "type": self.source_map[click_type],
+        #        "rank": rank or "NULL"
+        #    }
+        #cursor = connection.cursor()
+        #a = cursor.execute(query)
+        #if a == 0:
+        #    raise OperationalError("Record not inserted")
 
 
 class UserRecommendationAPI(RecommendationAPI):
@@ -197,7 +194,8 @@ class UserRecommendationAPI(RecommendationAPI):
         """
         Get method to request recommendations
 
-        :param request: This is the request. It is not needed but has to be here because of the django interface with views.
+        :param request: This is the request. It is not needed but has to be here because of the django interface with
+        views.
         :param user_external_id: The user that want the recommendation ore the object of the recommendations.
         :type user_external_id: str
         :param number_of_recommendations: Number of recommendations that are requested.
@@ -205,10 +203,13 @@ class UserRecommendationAPI(RecommendationAPI):
         :return: A HTTP response with a list of recommendations.
         """
         if user_external_id == "":
-            user_external_id = random.sample(User.all_users(), 1)[0]
-        recommended_apps = DEFAULT_RECOMMENDATION.get_external_id_recommendations(user_external_id,
-                                                                                  n=int(number_of_recommendations))
-        data = {"user": user_external_id, "recommendations": recommended_apps}
+            user = random.sample(list(User.user_by_external_id), 1)[0]
+        else:
+            user = User.user_by_external_id[user_external_id]
+
+        # Here is the decorator for recommendation
+        recommended_apps = get_controller().get_external_id_recommendations(user, n=int(number_of_recommendations))
+        data = {"user": user.external_id, "recommendations": recommended_apps}
         return self.format_response(data)
 
 
@@ -254,7 +255,7 @@ class UsersAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
         try:
-            PutInThreadQueue()(User.objects.create)(external_id=new_user_external_id)
+            User.objects.create(external_id=new_user_external_id)
         except IntegrityError:
             return self.format_response(self.EXTERNAL_ID_EXISTS_ERROR_MESSAGE, status=500)
         return self.format_response(SUCCESS_MESSAGE)
@@ -282,7 +283,7 @@ class UserItemsAPI(RecommendationAPI):
     ]
 
     @staticmethod
-    #@PutInThreadQueue()
+    @GoToThreadQueue()
     @log_event(log_event.ACQUIRE)
     def insert_acquisition(user_external_id, item_external_id):
         """
@@ -294,26 +295,30 @@ class UserItemsAPI(RecommendationAPI):
         :type item_external_id: str
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        query = \
-            """
-            INSERT INTO %(database)s.recommendation_inventory
-                SELECT NULL, recommendation_user.id, recommendation_item.id, NOW(), NULL
-                FROM %(database)s.recommendation_user, %(database)s.recommendation_item
-                WHERE %(database)s.recommendation_user.external_id="%(user)s"
-                AND %(database)s.recommendation_item.external_id="%(item)s";
-            """ % {
-            "database": settings.DATABASES["default"]["NAME"],
-            "user": user_external_id,
-            "item": item_external_id}
-        cursor = connection.cursor()
-        a = cursor.execute(query)
-        if a == 0:
-            raise OperationalError("Item not inserted")
+        #query = \
+        #    """
+        #    INSERT INTO %(database)s.recommendation_inventory
+        #        SELECT NULL, recommendation_user.id, recommendation_item.id, NOW(), NULL
+        #        FROM %(database)s.recommendation_user, %(database)s.recommendation_item
+        #        WHERE %(database)s.recommendation_user.external_id="%(user)s"
+        #        AND %(database)s.recommendation_item.external_id="%(item)s";
+        #    """ % {
+        #    "database": settings.DATABASES["default"]["NAME"],
+        #    "user": user_external_id,
+        #    "item": item_external_id}
+        #cursor = connection.cursor()
+        #a = cursor.execute(query)
+        #if a == 0:
+        #    raise OperationalError("Item not inserted")
+        ##########
+        Inventory.objects.create(item=Item.item_by_external_id[item_external_id],
+                                 user=User.user_by_external_id[user_external_id], acquisition_date=now())
+        #User.user_by_external_id[user_external_id].items.add(Item.item_by_external_id[item_external_id])
 
     @staticmethod
-    @PutInThreadQueue()
+    @GoToThreadQueue()
     @log_event(log_event.REMOVE)
-    def delete_acquisition(user_external_id, item_external_id):
+    def remove_item(user_external_id, item_external_id):
         """
         Update a certain item to remove in the uninstall datetime field
 
@@ -323,23 +328,27 @@ class UserItemsAPI(RecommendationAPI):
         :type item_external_id: str
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        query = \
-            """
-            UPDATE %(database)s.recommendation_inventory, %(database)s.recommendation_user,
-             %(database)s.recommendation_item
-                SET %(database)s.recommendation_inventory.dropped_date=NOW()
-                WHERE %(database)s.recommendation_item.external_id="%(item)s"
-                AND %(database)s.recommendation_user.external_id="%(user)s"
-                AND %(database)s.recommendation_inventory.user_id=%(database)s.recommendation_user.id
-                AND %(database)s.recommendation_inventory.item_id=%(database)s.recommendation_item.id;
-            """ % {
-            "database": settings.DATABASES["default"]["NAME"],
-            "user": user_external_id,
-            "item": item_external_id}
-        cursor = connection.cursor()
-        a = cursor.execute(query)
-        if a == 0:
-            raise OperationalError("Item not deleted")
+        #query = \
+        #    """
+        #    UPDATE %(database)s.recommendation_inventory, %(database)s.recommendation_user,
+        #     %(database)s.recommendation_item
+        #        SET %(database)s.recommendation_inventory.dropped_date=NOW()
+        #        WHERE %(database)s.recommendation_item.external_id="%(item)s"
+        #        AND %(database)s.recommendation_user.external_id="%(user)s"
+        #        AND %(database)s.recommendation_inventory.user_id=%(database)s.recommendation_user.id
+        #        AND %(database)s.recommendation_inventory.item_id=%(database)s.recommendation_item.id;
+        #    """ % {
+        #    "database": settings.DATABASES["default"]["NAME"],
+        #    "user": user_external_id,
+        #    "item": item_external_id}
+        #cursor = connection.cursor()
+        #a = cursor.execute(query)
+        #if a == 0:
+        #    raise OperationalError("Item not deleted")
+        i = Inventory.objects.get(item=Item.item_by_external_id[item_external_id],
+                                  user=User.user_by_external_id[user_external_id])
+        i.dropped_date = now()
+        i.save()
 
     def get(self, request, user_external_id):
         """
@@ -387,8 +396,7 @@ class UserItemsAPI(RecommendationAPI):
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
         self.insert_acquisition(user_external_id, item_id)
-        items = Item.all_items_eid()
-        User.all_users()[user_external_id].owned_items = Item.all_items_eid()[item_id]
+        #User.user_by_external_id[user_external_id].owned_items = Item.item_by_external_id[item_id]
         return self.format_response(SUCCESS_MESSAGE)
 
     def delete(self, request, user_external_id):
@@ -408,5 +416,5 @@ class UserItemsAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        self.delete_acquisition(user_external_id, item_id)
+        self.remove_item(user_external_id, item_id)
         return self.format_response(SUCCESS_MESSAGE)

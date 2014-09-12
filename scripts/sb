@@ -1,0 +1,157 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+sb - Server Benchmark is a python script to test server application performance
+
+Usage:
+  sb <url> <n> [-c <nc>] [-p <np>] [-d <dfile>] [--repeat-url] [--dump <json>] [--no-verbose]
+  sb -f <ufile> <n> [-c <nc>] [-p <np>] [--repeat-url] [--dump <json>] [--no-verbose]
+  sb --help
+  sb --version
+
+Options:
+  <n>                    Size of sample.
+  <url>                  Url to connect
+  -c --concurrency=<nc>  Concurrency level [default: 1].
+  -d --data=<dfile>      File with data for the request.
+  --dump=<json>          Dumps the results into a json.
+  -f --file=<ufile>      Path to urls file.
+  -h --help              Show this screen.
+  --no-verbose           No verbose.
+  -p --processes=<np>    Number of processes [default: 1]
+  --repeat-url           Use the same url concurrently.
+  -v --version           Show version.
+"""
+
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+import urllib2
+from docopt import docopt
+from random import sample, choice
+import click
+import pandas as pd
+import json
+import sys
+
+
+class NullDevice():
+    def write(self, s):
+        pass
+
+    def flush(self):
+        pass
+
+
+class ServerBenchmarkScript(object):
+
+    def __init__(self):
+        self.arguments = docopt(__doc__, version="Server Benchmark 1.0")
+        if not self.arguments:
+            exit(0)
+        if self.arguments["--file"]:
+            with open(self.arguments["--file"], "r") as f:
+                self.urls = list(f)
+        else:
+            url = self.arguments["<url>"]
+            if self.arguments["--data"]:
+                with open(self.arguments["--data"], "r") as f:
+                    self.urls = [(url % line.split(" ")) for line in f]
+            else:
+                self.urls = [url]
+        self.repeat_url = bool(self.arguments["--repeat-url"])
+        #self.request_method = "post" if self.arguments["--post"] else "get"
+        self.concurrency = int(self.arguments["--concurrency"])
+        self.processes = int(self.arguments["--processes"])
+        self.n = int(self.arguments["<n>"])
+        self.no_verbose = self.arguments["--no-verbose"]
+        self.dump = self.arguments["--dump"]
+
+    @staticmethod
+    def get(url):
+        """
+        Make a http request with get method and the specific parameters
+        :param url:
+        :param params:
+        :return:
+        """
+        start = datetime.now()
+        response = urllib2.urlopen(url)
+
+        return dict(
+            code=response.code,
+            url=response.url,
+            msg=response.msg,
+            response=response.read(),
+            time=(datetime.now() - start).total_seconds() * 1000.,
+        )
+
+    def __call__(self):
+        if self.no_verbose:
+            std_output = sys.stdout
+            sys.stdout = NullDevice()
+        print
+        click.echo(click.style("This is Server Benchmark version 1.0", fg="blue"))
+        click.echo(click.style("Copyright 2014 Linas Baltrunas & João Nuno, Grafos, http://grafos.ml/", fg="blue"))
+        if self.repeat_url:
+            get_url_sample = lambda x: (choice(self.urls) for _ in xrange(x))
+        elif self.concurrency < len(self.urls):
+            get_url_sample = lambda x: sample(self.urls, x)
+        else:
+            get_url_sample = lambda x: self.urls[:x]
+        with ThreadPoolExecutor(max_workers=self.processes) as pool:
+            tries = self.n
+            data = []
+            n = self.n / self.concurrency
+            if self.n % self.concurrency != 0:
+                n += 1
+            print
+            start = datetime.now()
+            with click.progressbar(xrange(n), label="Making %d requests" % self.n) as bar:
+                for _ in bar:
+                    tries -= self.concurrency
+                    results = [
+                        pool.submit(self.get, url)
+                        for url in get_url_sample(self.concurrency if tries > 0 else tries+self.concurrency)
+                    ]
+                    for future in results:
+                        result = future.result()
+                        data.append(result)
+        self.print_data(data, start)
+        if self.dump:
+            with open(self.dump, "w") as f:
+                json.dump(data, f)
+        if self.no_verbose:
+            sys.stdout = std_output
+
+    @staticmethod
+    def print_data(data, start):
+        print
+        print "Finished %d requests in %s" % (len(data), datetime.now()-start)
+        codes = {}
+        for d in data:
+            codes[d["code"]] = codes.get(d["code"], []) + [d]
+
+        print "Status code"
+        print " ---"
+        print "\n".join(" %d\t\t %d" % (code, len(codes[code])) for code in [200, 301, 400, 404, 500] if code in codes)
+        success = pd.DataFrame(codes[200])
+        success.sort("time", inplace=True)
+        print
+        print "Stats for 200"
+        print " ---"
+        print " N\t\t\t\t%d" % len(success)
+        print " Mean(time)\t\t\t%.3f" % success.time.mean()
+        print " Standard deviation(time)\t%.3f" % success.time.std()
+        print " Percentile 50%%(time)\t\t%.0f" % success.time.quantile(0.5)
+        print " Percentile 66%%(time)\t\t%.0f" % success.time.quantile(0.66)
+        print " Percentile 75%%(time)\t\t%.0f" % success.time.quantile(0.75)
+        print " Percentile 90%%(time)\t\t%.0f" % success.time.quantile(0.9)
+        print " Percentile 95%%(time)\t\t%.0f" % success.time.quantile(0.95)
+        print " Percentile 96%%(time)\t\t%.0f" % success.time.quantile(0.96)
+        print " Percentile 97%%(time)\t\t%.0f" % success.time.quantile(0.97)
+        print " Percentile 98%%(time)\t\t%.0f" % success.time.quantile(0.98)
+        print " Percentile 99%%(time)\t\t%.0f" % success.time.quantile(0.99)
+        print " Percentile 100%%(time)\t\t%.0f" % success.time.quantile(1.)
+
+if __name__ == "__main__":
+    ServerBenchmarkScript()()

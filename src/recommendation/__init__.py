@@ -1,11 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-.. module:: 
-    :platform: 
-    :synopsis: 
-     3/4/14
-
-.. moduleauthor:: joaonrb <>
-
-"""
 __author__ = "joaonrb"
+__version__ = 2, 0, 0
+
+from recommendation import core

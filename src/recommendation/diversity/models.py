@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created March 4, 2014
+Created September 3, 2014
 
 Diversification models necessary to apply the diversification to a recommendation
 
@@ -9,6 +9,8 @@ Diversification models necessary to apply the diversification to a recommendatio
 """
 __author__ = "joaonrb"
 
+from itertools import chain
+from collections import Counter
 from django.utils.translation import ugettext as _
 from django.db import models
 from django.core.cache import get_cache
@@ -16,22 +18,26 @@ from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib import admin
-from recommendation.models import Item
+from recommendation.models import Item, CacheManager, IterableCacheManager
 
 
 class Genre(models.Model):
     """
-    Genres of the item
+    Types of genres
     """
-
     name = models.CharField(_("name"), max_length=255)
-    items = models.ManyToManyField(Item, verbose_name=_("items"), related_name="genres")
+
+    genre_by_id = IterableCacheManager("divallgen")
+    genres_count = IterableCacheManager("divcount")
 
     class Meta:
         verbose_name = _("genre")
-        verbose_name_plural = _("genres")
+        verbose_name_plural = _("genre")
 
     def __str__(self):
+        return self.name
+
+    def __unicode__(self):
         return self.name
 
     @staticmethod
@@ -39,34 +45,58 @@ class Genre(models.Model):
         """
         Load size of items per genre
 
-        genres = Genre.genre_in(recommendation)  # frequency in rec, frequency in DB
+        :return:
+        """
+        for genre in Genre.objects.all():
+            Genre.genre_by_id[genre.pk] = genre
+        for gpk, c in Genre.objects.all().annotate(count=Count("items")).values_list("pk", "count"):
+            Genre.genres_count[gpk] = c
+
+
+class ItemGenre(models.Model):
+    """
+    Genres of the item
+    """
+    type = models.ForeignKey(Genre, verbose_name=_("type"), related_name="items")
+    item = models.ForeignKey(Item, verbose_name=_("item"), related_name="genres")
+
+    genre_by_item = CacheManager("divit")
+
+    class Meta:
+        verbose_name = _("item genre")
+        verbose_name_plural = _("item genres")
+
+    def __str__(self):
+        return _("%(item)s's %(genre)s") % {"genre": self.type.name, "item": self.item.external_id}
+
+    def __unicode__(self):
+        return _("%(item)s's %(genre)s") % {"genre": self.type.name, "item": self.item.external_id}
+
+    @staticmethod
+    def load_to_cache():
+        """
+        Load size of items per genre
 
         :return:
         """
-        cache = get_cache("models")
-        cache.set("diversity_counts", dict(
-            Genre.objects.all().annotate(count=Count("items")).values_list("name", "count")
-        ), None)
-        cache.set("diversity_genre_per_item", dict(
-            Item.objects.all().values_list("id", "genres__name")
-        ), None)
-        cache.set("diversity_genre_size", Genre.objects.all().count(), None)
+        for item in Item.objects.all():
+            ItemGenre.genre_by_item[item.pk] = set([])
+        for item in ItemGenre.objects.all():
+            ItemGenre.genre_by_item[item.item.pk] = ItemGenre.genre_by_item[item.item.pk].union((item.type.pk,))
+
+    @staticmethod
+    def load_item(item):
+        """
+        Load a single item to cache
+        :return:
+        """
+        ItemGenre.genre_by_item[item.pk] = set([])
+        for item in ItemGenre.objects.all():
+            ItemGenre.genre_by_item[item.item.pk] = ItemGenre.genre_by_item[item.item.pk].union((item.type.pk,))
 
     @staticmethod
     def genre_in(item_list):
-        cache = get_cache("models")
-        d_counts = cache.get("diversity_counts")
-        items = cache.get("diversity_genre_per_item")
-        result = {}
-        for genres in (items[item] for item in item_list):
-            if genres != None:
-                for genre in ([genres] if isinstance(genres, (str, unicode)) else genres):
-                    try:
-                        result[genre] = result[genre][0]+1, result[genre][1]
-                    except KeyError:
-                        result[genre] = 1, d_counts[genre]
-        return result.values()
-    #colocar items => genres na cache
+        return Counter(chain(*(ItemGenre.genre_by_item[item.pk] for item in item_list)))
 
     @staticmethod
     def count_all():
@@ -74,8 +104,22 @@ class Genre(models.Model):
 
 
 @receiver(post_save, sender=Item)
-def reload_genres_cache(sender, **kwargs):
-    Genre.load_to_cache()
+def load_item_to_cache(sender, **kwargs):
+    ItemGenre.load_item(kwargs["instance"])
 
 
-admin.site.register([Genre])
+@receiver(post_save, sender=Genre)
+def load_genre_to_cache(sender, **kwargs):
+    genre = kwargs["instance"]
+    Genre.genre_by_id[genre.pk] = genre
+    Genre.genres_count[genre.pk] = 0
+
+
+@receiver(post_save, sender=ItemGenre)
+def load_item_genre_to_cache(sender, **kwargs):
+    item = kwargs["instance"]
+    ItemGenre.genre_by_item[item.item.pk] = ItemGenre.genre_by_item[item.item.pk].union((item.type.pk,))
+    Genre.genres_count[item.type.pk] += 1
+
+
+admin.site.register([Genre, ItemGenre])
