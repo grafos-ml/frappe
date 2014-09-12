@@ -11,10 +11,11 @@ except ImportError:
 import os
 from setuptools import setup
 from setuptools import find_packages
+from pkg_resources import resource_filename
 
 
 def get_requirements():
-    with open("requirements.dev.txt") as reqs_file:
+    with open(resource_filename(__file__, "requirements.txt")) as reqs_file:
         reqs = [x.replace("\n", "").strip() for x in reqs_file if bool(x.strip()) and not x.startswith("#") and
                 not x.startswith("https://")]
         return reqs
@@ -28,7 +29,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name="frappe",
-    version="2.0",
+    version="2.0.1",
     description="Frappe recommendation system backend.",
     author="Linas Baltrunas",
     author_email="linas@tid.com",
