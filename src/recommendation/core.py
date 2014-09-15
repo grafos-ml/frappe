@@ -121,11 +121,11 @@ class IController(object):
         :return: A Python list the recommendation apps ids.
         :rtype: list
         """
-        #try:
-        result = self.get_recommendation_from_model(user=user)
-        #except Exception:
-        #    print("Wild error appear in core recommendation")
-        #    result = self.get_alternative_recommendation(user)
+        try:
+            result = self.get_recommendation_from_model(user=user)
+        except Exception:
+            print("Wild error appear in core recommendation")
+            result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
         result = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]

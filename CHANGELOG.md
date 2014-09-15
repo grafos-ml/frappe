@@ -1,4 +1,14 @@
-### [FIX] Fix get not mapped recommendation (HEAD, develop)
+### [FIX] Fix Server benchmark for getting status response other than 200 (HEAD, develop)
+>Mon, 15 Sep 2014 17:25:31 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FIX] Fix get not mapped recommendation
 >Mon, 15 Sep 2014 17:15:36 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

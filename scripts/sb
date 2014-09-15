@@ -45,7 +45,7 @@ class NullDevice():
 class ServerBenchmarkScript(object):
 
     def __init__(self):
-        self.arguments = docopt(__doc__, version="Server Benchmark 1.0")
+        self.arguments = docopt(__doc__, version="Server Benchmark 1.0.1")
         if not self.arguments:
             exit(0)
         if self.arguments["--file"]:
@@ -75,7 +75,10 @@ class ServerBenchmarkScript(object):
         :return:
         """
         start = datetime.now()
-        response = urllib2.urlopen(url)
+        try:
+            response = urllib2.urlopen(url)
+        except urllib2.URLError as e:
+            response = e
 
         return dict(
             code=response.code,
