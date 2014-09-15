@@ -1,4 +1,14 @@
-### [FIX] Fix Server benchmark for getting status response other than 200 (HEAD, develop)
+### Add changelog to doc (HEAD, develop)
+>Mon, 15 Sep 2014 17:32:09 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FIX] Fix Server benchmark for getting status response other than 200
 >Mon, 15 Sep 2014 17:25:31 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
