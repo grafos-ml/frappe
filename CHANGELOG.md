@@ -1,4 +1,14 @@
 ### Change user matrix to array per user in cache (HEAD, develop)
+>Mon, 15 Sep 2014 20:48:20 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change user matrix to array per user in cache
 >Mon, 15 Sep 2014 20:47:49 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
