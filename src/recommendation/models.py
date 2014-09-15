@@ -350,7 +350,9 @@ class TensorCoFi(PyTensorCoFi):
     A creator of TensorCoFi models
     """
 
-    cache = CacheManager("tensorcofi")
+    cache = CacheManager("tensorcofi", "distributed")
+    #user_matrix = CacheManager("tcumatrix", "distributed")
+    items_matrix = []
 
     def __init__(self, n_users=None, n_items=None, **kwargs):
         """
@@ -392,7 +394,7 @@ class TensorCoFi(PyTensorCoFi):
         """
         Get the recommendation for this user
         """
-        return self.get_not_mapped_recommendation(user.pk, **context)
+        return self.get_not_mapped_recommendation(user.pk-1, **context)
 
     @staticmethod
     def load_to_cache():
@@ -403,6 +405,9 @@ class TensorCoFi(PyTensorCoFi):
             items = Matrix.objects.filter(name=tensor.get_name(), model_id=1).order_by("-id")[0]
         except IndexError:
             raise NotCached("%s not in db" % tensor.get_name())
+
+        #for i, u in enumerate(users.numpy):
+        #    TensorCoFi.user_matrix[i] = u
 
         tensor.factors = [users.numpy, items.numpy]
         TensorCoFi.cache[""] = tensor
@@ -447,7 +452,7 @@ class Popularity(TestFMPopularity):
     Popularity connector for db and test.fm
     """
 
-    cache = CacheManager("popularity")
+    cache = CacheManager("popularity", "distributed")
 
     def __init__(self, n_items=None, *args, **kwargs):
 

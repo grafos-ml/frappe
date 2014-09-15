@@ -105,7 +105,7 @@ class IController(object):
         if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
             apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
-                raise ValueError
+                raise Exception
             u_factors = model.online_user_factors(apps_idx)
             return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
         else:
@@ -121,11 +121,11 @@ class IController(object):
         :return: A Python list the recommendation apps ids.
         :rtype: list
         """
-        try:
-            result = self.get_recommendation_from_model(user=user)
-        except Exception:
-            print("Wild error appear in core recommendation")
-            result = self.get_alternative_recommendation(user)
+        #try:
+        result = self.get_recommendation_from_model(user=user)
+        #except Exception:
+        #    print("Wild error appear in core recommendation")
+        #    result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
         result = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]

@@ -92,7 +92,7 @@ MODELS = {
 }
 
 
-def craft_model(options=[]):
+def craft_model(options="popularity"):
     """
     This crafts a model for the recommendation system.
     """
@@ -136,11 +136,6 @@ def main(command, options, every=TimeInterval(1, "minute")):
     """
     opt = locals()
     OPTIONS[command]["command"](*(opt[attr] for attr in OPTIONS[command]["args"]), options=options)
-
-#if __name__ == "__main__":
-#    command = sys.argv[1]
-#    main(command=command)
-#    # TODO
 
 
 class Command(BaseCommand):
