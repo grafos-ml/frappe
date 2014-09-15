@@ -1,4 +1,14 @@
-### Add changelog to doc (HEAD, develop)
+### Change user matrix to array per user in cache (HEAD, develop)
+>Mon, 15 Sep 2014 20:47:49 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add changelog to doc (tag: v2.0.2, origin/master, origin/develop, origin/HEAD, master)
 >Mon, 15 Sep 2014 17:32:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -28,7 +38,7 @@
 
 
 
-### Fix README (origin/master, origin/develop, origin/HEAD, master)
+### Fix README
 >Fri, 12 Sep 2014 18:26:56 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

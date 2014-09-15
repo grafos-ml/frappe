@@ -338,6 +338,7 @@ class NotCached(Exception):
 
 
 class MySQLMapDummy:
+
     def __getitem__(self, item):
         return int(item-1)
 
@@ -351,8 +352,7 @@ class TensorCoFi(PyTensorCoFi):
     """
 
     cache = CacheManager("tensorcofi", "distributed")
-    #user_matrix = CacheManager("tcumatrix", "distributed")
-    items_matrix = []
+    user_matrix = CacheManager("tcumatrix", "distributed")
 
     def __init__(self, n_users=None, n_items=None, **kwargs):
         """
@@ -406,15 +406,17 @@ class TensorCoFi(PyTensorCoFi):
         except IndexError:
             raise NotCached("%s not in db" % tensor.get_name())
 
-        #for i, u in enumerate(users.numpy):
-        #    TensorCoFi.user_matrix[i] = u
+        for i, u in enumerate(users.numpy):
+            TensorCoFi.user_matrix[i] = u
 
-        tensor.factors = [users.numpy, items.numpy]
+        tensor.item_matrix = items.numpy
         TensorCoFi.cache[""] = tensor
 
     @staticmethod
     def get_model_from_cache(*args, **kwargs):
-        return TensorCoFi.cache[""]
+        model = TensorCoFi.cache[""]
+        model.factors = [model.user_matrix, model.item_matrix]
+        return model
 
     @staticmethod
     def get_model(*args, **kwargs):
