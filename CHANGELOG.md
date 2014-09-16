@@ -1,4 +1,14 @@
-### Locks on cache write (HEAD, develop)
+### Fix tests for alternative model in core (HEAD, develop)
+>Tue, 16 Sep 2014 17:36:42 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Locks on cache write
 >Tue, 16 Sep 2014 17:19:20 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

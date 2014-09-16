@@ -11,7 +11,10 @@ import base64
 import numpy as np
 import pandas as pd
 import functools
-from uwsgidecorators import lock
+try:
+    from uwsgidecorators import lock
+except Exception:
+    lock = lambda x: x
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.core.cache import get_cache
