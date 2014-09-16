@@ -28,7 +28,7 @@ TEMPLATE_DEBUG = DEBUG
 
 TESTING_MODE = 'test' in sys.argv
 
-MAX_THREADS = 2
+MAX_THREADS = 4
 
 ALLOWED_HOSTS = ["*"]
 
@@ -137,20 +137,22 @@ REST_FRAMEWORK = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "django_default_cache",
-        "OPTIONS": {
-            "MAX_ENTRIES": 1000000
-        }
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": "127.0.0.1:11211",
+        #"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        #"LOCATION": "django_default_cache",
+        #"OPTIONS": {
+        #    "MAX_ENTRIES": 1000000
+        #}
     },
     "distributed": {
-        #"BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
-        #"LOCATION": "127.0.0.1:11211",
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "django_distributed_cache",
-        "OPTIONS": {
-            "MAX_ENTRIES": 1000000
-        }
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": "127.0.0.1:11211",
+        #"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        #"LOCATION": "django_default_cache",
+        #"OPTIONS": {
+        #    "MAX_ENTRIES": 1000000
+        #}
     }
 }
 
@@ -161,11 +163,11 @@ RECOMMENDATION_SETTINGS = {
         "core": "recommendation.core.TensorCoFiController",
         "filters": [] if TESTING_MODE else [
             "recommendation.filter_owned.filters.FilterOwned",
-            "recommendation.language.filters.SimpleLocaleFilter",
-            "recommendation.simple_logging.filters.SimpleLogFilter",
+            #"recommendation.language.filters.SimpleLocaleFilter",
+            #"recommendation.simple_logging.filters.SimpleLogFilter",
         ],
         "rerankers": [] if TESTING_MODE else [
-            "recommendation.diversity.rerankers.SimpleDiversityReRanker"
+            #"recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
     "logger": "recommendation.simple_logging.decorators.LogEvent"

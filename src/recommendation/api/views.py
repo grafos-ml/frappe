@@ -383,8 +383,6 @@ class LocalCacheTest(RecommendationAPI):
     ]
 
     def get(self, response, token):
-        cache = get_cache("default")
-        p = cache.get("dummy_lct", [])
-        p.append(token)
-        cache.set("dummy_lct", p)
-        return self.format_response(p)
+        from recommendation.api.models import TestLocalCache
+        TestLocalCache.objects.create(token=token)
+        return self.format_response(TestLocalCache.cache.get("dummy_lct", []))

@@ -10,6 +10,8 @@ import sys
 import base64
 import numpy as np
 import pandas as pd
+import functools
+from uwsgidecorators import lock
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.core.cache import get_cache
@@ -82,10 +84,12 @@ class CacheManager(object):
             raise KeyError(k)
         return result
 
+    @functools.wraps(lock)
     def __setitem__(self, key, value):
         k = "%s%s" % (self._prefix, key)
         self._cache.set(k, value, None)
 
+    @functools.wraps(lock)
     def __delitem__(self, key):
         k = "%s%s" % (self._prefix, key)
         self._cache.delete(k)
@@ -114,6 +118,7 @@ class IterableCacheManager(CacheManager):
             raise KeyError(k)
         return result
 
+    @functools.wraps(lock)
     def __setitem__(self, key, value):
         k = "%s%s" % (self._prefix, key)
         # This might need a lock
@@ -123,6 +128,7 @@ class IterableCacheManager(CacheManager):
         #########################
         self._cache.set(k, value, None)
 
+    @functools.wraps(lock)
     def __delitem__(self, key):
         # TODO Test of this
         k = "%s%s" % (self._prefix, key)
