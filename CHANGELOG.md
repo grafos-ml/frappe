@@ -1,4 +1,14 @@
-### User array is deleted on add item and drop item to fresh recommendations (HEAD, develop)
+### [FEATURE] LocalCache Testing API (HEAD, develop)
+>Tue, 16 Sep 2014 11:58:07 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### User array is deleted on add item and drop item to fresh recommendations (origin/develop)
 >Tue, 16 Sep 2014 11:13:40 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -28,7 +38,7 @@
 
 
 
-### Add changelog to doc (tag: v2.0.2, origin/master, origin/develop, origin/HEAD, master)
+### Add changelog to doc (tag: v2.0.2, origin/master, origin/HEAD, master)
 >Mon, 15 Sep 2014 17:32:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

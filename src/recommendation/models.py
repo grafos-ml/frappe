@@ -381,14 +381,8 @@ class TensorCoFi(PyTensorCoFi):
         return self.n_items
 
     def get_score(self, user, item):
-        #print self.factors[0].shape, self.factors[1].shape
-        #try:
         return np.dot(self.factors[0][self.data_map[self.get_user_column()][user]],
                       self.factors[1][self.data_map[self.get_item_column()][item]].transpose())
-        #except Exception as e:
-        #    print user, item, self.factors[0].shape, self.factors[1].shape, len(self.factors)
-        #    raise e
-        #return super(TensorCoFi, self).get_score(int(user), int(item))
 
     def get_recommendation(self, user, **context):
         """
@@ -426,9 +420,6 @@ class TensorCoFi(PyTensorCoFi):
         """
         Trains the model in to data base
         """
-        #data = map(lambda x: {"user": x["user_id"], "item": x["item_id"]},
-        #           Inventory.objects.all().values("user_id", "item_id"))
-        #data = pd.DataFrame(data)
         tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
         data = np.array(sorted([(u-1, i-1, 1.) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
         return tensor.train(data)
@@ -437,8 +428,6 @@ class TensorCoFi(PyTensorCoFi):
         """
         Trains the model in to data base
         """
-        #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
-        #data = pd.DataFrame({"item": users, "user": items})
         super(TensorCoFi, self).train(data)
         users, items = super(TensorCoFi, self).get_model()
         users = Matrix(name=self.get_name(), model_id=0, numpy=users)
@@ -505,10 +494,6 @@ class Popularity(TestFMPopularity):
                 self._counts[i+1] = float("-inf")
         self.popularity_recommendation = [self._counts[i+1] for i in range(self.n_items)]
         self.popularity_recommendation = np.array(self.popularity_recommendation)
-
-    #def get_score(self, user, item, **kwargs):
-    #    print self._counts
-    #    super(Popularity, self).get_score(user, item, **kwargs)
 
     @property
     def recommendation(self):
