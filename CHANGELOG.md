@@ -1,4 +1,14 @@
-### Change user matrix to array per user in cache (HEAD, develop)
+### User array is deleted on add item and drop item to fresh recommendations (HEAD, develop)
+>Tue, 16 Sep 2014 11:13:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change user matrix to array per user in cache
 >Mon, 15 Sep 2014 20:48:20 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

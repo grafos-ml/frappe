@@ -70,20 +70,6 @@ class TestRecommendation(TestCase):
         """
         [recommendation.api.GetRecommendation] Test recommendation with testfm
         """
-        """
-        users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
-        df = pd.DataFrame({"user": pd.Series(users, dtype=np.int32), "item": pd.Series(items, dtype=np.int32)})
-        evaluator = Evaluator(use_multi_threading=False)
-        #training, testing = testfm.split.holdoutByRandom(df, 0.2)
-        tensor = TensorCoFi.get_model()
-        tfm_tensor = PyTensorCoFi()
-        tfm_tensor.fit(df)
-        items = pd.Series((i+1 for i in range(len(Item.item_by_id))), dtype=np.int32)
-
-        t = evaluator.evaluate_model(tensor, df, all_items=items, non_relevant_count=100),
-        tfm = evaluator.evaluate_model(tfm_tensor, df, all_items=items, non_relevant_count=100)
-        assert abs(t - tfm) < 0.10, "Difference between testfm implementation and frappe is to high."
-        """
         data = np.array(zip(*map(lambda x: (x["user_id"]-1, x["item_id"]-1, 1.),
                                  Inventory.objects.all().values("user_id", "item_id"))), dtype=np.float32)
         users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))

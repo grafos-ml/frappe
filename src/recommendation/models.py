@@ -408,7 +408,6 @@ class TensorCoFi(PyTensorCoFi):
 
         for i, u in enumerate(users.numpy):
             TensorCoFi.user_matrix[i] = u
-
         tensor.item_matrix = items.numpy
         TensorCoFi.cache[""] = tensor
 
@@ -447,6 +446,30 @@ class TensorCoFi(PyTensorCoFi):
         items = Matrix(name=self.get_name(), model_id=1, numpy=items)
         items.save()
         return users, items
+
+
+@receiver(post_save, sender=Inventory)
+def remove_user_from_tensorcofi_on_save(sender, instance, created, raw, using, update_fields, *args, **kwargs):
+    """
+    Remove user from tensorCoFi
+    """
+    del TensorCoFi.user_matrix[instance.user.pk-1]
+
+
+@receiver(post_delete, sender=Inventory)
+def remove_user_from_tensorcofi_on_delete(sender, instance, using, *args, **kwargs):
+    """
+    Remove user from tensorCoFi
+    """
+    del TensorCoFi.user_matrix[instance.user.pk-1]
+
+
+@receiver(post_delete, sender=User)
+def remove_user_from_tensorcofi_on_delete_user(sender, instance, using, *args, **kwargs):
+    """
+    Remove user from tensorCoFi
+    """
+    del TensorCoFi.user_matrix[instance.pk-1]
 
 
 class Popularity(TestFMPopularity):
