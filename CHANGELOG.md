@@ -1,4 +1,14 @@
-### Fix tests for alternative model in core (HEAD, develop)
+### Fix for issue #6 (HEAD, develop)
+>Tue, 16 Sep 2014 17:57:20 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix tests for alternative model in core (origin/develop)
 >Tue, 16 Sep 2014 17:36:42 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -38,7 +48,7 @@
 
 
 
-### User array is deleted on add item and drop item to fresh recommendations (origin/develop)
+### User array is deleted on add item and drop item to fresh recommendations
 >Tue, 16 Sep 2014 11:13:40 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -496,12 +496,15 @@ class Popularity(TestFMPopularity):
         :return:
         """
         super(Popularity, self).fit(training_data)
+        #for i in range(self.n_items):
+        #    try:
+        #        self._counts[i+1] = self._counts[i+1]
+        #    except KeyError:
+        #        self._counts[i+1] = float("-inf")
+        self.popularity_recommendation = []
         for i in range(self.n_items):
-            try:
-                self._counts[i+1] = self._counts[i+1]
-            except KeyError:
-                self._counts[i+1] = float("-inf")
-        self.popularity_recommendation = [self._counts[i+1] for i in range(self.n_items)]
+            self.popularity_recommendation.append(self._counts.get(i+1, 0.0))
+
         self.popularity_recommendation = np.array(self.popularity_recommendation)
 
     @property
