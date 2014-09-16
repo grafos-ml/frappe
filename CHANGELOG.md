@@ -1,4 +1,14 @@
-### [FEATURE] LocalCache Testing API (HEAD, develop)
+### All cache local (HEAD, develop)
+>Tue, 16 Sep 2014 12:05:23 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FEATURE] LocalCache Testing API
 >Tue, 16 Sep 2014 11:58:07 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
