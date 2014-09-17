@@ -1,4 +1,14 @@
-### Added explanation for indexes decrementing or incrementing for issue #3 (HEAD, develop)
+### Removed non sense user in controller interface for issue #2 (HEAD, develop)
+>Wed, 17 Sep 2014 12:03:49 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Added explanation for indexes decrementing or incrementing for issue #3
 >Wed, 17 Sep 2014 11:59:55 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

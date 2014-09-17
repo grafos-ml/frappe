@@ -74,7 +74,7 @@ class IController(object):
         """
         return self._re_rankers[:]
 
-    def get_model(self, user):
+    def get_model(self):
         """
         Catch model
 
@@ -99,7 +99,7 @@ class IController(object):
         """
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
-        model = self.get_model(user)
+        model = self.get_model()
         try:
             return model.get_recommendation(user)  # Try to cache recommendation from tensorcofi last build.
         except KeyError:
@@ -150,7 +150,7 @@ class TensorCoFiController(IController):
     Get the matrix from the Model
     """
 
-    def get_model(self, user):
+    def get_model(self):
         """
         Catch model
 
