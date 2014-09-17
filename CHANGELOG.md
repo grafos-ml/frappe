@@ -1,4 +1,14 @@
-### Documented code for issue  #4 (HEAD, develop)
+### Added explanation for indexes decrementing or incrementing for issue #3 (HEAD, develop)
+>Wed, 17 Sep 2014 11:59:55 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Documented code for issue  #4
 >Wed, 17 Sep 2014 11:43:29 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
