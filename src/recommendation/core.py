@@ -101,12 +101,14 @@ class IController(object):
         # previous user.
         model = self.get_model(user)
         try:
-            return model.get_recommendation(user)
+            return model.get_recommendation(user)  # Try to cache recommendation from tensorcofi last build.
         except KeyError:
+            # If
             apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
-                raise Exception
-            u_factors = model.online_user_factors(apps_idx)
+                raise NotEnoughItemsToCompute()  # Not enough items in user inventory to compute
+            u_factors = model.online_user_factors(apps_idx)  # New factors for this user
+            TensorCoFi.user_matrix[user.pk-1] = u_factors  # store new documentation in Cache
             return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
 
     @log_event(log_event.RECOMMEND)
@@ -163,6 +165,12 @@ class TensorCoFiController(IController):
         """
         return Popularity.get_model().recommendation
 
+
+class NotEnoughItemsToCompute(Exception):
+    """
+    Exception for when user is short in Items to compute a new recommendation
+    """
+    pass
 
 RECOMMENDATION_ENGINES = {}
 for engine, engine_settings in RECOMMENDATION_SETTINGS.items():

@@ -1,4 +1,14 @@
-### Change documentation for issue #5 (HEAD, develop)
+### Documented code for issue  #4 (HEAD, develop)
+>Wed, 17 Sep 2014 11:43:29 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change documentation for issue #5 (origin/develop)
 >Wed, 17 Sep 2014 11:33:27 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -18,7 +28,7 @@
 
 
 
-### Fix for issue #6 (origin/develop)
+### Fix for issue #6
 >Tue, 16 Sep 2014 17:57:20 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
