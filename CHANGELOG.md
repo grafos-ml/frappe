@@ -1,4 +1,14 @@
-### one cache only (HEAD, develop)
+### Change documentation for issue #5 (HEAD, develop)
+>Wed, 17 Sep 2014 11:33:27 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### one cache only
 >Wed, 17 Sep 2014 10:46:41 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
