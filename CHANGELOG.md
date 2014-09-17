@@ -1,4 +1,14 @@
-### Fix for issue #6 (HEAD, develop)
+### one cache only (HEAD, develop)
+>Wed, 17 Sep 2014 10:46:41 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix for issue #6 (origin/develop)
 >Tue, 16 Sep 2014 17:57:20 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Fix tests for alternative model in core (origin/develop)
+### Fix tests for alternative model in core
 >Tue, 16 Sep 2014 17:36:42 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -360,8 +360,8 @@ class TensorCoFi(PyTensorCoFi):
     A creator of TensorCoFi models
     """
 
-    cache = CacheManager("tensorcofi", "distributed")
-    user_matrix = CacheManager("tcumatrix", "distributed")
+    cache = CacheManager("tensorcofi")
+    user_matrix = CacheManager("tcumatrix")
 
     def __init__(self, n_users=None, n_items=None, **kwargs):
         """
@@ -475,7 +475,7 @@ class Popularity(TestFMPopularity):
     Popularity connector for db and test.fm
     """
 
-    cache = CacheManager("popularity", "distributed")
+    cache = CacheManager("popularity")
 
     def __init__(self, n_items=None, *args, **kwargs):
 
