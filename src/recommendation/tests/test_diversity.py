@@ -88,10 +88,10 @@ class TestLanguageFilter(TestCase):
         [recommendation.diversity.ReRanker] Test a diversity re-ranker on recommendation
         """
         diversity = SimpleDiversityReRanker()
-        recommendation = [Item.get_item_id_by_external_id(i) for i in ("10001", "10002", "10003", "10004", "98766")]
+        recommendation = [Item.get_item_by_external_id(i).pk for i in ("10001", "10002", "10003", "10004", "98766")]
         shuffle(recommendation)
         for u in USERS:
-            user = User.user_by_external_id[u["external_id"]]
+            user = User.get_user_by_external_id(u["external_id"])
             result = diversity(user=user, recommendation=recommendation[:], size=5)
 
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
@@ -102,10 +102,10 @@ class TestLanguageFilter(TestCase):
         [recommendation.diversity.ReRanker] Test a diversity re-ranker on recommendation for non redundancy snd loss
         """
         diversity = SimpleDiversityReRanker()
-        recommendation = [Item.get_item_id_by_external_id(i) for i in ("10001", "10002", "10003", "10004", "98766")]
+        recommendation = [Item.get_item_by_external_id(i).pk for i in ("10001", "10002", "10003", "10004", "98766")]
         shuffle(recommendation)
         for u in USERS:
-            user = User.user_by_external_id[u["external_id"]]
+            user = User.get_user_by_external_id(u["external_id"])
             result = diversity(user=user, recommendation=recommendation[:], size=5)
 
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]

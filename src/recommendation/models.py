@@ -15,10 +15,11 @@ try:
     from uwsgidecorators import lock
 except Exception:
     lock = lambda x: x
+#lock = lambda x: x
 from django.db import models
 from django.utils.translation import ugettext as _
-from django.core.cache import get_cache
 from django.utils.six import with_metaclass
+from django.core.cache import get_cache
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from testfm.models.tensorcofi import PyTensorCoFi
@@ -157,51 +158,45 @@ class Item(models.Model):
     name = models.CharField(_("name"), max_length=255)
     external_id = models.CharField(_("external id"), max_length=255, unique=True)
 
-    # Cache Managers
-
-    #item_by_id = IterableCacheManager("recitid")
-    #item_by_external_id = IterableCacheManager("recitei")
-
     @staticmethod
-    @Cached()
     def get_item_by_id(item_id):
         """
         Return item by id
         """
-        return Item.objects.get(pk=item_id)
+        return Item.get_item_by_external_id(Item.get_item_external_id_by_id(item_id))
 
     @staticmethod
     @Cached()
-    def get_item_id_by_external_id(external_id):
+    def get_item_external_id_by_id(item_id):
         """
         Return item id from external_id
         """
-        return Item.objects.filter(external_id=external_id).values_list("pk")[0][0]
+        return Item.objects.filter(pk=item_id).values_list("external_id")[0][0]
+
 
     @staticmethod
+    @Cached()
     def get_item_by_external_id(external_id):
         """
         Return item from external id
         """
-        return Item.get_item_by_id(Item.get_item_id_by_external_id(external_id))
+        return Item.objects.get(external_id=external_id)
 
-    @staticmethod
-    def put_item_to_cache(item):
+    def put_item_to_cache(self):
         """
         Loads an app to database
         """
         cache = get_cache("default")
-        cache.set("get_item_by_id_%s" % item.pk, item, None)
-        cache.set("get_item_id_by_external_id%s" % item.external_id, str(item.pk), None)
+        cache.set("%s_%s" % (Item.get_item_by_external_id.__name__, self.external_id), self, None)
+        cache.set("%s_%s" % (Item.get_item_external_id_by_id.__name__, self.pk), self.external_id, None)
 
-    @staticmethod
-    def del_item_to_cache(item):
+    def del_item_to_cache(self):
         """
         Loads an app to database
         """
         cache = get_cache("default")
-        cache.delete("get_item_by_id_%s" % item.pk)
-        cache.delete("get_item_id_by_external_id%s" % item.external_id)
+        cache.delete("%s_%s" % (Item.get_item_by_external_id.__name__, self.external_id))
+        cache.delete("%s_%s" % (Item.get_item_external_id_by_id.__name__, self.pk))
 
     class Meta:
         verbose_name = _("item")
@@ -216,9 +211,7 @@ class Item(models.Model):
     @staticmethod
     def load_to_cache():
         for item in Item.objects.all().prefetch_related():
-            #Item.item_by_id[app.pk] = app
-            #Item.item_by_external_id[app.external_id] = app
-            Item.put_item_to_cache(item)
+            item.put_item_to_cache()
 
 
 @receiver(post_save, sender=Item)
@@ -226,9 +219,7 @@ def add_item_to_cache(sender, instance, created, raw, using, update_fields, *arg
     """
     Add item to cache upon creation
     """
-    #Item.item_by_id[instance.pk] = instance
-    #Item.item_by_external_id[instance.external_id] = instance
-    Item.put_item_to_cache(instance)
+    instance.put_item_to_cache()
 
 
 @receiver(post_delete, sender=Item)
@@ -236,9 +227,7 @@ def delete_item_to_cache(sender, instance, using, **kwargs):
     """
     Add item to cache upon creation
     """
-    #del Item.item_by_id[instance.pk]
-    #del Item.item_by_external_id[instance.external_id]
-    Item.del_item_to_cache(instance)
+    instance.del_item_to_cache()
 
 
 class User(models.Model):
@@ -248,9 +237,9 @@ class User(models.Model):
     external_id = models.CharField(_("external id"), max_length=255, unique=True)
     items = models.ManyToManyField(Item, verbose_name=_("items"), blank=True, through="Inventory")
 
-    user_by_id = IterableCacheManager("recusid")
-    user_by_external_id = IterableCacheManager("recusei")
-    user_items = IterableCacheManager("recusit")
+    #user_by_id = IterableCacheManager("recusid")
+    #user_by_external_id = IterableCacheManager("recusei")
+    #user_items = IterableCacheManager("recusit")
 
     class Meta:
         verbose_name = _("user")
@@ -262,19 +251,72 @@ class User(models.Model):
     def __unicode__(self):
         return unicode(self.external_id)
 
+    @staticmethod
+    @Cached()
+    def get_user_by_id(user_id):
+        """
+        Get user by their id
+        :param user_id: User id
+        :return: A user instance
+        """
+        return User.objects.get(pk=user_id)
+
+    @staticmethod
+    @Cached()
+    def get_user_id_by_external_id(external_id):
+        """
+        Get the user id from external id
+        :param external_id: User external id
+        :return: The user id
+        """
+        return User.objects.filter(external_id=external_id).values_list("pk")[0][0]
+
+    @staticmethod
+    def get_user_by_external_id(external_id):
+        """
+        Get the user id from external id
+        :param external_id: User external id
+        :return: The User instance
+        """
+        return User.get_user_by_id(User.get_user_id_by_external_id(external_id))
+
+    @staticmethod
+    @Cached()
+    def get_user_items(user_id):
+        """
+        Get user items
+        :param user_id: User id
+        :return: A list of user items in inventory
+        """
+        return {
+            entry.item.pk: {
+                "acquisition": entry.acquisition_date,
+                "dropped": entry.dropped_date
+            }
+            for entry in Inventory.objects.filter(user_id=user_id)
+        }
+
     @property
     def all_items(self):
         """
         All items from this user. Key item id and value the inventory register
         """
-        return {k: v for k, v in User.user_items[self.pk].items()}
+        items = User.get_user_items(self.pk)
+        return {
+            item_id: Item.get_item_by_id(item_id)
+            for item_id, dates in items.items()
+        }
 
     @property
     def owned_items(self):
         """
         Get the owned items from cache. Key item id and value the inventory register
         """
-        return {k: v for k, v in User.user_items[self.pk].items() if v.dropped_date is None}
+        items = User.get_user_items(self.pk)
+        return {
+            item_id: Item.get_item_by_id(item_id)
+            for item_id, dates in items.items() if dates["dropped"] is None
+        }
 
     @staticmethod
     def load_to_cache():
@@ -285,20 +327,42 @@ class User(models.Model):
         """
         Load a single user to cache
         """
-        User.user_by_id[self.pk] = self
-        User.user_by_external_id[self.external_id] = self
-        user_items = self.user_items.get(self.pk, {})
-        for entry in Inventory.objects.filter(user=self):
-            user_items[entry.item.pk] = entry
-        self.user_items[self.pk] = user_items
+        cache = get_cache("default")
+        cache.set("get_user_by_id_%s" % self.pk, self, None)
+        cache.set("get_user_id_by_external_id_%s" % self.external_id, self.pk, None)
+        User.get_user_items(self.pk)
 
-    def load_item(self, item):
+    def delete_user(self):
         """
-        Load a single item to inventory
+        Load a single user to cache
         """
-        user_items = self.user_items.get(self.pk, {})
-        user_items[item.item.pk] = item
-        self.user_items[self.pk] = user_items
+        cache = get_cache("default")
+        cache.delete("get_user_by_id_%s" % self.pk)
+        cache.delete("get_user_id_by_external_id_%s" % self.external_id)
+        cache.delete("get_user_items_%s" % self.pk)
+
+    @functools.wraps(lock)
+    def load_item(self, entry):
+        """
+        Load a single inventory entry
+        """
+        cache = get_cache("default")
+        entries = cache.get("get_user_items_%s" % self.pk, {})
+        entries[entry.item.pk] = {
+            "acquisition": entry.acquisition_date,
+            "dropped": entry.dropped_date
+        }
+        cache.set("get_user_items_%s" % self.pk, entries)
+
+    @functools.wraps(lock)
+    def delete_item(self, entry):
+        """
+        Load a single inventory entry
+        """
+        cache = get_cache("default")
+        entries = cache.get("get_user_items_%s" % self.pk, {})
+        del entries[entry.item.pk]
+        cache.set("get_user_items_%s" % self.pk, entries)
 
 
 @receiver(post_save, sender=User)
@@ -314,9 +378,7 @@ def delete_user_to_cache(sender, instance, using, *args, **kwargs):
     """
     Add item to cache upon creation
     """
-    del User.user_by_id[instance.pk]
-    del User.user_by_external_id[instance.external_id]
-    del User.user_items[instance.pk]
+    instance.delete_user()
 
 
 class Inventory(models.Model):
@@ -358,9 +420,7 @@ def delete_inventory_to_cache(sender, instance, using, *args, **kwargs):
     """
     Add item to cache upon creation
     """
-    user_items = User.user_items.get(instance.user.pk, {})
-    del user_items[instance.item.pk]
-    User.user_items[instance.user.pk] = user_items
+    instance.user.delete_item(instance)
 
 
 class Matrix(models.Model):

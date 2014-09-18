@@ -21,6 +21,6 @@ class FilterOwned(object):
         :param kwargs: Extra parameters
         :return:
         """
-        for i in user.owned_items.values():
-            recommendation[i.item.id-1] = float("-inf")
+        for item in user.owned_items.values():
+            recommendation[item.pk-1] = float("-inf")
         return recommendation

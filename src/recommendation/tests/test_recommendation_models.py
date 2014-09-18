@@ -252,7 +252,7 @@ class TestUser(TestCase):
         """
         with self.assertNumQueries(0):
             for u in USERS:
-                user = User.user_by_external_id[u["external_id"]]
+                user = User.get_user_by_external_id(u["external_id"])
                 assert isinstance(user, User), "Cached user is not instance of User."
 
     def test_user_items(self):
@@ -260,9 +260,9 @@ class TestUser(TestCase):
         [recommendation.models.User] Test user items
         """
         for u in USERS:
-            user = User.user_by_external_id[u["external_id"]]
+            user = User.get_user_by_external_id(u["external_id"])
             for i in u["items"]:
-                assert Item.get_item_id_by_external_id(i) in user.all_items, \
+                assert Item.get_item_by_external_id(i).pk in user.all_items, \
                     "Item %s is not in user %s" % (i, user.external_id)
 
     def test_owned_items(self):
@@ -270,16 +270,18 @@ class TestUser(TestCase):
         [recommendation.models.User] Test owned items
         """
         for u in USERS:
-            user = User.user_by_external_id[u["external_id"]]
+            user = User.get_user_by_external_id(u["external_id"])
             for i in u["items"]:
-                ivent = user.all_items[Item.get_item_id_by_external_id(i)]
+                ivent = Inventory.objects.get(item=user.all_items[Item.get_item_by_external_id(i).pk], user=user)
                 ivent.dropped_date = dt.now()
-                user.load_item(ivent)
-                assert Item.get_item_id_by_external_id(i) not in user.owned_items, \
+                ivent.save()
+                #user.load_item(ivent)
+                time.sleep(.2)
+                assert Item.get_item_by_external_id(i).pk not in user.owned_items, \
                     "Item %s is in user %s owned items" % (i, user.external_id)
-                ivent = user.all_items[Item.get_item_id_by_external_id(i)]
+                ivent = Inventory.objects.get(item=user.all_items[Item.get_item_by_external_id(i).pk], user=user)
                 ivent.dropped_date = None
-                user.load_item(ivent)
+                ivent.save()
 
 
 class TestTensorCoFi(TestCase):

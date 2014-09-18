@@ -1,4 +1,14 @@
-### Change items to decorator cache (HEAD, new_cache)
+### Change users to decorator cache (HEAD, new_cache)
+>Thu, 18 Sep 2014 16:11:59 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change items to decorator cache
 >Thu, 18 Sep 2014 11:57:48 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

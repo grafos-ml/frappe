@@ -22,7 +22,7 @@ pymysql.install_as_MySQLdb()
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -39,9 +39,9 @@ INSTALLED_APPS = ([
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    #"django.contrib.sessions",
-    #"django.contrib.messages",
-    #"django.contrib.staticfiles",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 ] if DEBUG else []) + [
     "recommendation",
     "recommendation.api",
@@ -59,17 +59,17 @@ if TESTING_MODE:
     ]
 
 MIDDLEWARE_CLASSES = (
-    #"django.contrib.sessions.middleware.SessionMiddleware",
-    #"django.middleware.common.CommonMiddleware",
-    #"django.middleware.csrf.CsrfViewMiddleware",
-    #"django.contrib.auth.middleware.AuthenticationMiddleware",
-    #"django.contrib.messages.middleware.MessageMiddleware",
-    #"django.middleware.clickjacking.XFrameOptionsMiddleware",
-    #"django.middleware.transaction.TransactionMiddleware",
-    #"django.middleware.cache.UpdateCacheMiddleware",
-    #"django.middleware.cache.FetchFromCacheMiddleware",
-    #"debug_toolbar.middleware.DebugToolbarMiddleware",
-)
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.transaction.TransactionMiddleware",
+    "django.middleware.cache.UpdateCacheMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+) if DEBUG else ()
 
 ROOT_URLCONF = "recommendation.urls"
 
@@ -138,6 +138,13 @@ REST_FRAMEWORK = {
 
 CACHES = {
     "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "django_default_cache",
+        "OPTIONS": {
+            "MAX_ENTRIES": 1000000
+        }
+    },
+    "default1": {
         "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
         "LOCATION": "127.0.0.1:11211",
 
@@ -164,6 +171,6 @@ RECOMMENDATION_SETTINGS = {
             "recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
-    "logger": "recommendation.simple_logging.decorators.LogEvent"
-    #"logger": "recommendation.decorators.NoLogger"
+    #"logger": "recommendation.simple_logging.decorators.LogEvent"
+    "logger": "recommendation.decorators.NoLogger"
 }

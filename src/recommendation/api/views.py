@@ -177,7 +177,7 @@ class UserRecommendationAPI(RecommendationAPI):
         "get"
     ]
 
-    def get(self, request, user_external_id="", number_of_recommendations=5):
+    def get(self, request, user_external_id, number_of_recommendations=5):
         """
         Get method to request recommendations
 
@@ -189,10 +189,7 @@ class UserRecommendationAPI(RecommendationAPI):
         :type number_of_recommendations: int
         :return: A HTTP response with a list of recommendations.
         """
-        if user_external_id == "":
-            user = random.sample(list(User.user_by_external_id), 1)[0]
-        else:
-            user = User.user_by_external_id[user_external_id]
+        user = User.get_user_by_external_id(user_external_id)
 
         # Here is the decorator for recommendation
         recommended_apps = get_controller().get_external_id_recommendations(user, n=int(number_of_recommendations))
@@ -342,7 +339,7 @@ class UserItemsAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        self.insert_acquisition(User.user_by_external_id[user_external_id], Item.get_item_by_external_id(item_id))
+        self.insert_acquisition(User.get_user_by_external_id(user_external_id), Item.get_item_by_external_id(item_id))
         return self.format_response(SUCCESS_MESSAGE)
 
     def delete(self, request, user_external_id):
@@ -362,7 +359,7 @@ class UserItemsAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        self.remove_item(User.user_by_external_id[user_external_id], Item.get_item_by_external_id(item_id))
+        self.remove_item(User.get_user_by_external_id(user_external_id), Item.get_item_by_external_id(item_id))
         return self.format_response(SUCCESS_MESSAGE)
 
 

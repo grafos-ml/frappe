@@ -96,7 +96,7 @@ class TestTensorCoFiController(TestCase):
         """
         rec_controller = get_controller()
         for u in USERS:
-            recommendation = rec_controller.get_recommendation(user=User.user_by_external_id[u["external_id"]], n=5)
+            recommendation = rec_controller.get_recommendation(user=User.get_user_by_external_id(u["external_id"]), n=5)
             assert len(recommendation) == 5, "Size of recommendation is not wright"
 
     @ut.skipIf("default" not in RECOMMENDATION_SETTINGS, "Default recommendation is not defined")

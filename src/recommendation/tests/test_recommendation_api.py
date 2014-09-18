@@ -60,10 +60,11 @@ class TestRecommendation(TestCase):
         """
         [recommendation.api.GetRecommendation] Get recommendation as json
         """
-        response = self.client.get("/api/v2/recommend/5/")
+        response = \
+            self.client.get("/api/v2/recommend/5/0047765d0b6165476b11297e58a341c357af9c35e12efd8c060dabe293ea338d/")
         assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
         rec = json.loads(response.content)
-        assert rec["user"] in map(lambda x: x.external_id, User.user_by_external_id), "User don't exist in cache"
+        assert rec["user"] in map(lambda x: x.external_id, User.objects.all()), "User don't exist in cache"
         assert len(rec["recommendations"]) == 5, "Size of recommendation not 5"
 
     def test_recommendation_with_testfm(self):
@@ -151,11 +152,11 @@ class TestUserItems(TestCase):
             "/api/v2/user-items/00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b/",
             {"item_to_acquire": 457468}
         )
-        user = User.user_by_external_id["00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b"]
+        user = User.get_user_by_external_id("00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b")
         time.sleep(.5)
         assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
         assert len(user.owned_items) == 3, "Owned items should be 3(%d)" % len(user.owned_items)
-        assert Item.get_item_id_by_external_id(457468) in user.owned_items, "New item not in owned items"
+        assert Item.get_item_by_external_id(457468).pk in user.owned_items.keys(), "New item not in owned items"
 
     def test_recommendation_remove_new_item(self):
         """
@@ -169,6 +170,6 @@ class TestUserItems(TestCase):
         time.sleep(.5)
         assert response.status_code == 200, "Request failed. Status code %d. Message: %s" % \
                                             (response.status_code, json.loads(response.content).get("error", ""))
-        assert len(User.user_by_external_id[
-                       "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173"].owned_items) == 0, \
+        assert len(User.get_user_by_external_id(
+                       "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173").owned_items) == 0, \
             "Owned items should be 0"

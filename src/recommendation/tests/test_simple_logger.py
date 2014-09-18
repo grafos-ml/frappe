@@ -73,7 +73,7 @@ class TestSimpleLoggerDecorator(TestCase):
         [recommendation.decorator.SimpleLogger] Test if a recommendation is logged
         """
         logger = LogEvent(LogEvent.RECOMMEND)
-        user = User.user_by_external_id["joaonrb"]
+        user = User.get_user_by_external_id("joaonrb")
         recommendation = [Item.get_item_id_by_external_id(i) for i in ("10001", "10002", "10003", "10004", "98766")]
         recommendation = logger(lambda user: recommendation)(user=user)
         time.sleep(1.)
@@ -91,7 +91,7 @@ class TestSimpleLoggerDecorator(TestCase):
         [recommendation.decorator.SimpleLogger] Test if a clicked item is logged
         """
         logger = LogEvent(LogEvent.CLICK)
-        user = User.user_by_external_id["joaonrb"]
+        user = User.get_user_by_external_id("joaonrb")
         logger(lambda uid, iid: None)(user, Item.get_item_by_external_id("10004"))
         time.sleep(1.)
         logs = list(LogEntry.objects.filter(user=user, type=logger.CLICK))
@@ -104,7 +104,7 @@ class TestSimpleLoggerDecorator(TestCase):
         [recommendation.decorator.SimpleLogger] Test if a removed item is logged
         """
         logger = LogEvent(LogEvent.REMOVE)
-        user = User.user_by_external_id["joaonrb"]
+        user = User.get_user_by_external_id("joaonrb")
         logger(lambda uid, iid: None)(user, Item.get_item_by_external_id("10004"))
         time.sleep(1.)
         logs = list(LogEntry.objects.filter(user=user, type=logger.REMOVE))
@@ -117,7 +117,7 @@ class TestSimpleLoggerDecorator(TestCase):
         [recommendation.decorator.SimpleLogger] Test if a acquired item is logged
         """
         logger = LogEvent(LogEvent.ACQUIRE)
-        user = User.user_by_external_id["joaonrb"]
+        user = User.get_user_by_external_id("joaonrb")
         logger(lambda uid, iid: None)(user, Item.get_item_by_external_id("10004"))
         time.sleep(1.)
         logs = list(LogEntry.objects.filter(user=user, type=logger.ACQUIRE))
@@ -176,7 +176,7 @@ class TestSimpleLoggerCache(TestCase):
         [recommendation.cache.SimpleLogger] Test size of cache is 10 for all users in system
         """
         for user in USERS:
-            user = User.user_by_external_id[user["external_id"]]
+            user = User.get_user_by_external_id(user["external_id"])
             assert len(LogEntry.logs_for[user.pk]) == 10, \
                 "logs size are bigger than predicted (%s != 10)" % len(LogEntry.logs_for[user.pk])
 
@@ -224,7 +224,7 @@ class TestFilterByLog(TestCase):
         rfilter = SimpleLogFilter()
         recommendation = [random.random() for _ in range(len(ITEMS))]
         for u in USERS:
-            user = User.user_by_external_id[u["external_id"]]
+            user = User.get_user_by_external_id(u["external_id"])
             result = rfilter(user, recommendation=np.array(recommendation[:]))
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             assert len(new_rec) == len(ITEMS), "Recommendation size changed (%d != %s)" % (len(new_rec), len(ITEMS))

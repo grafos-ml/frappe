@@ -66,7 +66,7 @@ class NoLogger(ILogger):
 
 class Cached(object):
 
-    def __init__(self, timeout=None, cache="default"):
+    def __init__(self, timeout=None, cache="default1"):
         self.timeout = timeout
         self.cache = get_cache(cache)
 
@@ -75,10 +75,9 @@ class Cached(object):
         The call of the view.
         """
         @functools.wraps(function)
-        def decorated(*args, **kwargs):
-            key = "_".join(itertools.chain([function.__name__], map(lambda x: str(x), args),
-                                           (("%s:%s" % (str(k), str(hash(v)))) for k, v in kwargs.items())))
-            return self.cache.get(key) or self.reload(key, function(*args, **kwargs))
+        def decorated(*args):
+            key = "_".join(itertools.chain([function.__name__], map(lambda x: str(x), args)))
+            return self.cache.get(key) or self.reload(key, function(*args))
         return decorated
 
     @functools.wraps(lock)
