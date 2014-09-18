@@ -1,9 +1,4 @@
-django==1.6.7
-pymysql
-django-cors-headers
-https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
-python-memcached
-djangorestframework
+-r requirements.txt
 
 ######
 nose
@@ -15,7 +10,3 @@ django-debug-toolbar
 # for Documentation
 sphinx
 sphinx_rtd_theme
-
-# For scripts
-docopt
-click
