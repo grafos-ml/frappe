@@ -4,14 +4,16 @@ __author__ = "joaonrb"
 
 from concurrent.futures import ThreadPoolExecutor
 from django.conf import settings
+from django.core.cache import get_cache
 import functools
 import atexit
 import itertools
-from django.core.cache import get_cache
+import warnings
 try:
-    from uwsgi import lock, unlock
-except Exception:
-    lock = unlock = lambda: None
+    from uwsgidecorators import lock
+except ImportError:
+    warnings.warn("uWSGI lock is not active", RuntimeWarning)
+    lock = lambda x: x
 
 
 tread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
@@ -62,7 +64,7 @@ class NoLogger(ILogger):
         return decorated
 
 
-class FromCache(object):
+class Cached(object):
 
     def __init__(self, timeout=None, cache="default"):
         self.timeout = timeout
@@ -74,14 +76,12 @@ class FromCache(object):
         """
         @functools.wraps(function)
         def decorated(*args, **kwargs):
-            lock()
-            try:
-                key = "_".join(itertools.chain([function.__name__], args,
-                                               (("%s:%s" % (k, hash(v))) for k, v in kwargs.items())))
-                return self.cache.get(key) or self.reload(key, function(*args, **kwargs))
-            finally:
-                unlock()
+            key = "_".join(itertools.chain([function.__name__], map(lambda x: str(x), args),
+                                           (("%s:%s" % (str(k), str(hash(v)))) for k, v in kwargs.items())))
+            return self.cache.get(key) or self.reload(key, function(*args, **kwargs))
         return decorated
 
+    @functools.wraps(lock)
     def reload(self, key, result):
         self.cache.set(key, result, self.timeout)
+        return result

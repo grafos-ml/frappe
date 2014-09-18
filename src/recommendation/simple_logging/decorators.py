@@ -8,7 +8,7 @@ __author__ = "joaonrb"
 
 from recommendation.simple_logging.models import LogEntry, LOGGER_MAX_LOGS
 from recommendation.decorators import ILogger
-from recommendation.models import Item
+from recommendation.models import Item, User
 from recommendation.decorators import GoToThreadQueue
 import functools
 from collections import deque
@@ -35,7 +35,7 @@ class LogEvent(ILogger):
     @GoToThreadQueue()
     def bulk_load(self, user, recommendation):
         new_logs = [
-            LogEntry(user=user, item=Item.item_by_id[iid], type=self.log_type, value=i)
+            LogEntry(user=user, item=Item.get_item_by_id(iid), type=self.log_type, value=i)
             for i, iid in enumerate(recommendation, start=1)
         ]
         LogEntry.objects.bulk_create(new_logs)
@@ -58,12 +58,12 @@ class LogEvent(ILogger):
     def std(self, function):
         @functools.wraps(function)
         def decorated(*args, **kwargs):
-            uid, iid = args[0], args[1]
+            user, item = args[0], args[1]
             result = function(*args, **kwargs)
             #GoToThreadQueue()(
             #    LogEntry.objects.create
-            #)(user_id=uid, item=Item.item_by_external_id[iid], type=self.log_type)
-            LogEntry.objects.create(user_id=uid, item=Item.item_by_external_id[iid], type=self.log_type)
+            #)(user_id=uid, item=Item.get_item_by_external_id(iid], type=self.log_type)
+            LogEntry.objects.create(user=user, item=item, type=self.log_type)
             return result
         return decorated
 

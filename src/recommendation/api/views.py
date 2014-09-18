@@ -272,34 +272,28 @@ class UserItemsAPI(RecommendationAPI):
     @staticmethod
     @GoToThreadQueue()
     @log_event(log_event.ACQUIRE)
-    def insert_acquisition(user_external_id, item_external_id):
+    def insert_acquisition(user, item):
         """
         Insert a new in user installed apps
 
-        :param user_external_id: The user external id.
-        :type user_external_id: str
-        :param item_external_id: The item external id.
-        :type item_external_id: str
+        :param user: The user.
+        :param item: The item.
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        Inventory.objects.create(item=Item.item_by_external_id[item_external_id],
-                                 user=User.user_by_external_id[user_external_id], acquisition_date=now())
+        Inventory.objects.create(item=item, user=user, acquisition_date=now())
 
     @staticmethod
     @GoToThreadQueue()
     @log_event(log_event.REMOVE)
-    def remove_item(user_external_id, item_external_id):
+    def remove_item(user, item):
         """
         Update a certain item to remove in the uninstall datetime field
 
-        param user_external_id: The user external id.
-        :type user_external_id: str
-        :param item_external_id: The item external id.
-        :type item_external_id: str
+        :param user: The user id.
+        :param item: The item id.
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        i = Inventory.objects.get(item=Item.item_by_external_id[item_external_id],
-                                  user=User.user_by_external_id[user_external_id])
+        i = Inventory.objects.get(item=item, user=user)
         i.dropped_date = now()
         i.save()
 
@@ -348,8 +342,7 @@ class UserItemsAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        self.insert_acquisition(user_external_id, item_id)
-        #User.user_by_external_id[user_external_id].owned_items = Item.item_by_external_id[item_id]
+        self.insert_acquisition(User.user_by_external_id[user_external_id], Item.get_item_by_external_id(item_id))
         return self.format_response(SUCCESS_MESSAGE)
 
     def delete(self, request, user_external_id):
@@ -369,7 +362,7 @@ class UserItemsAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        self.remove_item(user_external_id, item_id)
+        self.remove_item(User.user_by_external_id[user_external_id], Item.get_item_by_external_id(item_id))
         return self.format_response(SUCCESS_MESSAGE)
 
 

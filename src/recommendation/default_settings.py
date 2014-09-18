@@ -22,13 +22,13 @@ pymysql.install_as_MySQLdb()
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
 TESTING_MODE = 'test' in sys.argv
 
-MAX_THREADS = 4
+MAX_THREADS = 2
 
 ALLOWED_HOSTS = ["*"]
 
@@ -141,12 +141,12 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
         "LOCATION": "127.0.0.1:11211",
 
-    } if not TESTING_MODE else {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "django_default_cache",
-        "OPTIONS": {
-            "MAX_ENTRIES": 1000000
-        }
+    #} if not TESTING_MODE else {
+    #    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    #    "LOCATION": "django_default_cache",
+    #    "OPTIONS": {
+    #        "MAX_ENTRIES": 1000000
+    #    }
     }
 }
 

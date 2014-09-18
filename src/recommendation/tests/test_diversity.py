@@ -61,7 +61,7 @@ class TestLanguageFilter(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -88,7 +88,7 @@ class TestLanguageFilter(TestCase):
         [recommendation.diversity.ReRanker] Test a diversity re-ranker on recommendation
         """
         diversity = SimpleDiversityReRanker()
-        recommendation = [Item.item_by_external_id[i].pk for i in ("10001", "10002", "10003", "10004", "98766")]
+        recommendation = [Item.get_item_id_by_external_id(i) for i in ("10001", "10002", "10003", "10004", "98766")]
         shuffle(recommendation)
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]
@@ -102,7 +102,7 @@ class TestLanguageFilter(TestCase):
         [recommendation.diversity.ReRanker] Test a diversity re-ranker on recommendation for non redundancy snd loss
         """
         diversity = SimpleDiversityReRanker()
-        recommendation = [Item.item_by_external_id[i].pk for i in ("10001", "10002", "10003", "10004", "98766")]
+        recommendation = [Item.get_item_id_by_external_id(i) for i in ("10001", "10002", "10003", "10004", "98766")]
         shuffle(recommendation)
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]

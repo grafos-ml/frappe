@@ -151,11 +151,11 @@ class TestUserItems(TestCase):
             "/api/v2/user-items/00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b/",
             {"item_to_acquire": 457468}
         )
-        time.sleep(0.8)
         user = User.user_by_external_id["00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b"]
+        time.sleep(.5)
         assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
         assert len(user.owned_items) == 3, "Owned items should be 3(%d)" % len(user.owned_items)
-        assert Item.item_by_external_id[457468].pk in user.owned_items, "New item not in owned items"
+        assert Item.get_item_id_by_external_id(457468) in user.owned_items, "New item not in owned items"
 
     def test_recommendation_remove_new_item(self):
         """
@@ -166,7 +166,7 @@ class TestUserItems(TestCase):
             "item_to_remove=413346",
             content_type="application/x-www-form-urlencoded; charset=UTF-8"
         )
-        time.sleep(0.8)
+        time.sleep(.5)
         assert response.status_code == 200, "Request failed. Status code %d. Message: %s" % \
                                             (response.status_code, json.loads(response.content).get("error", ""))
         assert len(User.user_by_external_id[

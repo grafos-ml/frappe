@@ -56,7 +56,8 @@ class TestSimpleLoggerDecorator(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
+        time.sleep(1.)
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -73,9 +74,9 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         logger = LogEvent(LogEvent.RECOMMEND)
         user = User.user_by_external_id["joaonrb"]
-        recommendation = [Item.item_by_external_id[i].pk for i in ("10001", "10002", "10003", "10004", "98766")]
+        recommendation = [Item.get_item_id_by_external_id(i) for i in ("10001", "10002", "10003", "10004", "98766")]
         recommendation = logger(lambda user: recommendation)(user=user)
-        time.sleep(0.5)
+        time.sleep(1.)
         logs = list(LogEntry.objects.filter(user=user, type=logger.RECOMMEND).order_by("value"))
         assert len(logs) == 5, "Number of register is not correct %s" % logs
         logs_iter = iter(logs)
@@ -91,8 +92,8 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         logger = LogEvent(LogEvent.CLICK)
         user = User.user_by_external_id["joaonrb"]
-        logger(lambda uid, iid: None)(user.pk, "10004")
-        time.sleep(0.5)
+        logger(lambda uid, iid: None)(user, Item.get_item_by_external_id("10004"))
+        time.sleep(1.)
         logs = list(LogEntry.objects.filter(user=user, type=logger.CLICK))
         assert len(logs) == 1, "Number of register is not correct %s" % logs
         assert "10004" == logs[0].item.external_id, \
@@ -104,8 +105,8 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         logger = LogEvent(LogEvent.REMOVE)
         user = User.user_by_external_id["joaonrb"]
-        logger(lambda uid, iid: None)(user.pk, "10004")
-        time.sleep(0.5)
+        logger(lambda uid, iid: None)(user, Item.get_item_by_external_id("10004"))
+        time.sleep(1.)
         logs = list(LogEntry.objects.filter(user=user, type=logger.REMOVE))
         assert len(logs) == 1, "Number of register is not correct %s" % logs
         assert "10004" == logs[0].item.external_id, \
@@ -117,8 +118,8 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         logger = LogEvent(LogEvent.ACQUIRE)
         user = User.user_by_external_id["joaonrb"]
-        logger(lambda uid, iid: None)(user.pk, "10004")
-        time.sleep(0.5)
+        logger(lambda uid, iid: None)(user, Item.get_item_by_external_id("10004"))
+        time.sleep(1.)
         logs = list(LogEntry.objects.filter(user=user, type=logger.ACQUIRE))
         assert len(logs) == 1, "Number of register is not correct %s" % logs
         assert "10004" == logs[0].item.external_id, \
@@ -145,12 +146,13 @@ class TestSimpleLoggerCache(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
             for _ in range(3):
-                recommendation = [Item.item_by_external_id[i].pk for i in ("10001", "10002", "10003", "10004", "98766")]
+                recommendation = [Item.get_item_id_by_external_id(i)
+                                  for i in ("10001", "10002", "10003", "10004", "98766")]
                 shuffle(recommendation)
                 logger(lambda user: recommendation)(user=user)
-                time.sleep(0.5)
+        time.sleep(1.)
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -198,12 +200,13 @@ class TestFilterByLog(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
             for _ in range(3):
-                recommendation = [Item.item_by_external_id[i].pk for i in ("10001", "10002", "10003", "10004", "98766")]
+                recommendation = [Item.get_item_id_by_external_id(i)
+                                  for i in ("10001", "10002", "10003", "10004", "98766")]
                 shuffle(recommendation)
                 logger(lambda user: recommendation)(user=user)
-        time.sleep(0.8)
+        time.sleep(1.)
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):

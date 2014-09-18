@@ -7,7 +7,7 @@ __author__ = "joaonrb"
 
 import numpy as np
 from django.conf import settings
-from recommendation.models import Item, TensorCoFi, Popularity, User
+from recommendation.models import Item, TensorCoFi, Popularity
 from recommendation.util import initialize
 
 try:
@@ -142,7 +142,7 @@ class IController(object):
         :return: Item external id list
         """
         result = self.get_recommendation(user=user, n=n)
-        return [Item.item_by_id[r].external_id for r in result]
+        return [Item.get_item_by_id(r).external_id for r in result]
 
 
 class TensorCoFiController(IController):

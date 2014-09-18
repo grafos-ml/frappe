@@ -62,7 +62,7 @@ class TestLanguageFilter(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
             for language in u["languages"]:
                 l = Locale.objects.get(country_code=language)
                 l.users.add(user)
@@ -100,12 +100,12 @@ class TestLanguageFilter(TestCase):
         """
         rfilter = SimpleLocaleFilter()
         recommendation = [random.random() for _ in range(len(ITEMS))]
-        app_rec = [Item.item_by_id[aid+1].external_id
+        app_rec = [Item.get_item_by_id(aid+1).external_id
                    for aid, _ in sorted(enumerate(recommendation), key=lambda x: x[1], reverse=True)]
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]
             result = rfilter(user, np.array(recommendation[:]))
-            new_rec = [Item.item_by_id[aid+1].external_id
+            new_rec = [Item.get_item_by_id(aid+1).external_id
                        for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             n = len(u["last_apps"])
             if n == 0:

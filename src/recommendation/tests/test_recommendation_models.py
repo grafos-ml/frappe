@@ -8,6 +8,7 @@ import sys
 import numpy as np
 import pandas as pd
 import testfm
+import time
 from pkg_resources import resource_filename
 from django.utils import timezone as dt
 from django.test import TestCase
@@ -194,6 +195,7 @@ class TestItems(TestCase):
         """
         for app in ITEMS:
             Item.objects.create(**app)
+        time.sleep(0.5)
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -208,7 +210,7 @@ class TestItems(TestCase):
         """
         with self.assertNumQueries(0):
             for app in ITEMS:
-                item = Item.item_by_external_id[app["external_id"]]
+                item = Item.get_item_by_external_id(app["external_id"])
                 assert isinstance(item, Item), "Cached item is not instance of Item."
                 assert item.name == app["name"], "Name of the app is not correct"
 
@@ -234,7 +236,7 @@ class TestUser(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.item_by_external_id[i], acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -260,7 +262,7 @@ class TestUser(TestCase):
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]
             for i in u["items"]:
-                assert Item.item_by_external_id[i].pk in user.all_items, \
+                assert Item.get_item_id_by_external_id(i) in user.all_items, \
                     "Item %s is not in user %s" % (i, user.external_id)
 
     def test_owned_items(self):
@@ -270,12 +272,12 @@ class TestUser(TestCase):
         for u in USERS:
             user = User.user_by_external_id[u["external_id"]]
             for i in u["items"]:
-                ivent = user.all_items[Item.item_by_external_id[i].pk]
+                ivent = user.all_items[Item.get_item_id_by_external_id(i)]
                 ivent.dropped_date = dt.now()
                 user.load_item(ivent)
-                assert Item.item_by_external_id[i].pk not in user.owned_items, \
+                assert Item.get_item_id_by_external_id(i) not in user.owned_items, \
                     "Item %s is in user %s owned items" % (i, user.external_id)
-                ivent = user.all_items[Item.item_by_external_id[i].pk]
+                ivent = user.all_items[Item.get_item_id_by_external_id(i)]
                 ivent.dropped_date = None
                 user.load_item(ivent)
 

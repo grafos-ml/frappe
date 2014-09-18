@@ -25,6 +25,7 @@ from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity as TestFMPopularity
 if sys.version_info >= (3, 0):
     basestring = unicode = str
+from recommendation.decorators import Cached
 
 
 class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
@@ -87,12 +88,12 @@ class CacheManager(object):
             raise KeyError(k)
         return result
 
-    @functools.wraps(lock)
+    #@functools.wraps(lock)
     def __setitem__(self, key, value):
         k = "%s%s" % (self._prefix, key)
         self._cache.set(k, value, None)
 
-    @functools.wraps(lock)
+    #@functools.wraps(lock)
     def __delitem__(self, key):
         k = "%s%s" % (self._prefix, key)
         self._cache.delete(k)
@@ -121,7 +122,7 @@ class IterableCacheManager(CacheManager):
             raise KeyError(k)
         return result
 
-    @functools.wraps(lock)
+    #@functools.wraps(lock)
     def __setitem__(self, key, value):
         k = "%s%s" % (self._prefix, key)
         # This might need a lock
@@ -131,7 +132,7 @@ class IterableCacheManager(CacheManager):
         #########################
         self._cache.set(k, value, None)
 
-    @functools.wraps(lock)
+    #@functools.wraps(lock)
     def __delitem__(self, key):
         # TODO Test of this
         k = "%s%s" % (self._prefix, key)
@@ -158,8 +159,49 @@ class Item(models.Model):
 
     # Cache Managers
 
-    item_by_id = IterableCacheManager("recitid")
-    item_by_external_id = IterableCacheManager("recitei")
+    #item_by_id = IterableCacheManager("recitid")
+    #item_by_external_id = IterableCacheManager("recitei")
+
+    @staticmethod
+    @Cached()
+    def get_item_by_id(item_id):
+        """
+        Return item by id
+        """
+        return Item.objects.get(pk=item_id)
+
+    @staticmethod
+    @Cached()
+    def get_item_id_by_external_id(external_id):
+        """
+        Return item id from external_id
+        """
+        return Item.objects.filter(external_id=external_id).values_list("pk")[0][0]
+
+    @staticmethod
+    def get_item_by_external_id(external_id):
+        """
+        Return item from external id
+        """
+        return Item.get_item_by_id(Item.get_item_id_by_external_id(external_id))
+
+    @staticmethod
+    def put_item_to_cache(item):
+        """
+        Loads an app to database
+        """
+        cache = get_cache("default")
+        cache.set("get_item_by_id_%s" % item.pk, item, None)
+        cache.set("get_item_id_by_external_id%s" % item.external_id, str(item.pk), None)
+
+    @staticmethod
+    def del_item_to_cache(item):
+        """
+        Loads an app to database
+        """
+        cache = get_cache("default")
+        cache.delete("get_item_by_id_%s" % item.pk)
+        cache.delete("get_item_id_by_external_id%s" % item.external_id)
 
     class Meta:
         verbose_name = _("item")
@@ -173,9 +215,10 @@ class Item(models.Model):
 
     @staticmethod
     def load_to_cache():
-        for app in Item.objects.all().prefetch_related():
-            Item.item_by_id[app.pk] = app
-            Item.item_by_external_id[app.external_id] = app
+        for item in Item.objects.all().prefetch_related():
+            #Item.item_by_id[app.pk] = app
+            #Item.item_by_external_id[app.external_id] = app
+            Item.put_item_to_cache(item)
 
 
 @receiver(post_save, sender=Item)
@@ -183,8 +226,9 @@ def add_item_to_cache(sender, instance, created, raw, using, update_fields, *arg
     """
     Add item to cache upon creation
     """
-    Item.item_by_id[instance.pk] = instance
-    Item.item_by_external_id[instance.external_id] = instance
+    #Item.item_by_id[instance.pk] = instance
+    #Item.item_by_external_id[instance.external_id] = instance
+    Item.put_item_to_cache(instance)
 
 
 @receiver(post_delete, sender=Item)
@@ -192,8 +236,9 @@ def delete_item_to_cache(sender, instance, using, **kwargs):
     """
     Add item to cache upon creation
     """
-    del Item.item_by_id[instance.pk]
-    del Item.item_by_external_id[instance.external_id]
+    #del Item.item_by_id[instance.pk]
+    #del Item.item_by_external_id[instance.external_id]
+    Item.del_item_to_cache(instance)
 
 
 class User(models.Model):
@@ -243,8 +288,8 @@ class User(models.Model):
         User.user_by_id[self.pk] = self
         User.user_by_external_id[self.external_id] = self
         user_items = self.user_items.get(self.pk, {})
-        for item in Inventory.objects.filter(user=self):
-            user_items[item.item.pk] = item
+        for entry in Inventory.objects.filter(user=self):
+            user_items[entry.item.pk] = entry
         self.user_items[self.pk] = user_items
 
     def load_item(self, item):
