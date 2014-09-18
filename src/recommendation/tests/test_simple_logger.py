@@ -74,7 +74,7 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         logger = LogEvent(LogEvent.RECOMMEND)
         user = User.get_user_by_external_id("joaonrb")
-        recommendation = [Item.get_item_id_by_external_id(i) for i in ("10001", "10002", "10003", "10004", "98766")]
+        recommendation = [Item.get_item_by_external_id(i).pk for i in ("10001", "10002", "10003", "10004", "98766")]
         recommendation = logger(lambda user: recommendation)(user=user)
         time.sleep(1.)
         logs = list(LogEntry.objects.filter(user=user, type=logger.RECOMMEND).order_by("value"))
@@ -148,7 +148,7 @@ class TestSimpleLoggerCache(TestCase):
             for i in u["items"]:
                 Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
             for _ in range(3):
-                recommendation = [Item.get_item_id_by_external_id(i)
+                recommendation = [Item.get_item_by_external_id(i).pk
                                   for i in ("10001", "10002", "10003", "10004", "98766")]
                 shuffle(recommendation)
                 logger(lambda user: recommendation)(user=user)
@@ -202,7 +202,7 @@ class TestFilterByLog(TestCase):
             for i in u["items"]:
                 Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
             for _ in range(3):
-                recommendation = [Item.get_item_id_by_external_id(i)
+                recommendation = [Item.get_item_by_external_id(i).pk
                                   for i in ("10001", "10002", "10003", "10004", "98766")]
                 shuffle(recommendation)
                 logger(lambda user: recommendation)(user=user)

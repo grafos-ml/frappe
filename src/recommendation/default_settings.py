@@ -66,8 +66,8 @@ MIDDLEWARE_CLASSES = (
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.transaction.TransactionMiddleware",
-    "django.middleware.cache.UpdateCacheMiddleware",
-    "django.middleware.cache.FetchFromCacheMiddleware",
+    #"django.middleware.cache.UpdateCacheMiddleware",
+    #"django.middleware.cache.FetchFromCacheMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ) if DEBUG else ()
 
@@ -137,14 +137,14 @@ REST_FRAMEWORK = {
 # Caching
 
 CACHES = {
+    #"default": {
+    #    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    #    "LOCATION": "django_default_cache",
+    #    "OPTIONS": {
+    #        "MAX_ENTRIES": 1000000
+    #    }
+    #},
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "django_default_cache",
-        "OPTIONS": {
-            "MAX_ENTRIES": 1000000
-        }
-    },
-    "default1": {
         "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
         "LOCATION": "127.0.0.1:11211",
 
@@ -164,11 +164,11 @@ RECOMMENDATION_SETTINGS = {
         "core": "recommendation.core.TensorCoFiController",
         "filters": [] if TESTING_MODE else [
             "recommendation.filter_owned.filters.FilterOwned",
-            "recommendation.language.filters.SimpleLocaleFilter",
-            "recommendation.simple_logging.filters.SimpleLogFilter",
+            #"recommendation.language.filters.SimpleLocaleFilter",
+            #"recommendation.simple_logging.filters.SimpleLogFilter",
         ],
         "rerankers": [] if TESTING_MODE else [
-            "recommendation.diversity.rerankers.SimpleDiversityReRanker"
+            #"recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
     #"logger": "recommendation.simple_logging.decorators.LogEvent"

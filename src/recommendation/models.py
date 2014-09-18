@@ -173,7 +173,6 @@ class Item(models.Model):
         """
         return Item.objects.filter(pk=item_id).values_list("external_id")[0][0]
 
-
     @staticmethod
     @Cached()
     def get_item_by_external_id(external_id):
@@ -182,6 +181,7 @@ class Item(models.Model):
         """
         return Item.objects.get(external_id=external_id)
 
+    @functools.wraps(lock)
     def put_item_to_cache(self):
         """
         Loads an app to database
@@ -190,9 +190,10 @@ class Item(models.Model):
         cache.set("%s_%s" % (Item.get_item_by_external_id.__name__, self.external_id), self, None)
         cache.set("%s_%s" % (Item.get_item_external_id_by_id.__name__, self.pk), self.external_id, None)
 
-    def del_item_to_cache(self):
+    @functools.wraps(lock)
+    def del_item_from_cache(self):
         """
-        Loads an app to database
+        delete an app to database
         """
         cache = get_cache("default")
         cache.delete("%s_%s" % (Item.get_item_by_external_id.__name__, self.external_id))
@@ -227,7 +228,7 @@ def delete_item_to_cache(sender, instance, using, **kwargs):
     """
     Add item to cache upon creation
     """
-    instance.del_item_to_cache()
+    instance.del_item_from_cache()
 
 
 class User(models.Model):
@@ -236,10 +237,6 @@ class User(models.Model):
     """
     external_id = models.CharField(_("external id"), max_length=255, unique=True)
     items = models.ManyToManyField(Item, verbose_name=_("items"), blank=True, through="Inventory")
-
-    #user_by_id = IterableCacheManager("recusid")
-    #user_by_external_id = IterableCacheManager("recusei")
-    #user_items = IterableCacheManager("recusit")
 
     class Meta:
         verbose_name = _("user")
@@ -460,13 +457,33 @@ class MySQLMapDummy:
         pass
 
 
+class UserMatrix:
+
+    @staticmethod
+    @Cached()
+    def get_user_array(index):
+        return Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0].numpy[index, :]
+
+    def __getitem__(self, index):
+        return self.get_user_array(index)
+
+    @functools.wraps(lock)
+    def __setitem__(self, index, value):
+        get_cache("default").set("get_user_array_%s" % str(index), value, None)
+
+    @functools.wraps(lock)
+    def __delitem__(self, index):
+        get_cache("default").delete("get_user_array_%s" % str(index))
+
+
 class TensorCoFi(PyTensorCoFi):
     """
     A creator of TensorCoFi models
     """
 
-    cache = CacheManager("tensorcofi")
-    user_matrix = CacheManager("tcumatrix")
+    #cache = CacheManager("tensorcofi")
+    #user_matrix = CacheManager("tcumatrix")
+    user_matrix = UserMatrix()
 
     def __init__(self, n_users=None, n_items=None, **kwargs):
         """
@@ -506,24 +523,24 @@ class TensorCoFi(PyTensorCoFi):
 
     @staticmethod
     def load_to_cache():
-        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        tensor = TensorCoFi.get_model_from_cache()
+        return tensor
 
+    @staticmethod
+    @Cached()
+    def get_model_from_cache(*args, **kwargs):
+        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
         try:
-            users = Matrix.objects.filter(name=tensor.get_name(), model_id=0).order_by("-id")[0]
-            items = Matrix.objects.filter(name=tensor.get_name(), model_id=1).order_by("-id")[0]
+            users = Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0]
+            items = Matrix.objects.filter(name="tensorcofi", model_id=1).order_by("-id")[0]
         except IndexError:
             raise NotCached("%s not in db" % tensor.get_name())
 
         for i, u in enumerate(users.numpy):
-            TensorCoFi.user_matrix[i] = u
+            tensor.user_matrix[i] = u
         tensor.item_matrix = items.numpy
-        TensorCoFi.cache[""] = tensor
-
-    @staticmethod
-    def get_model_from_cache(*args, **kwargs):
-        model = TensorCoFi.cache[""]
-        model.factors = [model.user_matrix, model.item_matrix]
-        return model
+        tensor.factors = [tensor.user_matrix, tensor.item_matrix]
+        return tensor
 
     @staticmethod
     def get_model(*args, **kwargs):
@@ -544,9 +561,9 @@ class TensorCoFi(PyTensorCoFi):
         """
         super(TensorCoFi, self).train(data)
         users, items = super(TensorCoFi, self).get_model()
-        users = Matrix(name=self.get_name(), model_id=0, numpy=users)
+        users = Matrix(name="tensorcofi", model_id=0, numpy=users)
         users.save()
-        items = Matrix(name=self.get_name(), model_id=1, numpy=items)
+        items = Matrix(name="tensorcofi", model_id=1, numpy=items)
         items.save()
         return users, items
 
