@@ -40,7 +40,7 @@ OPTIONS: users, items
             ]
         }
 
-    items: The app fie as much more information. It is defined as::
+    items: The app file has much more information. It is defined as::
 
         {
             "premium_type": String(255),
@@ -101,7 +101,7 @@ OPTIONS: users, items
                 ...
                 ],
             "price_locale": String(255),
-            "name": "String(255),
+            "name": {<locale>: String(255)},
             "versions": {
                 Whatever, this is not going to be use for now
             },
@@ -183,7 +183,8 @@ def put_items(objects):
         description = json_item.get("description")
         details = "https://marketplace.firefox.com%s" % json_item.get("resource_uri", "")
         slug = json_item.get("slug")
-        name = json_item.get("name")
+        default_locale = json_item.get("default_locale")
+        name = json_item["name"][default_locale]
         genres = []
         for genre in json_item.get("categories", ()):
             genres.append(genre)
