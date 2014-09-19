@@ -1,4 +1,14 @@
-### Removed non sense user in controller interface for issue #2 (HEAD, develop)
+### Fix train tensor cofi. issue #11 (HEAD, develop)
+>Fri, 19 Sep 2014 15:51:45 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Removed non sense user in controller interface for issue #2 (origin/develop)
 >Wed, 17 Sep 2014 12:03:49 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -28,7 +38,7 @@
 
 
 
-### Change documentation for issue #5 (origin/develop)
+### Change documentation for issue #5
 >Wed, 17 Sep 2014 11:33:27 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

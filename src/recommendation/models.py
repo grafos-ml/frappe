@@ -429,7 +429,8 @@ class TensorCoFi(PyTensorCoFi):
         """
         Trains the model in to data base
         """
-        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        tensor = TensorCoFi(n_users=User.objects.aggregate(max=models.Max("pk"))["max"],
+                            n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         data = np.array(sorted([(u-1, i-1, 1.) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
         return tensor.train(data)
 
@@ -496,11 +497,6 @@ class Popularity(TestFMPopularity):
         :return:
         """
         super(Popularity, self).fit(training_data)
-        #for i in range(self.n_items):
-        #    try:
-        #        self._counts[i+1] = self._counts[i+1]
-        #    except KeyError:
-        #        self._counts[i+1] = float("-inf")
         self.popularity_recommendation = []
         for i in range(self.n_items):
             self.popularity_recommendation.append(self._counts.get(i+1, 0.0))
