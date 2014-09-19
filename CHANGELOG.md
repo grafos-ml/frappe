@@ -1,3 +1,13 @@
+### Small fix in setup (HEAD, master)
+>Fri, 19 Sep 2014 16:23:50 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
 ### Add test for train tensorcofi ssue #11 (origin/develop, develop)
 >Fri, 19 Sep 2014 16:13:12 +0200
 
