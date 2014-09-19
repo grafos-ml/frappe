@@ -28,9 +28,9 @@ class SimpleLogFilter(object):
     points = (
         lambda x: (x.value-5)/2.,  # LogEntry.RECOMMEND
         lambda x: 0,  # LogEntry.CLICK_RECOMMENDED
-        lambda x: 5,  # LogEntry.INSTALL
-        lambda x: 10,  # LogEntry.REMOVE
-        lambda x: -3,  # LogEntry.CLICK
+        lambda x: 0,  # LogEntry.INSTALL
+        lambda x: -10,  # LogEntry.REMOVE
+        lambda x: 3,  # LogEntry.CLICK
     )
 
     @staticmethod

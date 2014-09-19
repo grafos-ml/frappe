@@ -1,4 +1,14 @@
-### Change tensorcofi to decorator cache (HEAD, new_cache)
+### Change popularity to decorator cache (HEAD, new_cache)
+>Fri, 19 Sep 2014 12:38:52 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change tensorcofi to decorator cache (origin/feature_cache_decorator)
 >Thu, 18 Sep 2014 17:54:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

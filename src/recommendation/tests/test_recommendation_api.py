@@ -55,6 +55,8 @@ class TestRecommendation(TestCase):
             Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
         User.objects.all().delete()
         Matrix.objects.all().delete()
+        Popularity.drop_cache()
+        TensorCoFi.drop_cache()
 
     def test_get_recommendation(self):
         """
@@ -131,6 +133,8 @@ class TestUserItems(TestCase):
             Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
         User.objects.all().delete()
         Matrix.objects.all().delete()
+        Popularity.drop_cache()
+        TensorCoFi.drop_cache()
 
     def test_recommendation_get_user_item(self):
         """

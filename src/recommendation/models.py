@@ -567,6 +567,10 @@ class TensorCoFi(PyTensorCoFi):
         items.save()
         return users, items
 
+    @staticmethod
+    def drop_cache():
+        get_cache("default").delete("get_model_from_cache")
+
 
 @receiver(post_save, sender=Inventory)
 def remove_user_from_tensorcofi_on_save(sender, instance, created, raw, using, update_fields, *args, **kwargs):
@@ -597,7 +601,7 @@ class Popularity(TestFMPopularity):
     Popularity connector for db and test.fm
     """
 
-    cache = CacheManager("popularity")
+    #cache = CacheManager("popularity")
 
     def __init__(self, n_items=None, *args, **kwargs):
 
@@ -618,11 +622,6 @@ class Popularity(TestFMPopularity):
         :return:
         """
         super(Popularity, self).fit(training_data)
-        #for i in range(self.n_items):
-        #    try:
-        #        self._counts[i+1] = self._counts[i+1]
-        #    except KeyError:
-        #        self._counts[i+1] = float("-inf")
         self.popularity_recommendation = []
         for i in range(self.n_items):
             self.popularity_recommendation.append(self._counts.get(i+1, 0.0))
@@ -639,15 +638,20 @@ class Popularity(TestFMPopularity):
         self._counts = {i+1: value[i] for i in range(self.n_items)}
 
     @staticmethod
-    def load_to_cache():
+    @Cached()
+    def load_popularity():
         model = Popularity(n_items=Item.objects.all().count())
-        pop = Matrix.objects.filter(name=model.get_name()).order_by("-id")[0]
+        pop = Matrix.objects.filter(name="popularity").order_by("-id")[0]
         model.recommendation = pop.numpy
-        Popularity.cache[""] = model
+        return model
+
+    @staticmethod
+    def load_to_cache():
+        return Popularity.load_popularity()
 
     @staticmethod
     def get_model():
-        return Popularity.cache[""]
+        return Popularity.load_popularity()
 
     def get_recommendation(self, user, **context):
         """
@@ -665,5 +669,9 @@ class Popularity(TestFMPopularity):
         users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
         data = pd.DataFrame({"item": items, "user": users})
         popular_model.fit(data)
-        Matrix.objects.create(name=popular_model.get_name(), numpy=popular_model.recommendation)
+        Matrix.objects.create(name="popularity", numpy=popular_model.recommendation)
     train_from_db = train
+
+    @staticmethod
+    def drop_cache():
+        get_cache("default").delete("load_popularity")

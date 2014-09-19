@@ -83,7 +83,7 @@ class TestSimpleLoggerDecorator(TestCase):
         for i, item in enumerate(recommendation, start=1):
             log = logs_iter.next()
             assert item == log.item.pk, "The item in position %d is not the same that in recommendation " \
-                                                 "(%s != %s)" % (i, item, log.item.external_id)
+                                        "(%s != %s)" % (i, item, log.item.external_id)
             assert i == log.value, "The item in position %d do not have the right value. (%d)" % (i, log.value)
 
     def test_click_logging(self):
