@@ -303,7 +303,7 @@ class TestTensorCoFi(TestCase):
         for i, u in enumerate(USERS, start=1):
             user = User.objects.create(pk=(i*2), external_id=u["external_id"])
             for item in u["items"]:
-                Inventory.objects.create(user=user, item=Item.item_by_external_id[item], acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(item), acquisition_date=dt.now())
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):

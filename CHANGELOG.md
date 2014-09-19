@@ -1,4 +1,14 @@
-### Merge remote-tracking branch 'remotes/origin/master' into feature_cache_decorator (HEAD, feature_cache_decorator)
+### Language cache to decorator (HEAD, feature_cache_decorator)
+>Fri, 19 Sep 2014 17:13:26 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Merge remote-tracking branch 'remotes/origin/master' into feature_cache_decorator
 >Fri, 19 Sep 2014 16:35:18 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

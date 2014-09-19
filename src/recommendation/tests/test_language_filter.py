@@ -66,6 +66,7 @@ class TestLanguageFilter(TestCase):
             for language in u["languages"]:
                 l = Locale.objects.get(country_code=language)
                 l.users.add(user)
+        Locale.load_to_cache()
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -83,7 +84,7 @@ class TestLanguageFilter(TestCase):
         for u in USERS:
             user = User.objects.get(external_id=u["external_id"])
             for loc in user.required_locales.all():
-                assert loc.pk in Locale.user_locales[user.pk], "Locale %s for user %s is not in cache" % (loc, user)
+                assert loc.pk in Locale.get_user_locales(user.pk), "Locale %s for user %s is not in cache" % (loc, user)
 
     def test_items_language_cache(self):
         """
@@ -92,7 +93,7 @@ class TestLanguageFilter(TestCase):
         for i in ITEMS:
             item = Item.objects.get(external_id=i["external_id"])
             for loc in item.available_locales.all():
-                assert loc.pk in Locale.item_locales[item.pk], "Locale %s for item %s is not in cache" % (loc, item)
+                assert loc.pk in Locale.get_item_locales(item.pk), "Locale %s for item %s is not in cache" % (loc, item)
 
     def test_filter_language(self):
         """
