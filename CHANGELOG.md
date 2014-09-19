@@ -1,4 +1,14 @@
-### Small fix in setup (HEAD, master)
+### Add changes to documentation (HEAD, master)
+>Fri, 19 Sep 2014 16:27:47 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Small fix in setup (tag: v2.0.4, origin/master, origin/HEAD)
 >Fri, 19 Sep 2014 16:23:50 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
