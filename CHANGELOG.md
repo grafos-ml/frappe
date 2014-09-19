@@ -1,4 +1,14 @@
-### Change popularity to decorator cache (HEAD, new_cache)
+### Changing locale cache (HEAD, new_cache)
+>Fri, 19 Sep 2014 15:31:48 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change popularity to decorator cache
 >Fri, 19 Sep 2014 12:38:52 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

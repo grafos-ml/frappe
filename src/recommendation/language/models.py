@@ -5,11 +5,18 @@ The locale models moudle. It must contain the locale
 __author__ = "joaonrb"
 
 
+import functools
 from django.db import models
 from django.db.models.signals import post_save, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _
 from recommendation.models import Item, User, CacheManager, IterableCacheManager
+from recommendation.decorators import Cached
+from django.core.cache import get_cache
+try:
+    from uwsgidecorators import lock
+except Exception:
+    lock = lambda x: x
 
 
 class Locale(models.Model):
@@ -22,11 +29,10 @@ class Locale(models.Model):
     items = models.ManyToManyField(Item, verbose_name=_("items"), related_name="available_locales", blank=True)
     users = models.ManyToManyField(User, verbose_name=_("users"), related_name="required_locales", blank=True)
 
-    all_locales = IterableCacheManager("locallid")
-    item_locales = CacheManager("locits")
-    user_locales = CacheManager("locusr")
-    items_by_locale = CacheManager("locitsb")
-    users_by_locale = CacheManager("locusrb")
+    #all_locales = IterableCacheManager("locallid")
+    #item_locales = CacheManager("locits")
+    #user_locales = CacheManager("locusr")
+    #items_by_locale = CacheManager("locitsb")
 
     class Meta:
         verbose_name = _("locale")
@@ -35,6 +41,26 @@ class Locale(models.Model):
 
     def __str__(self):
         return "%s%s" % (self.language_code, "-%s" % self.country_code if self.country_code else "")
+
+    @staticmethod
+    @Cached()
+    def get_all_locales():
+        return {locale.pk: locale for locale in Locale.objects.all()}
+
+    @staticmethod
+    @Cached()
+    def get_item_locales(item_id):
+        return [pk for pk, in Locale.objects.filter(items__in=[item_id]).values_list("pk")]
+
+    @staticmethod
+    @Cached()
+    def get_user_locales(user_id):
+        return [pk for pk, in Locale.objects.filter(users__in=[user_id]).values_list("pk")]
+
+    @staticmethod
+    @Cached()
+    def get_items_by_locale(locale_id):
+        return [pk for pk, in Item.objects.filter(available_locales__in=[locale_id]).values_list("pk")]
 
     def save(self, *args, **kwargs):
         """
@@ -48,7 +74,12 @@ class Locale(models.Model):
         super(Locale, self).save(*args, **kwargs)
 
     @staticmethod
+    @functools.wraps(lock)
     def load_to_cache():
+        cache = get_cache("default")
+        for locale in Locale.objects.all():
+            cache.set()
+
         for u in User.objects.all():
             Locale.user_locales[u.pk] = set([])
         for i in Item.objects.all():
