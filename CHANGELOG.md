@@ -1,4 +1,44 @@
-### Changing locale cache (HEAD, new_cache)
+### Add changes to documentation (origin/master, origin/develop, origin/HEAD, master, develop)
+>Fri, 19 Sep 2014 16:27:47 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Small fix in setup (tag: v2.0.4)
+>Fri, 19 Sep 2014 16:23:50 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add test for train tensorcofi ssue #11
+>Fri, 19 Sep 2014 16:13:12 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix train tensor cofi. issue #11
+>Fri, 19 Sep 2014 15:51:45 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Changing locale cache (origin/feature_cache_decorator)
 >Fri, 19 Sep 2014 15:31:48 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -18,12 +58,32 @@
 
 
 
-### Change tensorcofi to decorator cache (origin/feature_cache_decorator)
+### Change tensorcofi to decorator cache
 >Thu, 18 Sep 2014 17:54:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
 
 >Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Import prod requirements in dev requirements.
+>Thu, 18 Sep 2014 11:09:24 -0400
+
+>Author: Jason Thomas (jason@lithiumfox.com)
+
+>Commiter: Jason Thomas (jason@lithiumfox.com)
+
+
+
+
+### Add pandas and futures to requirements.
+>Thu, 18 Sep 2014 10:47:33 -0400
+
+>Author: Jason Thomas (jason@lithiumfox.com)
+
+>Commiter: Jason Thomas (jason@lithiumfox.com)
 
 
 
@@ -58,7 +118,7 @@
 
 
 
-### Removed non sense user in controller interface for issue #2 (origin/develop, develop)
+### Removed non sense user in controller interface for issue #2
 >Wed, 17 Sep 2014 12:03:49 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -188,7 +248,7 @@
 
 
 
-### Add changelog to doc (tag: v2.0.2, origin/master, origin/HEAD, master)
+### Add changelog to doc (tag: v2.0.2)
 >Mon, 15 Sep 2014 17:32:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

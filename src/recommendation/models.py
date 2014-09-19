@@ -551,7 +551,8 @@ class TensorCoFi(PyTensorCoFi):
         """
         Trains the model in to data base
         """
-        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        tensor = TensorCoFi(n_users=User.objects.aggregate(max=models.Max("pk"))["max"],
+                            n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         data = np.array(sorted([(u-1, i-1, 1.) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
         return tensor.train(data)
 

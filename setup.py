@@ -2,7 +2,7 @@
 #! -*- encoding: utf-8 -*-
 
 __author__ = "joaonrb"
-VERSION = "2.1"
+VERSION = "2.0.4"
 
 try:
     import testfm
@@ -38,7 +38,7 @@ setup(
         "pymysql",
         "django-cors-headers",
         "djangorestframework",
-        "python-memcached"
+        "python-memcached",
         #"django-uwsgi-cache",
         "uwsgi",
         "docopt",
@@ -46,6 +46,6 @@ setup(
     ],
     long_description=README,
     url = "https://github.com/grafos-ml/frappe",
-    download_url = "https://github.com/grafos-ml/frappe/archive/v%star.gz" % VERSION,
+    download_url = "https://github.com/grafos-ml/frappe/archive/v%s.tar.gz" % VERSION,
     keywords = ["recommendation"],
 )

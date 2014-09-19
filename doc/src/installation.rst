@@ -37,7 +37,7 @@ Or using pip from the link:
 .. code-block:: bash
    :linenos:
 
-       $ pip install https://github.com/grafos-ml/frappe/archive/v2.0.dev.zip
+       $ pip install frappe
 
 Configuration
 _____________
