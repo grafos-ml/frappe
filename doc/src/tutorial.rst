@@ -28,6 +28,13 @@ Filters are executed after a recommendation model (such as Collaborative Filteri
                 recommendation[item.pk-1] = float("-inf")
             return recommendation
 
+.. note::
+
+    The raw recommendation come from `test.fm`_ framework. Test.fm is not aware of data origin or mapping. It just
+    receives items from 0 to n and users from 0 to m and delivers a list of scores where the index represent the item.
+    In order to make this mapping we use SQL id. It starts in 1 so we must decrement 1 for mapping. The same goes for
+    user. The incrementation occurs when turning recommendation index to MySQL ids.
+
 Lets take a look at the filter, which removes items already owned by a user from the recommendation list.
 The idea is to take an original scores produced by an algorithm (passed as *recommendation*) and modify them
 to fit our needs. In this case, the filter traverses the list of items that the user owns and put the lowest 
@@ -64,3 +71,6 @@ with the other filters.
     If your filter is build in a django app and is dependent of a model of that app, you must include the app in
     the installed apps and syncdb or make sure the proper tables exist. The same goes for other django specific like
     middlewares, cache, etc...
+
+
+.. _test.fm: https://github.com/grafos-ml/test.fm

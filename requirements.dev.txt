@@ -10,3 +10,7 @@ django-debug-toolbar
 # for Documentation
 sphinx
 sphinx_rtd_theme
+
+# For scripts
+docopt
+click

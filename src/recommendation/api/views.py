@@ -10,6 +10,7 @@ The views for the Recommend API.
 __author__ = "joaonrb"
 
 import random
+from django.utils.cache import get_cache
 from django.utils.timezone import now
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
@@ -160,20 +161,6 @@ class AbstractGoToItem(APIView):
         :type rank: int
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        #query = \
-        #    ("INSERT INTO %(database)s.records_record (id, user_id, item_id, timestamp, value, type) "
-        #     "VALUES (NULL, %(user)s, \"%(item)s\", NOW(), %(rank)s, %(type)s);") % \
-        #    {
-        #        "database": settings.DATABASES["default"]["NAME"],
-        #        "user": ('"%s"' % user_external_id) if user_external_id else "NULL",
-        #        "item": item_external_id,
-        #        "type": self.source_map[click_type],
-        #        "rank": rank or "NULL"
-        #    }
-        #cursor = connection.cursor()
-        #a = cursor.execute(query)
-        #if a == 0:
-        #    raise OperationalError("Record not inserted")
 
 
 class UserRecommendationAPI(RecommendationAPI):
@@ -295,25 +282,8 @@ class UserItemsAPI(RecommendationAPI):
         :type item_external_id: str
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        #query = \
-        #    """
-        #    INSERT INTO %(database)s.recommendation_inventory
-        #        SELECT NULL, recommendation_user.id, recommendation_item.id, NOW(), NULL
-        #        FROM %(database)s.recommendation_user, %(database)s.recommendation_item
-        #        WHERE %(database)s.recommendation_user.external_id="%(user)s"
-        #        AND %(database)s.recommendation_item.external_id="%(item)s";
-        #    """ % {
-        #    "database": settings.DATABASES["default"]["NAME"],
-        #    "user": user_external_id,
-        #    "item": item_external_id}
-        #cursor = connection.cursor()
-        #a = cursor.execute(query)
-        #if a == 0:
-        #    raise OperationalError("Item not inserted")
-        ##########
         Inventory.objects.create(item=Item.item_by_external_id[item_external_id],
                                  user=User.user_by_external_id[user_external_id], acquisition_date=now())
-        #User.user_by_external_id[user_external_id].items.add(Item.item_by_external_id[item_external_id])
 
     @staticmethod
     @GoToThreadQueue()
@@ -328,23 +298,6 @@ class UserItemsAPI(RecommendationAPI):
         :type item_external_id: str
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        #query = \
-        #    """
-        #    UPDATE %(database)s.recommendation_inventory, %(database)s.recommendation_user,
-        #     %(database)s.recommendation_item
-        #        SET %(database)s.recommendation_inventory.dropped_date=NOW()
-        #        WHERE %(database)s.recommendation_item.external_id="%(item)s"
-        #        AND %(database)s.recommendation_user.external_id="%(user)s"
-        #        AND %(database)s.recommendation_inventory.user_id=%(database)s.recommendation_user.id
-        #        AND %(database)s.recommendation_inventory.item_id=%(database)s.recommendation_item.id;
-        #    """ % {
-        #    "database": settings.DATABASES["default"]["NAME"],
-        #    "user": user_external_id,
-        #    "item": item_external_id}
-        #cursor = connection.cursor()
-        #a = cursor.execute(query)
-        #if a == 0:
-        #    raise OperationalError("Item not deleted")
         i = Inventory.objects.get(item=Item.item_by_external_id[item_external_id],
                                   user=User.user_by_external_id[user_external_id])
         i.dropped_date = now()
@@ -418,3 +371,18 @@ class UserItemsAPI(RecommendationAPI):
 
         self.remove_item(user_external_id, item_id)
         return self.format_response(SUCCESS_MESSAGE)
+
+
+class LocalCacheTest(RecommendationAPI):
+    """
+    Dummy apy just for testing local Cache
+    """
+
+    http_method_names = [
+        "get"
+    ]
+
+    def get(self, response, token):
+        from recommendation.api.models import TestLocalCache
+        TestLocalCache.objects.create(token=token)
+        return self.format_response(TestLocalCache.cache.get("dummy_lct", []))

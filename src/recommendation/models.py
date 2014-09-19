@@ -10,6 +10,11 @@ import sys
 import base64
 import numpy as np
 import pandas as pd
+import functools
+try:
+    from uwsgidecorators import lock
+except Exception:
+    lock = lambda x: x
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.core.cache import get_cache
@@ -82,10 +87,12 @@ class CacheManager(object):
             raise KeyError(k)
         return result
 
+    @functools.wraps(lock)
     def __setitem__(self, key, value):
         k = "%s%s" % (self._prefix, key)
         self._cache.set(k, value, None)
 
+    @functools.wraps(lock)
     def __delitem__(self, key):
         k = "%s%s" % (self._prefix, key)
         self._cache.delete(k)
@@ -114,6 +121,7 @@ class IterableCacheManager(CacheManager):
             raise KeyError(k)
         return result
 
+    @functools.wraps(lock)
     def __setitem__(self, key, value):
         k = "%s%s" % (self._prefix, key)
         # This might need a lock
@@ -123,6 +131,7 @@ class IterableCacheManager(CacheManager):
         #########################
         self._cache.set(k, value, None)
 
+    @functools.wraps(lock)
     def __delitem__(self, key):
         # TODO Test of this
         k = "%s%s" % (self._prefix, key)
@@ -338,6 +347,7 @@ class NotCached(Exception):
 
 
 class MySQLMapDummy:
+
     def __getitem__(self, item):
         return int(item-1)
 
@@ -350,9 +360,8 @@ class TensorCoFi(PyTensorCoFi):
     A creator of TensorCoFi models
     """
 
-    cache = CacheManager("tensorcofi", "distributed")
-    #user_matrix = CacheManager("tcumatrix", "distributed")
-    items_matrix = []
+    cache = CacheManager("tensorcofi")
+    user_matrix = CacheManager("tcumatrix")
 
     def __init__(self, n_users=None, n_items=None, **kwargs):
         """
@@ -381,14 +390,8 @@ class TensorCoFi(PyTensorCoFi):
         return self.n_items
 
     def get_score(self, user, item):
-        #print self.factors[0].shape, self.factors[1].shape
-        #try:
         return np.dot(self.factors[0][self.data_map[self.get_user_column()][user]],
                       self.factors[1][self.data_map[self.get_item_column()][item]].transpose())
-        #except Exception as e:
-        #    print user, item, self.factors[0].shape, self.factors[1].shape, len(self.factors)
-        #    raise e
-        #return super(TensorCoFi, self).get_score(int(user), int(item))
 
     def get_recommendation(self, user, **context):
         """
@@ -406,15 +409,16 @@ class TensorCoFi(PyTensorCoFi):
         except IndexError:
             raise NotCached("%s not in db" % tensor.get_name())
 
-        #for i, u in enumerate(users.numpy):
-        #    TensorCoFi.user_matrix[i] = u
-
-        tensor.factors = [users.numpy, items.numpy]
+        for i, u in enumerate(users.numpy):
+            TensorCoFi.user_matrix[i] = u
+        tensor.item_matrix = items.numpy
         TensorCoFi.cache[""] = tensor
 
     @staticmethod
     def get_model_from_cache(*args, **kwargs):
-        return TensorCoFi.cache[""]
+        model = TensorCoFi.cache[""]
+        model.factors = [model.user_matrix, model.item_matrix]
+        return model
 
     @staticmethod
     def get_model(*args, **kwargs):
@@ -425,10 +429,8 @@ class TensorCoFi(PyTensorCoFi):
         """
         Trains the model in to data base
         """
-        #data = map(lambda x: {"user": x["user_id"], "item": x["item_id"]},
-        #           Inventory.objects.all().values("user_id", "item_id"))
-        #data = pd.DataFrame(data)
-        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        tensor = TensorCoFi(n_users=User.objects.aggregate(max=models.Max("pk"))["max"],
+                            n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         data = np.array(sorted([(u-1, i-1, 1.) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
         return tensor.train(data)
 
@@ -436,8 +438,6 @@ class TensorCoFi(PyTensorCoFi):
         """
         Trains the model in to data base
         """
-        #users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
-        #data = pd.DataFrame({"item": users, "user": items})
         super(TensorCoFi, self).train(data)
         users, items = super(TensorCoFi, self).get_model()
         users = Matrix(name=self.get_name(), model_id=0, numpy=users)
@@ -447,12 +447,36 @@ class TensorCoFi(PyTensorCoFi):
         return users, items
 
 
+@receiver(post_save, sender=Inventory)
+def remove_user_from_tensorcofi_on_save(sender, instance, created, raw, using, update_fields, *args, **kwargs):
+    """
+    Remove user from tensorCoFi
+    """
+    del TensorCoFi.user_matrix[instance.user.pk-1]
+
+
+@receiver(post_delete, sender=Inventory)
+def remove_user_from_tensorcofi_on_delete(sender, instance, using, *args, **kwargs):
+    """
+    Remove user from tensorCoFi
+    """
+    del TensorCoFi.user_matrix[instance.user.pk-1]
+
+
+@receiver(post_delete, sender=User)
+def remove_user_from_tensorcofi_on_delete_user(sender, instance, using, *args, **kwargs):
+    """
+    Remove user from tensorCoFi
+    """
+    del TensorCoFi.user_matrix[instance.pk-1]
+
+
 class Popularity(TestFMPopularity):
     """
     Popularity connector for db and test.fm
     """
 
-    cache = CacheManager("popularity", "distributed")
+    cache = CacheManager("popularity")
 
     def __init__(self, n_items=None, *args, **kwargs):
 
@@ -473,17 +497,11 @@ class Popularity(TestFMPopularity):
         :return:
         """
         super(Popularity, self).fit(training_data)
+        self.popularity_recommendation = []
         for i in range(self.n_items):
-            try:
-                self._counts[i+1] = self._counts[i+1]
-            except KeyError:
-                self._counts[i+1] = float("-inf")
-        self.popularity_recommendation = [self._counts[i+1] for i in range(self.n_items)]
-        self.popularity_recommendation = np.array(self.popularity_recommendation)
+            self.popularity_recommendation.append(self._counts.get(i+1, 0.0))
 
-    #def get_score(self, user, item, **kwargs):
-    #    print self._counts
-    #    super(Popularity, self).get_score(user, item, **kwargs)
+        self.popularity_recommendation = np.array(self.popularity_recommendation)
 
     @property
     def recommendation(self):

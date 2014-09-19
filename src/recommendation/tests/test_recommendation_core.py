@@ -108,8 +108,9 @@ class TestTensorCoFiController(TestCase):
         pop_result = \
             [aid+1 for aid, _ in sorted(enumerate(Popularity.get_model().recommendation),
                                         key=lambda x: x[1], reverse=True)]
-        for i in range(7):
-            user = User.objects.create(external_id=str(i+len(USERS)))
+        for name in ["Gepeto", "Son_Goku", "Peter_Pan", "Tony_Montana", "Lady_Diana"]:
+            user = User.objects.create(external_id=name)
             recommendation = rec_controller.get_recommendation(user=user, n=5)
             assert len(recommendation) == 5, "Size of recommendation is not wright"
-            assert recommendation == pop_result, "Recommendation is not popularity"
+            assert recommendation == pop_result, \
+                "Recommendation is not popularity for user %s (%s != %s)" % (user, recommendation, pop_result)

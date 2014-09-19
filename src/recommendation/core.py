@@ -7,7 +7,7 @@ __author__ = "joaonrb"
 
 import numpy as np
 from django.conf import settings
-from recommendation.models import Item, TensorCoFi, Popularity
+from recommendation.models import Item, TensorCoFi, Popularity, User
 from recommendation.util import initialize
 
 try:
@@ -74,7 +74,7 @@ class IController(object):
         """
         return self._re_rankers[:]
 
-    def get_model(self, user):
+    def get_model(self):
         """
         Catch model
 
@@ -94,22 +94,22 @@ class IController(object):
         Get a List of significance values for each app
 
         :param user: The user to get the recommendation
-        :param u_matrix: A matrix with one row for each user
-        :param a_matrix: A matrix with one row for each app in system
 
         :return: An array with the app scores for that user
         """
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
         # previous user.
-        model = self.get_model(user)
-        if user.pk-1 >= model.factors[0].shape[0]:  # We have a new user, so lets construct factors for him:
+        model = self.get_model()
+        try:
+            return model.get_recommendation(user)  # Try to cache recommendation from tensorcofi last build.
+        except KeyError:
+            # If
             apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
             if len(apps_idx) < 3:
-                raise Exception
-            u_factors = model.online_user_factors(apps_idx)
+                raise NotEnoughItemsToCompute()  # Not enough items in user inventory to compute
+            u_factors = model.online_user_factors(apps_idx)  # New factors for this user
+            TensorCoFi.user_matrix[user.pk-1] = u_factors  # store new documentation in Cache
             return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
-        else:
-            return model.get_recommendation(user)
 
     @log_event(log_event.RECOMMEND)
     def get_recommendation(self, user, n=10):
@@ -150,7 +150,7 @@ class TensorCoFiController(IController):
     Get the matrix from the Model
     """
 
-    def get_model(self, user):
+    def get_model(self):
         """
         Catch model
 
@@ -165,6 +165,12 @@ class TensorCoFiController(IController):
         """
         return Popularity.get_model().recommendation
 
+
+class NotEnoughItemsToCompute(Exception):
+    """
+    Exception for when user is short in Items to compute a new recommendation
+    """
+    pass
 
 RECOMMENDATION_ENGINES = {}
 for engine, engine_settings in RECOMMENDATION_SETTINGS.items():

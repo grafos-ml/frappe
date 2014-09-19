@@ -28,20 +28,21 @@ TEMPLATE_DEBUG = DEBUG
 
 TESTING_MODE = 'test' in sys.argv
 
-MAX_THREADS = 2
+MAX_THREADS = 4
 
 ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
-INSTALLED_APPS = [
-    #"django.contrib.admin",
-    #"django.contrib.auth",
-    #"django.contrib.contenttypes",
+INSTALLED_APPS = ([
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
     #"django.contrib.sessions",
     #"django.contrib.messages",
     #"django.contrib.staticfiles",
+] if DEBUG else []) + [
     "recommendation",
     "recommendation.api",
     "recommendation.filter_owned",
@@ -137,15 +138,15 @@ REST_FRAMEWORK = {
 
 CACHES = {
     "default": {
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": "127.0.0.1:11211",
+
+    } if not TESTING_MODE else {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "django_default_cache",
         "OPTIONS": {
             "MAX_ENTRIES": 1000000
         }
-    },
-    "distributed": {
-        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
-        "LOCATION": "127.0.0.1:11211",
     }
 }
 

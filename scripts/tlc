@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+tlc - Test Local Cache
+
+Usage:
+  tlc <url> [-p <np>] [-t <nt>]
+  tlc --help
+  tlc --version
+
+Options:
+  <url>                  Url do the test. The url has to have a %d part fot the testing and must return a list of tokens.
+  -p --processes=<np>    Number of processes [default: 2].
+  -t --tokens=<nt>       Number of tokens [default: 10].
+  -h --help              Show this screen.
+  -v --version           Show version.
+"""
+
+from concurrent.futures import ThreadPoolExecutor
+import urllib2
+from docopt import docopt
+import click
+
+
+class TestLocalCacheScript(object):
+
+    def __init__(self):
+        self.arguments = docopt(__doc__, version="Server Benchmark 1.0.1")
+        if not self.arguments:
+            exit(0)
+        self.url = self.arguments["<url>"]
+        self.processes = int(self.arguments["--processes"])
+        self.tokens = int(self.arguments["--tokens"])
+
+    @staticmethod
+    def get(url):
+        """
+        Make a http request with get method and the specific parameters
+        :param url:
+        :param params:
+        :return:
+        """
+        try:
+            response = urllib2.urlopen(url)
+        except urllib2.URLError as e:
+            response = e
+
+        return response.read()
+
+    def __call__(self):
+        print
+        click.echo(click.style("This is Test fo Local Cache version 1.0", fg="blue"))
+        click.echo(click.style("Copyright 2014 Linas Baltrunas & João Nuno, Grafos, http://grafos.ml", fg="blue"))
+
+        with ThreadPoolExecutor(max_workers=self.processes) as pool:
+            futures = [pool.submit(self.get, self.url % (i+1)) for i in range(self.tokens)]
+            for future in futures:
+                print future.result()
+
+if __name__ == "__main__":
+    TestLocalCacheScript()()

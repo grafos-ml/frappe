@@ -4,26 +4,40 @@
 Installation
 ============
 
+Dependencies
+------------
+
+For now Frappe is dependent of a few tools in order to work properly.
+First, the production server is likely to run with multiple python processes. To increase performance cache is used.
+This cache need to be accessible to all processes, so local cache is no good. We currently using ``Memcached``. You can use
+other as long it has the standard django cache interface.
+
+Other thing is the lock to cache.For this we use the locks available in uwsgi. Because of this, the use of ``uwsgi`` is
+a requisite.
+
+Getting Started
+---------------
+
 First thing, you will need to install the python module test.fm independently of the rest:
 
 .. code-block:: bash
    :linenos:
 
-       >>> pip install https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
+       $ pip install https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
 
 Then run the setup on the package agfter donload it from Github_:
 
 .. code-block:: bash
    :linenos:
 
-       >>> ./setup.py install
+       $ ./setup.py install
 
 Or using pip from the link:
 
 .. code-block:: bash
    :linenos:
 
-       >>> pip install https://github.com/grafos-ml/frappe/archive/v2.0.dev.zip
+       $ pip install frappe
 
 Configuration
 _____________
@@ -97,7 +111,7 @@ For a moment we have a very manual installation process. This will be replaced w
 .. code-block:: bash
    :linenos:
 
-       >>> ./manage.py syncdb
+       $ ./manage.py syncdb
 
     3. Now you have to fill the database with applications and user data. For the example we use a dummy data
     from the data folder. You should replace the path to the real path of the marketplace dumps. For now,
@@ -106,8 +120,8 @@ For a moment we have a very manual installation process. This will be replaced w
 .. code-block:: bash
    :linenos:
 
-       >>> ./manage.py fill items recommender/package/path/src/bin/data/app/
-       >>> ./manage.py fill users recommender/package/path/src/bin/data/user
+       $ ./manage.py fill items recommender/package/path/src/bin/data/app/
+       $ ./manage.py fill users recommender/package/path/src/bin/data/user
 
     4. To retrieve recommendations a recommendation model (statistical representation of your data) must be built.
     To have it built you have to run the script:
@@ -115,8 +129,8 @@ For a moment we have a very manual installation process. This will be replaced w
 .. code-block:: bash
    :linenos:
 
-       >>> ./manage.py modelcrafter train tensorcofi  # For tensorcofi model
-       >>> ./manage.py modelcrafter train popularity  # For Popularity
+       $ ./manage.py modelcrafter train tensorcofi  # For tensorcofi model
+       $ ./manage.py modelcrafter train popularity  # For Popularity
 
 .. note::
 
@@ -136,7 +150,7 @@ And voilá, you got your self a recommendation system for your precious little w
 .. code-block:: bash
    :linenos:
 
-       >>> ./manage.py runserver
+       $ ./manage.py runserver
 
     Open firefox browser at http://127.0.0.1:8000/
 

@@ -2,7 +2,7 @@
 #! -*- encoding: utf-8 -*-
 
 __author__ = "joaonrb"
-VERSION = "2.0.2"
+VERSION = "2.0.3"
 
 try:
     import testfm
@@ -37,8 +37,10 @@ setup(
         "django==1.6.7",
         "pymysql",
         "django-cors-headers",
-        "python-memcached",
         "djangorestframework",
+        "python-memcached"
+        #"django-uwsgi-cache",
+        "uwsgi",
         "docopt",
         "click"
     ],

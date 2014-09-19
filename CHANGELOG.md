@@ -1,4 +1,174 @@
-### Add changelog to doc (HEAD, develop)
+### Add test for train tensorcofi ssue #11 (origin/develop, develop)
+>Fri, 19 Sep 2014 16:13:12 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix train tensor cofi. issue #11
+>Fri, 19 Sep 2014 15:51:45 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Import prod requirements in dev requirements.
+>Thu, 18 Sep 2014 11:09:24 -0400
+
+>Author: Jason Thomas (jason@lithiumfox.com)
+
+>Commiter: Jason Thomas (jason@lithiumfox.com)
+
+
+
+
+### Add pandas and futures to requirements.
+>Thu, 18 Sep 2014 10:47:33 -0400
+
+>Author: Jason Thomas (jason@lithiumfox.com)
+
+>Commiter: Jason Thomas (jason@lithiumfox.com)
+
+
+
+
+### Removed non sense user in controller interface for issue #2
+>Wed, 17 Sep 2014 12:03:49 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Added explanation for indexes decrementing or incrementing for issue #3
+>Wed, 17 Sep 2014 11:59:55 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Documented code for issue  #4
+>Wed, 17 Sep 2014 11:43:29 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change documentation for issue #5
+>Wed, 17 Sep 2014 11:33:27 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### one cache only
+>Wed, 17 Sep 2014 10:46:41 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix for issue #6
+>Tue, 16 Sep 2014 17:57:20 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix tests for alternative model in core
+>Tue, 16 Sep 2014 17:36:42 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Locks on cache write
+>Tue, 16 Sep 2014 17:19:20 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### All cache local
+>Tue, 16 Sep 2014 12:05:23 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FEATURE] LocalCache Testing API
+>Tue, 16 Sep 2014 11:58:07 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### User array is deleted on add item and drop item to fresh recommendations
+>Tue, 16 Sep 2014 11:13:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change user matrix to array per user in cache
+>Mon, 15 Sep 2014 20:48:20 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change user matrix to array per user in cache
+>Mon, 15 Sep 2014 20:47:49 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add changelog to doc (tag: v2.0.2)
 >Mon, 15 Sep 2014 17:32:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -28,7 +198,7 @@
 
 
 
-### Fix README (origin/master, origin/develop, origin/HEAD, master)
+### Fix README
 >Fri, 12 Sep 2014 18:26:56 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

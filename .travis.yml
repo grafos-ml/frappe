@@ -15,7 +15,7 @@ before_script:
 - ls -l
 - python manage.py syncdb --noinput
 script:
-- echo "yes" | python manage.py test -v2
+- echo "yes" | python manage.py test -v2 --with-id
 after_success:
 - cd ../doc
 - ls -l

@@ -243,6 +243,7 @@ class TestUser(TestCase):
         """
         Item.objects.all().delete()
         User.objects.all().delete()
+        Inventory.objects.all().delete()
 
     def test_get_item_by_external_id(self):
         """
@@ -293,6 +294,12 @@ class TestTensorCoFi(TestCase):
         cls.df = pd.read_csv(resource_filename(testfm.__name__, "data/movielenshead.dat"), sep="::", header=None,
                              names=["user", "item", "rating", "date", "title"])
         cls.df = cls.df.head(n=100)
+        for i, app in enumerate(ITEMS, start=1):
+            Item.objects.create(pk=(i*2), **app)
+        for i, u in enumerate(USERS, start=1):
+            user = User.objects.create(pk=(i*2), external_id=u["external_id"])
+            for item in u["items"]:
+                Inventory.objects.create(user=user, item=Item.item_by_external_id[item], acquisition_date=dt.now())
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -301,6 +308,7 @@ class TestTensorCoFi(TestCase):
         """
         Item.objects.all().delete()
         User.objects.all().delete()
+        Inventory.objects.all().delete()
 
     def test_fit(self):
         """
@@ -330,3 +338,15 @@ class TestTensorCoFi(TestCase):
         tf.factors[1][iid, 1] = 5
         self.assertEqual(0*1+1*5, tf.get_score(10, 100))
 
+    def test_training(self):
+        """
+        [recommendation.models.TensorCoFi] Test train from database
+        """
+        try:
+            TensorCoFi.train_from_db()
+        except Exception:
+            assert False, "Training is not working for jumping ids"
+        TensorCoFi.load_to_cache()
+        t = TensorCoFi.get_model_from_cache()
+        for user in User.objects.all():
+            assert isinstance(t.get_recommendation(user), np.ndarray), "Recommendation is not a numpy array"
