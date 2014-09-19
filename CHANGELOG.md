@@ -1,4 +1,14 @@
-### Fix train tensor cofi. issue #11 (HEAD, develop)
+### Add test for train tensorcofi ssue #11 (HEAD, develop)
+>Fri, 19 Sep 2014 16:13:12 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix train tensor cofi. issue #11
 >Fri, 19 Sep 2014 15:51:45 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
