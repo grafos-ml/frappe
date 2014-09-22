@@ -62,6 +62,8 @@ class TestLanguageFilter(TestCase):
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
                 Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
+        Genre.load_to_cache()
+        ItemGenre.load_to_cache()
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -80,7 +82,7 @@ class TestLanguageFilter(TestCase):
         for i in ITEMS:
             item = Item.objects.get(external_id=i["external_id"])
             for gen in item.genres.all():
-                assert gen.type.pk in ItemGenre.genre_by_item[item.pk], \
+                assert gen.type.pk in ItemGenre.get_genre_by_item(item.pk), \
                     "Genre %s for item %s is not in cache" % (gen.type, item)
 
     def test_reranker_diversity(self):
@@ -92,7 +94,8 @@ class TestLanguageFilter(TestCase):
         shuffle(recommendation)
         for u in USERS:
             user = User.get_user_by_external_id(u["external_id"])
-            result = diversity(user=user, recommendation=recommendation[:], size=5)
+            with self.assertNumQueries(0):
+                result = diversity(user=user, recommendation=recommendation[:], size=5)
 
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             assert len(result) == len(ITEMS), "Recommendation size changed (%d != %s)" % (len(new_rec), len(ITEMS))
@@ -106,7 +109,8 @@ class TestLanguageFilter(TestCase):
         shuffle(recommendation)
         for u in USERS:
             user = User.get_user_by_external_id(u["external_id"])
-            result = diversity(user=user, recommendation=recommendation[:], size=5)
+            with self.assertNumQueries(0):
+                result = diversity(user=user, recommendation=recommendation[:], size=5)
 
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             assert len(set(result)) == len(ITEMS), "Recommendation size changed (%d != %s)" % (len(new_rec), len(ITEMS))

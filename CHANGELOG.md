@@ -1,3 +1,13 @@
+### Diversity models to decorator cache (HEAD, feature_cache_decorator)
+>Mon, 22 Sep 2014 17:07:50 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
 ### Integration test for the production items data (origin/master, origin/HEAD, master)
 >Mon, 22 Sep 2014 15:01:35 +0200
 

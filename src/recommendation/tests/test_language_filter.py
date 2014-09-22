@@ -105,7 +105,8 @@ class TestLanguageFilter(TestCase):
                    for aid, _ in sorted(enumerate(recommendation), key=lambda x: x[1], reverse=True)]
         for u in USERS:
             user = User.get_user_by_external_id(u["external_id"])
-            result = rfilter(user, np.array(recommendation[:]))
+            with self.assertNumQueries(0):
+                result = rfilter(user, np.array(recommendation[:]))
             new_rec = [Item.get_item_by_id(aid+1).external_id
                        for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             n = len(u["last_apps"])
@@ -126,6 +127,7 @@ class TestLanguageFilter(TestCase):
         recommendation = [random.random() for _ in range(len(ITEMS))]
         for u in USERS:
             user = User.get_user_by_external_id(u["external_id"])
-            result = rfilter(user, np.array(recommendation[:]))
+            with self.assertNumQueries(0):
+                result = rfilter(user, np.array(recommendation[:]))
             new_rec = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
             assert len(new_rec) == len(ITEMS), "Recommendation size changed (%d != %s)" % (len(new_rec), len(ITEMS))

@@ -36,13 +36,14 @@ class SimpleDiversity(object):
         user_items_count = len(user_items)
 
         self.counter = {}
-        for genre in Genre.genre_by_id:
-            p_global = Genre.genres_count[genre.pk] / number_items
+        for genre_id in Genre.get_all_genres():
+            genre = Genre.get_genre_by_id(genre_id)
+            p_global = genre.count_items / number_items
             p_local = user_genres.get(genre, 0.) / user_items_count if user_items_count else 0.
             self.counter[genre.pk] = int(weighted_p(p_global, p_local, alpha_constant) * size)
 
-    def __call__(self, recommendation, item):
-        genres = ItemGenre.genre_by_item[item]
+    def __call__(self, recommendation, item_id):
+        genres = ItemGenre.get_genre_by_item(item_id)
         dropped = 0
         for genre in genres:
             self.counter[genre] -= 1
@@ -89,16 +90,16 @@ class SimpleDiversityReRanker(object):
         new_recommendation = []
         dropped_items = []
         #for item in recommendation[:int(2*len(recommendation)/3)]:
-        for item in recommendation:
+        for item_id in recommendation:
             #new_recommendation0 = diversity(new_recommendation, item)
             #if len(new_recommendation0) != len(new_recommendation) + 1:
             #    dropped_items.append(item)
             #else:
             #    new_recommendation = new_recommendation0
-            if diversity(new_recommendation, item):
-                new_recommendation.append(item)
+            if diversity(new_recommendation, item_id):
+                new_recommendation.append(item_id)
             else:
-                dropped_items.append(item)
+                dropped_items.append(item_id)
             if len(new_recommendation) > size:
                 break
         return new_recommendation + dropped_items + recommendation[len(new_recommendation)+len(dropped_items):]

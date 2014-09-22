@@ -168,7 +168,7 @@ RECOMMENDATION_SETTINGS = {
             #"recommendation.simple_logging.filters.SimpleLogFilter",
         ],
         "rerankers": [] if TESTING_MODE else [
-            #"recommendation.diversity.rerankers.SimpleDiversityReRanker"
+            "recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
     #"logger": "recommendation.simple_logging.decorators.LogEvent"
