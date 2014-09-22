@@ -1,4 +1,14 @@
-### Language cache to decorator (HEAD, feature_cache_decorator)
+### Performance test (HEAD, feature_cache_decorator)
+>Mon, 22 Sep 2014 11:21:06 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Language cache to decorator (origin/feature_cache_decorator)
 >Fri, 19 Sep 2014 17:13:26 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -60,7 +70,7 @@ Conflicts:
 
 
 
-### Changing locale cache (origin/feature_cache_decorator)
+### Changing locale cache
 >Fri, 19 Sep 2014 15:31:48 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
