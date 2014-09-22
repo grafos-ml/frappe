@@ -1,4 +1,14 @@
-### Diversity models to decorator cache (HEAD, feature_cache_decorator)
+### Fix query leak in language filter (HEAD, feature_cache_decorator)
+>Mon, 22 Sep 2014 17:42:01 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Diversity models to decorator cache
 >Mon, 22 Sep 2014 17:07:50 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

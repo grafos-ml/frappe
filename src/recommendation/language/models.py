@@ -73,6 +73,7 @@ class Locale(models.Model):
     def load_to_cache():
         for locale_id in Locale.get_all_locales():
             Locale.get_item_locales(locale_id)
+            Locale.get_items_by_locale(locale_id)
         for u in User.objects.all():
             Locale.get_user_locales(u.pk)
         for i in Item.objects.all():
