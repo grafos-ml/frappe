@@ -1,4 +1,14 @@
-### Add changes to documentation (HEAD, master)
+### Integration test for the production items data (HEAD, master)
+>Mon, 22 Sep 2014 15:01:35 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add changes to documentation (origin/master, origin/develop, origin/HEAD, develop)
 >Fri, 19 Sep 2014 16:27:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Small fix in setup (tag: v2.0.4, origin/master, origin/HEAD)
+### Small fix in setup (tag: v2.0.4)
 >Fri, 19 Sep 2014 16:23:50 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -18,7 +28,7 @@
 
 
 
-### Add test for train tensorcofi ssue #11 (origin/develop, develop)
+### Add test for train tensorcofi ssue #11
 >Fri, 19 Sep 2014 16:13:12 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
