@@ -1,4 +1,14 @@
-### Performance test (HEAD, feature_cache_decorator)
+### Integration test for the production items data (origin/master, origin/HEAD, master)
+>Mon, 22 Sep 2014 15:01:35 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Performance test
 >Mon, 22 Sep 2014 11:21:06 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -30,7 +40,7 @@ Conflicts:
 
 
 
-### Add changes to documentation (origin/master, origin/develop, origin/HEAD, master, develop)
+### Add changes to documentation (origin/develop, develop)
 >Fri, 19 Sep 2014 16:27:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
