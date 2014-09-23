@@ -1,4 +1,14 @@
-### Minor arrange in code (HEAD, feature_cache_decorator)
+### [ci skip] Contingency plan (HEAD, feature_cache_decorator)
+>Tue, 23 Sep 2014 18:27:20 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Minor arrange in code
 >Tue, 23 Sep 2014 17:04:48 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

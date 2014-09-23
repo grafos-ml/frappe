@@ -192,7 +192,8 @@ class UserRecommendationAPI(RecommendationAPI):
         user = User.get_user_by_external_id(user_external_id)
 
         # Here is the decorator for recommendation
-        recommended_apps = get_controller().get_external_id_recommendations(user, n=int(number_of_recommendations))
+        recommended_apps = get_controller().get_external_id_recommendations(user, int(number_of_recommendations))
+
         data = {"user": user.external_id, "recommendations": recommended_apps}
         return self.format_response(data)
 

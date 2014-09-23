@@ -5,10 +5,12 @@ The core module for the recommendation system. Here is defined the flow for a re
 
 __author__ = "joaonrb"
 
+import functools
 import numpy as np
 from django.conf import settings
 from recommendation.models import Item, TensorCoFi, Popularity
 from recommendation.util import initialize
+from recommendation.decorators import ContingencyProtocol
 
 try:
     RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")
@@ -132,6 +134,7 @@ class IController(object):
             result = r(user, result, size=n)
         return result[:n]
 
+    @ContingencyProtocol()
     def get_external_id_recommendations(self, user, n=10):
         """
         Returns the recommendations with a list of external_is's

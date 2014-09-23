@@ -2,13 +2,15 @@
 
 __author__ = "joaonrb"
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from django.conf import settings
 from django.core.cache import get_cache
 import functools
 import atexit
 import itertools
 import warnings
+import random
+import logging
 try:
     from uwsgi import lock, i_am_the_spooler, unlock
 except ImportError:
@@ -16,7 +18,9 @@ except ImportError:
     lock = i_am_the_spooler = unlock = lambda *x: None
 
 tread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
+clone_pool = ThreadPoolExecutor(max_workers=2)
 atexit.register(tread_pool.shutdown)
+atexit.register(clone_pool.shutdown)
 
 
 class GoToThreadQueue(object):
@@ -108,3 +112,128 @@ class Cached(object):
         def decorated(*args, **kwargs):
             return function(*args, **kwargs)
         return decorated
+
+
+class ContingencyProtocol(object):
+    """
+    Execute in threading pool
+    """
+    def __init__(self):
+        self.__name__ = "ContingencyProtocol"
+
+    def __call__(self, function):
+        """
+        The call of the view.
+        """
+
+        def decorated(self, user, n=10):
+            future = clone_pool.submit(function, self, user, n)
+            try:
+                result = future.result(getattr(settings, "RESPONSE_TIMEOUT", 150./1000.))
+            except TimeoutError:
+                future.cancel()
+                logging.log(logging.ERROR, "Contingency Protocol delivered")
+                result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
+            return result
+        return decorated
+
+SAMPLE = ["364927",
+          "409126",
+          "444796",
+          "461045",
+          "433320",
+          "463886",
+          "427484",
+          "451558",
+          "448292",
+          "404161",
+          "463259",
+          "404517",
+          "460697",
+          "462122",
+          "458348",
+          "386137",
+          "457808",
+          "458731",
+          "444510",
+          "423716",
+          "438392",
+          "455256",
+          "459110",
+          "452888",
+          "464181",
+          "451792",
+          "442754",
+          "404159",
+          "371236",
+          "371377",
+          "379491",
+          "404807",
+          "408212",
+          "375680",
+          "396642",
+          "413346",
+          "443840",
+          "435200",
+          "407950",
+          "425224",
+          "420136",
+          "413558",
+          "408420",
+          "377829",
+          "434270",
+          "422606",
+          "450780",
+          "460939",
+          "467211",
+          "439916",
+          "424192",
+          "376961",
+          "460165",
+          "462823",
+          "469183",
+          "462581",
+          "462106",
+          "471349",
+          "468167",
+          "462667",
+          "463861",
+          "471937",
+          "429582",
+          "472581",
+          "466734",
+          "423452",
+          "455484",
+          "456176",
+          "463884",
+          "437194",
+          "465814",
+          "471309",
+          "454308",
+          "429748",
+          "429662",
+          "448332",
+          "468839",
+          "447408",
+          "468737",
+          "443078",
+          "470467",
+          "421962",
+          "429592",
+          "468322",
+          "464136",
+          "464130",
+          "467426",
+          "461514",
+          "466518",
+          "444220",
+          "379989",
+          "423062",
+          "471037",
+          "410220",
+          "463184",
+          "371030",
+          "470513",
+          "462702",
+          "427878",
+          "458466"]
