@@ -41,7 +41,7 @@ class SimpleLogFilter(object):
         """
         Calculate the new rank based on logs
         """
-        logs = LogEntry.logs_for.get(user.pk, [])
+        logs = LogEntry.get_logs_for(user.pk)
         #m = recommendation.mean()
         #print m
         #rec = {v: k for k, v in enumerate(recommendation, start=1)}

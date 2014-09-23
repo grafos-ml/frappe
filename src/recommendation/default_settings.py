@@ -138,13 +138,11 @@ REST_FRAMEWORK = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "django_default_cache",
-        "OPTIONS": {
-            "MAX_ENTRIES": 1000000
-        }
-    #    "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
-    #    "LOCATION": "127.0.0.1:11211",
+        #"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        #"LOCATION": "django_default_cache",
+        #"OPTIONS": {"MAX_ENTRIES": 1000000}
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": "127.0.0.1:11211",
 
     #} if not TESTING_MODE else {
     #    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -163,7 +161,7 @@ RECOMMENDATION_SETTINGS = {
         "filters": [] if TESTING_MODE else [
             "recommendation.filter_owned.filters.FilterOwned",
             "recommendation.language.filters.SimpleLocaleFilter",
-            #"recommendation.simple_logging.filters.SimpleLogFilter",
+            "recommendation.simple_logging.filters.SimpleLogFilter",
         ],
         "rerankers": [] if TESTING_MODE else [
             "recommendation.diversity.rerankers.SimpleDiversityReRanker"

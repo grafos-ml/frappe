@@ -1,4 +1,14 @@
-### Fix query leak in language filter (HEAD, feature_cache_decorator)
+### Change logging reranker to decorator cache (HEAD, feature_cache_decorator)
+>Tue, 23 Sep 2014 12:10:43 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix query leak in language filter (origin/feature_cache_decorator)
 >Mon, 22 Sep 2014 17:42:01 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -38,7 +48,7 @@
 
 
 
-### Language cache to decorator (origin/feature_cache_decorator)
+### Language cache to decorator
 >Fri, 19 Sep 2014 17:13:26 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
