@@ -88,7 +88,7 @@ class Item(models.Model):
         return Item.get_item_by_external_id(Item.get_item_external_id_by_id(item_id))
 
     @staticmethod
-    @Cached()
+    @Cached(lock_id=0)
     def get_item_external_id_by_id(item_id):
         """
         Return item id from external_id
@@ -96,30 +96,35 @@ class Item(models.Model):
         return Item.objects.filter(pk=item_id).values_list("external_id")[0][0]
 
     @staticmethod
-    @Cached()
+    @Cached(lock_id=0)
     def get_item_by_external_id(external_id):
         """
         Return item from external id
         """
         return Item.objects.get(external_id=external_id)
 
-    @functools.wraps(lock)
     def put_item_to_cache(self):
         """
         Loads an app to database
         """
-        cache = get_cache("default")
-        cache.set("%s_%s" % (Item.get_item_by_external_id.__name__, self.external_id), self, None)
-        cache.set("%s_%s" % (Item.get_item_external_id_by_id.__name__, self.pk), self.external_id, None)
+        Item.get_item_by_external_id.lock_this(
+            Item.get_item_by_external_id.cache.set
+        )(Item.get_item_by_external_id.key % self.external_id, self, Item.get_item_by_external_id.timeout)
+        Item.get_item_external_id_by_id.lock_this(
+            Item.get_item_external_id_by_id.cache.set
+        )(Item.get_item_external_id_by_id.key % self.pk, self.external_id, Item.get_item_external_id_by_id.timeout)
 
     @functools.wraps(lock)
     def del_item_from_cache(self):
         """
         delete an app to database
         """
-        cache = get_cache("default")
-        cache.delete("%s_%s" % (Item.get_item_by_external_id.__name__, self.external_id))
-        cache.delete("%s_%s" % (Item.get_item_external_id_by_id.__name__, self.pk))
+        Item.get_item_by_external_id.lock_this(
+            Item.get_item_by_external_id.cache.delete
+        )(Item.get_item_by_external_id.key % self.external_id)
+        Item.get_item_external_id_by_id.lock_this(
+            Item.get_item_external_id_by_id.cache.delete
+        )(Item.get_item_external_id_by_id.key % self.pk)
 
     class Meta:
         verbose_name = _("item")
@@ -171,7 +176,7 @@ class User(models.Model):
         return unicode(self.external_id)
 
     @staticmethod
-    @Cached()
+    @Cached(lock_id=1)
     def get_user_by_id(user_id):
         """
         Get user by their id
@@ -181,7 +186,7 @@ class User(models.Model):
         return User.objects.get(pk=user_id)
 
     @staticmethod
-    @Cached()
+    @Cached(lock_id=1)
     def get_user_id_by_external_id(external_id):
         """
         Get the user id from external id
@@ -200,7 +205,7 @@ class User(models.Model):
         return User.get_user_by_id(User.get_user_id_by_external_id(external_id))
 
     @staticmethod
-    @Cached()
+    @Cached(lock_id=1)
     def get_user_items(user_id):
         """
         Get user items
@@ -246,42 +251,48 @@ class User(models.Model):
         """
         Load a single user to cache
         """
-        cache = get_cache("default")
-        cache.set("get_user_by_id_%s" % self.pk, self, None)
-        cache.set("get_user_id_by_external_id_%s" % self.external_id, self.pk, None)
+        User.get_user_by_id.lock_this(
+            User.get_user_by_id.cache.set
+        )(User.get_user_by_id.key % self.external_id, self.pk, User.get_user_by_id.timeout)
+        User.get_user_id_by_external_id.lock_this(
+            User.get_user_id_by_external_id.cache.set
+        )(User.get_user_id_by_external_id.key % self.external_id, self.pk, User.get_user_id_by_external_id.timeout)
         User.get_user_items(self.pk)
 
     def delete_user(self):
         """
         Load a single user to cache
         """
-        cache = get_cache("default")
-        cache.delete("get_user_by_id_%s" % self.pk)
-        cache.delete("get_user_id_by_external_id_%s" % self.external_id)
-        cache.delete("get_user_items_%s" % self.pk)
+        User.get_user_by_id.lock_this(
+            User.get_user_by_id.cache.delete
+        )(User.get_user_by_id.key % self.external_id)
+        User.get_user_id_by_external_id.lock_this(
+            User.get_user_id_by_external_id.cache.delete
+        )(User.get_user_id_by_external_id.key % self.external_id)
+        User.get_user_items.lock_this(
+            User.get_user_items.cache.delete
+        )(User.get_user_items.key % self.external_id)
 
-    @functools.wraps(lock)
     def load_item(self, entry):
         """
         Load a single inventory entry
         """
-        cache = get_cache("default")
-        entries = cache.get("get_user_items_%s" % self.pk, {})
+        cache = User.get_user_items.cache
+        entries = cache.get(User.get_user_items.key % self.pk, {})
         entries[entry.item.pk] = {
             "acquisition": entry.acquisition_date,
             "dropped": entry.dropped_date
         }
-        cache.set("get_user_items_%s" % self.pk, entries)
+        cache.set(User.get_user_items.key % self.pk, entries)
 
-    @functools.wraps(lock)
     def delete_item(self, entry):
         """
         Load a single inventory entry
         """
-        cache = get_cache("default")
-        entries = cache.get("get_user_items_%s" % self.pk, {})
+        cache = User.get_user_items.cache
+        entries = cache.get(User.get_user_items.key % self.pk, {})
         del entries[entry.item.pk]
-        cache.set("get_user_items_%s" % self.pk, entries)
+        cache.set(User.get_user_items.key % self.pk, entries)
 
 
 @receiver(post_save, sender=User)
@@ -382,20 +393,24 @@ class MySQLMapDummy:
 class UserMatrix:
 
     @staticmethod
-    @Cached()
+    @Cached(lock_id=2)
     def get_user_array(index):
         return Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0].numpy[index, :]
 
     def __getitem__(self, index):
         return self.get_user_array(index)
 
-    @functools.wraps(lock)
     def __setitem__(self, index, value):
-        get_cache("default").set("get_user_array_%s" % str(index), value, None)
+        dec = UserMatrix.get_user_array
+        dec.lock_this(
+            dec.cache.set
+        )(dec.key % index, value, dec.timeout)
 
-    @functools.wraps(lock)
     def __delitem__(self, index):
-        get_cache("default").delete("get_user_array_%s" % str(index))
+        dec = UserMatrix.get_user_array
+        dec.lock_this(
+            dec.cache.delete
+        )(dec.key % index)
 
 
 class TensorCoFi(PyTensorCoFi):
@@ -492,7 +507,7 @@ class TensorCoFi(PyTensorCoFi):
 
     @staticmethod
     def drop_cache():
-        get_cache("default").delete("get_model_from_cache")
+        TensorCoFi.get_model_from_cache.cache.delete("get_model_from_cache")
 
 
 @receiver(post_save, sender=Inventory)

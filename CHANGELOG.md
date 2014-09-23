@@ -1,4 +1,14 @@
-### [FEATURE] Lock available in decorated function (HEAD, feature_cache_decorator)
+### Minor change in recommendation models (HEAD, feature_cache_decorator)
+>Tue, 23 Sep 2014 15:55:51 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FEATURE] Lock available in decorated function
 >Tue, 23 Sep 2014 14:13:12 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

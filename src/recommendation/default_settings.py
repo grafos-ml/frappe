@@ -167,6 +167,6 @@ RECOMMENDATION_SETTINGS = {
             "recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
-    "logger": "recommendation.simple_logging.decorators.LogEvent"
-    #"logger": "recommendation.decorators.NoLogger"
+    #"logger": "recommendation.simple_logging.decorators.LogEvent"
+    "logger": "recommendation.decorators.NoLogger"
 }

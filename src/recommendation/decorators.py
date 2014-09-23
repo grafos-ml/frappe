@@ -83,8 +83,9 @@ class Cached(object):
                 return self.reload(key, function(*args))
             return result
         decorated.lock_this = self.lock_this
-        decorated.get_cache = self.cache
+        decorated.cache = self.cache
         decorated.key = "%s_%s" % (function.__name__, "%s")
+        decorated.timeout = self.timeout
         return decorated
 
     def reload(self, key, result):
