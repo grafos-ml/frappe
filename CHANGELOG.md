@@ -1,4 +1,14 @@
-### Change logger to decorator cache (HEAD, feature_cache_decorator)
+### Fix tests fot logger (HEAD, feature_cache_decorator)
+>Tue, 23 Sep 2014 12:30:17 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change logger to decorator cache
 >Tue, 23 Sep 2014 12:23:22 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

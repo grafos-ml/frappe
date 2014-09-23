@@ -177,8 +177,8 @@ class TestSimpleLoggerCache(TestCase):
         """
         for user in USERS:
             user = User.get_user_by_external_id(user["external_id"])
-            assert len(LogEntry.logs_for[user.pk]) == 10, \
-                "logs size are bigger than predicted (%s != 10)" % len(LogEntry.logs_for[user.pk])
+            assert len(LogEntry.get_logs_for(user.pk)) == 10, \
+                "logs size are bigger than predicted (%s != 10)" % len(LogEntry.get_logs_for(user.pk))
 
 
 class TestFilterByLog(TestCase):

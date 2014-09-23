@@ -124,6 +124,6 @@ def delete_user_to_cache(sender, instance, using, **kwargs):
     """
     Add log to cache upon creation
     """
-    get_cache("default").delete("get_logs_for_%d" % instance.user.pk)
+    get_cache("default").delete("get_logs_for_%d" % instance.pk)
 
 site.register([LogEntry])
