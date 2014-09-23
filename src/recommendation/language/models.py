@@ -10,7 +10,7 @@ from django.db import models
 from django.db.models.signals import post_save, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _
-from recommendation.models import Item, User, CacheManager, IterableCacheManager
+from recommendation.models import Item, User
 from recommendation.decorators import Cached
 from django.core.cache import get_cache
 
@@ -24,11 +24,6 @@ class Locale(models.Model):
     name = models.CharField(_("country"), max_length=255, default="")
     items = models.ManyToManyField(Item, verbose_name=_("items"), related_name="available_locales", blank=True)
     users = models.ManyToManyField(User, verbose_name=_("users"), related_name="required_locales", blank=True)
-
-    #all_locales = IterableCacheManager("locallid")
-    #item_locales = CacheManager("locits")
-    #user_locales = CacheManager("locusr")
-    #items_by_locale = CacheManager("locitsb")
 
     class Meta:
         verbose_name = _("locale")

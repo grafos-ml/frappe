@@ -18,7 +18,7 @@ from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import get_cache
-from recommendation.models import Item, User, CacheManager
+from recommendation.models import Item, User
 from recommendation.decorators import Cached
 try:
     from uwsgidecorators import lock
@@ -52,8 +52,6 @@ class LogEntry(models.Model):
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
     value = models.FloatField(_("value"), null=True, default=None)
     type = models.SmallIntegerField(_("type"), choices=TYPES.items(), default=RECOMMEND)
-
-    #logs_for = CacheManager("slentries")
 
     class Meta:
         verbose_name = _("log entry")

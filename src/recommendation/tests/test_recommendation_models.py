@@ -12,7 +12,7 @@ import time
 from pkg_resources import resource_filename
 from django.utils import timezone as dt
 from django.test import TestCase
-from recommendation.models import IterableCacheManager, CacheManager, Matrix, Item, User, Inventory, TensorCoFi
+from recommendation.models import Matrix, Item, User, Inventory, TensorCoFi
 if sys.version_info >= (3, 0):
     from functools import reduce
 
@@ -85,78 +85,6 @@ class TestNPArrayField(TestCase):
                 assert db_array.numpy[coor] == self.array_samples[i][coor], \
                     u"Element at coordinates %s failed (%f != %f)" % (coor, db_array.numpy[coor],
                                                                       self.array_samples[i][coor])
-
-
-class TestCacheManager(TestCase):
-    """
-    Test suite for cache manager
-
-    Must test:
-        - Put data
-        - Get data
-        - Iterate elements in manager
-        - Check size in cache
-    """
-
-    @classmethod
-    def setup_class(cls, *args, **kwargs):
-        """
-        Setup cache data
-        """
-        cls.data = {
-            "k1": 1,
-            "k2": "ldlçm",
-            "k3": ["a", "b", "c"],
-            "k4": {"this": "is", "just": "an", "example": "."}
-        }
-        cls.cache = CacheManager("test_suite")
-        cls.icache = IterableCacheManager("test_suit_i")
-
-    def test_input_in_cache(self):
-        """
-        [recommendation.models.CacheManager] Test input cache
-        """
-        for key, value in self.data.items():
-            try:
-                self.cache[key] = value
-            except Exception as e:
-                assert False, "Cached failed the input with error %s when entering a %s with key %s" % \
-                              (str(e), str(type(value)), key)
-
-    def test_output_in_cache(self):
-        """
-        [recommendation.models.CacheManager] Test output cache
-        """
-        for key, value in self.data.items():
-            self.cache[key] = value
-            assert self.cache[key] == value, "Cached output for key %s is not the same as value (%s != %s)" % \
-                                             (key, self.cache[key], value)
-
-    def test_iterate_in_cache(self):
-        """
-        [recommendation.models.CacheManager] Test iterate elements in cache
-        """
-        # Adding values
-        for key, value in self.data.items():
-            self.icache[key] = value
-        values = list(self.data.values())
-        for value in self.icache:
-            assert value in values, "Item in cache iterator is not in test data (%s not in %s)" % (value, values)
-        for _, value in self.data.items():
-            assert value in self.icache, "Test item not in cache (%s not in %s)" % (value, list(self.icache))
-
-    def test_cache_size(self):
-        """
-        [recommendation.models.CacheManager] Test the size of cache
-        """
-        # Adding values
-        for key, value in self.data.items():
-            self.icache[key] = value
-        # Two times to check for replications
-        for key, value in self.data.items():
-            self.icache[key] = value
-        assert len(self.icache) == len(self.data), "Size of test data and cache are not the same (%d != %d)" % \
-                                                   (len(self.icache), len(self.data))
 
 
 ITEMS = [

@@ -18,7 +18,7 @@ from django.db.models import Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib import admin
-from recommendation.models import Item, CacheManager, IterableCacheManager
+from recommendation.models import Item
 from recommendation.decorators import Cached
 
 
@@ -27,9 +27,6 @@ class Genre(models.Model):
     Types of genres
     """
     name = models.CharField(_("name"), max_length=255)
-
-    #genre_by_id = IterableCacheManager("divallgen")
-    #genres_count = IterableCacheManager("divcount")
 
     class Meta:
         verbose_name = _("genre")
@@ -79,8 +76,6 @@ class ItemGenre(models.Model):
     """
     type = models.ForeignKey(Genre, verbose_name=_("type"), related_name="items")
     item = models.ForeignKey(Item, verbose_name=_("item"), related_name="genres")
-
-    #genre_by_item = CacheManager("divit")
 
     class Meta:
         verbose_name = _("item genre")

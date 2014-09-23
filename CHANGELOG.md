@@ -1,4 +1,14 @@
-### Fix tests fot logger (HEAD, feature_cache_decorator)
+### Destroy old cache (HEAD, feature_cache_decorator)
+>Tue, 23 Sep 2014 13:55:51 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix tests fot logger
 >Tue, 23 Sep 2014 12:30:17 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
