@@ -1,4 +1,14 @@
-### Destroy old cache (HEAD, feature_cache_decorator)
+### [FEATURE] Lock available in decorated function (HEAD, feature_cache_decorator)
+>Tue, 23 Sep 2014 14:13:12 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Destroy old cache
 >Tue, 23 Sep 2014 13:55:51 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -10,11 +10,10 @@ import atexit
 import itertools
 import warnings
 try:
-    from uwsgidecorators import lock
+    from uwsgi import lock, i_am_the_spooler, unlock
 except ImportError:
     warnings.warn("uWSGI lock is not active", RuntimeWarning)
-    lock = lambda x: x
-
+    lock = i_am_the_spooler = unlock = lambda *x: None
 
 tread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
 atexit.register(tread_pool.shutdown)
@@ -66,9 +65,11 @@ class NoLogger(ILogger):
 
 class Cached(object):
 
-    def __init__(self, timeout=None, cache="default"):
+    def __init__(self, timeout=None, cache="default", lock_id=None):
         self.timeout = timeout
         self.cache = get_cache(cache)
+        self.lock_id = lock_id
+        self.lock_this = self.no_lock if lock_id is None else self.put_lock
 
     def __call__(self, function):
         """
@@ -81,9 +82,28 @@ class Cached(object):
             if result is None:
                 return self.reload(key, function(*args))
             return result
+        decorated.lock_this = self.lock_this
+        decorated.get_cache = self.cache
+        decorated.key = "%s_%s" % (function.__name__, "%s")
         return decorated
 
-    @functools.wraps(lock)
     def reload(self, key, result):
-        self.cache.set(key, result, self.timeout)
+        self.lock_this(self.cache.set)(key, result, self.timeout)
         return result
+
+    def put_lock(self, function):
+        def decorated(*args, **kwargs):
+            # ensure the spooler will not call it
+            if i_am_the_spooler(self.lock_id):
+                return
+            lock(self.lock_id)
+            try:
+                return function(*args, **kwargs)
+            finally:
+                unlock(self.lock_id)
+        return decorated
+
+    def no_lock(self, function):
+        def decorated(*args, **kwargs):
+            return function(*args, **kwargs)
+        return decorated

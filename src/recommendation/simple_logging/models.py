@@ -10,7 +10,6 @@ Models for the logging system
 __author__ = "joaonrb"
 
 import functools
-from collections import deque
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.admin import site
