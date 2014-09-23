@@ -8,6 +8,9 @@ pandas==0.14.1
 futures==2.1.6
 uwsgi
 #django-uwsgi-cache
+six==1.4.1
+python-dateutil
+pytz
 
 # For scripts
 docopt
