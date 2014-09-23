@@ -291,7 +291,10 @@ class User(models.Model):
         """
         cache = User.get_user_items.cache
         entries = cache.get(User.get_user_items.key % self.pk, {})
-        del entries[entry.item.pk]
+        try:
+            del entries[entry.item.pk]
+        except KeyError:
+            pass
         cache.set(User.get_user_items.key % self.pk, entries)
 
 
@@ -418,8 +421,6 @@ class TensorCoFi(PyTensorCoFi):
     A creator of TensorCoFi models
     """
 
-    #cache = CacheManager("tensorcofi")
-    #user_matrix = CacheManager("tcumatrix")
     user_matrix = UserMatrix()
 
     def __init__(self, n_users=None, n_items=None, **kwargs):
@@ -464,7 +465,7 @@ class TensorCoFi(PyTensorCoFi):
         return tensor
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_model_from_cache(*args, **kwargs):
         tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
         try:
@@ -539,8 +540,6 @@ class Popularity(TestFMPopularity):
     Popularity connector for db and test.fm
     """
 
-    #cache = CacheManager("popularity")
-
     def __init__(self, n_items=None, *args, **kwargs):
 
         if not isinstance(n_items, int):
@@ -576,7 +575,7 @@ class Popularity(TestFMPopularity):
         self._counts = {i+1: value[i] for i in range(self.n_items)}
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def load_popularity():
         model = Popularity(n_items=Item.objects.all().count())
         pop = Matrix.objects.filter(name="popularity").order_by("-id")[0]

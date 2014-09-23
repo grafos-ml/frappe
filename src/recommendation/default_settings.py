@@ -150,6 +150,11 @@ CACHES = {
     #    "OPTIONS": {
     #        "MAX_ENTRIES": 1000000
     #    }
+    },
+    "local": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "django_default_cache",
+        "OPTIONS": {"MAX_ENTRIES": 1000000}
     }
 }
 
@@ -167,6 +172,6 @@ RECOMMENDATION_SETTINGS = {
             "recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
-    #"logger": "recommendation.simple_logging.decorators.LogEvent"
-    "logger": "recommendation.decorators.NoLogger"
+    "logger": "recommendation.simple_logging.decorators.LogEvent"
+    #"logger": "recommendation.decorators.NoLogger"
 }
