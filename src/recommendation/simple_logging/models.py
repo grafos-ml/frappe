@@ -100,18 +100,22 @@ class LogEntry(models.Model):
             None
         )
 
+    @staticmethod
+    @functools.wraps(lock)
+    def add_logs(user, logs):
+        cache = get_cache("default")
+        k = "get_logs_for_%d" % user.pk
+        old_logs = LogEntry.get_logs_for(user.pk)
+        logs = logs + old_logs
+        cache.set(k, logs[:LOGGER_MAX_LOGS], None)
+
 
 @receiver(post_save, sender=LogEntry)
-@functools.wraps(lock)
 def add_log_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):
     """
     Add log to cache upon creation
     """
-    cache = get_cache("default")
-    k = "get_logs_for_%d" % instance.user.pk
-    logs = LogEntry.get_logs_for(instance.user.pk)
-    logs.insert(0, instance)
-    cache.set(k, logs[:LOGGER_MAX_LOGS], None)
+    LogEntry.add_logs(instance.user, [instance])
 
 
 @receiver(post_delete, sender=User)

@@ -1,4 +1,14 @@
-### Change logging reranker to decorator cache (HEAD, feature_cache_decorator)
+### Change logger to decorator cache (HEAD, feature_cache_decorator)
+>Tue, 23 Sep 2014 12:23:22 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change logging reranker to decorator cache
 >Tue, 23 Sep 2014 12:10:43 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

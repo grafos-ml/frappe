@@ -39,9 +39,7 @@ class LogEvent(ILogger):
             for i, iid in enumerate(recommendation, start=1)
         ]
         LogEntry.objects.bulk_create(new_logs)
-        logs = LogEntry.logs_for.get(user.pk, deque([], LOGGER_MAX_LOGS))
-        logs.extend(new_logs)
-        LogEntry.logs_for[user.pk] = logs
+        LogEntry.add_logs(user, new_logs)
 
     def log_recommendation(self, function):
         """

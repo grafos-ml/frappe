@@ -31,9 +31,9 @@ class GoToThreadQueue(object):
         """
         @functools.wraps(function)
         def decorated(*args, **kwargs):
-            #result = tread_pool.submit(function, *args, **kwargs)
-            #return result
-            return function(*args, **kwargs)
+            result = tread_pool.submit(function, *args, **kwargs)
+            return result
+            #return function(*args, **kwargs)
         return decorated
 
 
