@@ -1,4 +1,14 @@
-### [ci skip] Contingency plan (HEAD, feature_cache_decorator)
+### Contingency on timeout done (HEAD, feature_cache_decorator)
+>Thu, 25 Sep 2014 12:16:21 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [ci skip] Contingency plan (origin/feature_cache_decorator)
 >Tue, 23 Sep 2014 18:27:20 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -78,7 +88,7 @@
 
 
 
-### Fix query leak in language filter (origin/feature_cache_decorator)
+### Fix query leak in language filter
 >Mon, 22 Sep 2014 17:42:01 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

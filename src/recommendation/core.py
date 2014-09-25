@@ -5,10 +5,9 @@ The core module for the recommendation system. Here is defined the flow for a re
 
 __author__ = "joaonrb"
 
-import functools
 import numpy as np
 from django.conf import settings
-from recommendation.models import Item, TensorCoFi, Popularity
+from recommendation.models import Item, User, TensorCoFi, Popularity
 from recommendation.util import initialize
 from recommendation.decorators import ContingencyProtocol
 
@@ -143,6 +142,7 @@ class IController(object):
         :param n:
         :return: Item external id list
         """
+        user = User.get_user_by_external_id(user)
         result = self.get_recommendation(user=user, n=n)
         return [Item.get_item_by_id(r).external_id for r in result]
 

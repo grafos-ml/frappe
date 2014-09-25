@@ -19,11 +19,6 @@ from django.dispatch import receiver
 from django.core.cache import get_cache
 from recommendation.models import Item, User
 from recommendation.decorators import Cached
-try:
-    from uwsgidecorators import lock
-except Exception:
-    lock = lambda x: x
-#lock = lambda x: x
 
 LOGGER_MAX_LOGS = 10 if settings.TESTING_MODE else getattr(settings, "LOGGER_MAX_LOGS", 50)
 
@@ -74,7 +69,7 @@ class LogEntry(models.Model):
         }
 
     @staticmethod
-    @Cached()
+    @Cached(lock_id=0)
     def get_logs_for(user_id):
         """
         Get the user ids
@@ -98,7 +93,6 @@ class LogEntry(models.Model):
         )
 
     @staticmethod
-    @functools.wraps(lock)
     def add_logs(user, logs):
         cache = get_cache("default")
         k = "get_logs_for_%d" % user.pk
@@ -108,6 +102,7 @@ class LogEntry(models.Model):
 
 
 @receiver(post_save, sender=LogEntry)
+@LogEntry.get_logs_for.lock_this
 def add_log_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):
     """
     Add log to cache upon creation
@@ -116,7 +111,7 @@ def add_log_to_cache(sender, instance, created, raw, using, update_fields, *args
 
 
 @receiver(post_delete, sender=User)
-@functools.wraps(lock)
+@LogEntry.get_logs_for.lock_this
 def delete_user_to_cache(sender, instance, using, **kwargs):
     """
     Add log to cache upon creation

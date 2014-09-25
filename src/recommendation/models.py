@@ -10,12 +10,6 @@ import sys
 import base64
 import numpy as np
 import pandas as pd
-import functools
-try:
-    from uwsgidecorators import lock
-except Exception:
-    lock = lambda x: x
-#lock = lambda x: x
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.six import with_metaclass
@@ -24,9 +18,9 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity as TestFMPopularity
+from recommendation.decorators import Cached
 if sys.version_info >= (3, 0):
     basestring = unicode = str
-from recommendation.decorators import Cached
 
 
 class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
@@ -88,7 +82,7 @@ class Item(models.Model):
         return Item.get_item_by_external_id(Item.get_item_external_id_by_id(item_id))
 
     @staticmethod
-    @Cached(lock_id=0)
+    @Cached()
     def get_item_external_id_by_id(item_id):
         """
         Return item id from external_id
@@ -96,7 +90,7 @@ class Item(models.Model):
         return Item.objects.filter(pk=item_id).values_list("external_id")[0][0]
 
     @staticmethod
-    @Cached(lock_id=0)
+    @Cached()
     def get_item_by_external_id(external_id):
         """
         Return item from external id
@@ -114,7 +108,6 @@ class Item(models.Model):
             Item.get_item_external_id_by_id.cache.set
         )(Item.get_item_external_id_by_id.key % self.pk, self.external_id, Item.get_item_external_id_by_id.timeout)
 
-    @functools.wraps(lock)
     def del_item_from_cache(self):
         """
         delete an app to database
@@ -176,7 +169,7 @@ class User(models.Model):
         return unicode(self.external_id)
 
     @staticmethod
-    @Cached(lock_id=1)
+    @Cached()
     def get_user_by_id(user_id):
         """
         Get user by their id
@@ -186,7 +179,7 @@ class User(models.Model):
         return User.objects.get(pk=user_id)
 
     @staticmethod
-    @Cached(lock_id=1)
+    @Cached()
     def get_user_id_by_external_id(external_id):
         """
         Get the user id from external id
@@ -205,7 +198,7 @@ class User(models.Model):
         return User.get_user_by_id(User.get_user_id_by_external_id(external_id))
 
     @staticmethod
-    @Cached(lock_id=1)
+    @Cached()
     def get_user_items(user_id):
         """
         Get user items
@@ -396,7 +389,7 @@ class MySQLMapDummy:
 class UserMatrix:
 
     @staticmethod
-    @Cached(lock_id=2)
+    @Cached()
     def get_user_array(index):
         return Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0].numpy[index, :]
 
