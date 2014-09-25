@@ -1,4 +1,14 @@
-### Contingency on timeout done (HEAD, feature_cache_decorator)
+### Fix logging (HEAD, feature_cache_decorator)
+>Thu, 25 Sep 2014 12:24:28 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Contingency on timeout done
 >Thu, 25 Sep 2014 12:16:21 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

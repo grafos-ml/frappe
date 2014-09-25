@@ -5,6 +5,7 @@ The core module for the recommendation system. Here is defined the flow for a re
 
 __author__ = "joaonrb"
 
+import logging
 import numpy as np
 from django.conf import settings
 from recommendation.models import Item, User, TensorCoFi, Popularity
@@ -123,8 +124,8 @@ class IController(object):
         """
         try:
             result = self.get_recommendation_from_model(user=user)
-        except Exception:
-            print("Wild error appear in core recommendation")
+        except Exception as e:
+            logging.exception(e)
             result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)

@@ -132,7 +132,7 @@ class ContingencyProtocol(object):
                 result = future.result(getattr(settings, "RESPONSE_TIMEOUT", 150./1000.))
             except TimeoutError:
                 future.cancel()
-                logging.log(logging.ERROR, "Contingency Protocol delivered")
+                logging.log(logging.ERROR, "TimeOut error: Contingency Protocol delivered the recommendation")
                 result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
             return result
         return decorated

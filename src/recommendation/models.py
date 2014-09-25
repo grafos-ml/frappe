@@ -420,7 +420,7 @@ class TensorCoFi(PyTensorCoFi):
         """
         """
         if not isinstance(n_items, int) or not isinstance(n_users, int):
-            raise AttributeError("Parameter n_items and n_users must have integer")
+            raise AttributeError("Parameter n_items and n_users must be integers")
         super(TensorCoFi, self).__init__(**kwargs)
         self.dimensions = [n_users, n_items]
         self.n_users = n_users
@@ -536,7 +536,7 @@ class Popularity(TestFMPopularity):
     def __init__(self, n_items=None, *args, **kwargs):
 
         if not isinstance(n_items, int):
-            raise AttributeError("Parameter n_items must have integer")
+            raise AttributeError("Parameter n_items must be integer")
         super(Popularity, self).__init__(*args, **kwargs)
         self.n_items = n_items
         self.data_map = {
