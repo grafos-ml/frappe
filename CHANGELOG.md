@@ -1,4 +1,14 @@
-### Fix logging (HEAD, feature_cache_decorator)
+### Half fill command done (HEAD, feature_cache_decorator)
+>Thu, 25 Sep 2014 19:36:22 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix logging
 >Thu, 25 Sep 2014 12:24:28 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

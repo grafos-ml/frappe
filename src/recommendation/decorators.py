@@ -17,9 +17,9 @@ except ImportError:
     warnings.warn("uWSGI lock is not active", RuntimeWarning)
     lock = i_am_the_spooler = unlock = lambda *x: None
 
-tread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
-clone_pool = ThreadPoolExecutor(max_workers=2)
-atexit.register(tread_pool.shutdown)
+thread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
+clone_pool = ThreadPoolExecutor(max_workers=1)
+atexit.register(thread_pool.shutdown)
 atexit.register(clone_pool.shutdown)
 
 
@@ -34,7 +34,7 @@ class GoToThreadQueue(object):
         """
         @functools.wraps(function)
         def decorated(*args, **kwargs):
-            result = tread_pool.submit(function, *args, **kwargs)
+            result = thread_pool.submit(function, *args, **kwargs)
             return result
             #return function(*args, **kwargs)
         return decorated
