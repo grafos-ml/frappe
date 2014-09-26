@@ -85,7 +85,7 @@ For a moment we have a very manual installation process. This will be replaced w
             }
         }
 
-    You will also to change the wsgi.py file to import the application variable from recommendation wsgi.py:
+You will also to change the wsgi.py file to import the application variable from recommendation wsgi.py:
 
 .. code-block:: python
    :linenos:
@@ -97,7 +97,7 @@ For a moment we have a very manual installation process. This will be replaced w
 
        from recommendation.wsgi import application
 
-    And last file the urls.py on your project to:
+And last file the urls.py on your project to:
 
 .. code-block:: python
    :linenos:
@@ -106,25 +106,55 @@ For a moment we have a very manual installation process. This will be replaced w
 
        urlpatterns = patterns('', url(r'^', include("recommendation.urls")))
 
-    2. Next, you need to create the Django modules using.
+2. Next, you need to create the Django modules using.
 
 .. code-block:: bash
    :linenos:
 
        $ ./manage.py syncdb
 
-    3. Now you have to fill the database with applications and user data. For the example we use a dummy data
-    from the data folder. You should replace the path to the real path of the marketplace dumps. For now,
-    lets start with the dummy data.
+3. Now you have to fill the database with applications and user data. Frappe ships with a fill command to help this
+task. This command allow to load items or users fro json files in some directory or use a api. This api should
+return a tarball file with the item or user files. The command is configurable with options some options and a
+special case for Mozilla FireFox OS App store apps api.
 
 .. code-block:: bash
    :linenos:
 
-       $ ./manage.py fill items recommender/package/path/src/bin/data/app/
-       $ ./manage.py fill users recommender/package/path/src/bin/data/user
+       Frappe fill - Fill database
 
-    4. To retrieve recommendations a recommendation model (statistical representation of your data) must be built.
-    To have it built you have to run the script:
+       Usage:
+          fill (items|users) <path> [options]
+          fill (items|users) --webservice=<url> [options]
+          fill items --mozilla (dev | prod) [today | yesterday | <date>] [--verbose]
+          fill (items|users) --mozilla <path> [--verbose]
+          fill --help
+          fill --version
+
+       Options:
+          -i --item=<field>                Item identifier in file [default: external_id].
+          -u --user=<field>                User identifier in file [default: external_id].
+          --item-file-identifier=<field>   Field that identify item json file [default: item].
+          --user-file-identifier=<field>   File that identify user json file [default: user].
+          --item-genres=<field>            Field in items for genres [default: genres].
+          --item-locales=<field>           Field in items for locales [default: locales].
+          --user-items=<field>             Field in user for user items [default: items].
+          --user-item-identifier=<field>   Field to identify item in user inventory [default: external_id].
+          --user-item-acquired=<field>     Field to identify item acquisition date [default: acquired].
+          --user-item-dropped=<field>      Field to identify item acquisition date [default: dropped].
+          --date-format=<field>            Field to date format [default: %Y-%m-%dT%H:%M:%S]
+          -v --verbose                     Set verbose mode.
+          -h --help                        Show this screen.
+          --version                        Show version.
+
+       # Call mozilla app api from today
+       $ ./manage.py fill items --mozilla dev today
+
+       # Call fill from path with mozilla settings
+       $ ./manage.py fill users --mozilla recommender/package/path/src/bin/data/user
+
+4. To retrieve recommendations a recommendation model (statistical representation of your data) must be built.
+To have it built you have to run the script:
 
 .. code-block:: bash
    :linenos:

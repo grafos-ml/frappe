@@ -4,10 +4,10 @@
 Frappe fill - Fill database
 
 Usage:
-  fill (item|user) <path> [options]
-  fill (item|user) --webservice=<url> [options]
-  fill item --mozilla (dev | prod) [today | yesterday | <date>] [--verbose]
-  fill user --mozilla <path> [--verbose]
+  fill (items|users) <path> [options]
+  fill (items|users) --webservice=<url> [options]
+  fill items --mozilla (dev | prod) [today | yesterday | <date>] [--verbose]
+  fill (items|users) --mozilla <path> [--verbose]
   fill --help
   fill --version
 
@@ -73,8 +73,8 @@ class FillTool(object):
 
     def __init__(self, parameters):
         self.parameters = parameters
-        self.is_item = parameters["item"]
-        self.is_user = parameters["user"]
+        self.is_item = parameters["items"]
+        self.is_user = parameters["users"]
         self.use_tmp = True
         self.path = self.tmp_dir = None
         if parameters["--version"]:
@@ -83,7 +83,7 @@ class FillTool(object):
         if parameters["--webservice"]:
             self.tmp_dir = self.path = self.get_files(parameters["--webservice"])
         elif parameters["--mozilla"]:
-            if self.is_item:
+            if parameters["dev"] or parameters["prod"]:
                 mozilla = MOZILLA_DEV_ITEMS_API if parameters["dev"] else MOZILLA_PROD_ITEMS_API
                 url = datetime.strftime(self.get_date(), mozilla)
                 self.tmp_dir = self.path = self.get_files(url)
