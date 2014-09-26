@@ -1,4 +1,14 @@
-### Unique together genre and item (HEAD, feature_cache_decorator)
+### Unique together locale and item (HEAD, feature_cache_decorator)
+>Fri, 26 Sep 2014 12:12:13 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Unique together genre and item
 >Fri, 26 Sep 2014 12:04:50 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

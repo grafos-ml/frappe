@@ -18,8 +18,6 @@ class Locale(models.Model):
     language_code = models.CharField(_("language code"), max_length=2)
     country_code = models.CharField(_("country code"), max_length=2, default="")
     name = models.CharField(_("country"), max_length=255, default="")
-    items = models.ManyToManyField(Item, verbose_name=_("items"), related_name="available_locales", blank=True)
-    users = models.ManyToManyField(User, verbose_name=_("users"), related_name="required_locales", blank=True)
 
     class Meta:
         verbose_name = _("locale")
@@ -28,6 +26,9 @@ class Locale(models.Model):
 
     def __str__(self):
         return "%s%s" % (self.language_code, "-%s" % self.country_code if self.country_code else "")
+
+    def __unicode__(self):
+        return u"%s%s" % (self.language_code, "-%s" % self.country_code if self.country_code else "")
 
     @staticmethod
     @Cached(cache="local", timeout=60*60)
@@ -71,5 +72,24 @@ class Locale(models.Model):
             Locale.get_item_locales(i.pk)
 
 
+class ItemLocale(models.Model):
+    """
+    Many to many table to locales
+    """
+
+    locale = models.ForeignKey(Locale, verbose_name=_("locale"), related_name="items")
+    item = models.ForeignKey(Item, verbose_name=_("item"), related_names="locales")
+
+    class Meta:
+        verbose_name = _("item locale")
+        verbose_name_plural = _("item locales")
+        unique_together = ("locale", "item")
+
+    def __str__(self):
+        return "%s: %s" % (self.item, self.locale)
+
+    def __unicode__(self):
+        return u"%s: %s" % (self.item, self.locale)
+
 from django.contrib import admin
-admin.site.register([Locale])
+admin.site.register([Locale, ItemLocale])
