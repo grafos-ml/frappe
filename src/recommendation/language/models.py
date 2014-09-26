@@ -78,7 +78,7 @@ class ItemLocale(models.Model):
     """
 
     locale = models.ForeignKey(Locale, verbose_name=_("locale"), related_name="items")
-    item = models.ForeignKey(Item, verbose_name=_("item"), related_names="locales")
+    item = models.ForeignKey(Item, verbose_name=_("item"), related_name="locales")
 
     class Meta:
         verbose_name = _("item locale")

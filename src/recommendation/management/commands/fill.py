@@ -38,12 +38,13 @@ from django_docopt_command import DocOptCommand
 from django.conf import settings
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre, ItemGenre
-from recommendation.language.models import Locale
+from recommendation.language.models import Locale, ItemLocale
 from recommendation.default_settings import TESTING_MODE
 
 MOZILLA_DEV_ITEMS_API = "https://marketplace-dev-cdn.allizom.org/dumped-apps/tarballs/%Y-%m-%d.tgz"
 MOZILLA_PROD_ITEMS_API = "https://marketplace.cdn.mozilla.net/dumped-apps/tarballs/%Y-%m-%d.tgz"
-BULK_QUERY = "INSERT INTO %(table)s %(columns)s VALUES %(values)s;"
+
+SQLITE_MAX_ROWS = 950
 
 
 class FillTool(object):
@@ -172,8 +173,8 @@ class FillTool(object):
         logging.debug("Items ready to be saved")
         if connection.vendor == "sqlite":
             new_items_list = list(new_items.values())
-            for i in range(0, len(new_items_list), 100):
-                j = i+100
+            for i in range(0, len(new_items_list), SQLITE_MAX_ROWS):
+                j = i+SQLITE_MAX_ROWS
                 Item.objects.bulk_create(new_items_list[i:j])
         else:
             Item.objects.bulk_create(new_items.values())
@@ -211,8 +212,8 @@ class FillTool(object):
 
             if connection.vendor == "sqlite":
                 new_genres_list = list(new_genres.values())
-                for i in range(0, len(new_genres_list), 100):
-                    j = i+100
+                for i in range(0, len(new_genres_list), SQLITE_MAX_ROWS):
+                    j = i+SQLITE_MAX_ROWS
                     Genre.objects.bulk_create(new_genres_list[i:j])
             else:
                 Genre.objects.bulk_create(new_genres.values())
@@ -248,8 +249,8 @@ class FillTool(object):
                     new_query = new_query | Q(language_code=language_code, country_code=country_code)
 
             if connection.vendor == "sqlite":
-                for i in range(0, len(new_locales), 100):
-                    j = i+100
+                for i in range(0, len(new_locales), SQLITE_MAX_ROWS):
+                    j = i+SQLITE_MAX_ROWS
                     Locale.objects.bulk_create(new_locales[i:j])
             else:
                 Locale.objects.bulk_create(new_locales)
@@ -264,16 +265,41 @@ class FillTool(object):
         :param genres:
         :return:
         """
-        item_genres = []
-        for json_item in self.objects:
-            json_genres = json_item.get("categories", None) or ()
-            for json_genre in json_genres:
-                item_genres.append(ItemGenre(item=items[json_item["id"]], type=genres[json_genre]))
         if connection.vendor == "sqlite":
-            for i in range(0, len(item_genres), 100):
-                j = i+100
-                ItemGenre.objects.bulk_create(item_genres[i:j])
-        else:
+            query_item_genres = Q()
+            item_genres = {}
+            i = 0
+            for json_item in self.objects:
+                json_genres = json_item.get("categories", None) or ()
+                for json_genre in json_genres:
+                    query_item_genres = \
+                        query_item_genres | Q(item_id=items[json_item["id"]].pk, type_id=genres[json_genre].pk)
+                    item_genres[(items[json_item["id"]].pk, genres[json_genre].pk)] = \
+                        ItemGenre(item=items[json_item["id"]], type=genres[json_genre])
+                    i += 1
+                    if i >= SQLITE_MAX_ROWS:
+                        for item_genre in ItemGenre.objects.filter(query_item_genres):
+                            del item_genres[(item_genre.item_id, item_genre.type_id)]
+                        query_item_genres = Q()
+                        i = 0
+            for item_genre in ItemGenre.objects.filter(query_item_genres):
+                del item_genres[(item_genre.item_id, item_genre.type_id)]
+
+            for i in range(0, len(item_genres), SQLITE_MAX_ROWS):
+                j = i+SQLITE_MAX_ROWS
+                ItemGenre.objects.bulk_create(item_genres.values()[i:j])
+        else:  # NO SQLITE
+            query_item_genres = Q()
+            item_genres = {}
+            for json_item in self.objects:
+                json_genres = json_item.get("categories", None) or ()
+                for json_genre in json_genres:
+                    query_item_genres = \
+                        query_item_genres | Q(item_id=items[json_item["id"]].pk, type_id=genres[json_genre].pk)
+                    item_genres[(items[json_item["id"]].pk, genres[json_genre].pk)] = \
+                        ItemGenre(item=items[json_item["id"]], type=genres[json_genre])
+            for item_genre in ItemGenre.objects.filter(query_item_genres):
+                del item_genres[(item_genre.item_id, item_genre.type_id)]
             ItemGenre.objects.bulk_create(item_genres)
 
     def fill_item_locale(self, items, locales):
@@ -283,27 +309,41 @@ class FillTool(object):
         :param locales:
         :return:
         """
-        item_locale = []
-        for json_item in self.objects:
-            json_locales = json_item.get("supported_locales", None) or ()
-            for locale in json_locales:
-                item_locale.append("(%s, %s)" % (locales[locale].pk, items[json_item["id"]].pk))
-        cursor = connection.cursor()
         if connection.vendor == "sqlite":
-            for i in range(0, len(item_locale), 100):
-                j = i+100
-                cursor.execute(BULK_QUERY % {
-                    "table": "language_locale_items",
-                    "columns": "(locale_id, item_id)",
-                    "values": ", ".join(item_locale[i:j])
-                })
+            query_item_locales = Q()
+            item_locales = {}
+            i = 0
+            for json_item in self.objects:
+                json_locales = json_item.get("supported_locales", None) or ()
+                for locale in json_locales:
+                    query_item_locales = \
+                        query_item_locales | Q(locale_id=locales[locale].pk, item_id=items[json_item["id"]].pk)
+                    item_locales[locales[locale].pk, items[json_item["id"]].pk] = \
+                        ItemLocale(locale=locales[locale], item=items[json_item["id"]])
+                    i += 1
+                    if i >= SQLITE_MAX_ROWS:
+                        for item_locale in ItemLocale.objects.filter(query_item_locales):
+                            del item_locales[item_locale.locale_id, item_locale.item_id]
+                        i = 0
+                        query_item_locales = Q()
+            for item_locale in ItemLocale.objects.filter(query_item_locales):
+                del item_locales[item_locale.locale_id, item_locale.item_id]
+            for i in range(0, len(item_locales), SQLITE_MAX_ROWS):
+                j = i+SQLITE_MAX_ROWS
+                ItemLocale.objects.bulk_create(item_locales.values()[i:j])
         else:
-            cursor.execute(BULK_QUERY % {
-                "table": "language_locale_items",
-                "columns": "(locale_id, item_id)",
-                "values": ", ".join(item_locale)
-            })
-        cursor.close()
+            query_item_locales = Q()
+            item_locales = {}
+            for json_item in self.objects:
+                json_locales = json_item.get("supported_locales", None) or ()
+                for locale in json_locales:
+                    query_item_locales = \
+                        query_item_locales | Q(locale_id=locales[locale].pk, item_id=items[json_item["id"]].pk)
+                    item_locales[locales[locale].pk, items[json_item["id"]].pk] = \
+                        ItemLocale(locale=locales[locale], item=items[json_item["id"]])
+            for item_locale in ItemLocale.objects.filter(query_item_locales):
+                del item_locales[item_locale.locale_id, item_locale.item_id]
+            ItemLocale.objects.bulk_create(item_locales.values())
 
     def clean_tmp(self):
         """
