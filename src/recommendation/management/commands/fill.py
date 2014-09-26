@@ -4,20 +4,23 @@
 Frappe fill - Fill database
 
 Usage:
-  fill (item|user) <path>
-  fill (item|user) --webservice=<url>
-  fill (item|user) (--mozilla-dev | --mozilla-prod) [today | yesterday | <date>]
+  fill (item|user) <path> [options]
+  fill (item|user) --webservice=<url> [options]
+  fill (item|user) (--mozilla-dev | --mozilla-prod) [today | yesterday | <date>] [--verbose]
   fill --help
   fill --version
 
 Options:
-  <path>                  Path to the user/item files. This path must have only users or items.
-  -s --webservice=<url>   Get the files from a url as a tarball file.
-  -m --mozilla-dev        Specific web service from mozilla FireFox OS App Store developing data.
-  -M --mozilla-prod       Specific web service from mozilla FireFox OS App Store production data.
-  today yesterday <date>  Specific date to query the mozilla data. Date format YYYY-MM-DD. [default: yesterday]
-  -h --help               Show this screen.
-  -v --version            Show version.
+  -i --item=<field>               Item identifier in file [default: external_id].
+  -u --user=<field>               User identifier in file [default: external_id].
+  --item-file-identifier=<field>  Field that identify item json file [default: item].
+  --user-file-identifier=<field>  File that identify user json file [default: user].
+  --item-genres=<field>           Field in items for genres [default: genres].
+  --item-locales=<field>          Field in items for locales [default: locales].
+  --user-items=<field>            Field in user for user items [default: items].
+  -v --verbose                    Set verbose mode.
+  -h --help                       Show this screen.
+  --version                       Show version.
 """
 __author__ = "joaonrb"
 
@@ -44,6 +47,14 @@ from recommendation.default_settings import TESTING_MODE
 MOZILLA_DEV_ITEMS_API = "https://marketplace-dev-cdn.allizom.org/dumped-apps/tarballs/%Y-%m-%d.tgz"
 MOZILLA_PROD_ITEMS_API = "https://marketplace.cdn.mozilla.net/dumped-apps/tarballs/%Y-%m-%d.tgz"
 
+MOZILLA_ITEM_FILE_IDENTIFIER = "app_type"
+MOZILLA_ITEM_FIELD = "id"
+MOZILLA_ITEM_LOCALES_FIELD = "supported_locales"
+MOZILLA_ITEM_GENRES_FIELD = "categories"
+MOZILLA_USER_FILE_IDENTIFIER = "user"
+MOZILLA_USER_FIELD = "user"
+MOZILLA_USER_ITEMS = "installed_apps"
+
 SQLITE_MAX_ROWS = 950
 
 
@@ -69,7 +80,24 @@ class FillTool(object):
             mozilla = MOZILLA_DEV_ITEMS_API if parameters["--mozilla-dev"] is not None else MOZILLA_PROD_ITEMS_API
             url = datetime.strftime(self.get_date(), mozilla)
             self.tmp_dir = self.path = self.get_files(url)
+            parameters["--item-file-identifier"] = MOZILLA_ITEM_FILE_IDENTIFIER
+            parameters["--item"] = MOZILLA_ITEM_FIELD
+            parameters["--item-locales"] = MOZILLA_ITEM_LOCALES_FIELD
+            parameters["--item-genres"] = MOZILLA_ITEM_GENRES_FIELD
+            parameters["--user-file-identifier"] = MOZILLA_USER_FILE_IDENTIFIER
+            parameters["--user-items"] = MOZILLA_USER_ITEMS
         self.objects = []
+        self.item_file_identifier_field = parameters["--item-file-identifier"]
+        self.item_field = parameters["--item"]
+        self.item_locales_field = parameters["--item-locales"]
+        self.item_genres_field = parameters["--item-genres"]
+        self.user_file_identifier_field = parameters["--user-file-identifier"]
+        self.user_field = parameters["--user"]
+        self.user_items_field = parameters["--user-items"]
+        if parameters["--verbose"]:
+            logging.basicConfig(format="%(asctime)s %(levelname)s: %(message)s",
+                                datefmt="%m-%d-%Y %H:%M:%S",
+                                level=logging.DEBUG)
 
     def get_files(self, url):
         tmp_path = tempfile.mkdtemp(suffix="_frappe")
@@ -96,7 +124,7 @@ class FillTool(object):
         :return: A datetime
         """
         if self.parameters["<date>"]:
-            return datetime.strptime(self.parameters["date>"], "%Y-%m.%d").date()
+            return datetime.strptime(self.parameters["<date>"], "%Y-%m.%d").date()
         if self.parameters["today"]:
             return date.today()
         # Return yesterday
@@ -143,11 +171,11 @@ class FillTool(object):
         """
         objs = []
         for obj in self.objects:
-            if "app_type" in obj:
-                obj["id"] = str(obj["id"])
+            if self.item_file_identifier_field in obj:
+                obj[self.item_field] = str(obj[self.item_field])
                 objs.append(obj)
         self.objects = objs
-        json_items = {json_item["id"]: json_item for json_item in self.objects}  # Map items for easy treatment
+        json_items = {json_item[self.item_field]: json_item for json_item in self.objects}  # Map items for easy treatment
         items = {item.external_id: item for item in Item.objects.filter(external_id__in=json_items.keys())}
         new_items = {}
         categories = set([])
@@ -159,13 +187,13 @@ class FillTool(object):
                 except KeyError:
                     name = json_item["name"]
                 new_items[item_eid] = Item(external_id=item_eid, name=name)
-            json_categories = json_item.get("categories", None) or ()
+            json_categories = json_item.get(self.item_genres_field, None) or ()
             if isinstance(json_categories, basestring):
                 categories.add(json_categories)
             else:
-                categories = categories.union(json_item["categories"])
+                categories = categories.union(json_item[self.item_genres_field])
 
-            json_locales = json_item.get("supported_locales", None) or ()
+            json_locales = json_item.get(self.item_locales_field, None) or ()
             if isinstance(json_locales, basestring):
                 locales.add(json_locales)
             else:
@@ -178,7 +206,7 @@ class FillTool(object):
                 Item.objects.bulk_create(new_items_list[i:j])
         else:
             Item.objects.bulk_create(new_items.values())
-        logging.debug("New items saved with bulk_create")
+        logging.debug("New %d items saved with bulk_create" % len(new_items))
         for item in Item.objects.filter(external_id__in=new_items.keys()):
             items[item.external_id] = item
         assert len(items) == len(self.objects), \
@@ -270,12 +298,12 @@ class FillTool(object):
             item_genres = {}
             i = 0
             for json_item in self.objects:
-                json_genres = json_item.get("categories", None) or ()
+                json_genres = json_item.get(self.item_genres_field, None) or ()
                 for json_genre in json_genres:
                     query_item_genres = \
-                        query_item_genres | Q(item_id=items[json_item["id"]].pk, type_id=genres[json_genre].pk)
-                    item_genres[(items[json_item["id"]].pk, genres[json_genre].pk)] = \
-                        ItemGenre(item=items[json_item["id"]], type=genres[json_genre])
+                        query_item_genres | Q(item_id=items[json_item[self.item_field]].pk, type_id=genres[json_genre].pk)
+                    item_genres[(items[json_item[self.item_field]].pk, genres[json_genre].pk)] = \
+                        ItemGenre(item=items[json_item[self.item_field]], type=genres[json_genre])
                     i += 1
                     if i >= SQLITE_MAX_ROWS:
                         for item_genre in ItemGenre.objects.filter(query_item_genres):
@@ -292,12 +320,12 @@ class FillTool(object):
             query_item_genres = Q()
             item_genres = {}
             for json_item in self.objects:
-                json_genres = json_item.get("categories", None) or ()
+                json_genres = json_item.get(self.item_genres_field, None) or ()
                 for json_genre in json_genres:
                     query_item_genres = \
-                        query_item_genres | Q(item_id=items[json_item["id"]].pk, type_id=genres[json_genre].pk)
-                    item_genres[(items[json_item["id"]].pk, genres[json_genre].pk)] = \
-                        ItemGenre(item=items[json_item["id"]], type=genres[json_genre])
+                        query_item_genres | Q(item_id=items[json_item[self.item_field]].pk, type_id=genres[json_genre].pk)
+                    item_genres[(items[json_item[self.item_field]].pk, genres[json_genre].pk)] = \
+                        ItemGenre(item=items[json_item[self.item_field]], type=genres[json_genre])
             for item_genre in ItemGenre.objects.filter(query_item_genres):
                 del item_genres[(item_genre.item_id, item_genre.type_id)]
             ItemGenre.objects.bulk_create(item_genres)
@@ -314,12 +342,12 @@ class FillTool(object):
             item_locales = {}
             i = 0
             for json_item in self.objects:
-                json_locales = json_item.get("supported_locales", None) or ()
+                json_locales = json_item.get(self.item_locales_field, None) or ()
                 for locale in json_locales:
                     query_item_locales = \
-                        query_item_locales | Q(locale_id=locales[locale].pk, item_id=items[json_item["id"]].pk)
-                    item_locales[locales[locale].pk, items[json_item["id"]].pk] = \
-                        ItemLocale(locale=locales[locale], item=items[json_item["id"]])
+                        query_item_locales | Q(locale_id=locales[locale].pk, item_id=items[json_item[self.item_field]].pk)
+                    item_locales[locales[locale].pk, items[json_item[self.item_field]].pk] = \
+                        ItemLocale(locale=locales[locale], item=items[json_item[self.item_field]])
                     i += 1
                     if i >= SQLITE_MAX_ROWS:
                         for item_locale in ItemLocale.objects.filter(query_item_locales):
@@ -335,12 +363,12 @@ class FillTool(object):
             query_item_locales = Q()
             item_locales = {}
             for json_item in self.objects:
-                json_locales = json_item.get("supported_locales", None) or ()
+                json_locales = json_item.get(self.item_locales_field, None) or ()
                 for locale in json_locales:
                     query_item_locales = \
-                        query_item_locales | Q(locale_id=locales[locale].pk, item_id=items[json_item["id"]].pk)
-                    item_locales[locales[locale].pk, items[json_item["id"]].pk] = \
-                        ItemLocale(locale=locales[locale], item=items[json_item["id"]])
+                        query_item_locales | Q(locale_id=locales[locale].pk, item_id=items[json_item[self.item_field]].pk)
+                    item_locales[locales[locale].pk, items[json_item[self.item_field]].pk] = \
+                        ItemLocale(locale=locales[locale], item=items[json_item[self.item_field]])
             for item_locale in ItemLocale.objects.filter(query_item_locales):
                 del item_locales[item_locale.locale_id, item_locale.item_id]
             ItemLocale.objects.bulk_create(item_locales.values())
@@ -361,14 +389,22 @@ class FillTool(object):
         Put users in db
         :return:
         """
-        json_users = {json_user["user"]: json_user for json_user in self.objects}  # Map users for easy treatment
+        objs = []
+        for obj in self.objects:
+            if self.user_file_identifier_field in obj:
+                obj[self.user_field] = str(obj[self.user_field])
+                items = []
+                for item in obj[self.user_items_field]:
+                    objs.append(obj)
+        self.objects = objs
+        json_users = {json_user[self.user_field]: json_user for json_user in self.objects}  # Map users for easy treatment
         users = User.objects.filter(external_id__in=json_users)
         new_users = {}
         items = set([])
         for user_eid, json_user in json_users.items():
             if user_eid not in users:
                 new_users[user_eid] = User(external_id=user_eid)
-            pass  # TODO
+            items = items.union(map(lambda x: x[2]))
         User.objects.bulk_create(new_users.items())
 
 

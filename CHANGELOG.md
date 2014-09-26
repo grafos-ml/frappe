@@ -1,4 +1,14 @@
-### Finish items in fill (HEAD, feature_cache_decorator)
+### Generalize a bit the fill (HEAD, feature_cache_decorator)
+>Fri, 26 Sep 2014 16:21:37 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finish items in fill
 >Fri, 26 Sep 2014 12:52:14 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
