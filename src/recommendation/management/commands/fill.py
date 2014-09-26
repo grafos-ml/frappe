@@ -6,21 +6,26 @@ Frappe fill - Fill database
 Usage:
   fill (item|user) <path> [options]
   fill (item|user) --webservice=<url> [options]
-  fill (item|user) (--mozilla-dev | --mozilla-prod) [today | yesterday | <date>] [--verbose]
+  fill item --mozilla (dev | prod) [today | yesterday | <date>] [--verbose]
+  fill user --mozilla <path> [--verbose]
   fill --help
   fill --version
 
 Options:
-  -i --item=<field>               Item identifier in file [default: external_id].
-  -u --user=<field>               User identifier in file [default: external_id].
-  --item-file-identifier=<field>  Field that identify item json file [default: item].
-  --user-file-identifier=<field>  File that identify user json file [default: user].
-  --item-genres=<field>           Field in items for genres [default: genres].
-  --item-locales=<field>          Field in items for locales [default: locales].
-  --user-items=<field>            Field in user for user items [default: items].
-  -v --verbose                    Set verbose mode.
-  -h --help                       Show this screen.
-  --version                       Show version.
+  -i --item=<field>                Item identifier in file [default: external_id].
+  -u --user=<field>                User identifier in file [default: external_id].
+  --item-file-identifier=<field>   Field that identify item json file [default: item].
+  --user-file-identifier=<field>   File that identify user json file [default: user].
+  --item-genres=<field>            Field in items for genres [default: genres].
+  --item-locales=<field>           Field in items for locales [default: locales].
+  --user-items=<field>             Field in user for user items [default: items].
+  --user-item-identifier=<field>   Field to identify item in user inventory [default: external_id].
+  --user-item-acquired=<field>     Field to identify item acquisition date [default: acquired].
+  --user-item-dropped=<field>      Field to identify item acquisition date [default: dropped].
+  --date-format=<field>            Field to date format [default: %Y-%m-%dT%H:%M:%S]
+  -v --verbose                     Set verbose mode.
+  -h --help                        Show this screen.
+  --version                        Show version.
 """
 __author__ = "joaonrb"
 
@@ -54,6 +59,10 @@ MOZILLA_ITEM_GENRES_FIELD = "categories"
 MOZILLA_USER_FILE_IDENTIFIER = "user"
 MOZILLA_USER_FIELD = "user"
 MOZILLA_USER_ITEMS = "installed_apps"
+MOZILLA_USER_ITEM_IDENTIFIER = "id"
+MOZILLA_USER_ITEM_ACQUISITION_FIELD = "installed"
+MOZILLA_USER_ITEM_DROPPED_FIELD = "dropped"
+MOZILLA_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 SQLITE_MAX_ROWS = 950
 
@@ -71,21 +80,30 @@ class FillTool(object):
         if parameters["--version"]:
             print("Frappe fill 2.0")
             return
-        if parameters["<path>"]:
-            self.path = parameters["<path>"]
-            self.use_tmp = False
-        elif parameters["--webservice"]:
+        if parameters["--webservice"]:
             self.tmp_dir = self.path = self.get_files(parameters["--webservice"])
-        elif parameters["--mozilla-dev"] or parameters["--mozilla-prod"]:
-            mozilla = MOZILLA_DEV_ITEMS_API if parameters["--mozilla-dev"] is not None else MOZILLA_PROD_ITEMS_API
-            url = datetime.strftime(self.get_date(), mozilla)
-            self.tmp_dir = self.path = self.get_files(url)
+        elif parameters["--mozilla"]:
+            if self.is_item:
+                mozilla = MOZILLA_DEV_ITEMS_API if parameters["dev"] else MOZILLA_PROD_ITEMS_API
+                url = datetime.strftime(self.get_date(), mozilla)
+                self.tmp_dir = self.path = self.get_files(url)
+            else:
+                self.path = parameters["<path>"]
+                self.use_tmp = False
             parameters["--item-file-identifier"] = MOZILLA_ITEM_FILE_IDENTIFIER
             parameters["--item"] = MOZILLA_ITEM_FIELD
             parameters["--item-locales"] = MOZILLA_ITEM_LOCALES_FIELD
             parameters["--item-genres"] = MOZILLA_ITEM_GENRES_FIELD
             parameters["--user-file-identifier"] = MOZILLA_USER_FILE_IDENTIFIER
+            parameters["--user"] = MOZILLA_USER_FIELD
             parameters["--user-items"] = MOZILLA_USER_ITEMS
+            parameters["--user-item-identifier"] = MOZILLA_USER_ITEM_IDENTIFIER
+            parameters["--user-item-acquired"] = MOZILLA_USER_ITEM_ACQUISITION_FIELD
+            parameters["--user-item-dropped"] = MOZILLA_USER_ITEM_DROPPED_FIELD
+            parameters["--date-format"] = MOZILLA_DATE_FORMAT
+        elif parameters["<path>"]:
+            self.path = parameters["<path>"]
+            self.use_tmp = False
         self.objects = []
         self.item_file_identifier_field = parameters["--item-file-identifier"]
         self.item_field = parameters["--item"]
@@ -94,6 +112,10 @@ class FillTool(object):
         self.user_file_identifier_field = parameters["--user-file-identifier"]
         self.user_field = parameters["--user"]
         self.user_items_field = parameters["--user-items"]
+        self.user_item_identifier_field = parameters["--user-item-identifier"]
+        self.user_item_acquisition_field = parameters["--user-item-acquired"]
+        self.user_item_dropped_field = parameters["--user-item-dropped"]
+        self.date_format = parameters["--date-format"]
         if parameters["--verbose"]:
             logging.basicConfig(format="%(asctime)s %(levelname)s: %(message)s",
                                 datefmt="%m-%d-%Y %H:%M:%S",
@@ -206,7 +228,7 @@ class FillTool(object):
                 Item.objects.bulk_create(new_items_list[i:j])
         else:
             Item.objects.bulk_create(new_items.values())
-        logging.debug("New %d items saved with bulk_create" % len(new_items))
+        logging.debug("%d new items saved with bulk_create" % len(new_items))
         for item in Item.objects.filter(external_id__in=new_items.keys()):
             items[item.external_id] = item
         assert len(items) == len(self.objects), \
@@ -393,19 +415,73 @@ class FillTool(object):
         for obj in self.objects:
             if self.user_file_identifier_field in obj:
                 obj[self.user_field] = str(obj[self.user_field])
-                items = []
-                for item in obj[self.user_items_field]:
-                    objs.append(obj)
+                for item in obj.get(self.user_items_field, ()):
+                    item[self.user_item_identifier_field] = str(item[self.user_item_identifier_field])
+                objs.append(obj)
         self.objects = objs
+
         json_users = {json_user[self.user_field]: json_user for json_user in self.objects}  # Map users for easy treatment
-        users = User.objects.filter(external_id__in=json_users)
+        users = {user.external_id: user for user in User.objects.filter(external_id__in=json_users)}
         new_users = {}
-        items = set([])
+        item_eids = set([])
         for user_eid, json_user in json_users.items():
             if user_eid not in users:
                 new_users[user_eid] = User(external_id=user_eid)
-            items = items.union(map(lambda x: x[2]))
-        User.objects.bulk_create(new_users.items())
+            item_eids = item_eids.union(map(lambda x: x[self.user_item_identifier_field],
+                                            json_users.get(self.user_items_field, ())))
+        logging.debug("Users ready to be saved")
+        User.objects.bulk_create(new_users.values())
+        for user in User.objects.filter(external_id__in=new_users.keys()):
+            users[user.external_id] = user
+
+        assert len(users) == len(self.objects), \
+            "Size of loaded objects and users in db is not the same (%d != %d)" % (len(users), len(self.objects))
+
+        logging.debug("%d new users saved with bulk_create" % len(new_users))
+
+        logging.debug("Preparing items")
+        items = {item.external_id: item for item in Item.objects.filter(external_id__in=item_eids)}
+
+        self.fill_inventory(users, items)
+        logging.debug("Items loaded")
+
+    def fill_inventory(self, users, items):
+        """
+        Fill the user inventory
+        :param users:
+        :param items:
+        :return:
+        """
+        query_inventory = Q()
+        inventory = {}
+        for json_user in self.objects:
+            for json_item in json_user.get(self.user_items_field, ()):
+                try:
+                    item_id = items[json_item[self.user_item_identifier_field]].pk
+                except KeyError:
+                    logging.error("Item with external_id %s does not exist!" % json_item[self.user_item_identifier_field])
+                else:
+                    user_id = users[json_user[self.user_field]].pk
+                    query_inventory = query_inventory | Q(item_id=item_id, user_id=user_id)
+                    inv = Inventory(item_id=item_id, user_id=user_id)
+                    inv.acquisition_date = datetime.strptime(json_item[self.user_item_acquisition_field], self.date_format)
+                    if self.user_item_dropped_field in json_item:
+                        inv.dropped_date = datetime.strptime(json_item[self.user_item_dropped_field], self.date_format)
+                    inventory[item_id, user_id] = inv
+
+        for inv in Inventory.objects.filter(query_inventory):
+            item_id, user_id = inv.item_id, inv.user_id
+            if (item_id, user_id) in inventory:
+                tmp_inv = inventory[(item_id, user_id)]
+                if inv.acquisition_date != tmp_inv.acquisition_date or inv.dropped_date != tmp_inv.dropped_date:
+                    inv.acquisition_date = tmp_inv.acquisition_date
+                    inv.dropped_date = tmp_inv.dropped_date
+                    inventory[(item_id, user_id)] = inv
+                    logging.WARNING(">>> Item %s will be updated for user %s")
+                else:
+                    del inventory[(item_id, user_id)]
+
+        Inventory.objects.bulk_create(inventory)
 
 
 class Command(DocOptCommand):
