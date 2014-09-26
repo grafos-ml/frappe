@@ -4,11 +4,11 @@
 Frappe fill - Fill database
 
 Usage:
-  manage.py fill (item|user) <path>
-  manage.py fill (item|user) --webservice=<url>
-  manage.py fill (item|user) (--mozilla-dev | --mozilla-prod) [today | yesterday | <date>]
-  manage.py fill --help
-  manage.py fill --version
+  fill (item|user) <path>
+  fill (item|user) --webservice=<url>
+  fill (item|user) (--mozilla-dev | --mozilla-prod) [today | yesterday | <date>]
+  fill --help
+  fill --version
 
 Options:
   <path>                  Path to the user/item files. This path must have only users or items.
@@ -21,45 +21,52 @@ Options:
 """
 __author__ = "joaonrb"
 
-import logging
 import os
+import sys
+import traceback
+import logging
 import tempfile
 import urllib
 import tarfile
 import json
+import errno
+import shutil
 from datetime import date, timedelta, datetime
-from docopt import docopt
 from django.db import connection
 from django.db.models import Q
-from django.core.management.base import BaseCommand, CommandError
+from django_docopt_command import DocOptCommand
 from django.conf import settings
-from recommendation.models import Item
+from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre, ItemGenre
 from recommendation.language.models import Locale
 from recommendation.default_settings import TESTING_MODE
 
 MOZILLA_DEV_ITEMS_API = "https://marketplace-dev-cdn.allizom.org/dumped-apps/tarballs/%Y-%m-%d.tgz"
 MOZILLA_PROD_ITEMS_API = "https://marketplace.cdn.mozilla.net/dumped-apps/tarballs/%Y-%m-%d.tgz"
+BULK_QUERY = "INSERT INTO %(table)s %(columns)s VALUES %(values)s;"
 
 
 class FillTool(object):
 
     TMP_FILE = "tmp.tgz"
 
-    def __init__(self):
-        self.parameters = docopt(__doc__, version="Frappe fill 2.0")
-        self.is_item = self.parameters["item"]
-        self.is_user = self.parameters["user"]
+    def __init__(self, parameters):
+        self.parameters = parameters
+        self.is_item = parameters["item"]
+        self.is_user = parameters["user"]
         self.use_tmp = True
-        self.tmp_dir = None
-        if self.parameters["<path>"]:
-            self.path = self.parameters["<path>"]
+        self.path = self.tmp_dir = None
+        if parameters["--version"]:
+            print("Frappe fill 2.0")
+            return
+        if parameters["<path>"]:
+            self.path = parameters["<path>"]
             self.use_tmp = False
-        elif self.parameters["--webservice"]:
-            self.tmp_dir = self.path = self.get_files(self.parameters["--webservice"])
-        else:
-            url = datetime.strftime(self.get_date(),
-                                    (self.parameters["--mozilla-dev"] or self.parameters["--mozilla-prod"]))
+        elif parameters["--webservice"]:
+            self.tmp_dir = self.path = self.get_files(parameters["--webservice"])
+        elif parameters["--mozilla-dev"] or parameters["--mozilla-prod"]:
+            mozilla = MOZILLA_DEV_ITEMS_API if parameters["--mozilla-dev"] is not None else MOZILLA_PROD_ITEMS_API
+            url = datetime.strftime(self.get_date(), mozilla)
             self.tmp_dir = self.path = self.get_files(url)
         self.objects = []
 
@@ -91,20 +98,24 @@ class FillTool(object):
             return datetime.strptime(self.parameters["date>"], "%Y-%m.%d").date()
         if self.parameters["today"]:
             return date.today()
+        # Return yesterday
         return date.today() - timedelta(1)
 
     def load(self):
         """
         Load the files to db
         """
-        self.load_files()
-        logging.debug("Load files into memory")
-        self.fill_db()
-        logging.debug("Files loaded to database")
-        if self.use_tmp:
-            self.clean_tmp()
-            logging.debug("Tmp files deleted")
-        logging.debug("Done!")
+        if self.path:
+            try:
+                self.load_files()
+                logging.debug("Load files into memory")
+                self.fill_db()
+                logging.debug("Files loaded to database")
+            finally:
+                if self.use_tmp:
+                    self.clean_tmp()
+                    logging.debug("Tmp files deleted")
+                logging.debug("Done!")
 
     def load_files(self):
         """
@@ -129,6 +140,12 @@ class FillTool(object):
         """
         Put items in db
         """
+        objs = []
+        for obj in self.objects:
+            if "app_type" in obj:
+                obj["id"] = str(obj["id"])
+                objs.append(obj)
+        self.objects = objs
         json_items = {json_item["id"]: json_item for json_item in self.objects}  # Map items for easy treatment
         items = {item.external_id: item for item in Item.objects.filter(external_id__in=json_items.keys())}
         new_items = {}
@@ -146,17 +163,25 @@ class FillTool(object):
                 categories.add(json_categories)
             else:
                 categories = categories.union(json_item["categories"])
+
             json_locales = json_item.get("supported_locales", None) or ()
             if isinstance(json_locales, basestring):
                 locales.add(json_locales)
             else:
                 locales = locales.union(json_locales)
         logging.debug("Items ready to be saved")
-        Item.objects.bulk_create(new_items.values())
+        if connection.vendor == "sqlite":
+            new_items_list = list(new_items.values())
+            for i in range(0, len(new_items_list), 100):
+                j = i+100
+                Item.objects.bulk_create(new_items_list[i:j])
+        else:
+            Item.objects.bulk_create(new_items.values())
         logging.debug("New items saved with bulk_create")
         for item in Item.objects.filter(external_id__in=new_items.keys()):
             items[item.external_id] = item
-        assert len(items) == self.objects, "Size of items and size of self.objects are different"
+        assert len(items) == len(self.objects), \
+            "Size of items and size of self.objects are different (%d != %d)" % (len(items), len(self.objects))
 
         if "recommendation.diversity" in settings.INSTALLED_APPS and not TESTING_MODE:
             logging.debug("Preparing genres")
@@ -177,13 +202,20 @@ class FillTool(object):
         :param genres_names:
         :return: A dict with Genres mapped to their name
         """
-        genres = {genre.name: genre for genre in Genre.objects.filter(names__in=genres_names)}
+        genres = {genre.name: genre for genre in Genre.objects.filter(name__in=genres_names)}
         if len(genres) != len(genres_names):
             new_genres = {}
             for genre_name in genres_names:
                 if genre_name not in genres:
                     new_genres[genre_name] = Genre(name=genre_name)
-            Genre.objects.bulk_create(new_genres.values())
+
+            if connection.vendor == "sqlite":
+                new_genres_list = list(new_genres.values())
+                for i in range(0, len(new_genres_list), 100):
+                    j = i+100
+                    Genre.objects.bulk_create(new_genres_list[i:j])
+            else:
+                Genre.objects.bulk_create(new_genres.values())
             for genre in Genre.objects.filter(name__in=new_genres):
                 genres[genre.name] = genre
         return genres
@@ -215,12 +247,98 @@ class FillTool(object):
                     new_locales.append(Locale(language_code=language_code, country_code=country_code))
                     new_query = new_query | Q(language_code=language_code, country_code=country_code)
 
-            Locale.objects.bulk_create(new_locales)
+            if connection.vendor == "sqlite":
+                for i in range(0, len(new_locales), 100):
+                    j = i+100
+                    Locale.objects.bulk_create(new_locales[i:j])
+            else:
+                Locale.objects.bulk_create(new_locales)
             for locale in Locale.objects.filter(new_query):
                 locales[str(locale)] = locale
         return locales
 
+    def fill_item_genre(self, items, genres):
+        """
+        Fill item genres connection
+        :param items:
+        :param genres:
+        :return:
+        """
+        item_genres = []
+        for json_item in self.objects:
+            json_genres = json_item.get("categories", None) or ()
+            for json_genre in json_genres:
+                item_genres.append(ItemGenre(item=items[json_item["id"]], type=genres[json_genre]))
+        if connection.vendor == "sqlite":
+            for i in range(0, len(item_genres), 100):
+                j = i+100
+                ItemGenre.objects.bulk_create(item_genres[i:j])
+        else:
+            ItemGenre.objects.bulk_create(item_genres)
+
+    def fill_item_locale(self, items, locales):
+        """
+        Fill item locales connection
+        :param items:
+        :param locales:
+        :return:
+        """
+        item_locale = []
+        for json_item in self.objects:
+            json_locales = json_item.get("supported_locales", None) or ()
+            for locale in json_locales:
+                item_locale.append("(%s, %s)" % (locales[locale].pk, items[json_item["id"]].pk))
+        cursor = connection.cursor()
+        if connection.vendor == "sqlite":
+            for i in range(0, len(item_locale), 100):
+                j = i+100
+                cursor.execute(BULK_QUERY % {
+                    "table": "language_locale_items",
+                    "columns": "(locale_id, item_id)",
+                    "values": ", ".join(item_locale[i:j])
+                })
+        else:
+            cursor.execute(BULK_QUERY % {
+                "table": "language_locale_items",
+                "columns": "(locale_id, item_id)",
+                "values": ", ".join(item_locale)
+            })
+        cursor.close()
+
+    def clean_tmp(self):
+        """
+        Remove items from tmp path
+        :return:
+        """
+        try:
+            shutil.rmtree(self.tmp_dir)  # delete directory
+        except OSError as exc:
+            if exc.errno != errno.ENOENT:  # ENOENT - no such file or directory
+                raise  # re-raise exception
+
+    def fill_db_with_users(self):
+        """
+        Put users in db
+        :return:
+        """
+        json_users = {json_user["user"]: json_user for json_user in self.objects}  # Map users for easy treatment
+        users = User.objects.filter(external_id__in=json_users)
+        new_users = {}
+        items = set([])
+        for user_eid, json_user in json_users.items():
+            if user_eid not in users:
+                new_users[user_eid] = User(external_id=user_eid)
+            pass  # TODO
+        User.objects.bulk_create(new_users.items())
 
 
+class Command(DocOptCommand):
+    docs = __doc__
 
-
+    def handle_docopt(self, arguments):
+        # arguments contains a dictionary with the options
+        try:
+            fill_command = FillTool(arguments)
+            fill_command.load()
+        except:
+            traceback.print_exception(*sys.exc_info())

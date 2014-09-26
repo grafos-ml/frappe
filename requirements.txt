@@ -11,4 +11,5 @@ uwsgi
 
 # For scripts
 docopt
+django-docopt-command
 click
