@@ -82,6 +82,7 @@ class ItemGenre(models.Model):
     class Meta:
         verbose_name = _("item genre")
         verbose_name_plural = _("item genres")
+        unique_together = ("type", "item")
 
     def __str__(self):
         return _("%(item)s's %(genre)s") % {"genre": self.type.name, "item": self.item.external_id}
