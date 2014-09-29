@@ -1,4 +1,14 @@
-### Import core tests (HEAD, feature_cache_decorator)
+### [FIX] Fill users and fill the name of items (HEAD, feature_cache_decorator)
+>Mon, 29 Sep 2014 18:40:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Import core tests
 >Mon, 29 Sep 2014 16:35:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

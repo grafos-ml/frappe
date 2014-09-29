@@ -73,18 +73,18 @@ class FillTool(object):
 
     def __init__(self, parameters):
         self.parameters = parameters
-        self.is_item = parameters["items"]
-        self.is_user = parameters["users"]
+        self.is_item = parameters.get("items", False)
+        self.is_user = parameters.get("users", False)
         self.use_tmp = True
         self.path = self.tmp_dir = None
-        if parameters["--version"]:
+        if parameters.get("--version", False):
             print("Frappe fill 2.0")
             return
-        if parameters["--webservice"]:
+        if parameters.get("--webservice", False):
             self.tmp_dir = self.path = self.get_files(parameters["--webservice"])
-        elif parameters["--mozilla"]:
-            if parameters["dev"] or parameters["prod"]:
-                mozilla = MOZILLA_DEV_ITEMS_API if parameters["dev"] else MOZILLA_PROD_ITEMS_API
+        elif parameters.get("--mozilla", False):
+            if parameters.get("dev", False) or parameters.get("prod", False):
+                mozilla = MOZILLA_DEV_ITEMS_API if parameters.get("dev", False) else MOZILLA_PROD_ITEMS_API
                 url = datetime.strftime(self.get_date(), mozilla)
                 self.tmp_dir = self.path = self.get_files(url)
             else:
@@ -101,7 +101,7 @@ class FillTool(object):
             parameters["--user-item-acquired"] = MOZILLA_USER_ITEM_ACQUISITION_FIELD
             parameters["--user-item-dropped"] = MOZILLA_USER_ITEM_DROPPED_FIELD
             parameters["--date-format"] = MOZILLA_DATE_FORMAT
-        elif parameters["<path>"]:
+        elif parameters.get("<path>", False):
             self.path = parameters["<path>"]
             self.use_tmp = False
         self.objects = []
@@ -116,7 +116,7 @@ class FillTool(object):
         self.user_item_acquisition_field = parameters["--user-item-acquired"]
         self.user_item_dropped_field = parameters["--user-item-dropped"]
         self.date_format = parameters["--date-format"]
-        if parameters["--verbose"]:
+        if parameters.get("--verbose", False):
             logging.basicConfig(format="%(asctime)s %(levelname)s: %(message)s",
                                 datefmt="%m-%d-%Y %H:%M:%S",
                                 level=logging.DEBUG)
@@ -145,9 +145,9 @@ class FillTool(object):
         Return a date passed in the pararameters
         :return: A datetime
         """
-        if self.parameters["<date>"]:
+        if self.parameters.get("<date>", False):
             return datetime.strptime(self.parameters["<date>"], "%Y-%m.%d").date()
-        if self.parameters["today"]:
+        if self.parameters.get("today", False):
             return date.today()
         # Return yesterday
         return date.today() - timedelta(1)
@@ -205,7 +205,7 @@ class FillTool(object):
         for item_eid, json_item in json_items.items():
             if item_eid not in items:
                 try:
-                    name = json_item[json_item["default_locale"]]
+                    name = json_item["name"][json_item["default_locale"]]
                 except KeyError:
                     name = json_item["name"]
                 new_items[item_eid] = Item(external_id=item_eid, name=name)
@@ -427,8 +427,8 @@ class FillTool(object):
         for user_eid, json_user in json_users.items():
             if user_eid not in users:
                 new_users[user_eid] = User(external_id=user_eid)
-            item_eids = item_eids.union(map(lambda x: x[self.user_item_identifier_field],
-                                            json_users.get(self.user_items_field, ())))
+            item_eids = item_eids.union(map(lambda x: str(x[self.user_item_identifier_field]),
+                                            json_user.get(self.user_items_field, ())))
         logging.debug("Users ready to be saved")
         User.objects.bulk_create(new_users.values())
         for user in User.objects.filter(external_id__in=new_users.keys()):
@@ -457,7 +457,7 @@ class FillTool(object):
         for json_user in self.objects:
             for json_item in json_user.get(self.user_items_field, ()):
                 try:
-                    item_id = items[json_item[self.user_item_identifier_field]].pk
+                    item_id = items[str(json_item[self.user_item_identifier_field])].pk
                 except KeyError:
                     logging.error("Item with external_id %s does not exist!" % json_item[self.user_item_identifier_field])
                 else:
@@ -481,7 +481,7 @@ class FillTool(object):
                 else:
                     del inventory[(item_id, user_id)]
 
-        Inventory.objects.bulk_create(inventory)
+        Inventory.objects.bulk_create(inventory.values())
 
 
 class Command(DocOptCommand):
