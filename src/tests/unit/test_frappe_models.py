@@ -8,7 +8,6 @@ import sys
 import numpy as np
 import pandas as pd
 import testfm
-import time
 from django.core.cache import get_cache
 from pkg_resources import resource_filename
 from django.utils import timezone as dt

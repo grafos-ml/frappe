@@ -1,4 +1,14 @@
-### Import tensorcofi tests (HEAD, feature_cache_decorator)
+### Import core tests (HEAD, feature_cache_decorator)
+>Mon, 29 Sep 2014 16:35:09 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Import tensorcofi tests
 >Mon, 29 Sep 2014 16:29:55 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
