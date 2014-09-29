@@ -21,9 +21,8 @@ except AttributeError:
 try:
     logger, _, _ = initialize(RECOMMENDATION_SETTINGS["logger"])
 except KeyError:
-    from recommendation import default_settings
-    logger, _, _ = initialize(getattr(default_settings, "RECOMMENDATION_SETTINGS")["logger"])
-
+    from recommendation.decorators import NoLogger
+    logger = NoLogger()
 log_event = logger
 
 
@@ -46,6 +45,13 @@ class IController(object):
         """
         Register a filter in this controller queue
 
+        >>> class Filter:
+        ...     pass
+        >>> controller = IController()
+        >>> controller.register_filter(Filter())
+        >>> print(controller.filters)  #doctest: +ELLIPSIS
+        [<recommendation.core.Filter instance at 0x...>]
+
         :param filters: A filter to add to the controller
         """
         for f in filters:
@@ -56,12 +62,23 @@ class IController(object):
     def filters(self):
         """
         A list with all the filters registered in this controller
+
+        >>> controller = IController()
+        >>> print(controller._filters == controller.filters)
+        True
         """
         return self._filters[:]
 
     def register_reranker(self, *rerankers):
         """
         Register a reranker for this controller.
+
+        >>> class Reranker:
+        ...     pass
+        >>> controller = IController()
+        >>> controller.register_reranker(Reranker())
+        >>> print(controller.rerankers)  #doctest: +ELLIPSIS
+        [<recommendation.core.Reranker instance at 0x...>]
 
         :param rerankers: A reranker to add to the controller.
         """
@@ -73,6 +90,10 @@ class IController(object):
     def rerankers(self):
         """
         A list with all the reranker registered in this controller
+
+        >>> controller = IController()
+        >>> print(controller._re_rankers == controller.rerankers)
+        True
         """
         return self._re_rankers[:]
 
@@ -96,7 +117,6 @@ class IController(object):
         Get a List of significance values for each app
 
         :param user: The user to get the recommendation
-
         :return: An array with the app scores for that user
         """
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the

@@ -1,4 +1,14 @@
-### Doc test for NPArrayField (HEAD, feature_cache_decorator)
+### Imported tests (HEAD, feature_cache_decorator)
+>Mon, 29 Sep 2014 16:03:50 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Doc test for NPArrayField
 >Mon, 29 Sep 2014 12:16:52 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

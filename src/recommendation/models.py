@@ -112,7 +112,7 @@ class Item(models.Model):
     @staticmethod
     def get_item_by_id(item_id):
         """
-        Return item by id
+        Return item by id.
         """
         return Item.get_item_by_external_id(Item.get_item_external_id_by_id(item_id))
 
@@ -120,7 +120,7 @@ class Item(models.Model):
     @Cached()
     def get_item_external_id_by_id(item_id):
         """
-        Return item id from external_id
+        Return item id from external_id.
         """
         return Item.objects.filter(pk=item_id).values_list("external_id")[0][0]
 
@@ -128,13 +128,13 @@ class Item(models.Model):
     @Cached()
     def get_item_by_external_id(external_id):
         """
-        Return item from external id
+        Return item from external id.
         """
         return Item.objects.get(external_id=external_id)
 
     def put_item_to_cache(self):
         """
-        Loads an app to database
+        Loads an app to database.
         """
         Item.get_item_by_external_id.lock_this(
             Item.get_item_by_external_id.cache.set

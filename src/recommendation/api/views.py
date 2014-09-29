@@ -4,13 +4,9 @@
 Created at Fev 19, 2014
 
 The views for the Recommend API.
-
-.. moduleauthor:: joaonrb <joaonrb@gmail.com>
 """
 __author__ = "joaonrb"
 
-import random
-from django.utils.cache import get_cache
 from django.utils.timezone import now
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
@@ -55,12 +51,6 @@ PARAMETERS_IN_MISS = {
 
 class APIResponse(HttpResponse):
     """
-    .. py:class:: recommendation.api.views.APIResponse(data)
-
-
-    About
-    -----
-
     A abstract HttpResponse that renders its content for the API.
     """
     content_type = None
@@ -74,12 +64,6 @@ class APIResponse(HttpResponse):
 
 class JSONResponse(APIResponse):
     """
-    .. py:class:: recommendation.api.views.JSONResponse(data)
-
-
-    About
-    -----
-
     A HttpResponse that renders its content into JSON.
     """
     content_type = "application/json"
@@ -88,12 +72,6 @@ class JSONResponse(APIResponse):
 
 class XMLResponse(APIResponse):
     """
-    .. py:class:: recommendation.api.views.XMLResponse(data)
-
-
-    About
-    -----
-
     A HttpResponse that renders its content into XML.
     """
     content_type = "application/xml"
@@ -102,12 +80,6 @@ class XMLResponse(APIResponse):
 
 class RecommendationAPI(APIView):
     """
-    .. py:class:: recommendation.api.views.RecommendationAPI()
-
-
-    About
-    -----
-
     An "abstract kind" of view class that implements a APIView from rest_framework
     """
     format_parser = None
@@ -118,9 +90,7 @@ class RecommendationAPI(APIView):
         Check the format of the request/response by the argument
 
         :param request: Django HTTP request
-        :type request: HTTPRequest
         :param data_format: The data format of the request/response. Must be something in "json", "xml",...
-        :type data_format: str
         :param args: Generic extra anonymous parameters
         :param kwargs: Generic key words parameters
         :return: A JSON or XML or whatever is configured and asked by the client response
@@ -152,24 +122,15 @@ class AbstractGoToItem(APIView):
         Click on an app.
 
         :param user_external_id: User external_id that do the click.
-        :type user_external_id: str or None
         :param item_external_id: Item external_id that is clicked.
-        :type item_external_id: str
         :param click_type: The type of click that is.
-        :type click_type: str
         :param rank: Rank of the item on recommendation. Default=None.
-        :type rank: int
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
 
 
 class UserRecommendationAPI(RecommendationAPI):
     """
-    .. py:class:: recommendation.api.views.UserRecommendationAPI()
-
-    About
-    -----
-
     A class based view for the recommendation. This View ony support the get method
     """
 
@@ -184,9 +145,7 @@ class UserRecommendationAPI(RecommendationAPI):
         :param request: This is the request. It is not needed but has to be here because of the django interface with
         views.
         :param user_external_id: The user that want the recommendation ore the object of the recommendations.
-        :type user_external_id: str
         :param number_of_recommendations: Number of recommendations that are requested.
-        :type number_of_recommendations: int
         :return: A HTTP response with a list of recommendations.
         """
 
@@ -248,11 +207,6 @@ class UsersAPI(RecommendationAPI):
 
 class UserItemsAPI(RecommendationAPI):
     """
-    ... py:class:: recommendation.api.views.AcquireItemAPI()
-
-    About
-    -----
-
     This API allows a user to check upon their acquired items, to acquire a new item and to drop an old one.
     """
 
@@ -304,7 +258,6 @@ class UserItemsAPI(RecommendationAPI):
 
         :param request: The HTTP request.
         :param user_external_id: The user external id that are making the request.
-        :type user_external_id: str
         :return: A list of app external ids of the user owned (items that are in database with reference to this
          user and the dropped date set to null).
         """
@@ -332,7 +285,6 @@ class UserItemsAPI(RecommendationAPI):
 
         :param request: The HTTP request.
         :param user_external_id: The user external id that are making the request.
-        :type user_external_id: str
         :return: A success response if the input was successful =p
         """
         try:
@@ -352,7 +304,6 @@ class UserItemsAPI(RecommendationAPI):
 
         :param request: The HTTP request.
         :param user_external_id: The user external id that are making the request.
-        :type user_external_id: str
         :return: A success response if the input was successful =p
         """
         try:
@@ -362,18 +313,3 @@ class UserItemsAPI(RecommendationAPI):
 
         self.remove_item(User.get_user_by_external_id(user_external_id), Item.get_item_by_external_id(item_id))
         return self.format_response(SUCCESS_MESSAGE)
-
-
-class LocalCacheTest(RecommendationAPI):
-    """
-    Dummy apy just for testing local Cache
-    """
-
-    http_method_names = [
-        "get"
-    ]
-
-    def get(self, response, token):
-        from recommendation.api.models import TestLocalCache
-        TestLocalCache.objects.create(token=token)
-        return self.format_response(TestLocalCache.cache.get("dummy_lct", []))
