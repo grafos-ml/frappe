@@ -1,4 +1,14 @@
-### Imported tests for users. Added support for django 1.7. (HEAD, feature_cache_decorator)
+### Import tensorcofi tests (HEAD, feature_cache_decorator)
+>Mon, 29 Sep 2014 16:29:55 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Imported tests for users. Added support for django 1.7.
 >Mon, 29 Sep 2014 16:26:36 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

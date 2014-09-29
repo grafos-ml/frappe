@@ -207,10 +207,81 @@ class TestUser(TestCase):
                 ivent = Inventory.objects.get(item=user.all_items[Item.get_item_by_external_id(i).pk], user=user)
                 ivent.dropped_date = dt.now()
                 ivent.save()
-                #user.load_item(ivent)
-                time.sleep(.2)
                 assert Item.get_item_by_external_id(i).pk not in user.owned_items, \
                     "Item %s is in user %s owned items" % (i, user.external_id)
                 ivent = Inventory.objects.get(item=user.all_items[Item.get_item_by_external_id(i).pk], user=user)
                 ivent.dropped_date = None
                 ivent.save()
+
+
+class TestTensorCoFi(TestCase):
+    """
+    Test suite for the tensorCoFi implementation for this recommendation
+    """
+
+    @classmethod
+    def setup_class(cls, *args, **kwargs):
+        """
+        Put elements in db
+        """
+        cls.df = pd.read_csv(resource_filename(testfm.__name__, "data/movielenshead.dat"), sep="::", header=None,
+                             names=["user", "item", "rating", "date", "title"])
+        cls.df = cls.df.head(n=100)
+        for i, app in enumerate(ITEMS, start=1):
+            Item.objects.create(pk=(i*2), **app)
+        for i, u in enumerate(USERS, start=1):
+            user = User.objects.create(pk=(i*2), external_id=u["external_id"])
+            for item in u["items"]:
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(item), acquisition_date=dt.now())
+
+    @classmethod
+    def teardown_class(cls, *args, **kwargs):
+        """
+        Take elements from db
+        """
+        Item.objects.all().delete()
+        User.objects.all().delete()
+        Inventory.objects.all().delete()
+        get_cache("default").clear()
+        get_cache("local").clear()
+
+    def test_fit(self):
+        """
+        [recommendation.models.TensorCoFi] Test size of matrix after tensorCoFi fit
+        """
+        tf = TensorCoFi(n_users=len(self.df.user.unique()), n_items=len(self.df.item.unique()), n_factors=2)
+        tf.fit(self.df)
+        #item and user are row vectors
+        self.assertEqual(len(self.df.user.unique()), tf.factors[0].shape[0])
+        self.assertEqual(len(self.df.item.unique()), tf.factors[1].shape[0])
+
+    def test_score(self):
+        """
+        [recommendation.models.TensorCoFi] Test score in matrix
+        """
+        tf = TensorCoFi(n_users=len(self.df.user.unique()), n_items=len(self.df.item.unique()), n_factors=2)
+        inp = [{"user": 10, "item": 100},
+               {"user": 10, "item": 110},
+               {"user": 12, "item": 120}]
+        inp = pd.DataFrame(inp)
+        tf.fit(inp)
+        uid = tf.data_map[tf.get_user_column()][10]
+        iid = tf.data_map[tf.get_item_column()][100]
+        tf.factors[0][uid, 0] = 0
+        tf.factors[0][uid, 1] = 1
+        tf.factors[1][iid, 0] = 1
+        tf.factors[1][iid, 1] = 5
+        self.assertEqual(0*1+1*5, tf.get_score(10, 100))
+
+    def test_training(self):
+        """
+        [recommendation.models.TensorCoFi] Test train from database
+        """
+        try:
+            TensorCoFi.train_from_db()
+        except Exception:
+            assert False, "Training is not working for jumping ids"
+        TensorCoFi.load_to_cache()
+        t = TensorCoFi.get_model_from_cache()
+        for user in User.objects.all():
+            assert isinstance(t.get_recommendation(user), np.ndarray), "Recommendation is not a numpy array"
