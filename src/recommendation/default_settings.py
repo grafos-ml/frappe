@@ -84,8 +84,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "recommender.db"),
-        "ATOMIC_REQUESTS": True,
-        "TEST_NAME": "test_default.db"
+        #"ATOMIC_REQUESTS": True,
+        #"TEST_NAME": "test_default.db"
     }
 }
 

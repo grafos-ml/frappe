@@ -1,4 +1,14 @@
-### Imported tests (HEAD, feature_cache_decorator)
+### Imported tests for users. Added support for django 1.7. (HEAD, feature_cache_decorator)
+>Mon, 29 Sep 2014 16:26:36 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Imported tests
 >Mon, 29 Sep 2014 16:03:50 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

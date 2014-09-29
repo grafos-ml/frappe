@@ -281,7 +281,7 @@ class User(models.Model):
         """
         User.get_user_by_id.lock_this(
             User.get_user_by_id.cache.set
-        )(User.get_user_by_id.key % self.external_id, self.pk, User.get_user_by_id.timeout)
+        )(User.get_user_by_id.key % self.pk, self, User.get_user_by_id.timeout)
         User.get_user_id_by_external_id.lock_this(
             User.get_user_id_by_external_id.cache.set
         )(User.get_user_id_by_external_id.key % self.external_id, self.pk, User.get_user_id_by_external_id.timeout)
