@@ -1,4 +1,14 @@
-### Updated documentation (HEAD, feature_cache_decorator)
+### Doc test for util.py (HEAD, feature_cache_decorator)
+>Mon, 29 Sep 2014 10:58:55 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Updated documentation (origin/feature_cache_decorator)
 >Fri, 26 Sep 2014 18:08:11 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -68,7 +78,7 @@
 
 
 
-### Half fill command done (origin/feature_cache_decorator)
+### Half fill command done
 >Thu, 25 Sep 2014 19:36:22 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

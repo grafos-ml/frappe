@@ -13,6 +13,11 @@ if sys.version_info >= (3, 0):
 def initialize(cls):
     """
     Return a tuple with the class, a tuple with args and a dict with keyword args.
+
+    >>> cls, atr, kwatr = initialize("random.random")  # Gets the class that string points to
+    >>> print type(cls(*atr, **kwatr))
+    <type 'float'>
+
     :param cls:
     :return:
     """
