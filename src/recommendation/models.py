@@ -39,10 +39,42 @@ class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
         """
         Convert the value from the database to python like object
 
+        >>> # Passing a numpy array with one dimension with data type float 32
+        >>> # np.np.array([1, 2, 3, 4], dtype=np.float32)
+        >>> string_array = "1:4:AACAPwAAAEAAAEBAAACAQA=="
+        >>> np_array = NPArrayField().to_python(string_array)
+
+        >>> print(np_array)  # Is an array from 1 to 4
+        [ 1.  2.  3.  4.]
+
+        >>> type(np_array)  # Is a numpy array
+        <type 'numpy.ndarray'>
+
+        >>> len(np_array.shape) == 1  # Has one dimension
+        True
+
+        >>> for i in np_array:
+        ...     print(i)
+        ...     print(type(i))
+        1.0
+        <type 'numpy.float32'>
+        2.0
+        <type 'numpy.float32'>
+        3.0
+        <type 'numpy.float32'>
+        4.0
+        <type 'numpy.float32'>
+
+        >>> # Passing a numpy array with one dimension with data type float 64
+        >>> # np.np.array([1, 2, 3, 4], dtype=np.float64)
+        >>> string_array = "1:4:AQAAAAAAAAACAAAAAAAAAAMAAAAAAAAABAAAAAAAAAA="
+        >>> np_array64 = NPArrayField().to_python(string_array)
+        Traceback (most recent call last):
+        ...
+        ValueError: total size of new array must be unchanged
+
         :param value: String from database
-        :type value: str
         :return: A numpy matrix
-        :rtype: numpy.Array
         """
         if isinstance(value, basestring):
             value = bytes(value, "utf-8") if sys.version_info >= (3, 0) else bytes(value)
@@ -56,12 +88,15 @@ class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
 
     def get_prep_value(self, value):
         """
-        Prepare the value from python like object to database like value
+        Prepare the value from python like object to database like value.
+
+        >>> np_array = np.array([1, 2, 3, 4], dtype=np.float32)
+        >>> np_string = NPArrayField().get_prep_value(np_array)
+        >>> print(np_string)
+        1:4:AACAPwAAAEAAAEBAAACAQA==
 
         :param value: Matrix to keep in database
-        :type value: numpy.Array
         :return: Base64 representation string encoded in utf-8
-        :rtype: str
         """
         return ":".join([str(len(value.shape)), ":".join(map(lambda x: str(x), value.shape)),
                          base64.b64encode(value.tostring())])

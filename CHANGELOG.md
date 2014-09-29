@@ -1,4 +1,14 @@
-### Doc test for util.py (HEAD, feature_cache_decorator)
+### Doc test for NPArrayField (HEAD, feature_cache_decorator)
+>Mon, 29 Sep 2014 12:16:52 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Doc test for util.py
 >Mon, 29 Sep 2014 10:58:55 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
