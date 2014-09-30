@@ -1,4 +1,14 @@
-### [FIX] Fill users and fill the name of items (HEAD, feature_cache_decorator)
+### Fix test for api recommendation (HEAD, feature_cache_decorator)
+>Tue, 30 Sep 2014 11:47:13 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FIX] Fill users and fill the name of items (origin/feature_cache_decorator)
 >Mon, 29 Sep 2014 18:40:40 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -68,7 +78,7 @@
 
 
 
-### Updated documentation (origin/feature_cache_decorator)
+### Updated documentation
 >Fri, 26 Sep 2014 18:08:11 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

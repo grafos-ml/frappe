@@ -495,7 +495,8 @@ class TensorCoFi(PyTensorCoFi):
     @staticmethod
     @Cached(cache="local")
     def get_model_from_cache(*args, **kwargs):
-        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        tensor = TensorCoFi(n_users=User.objects.aggregate(max=models.Max("pk"))["max"],
+                            n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         try:
             users = Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0]
             items = Matrix.objects.filter(name="tensorcofi", model_id=1).order_by("-id")[0]
@@ -519,7 +520,7 @@ class TensorCoFi(PyTensorCoFi):
         """
         tensor = TensorCoFi(n_users=User.objects.aggregate(max=models.Max("pk"))["max"],
                             n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
-        data = np.array(sorted([(u-1, i-1, 1.) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
+        data = np.array(sorted([(u-1, i-1, 1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
         return tensor.train(data)
 
     def train(self, data):

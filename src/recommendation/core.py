@@ -8,7 +8,7 @@ __author__ = "joaonrb"
 import logging
 import numpy as np
 from django.conf import settings
-from recommendation.models import Item, User, TensorCoFi, Popularity
+from recommendation.models import Item, User, TensorCoFi, Popularity, Inventory
 from recommendation.util import initialize
 from recommendation.decorators import ContingencyProtocol
 
@@ -154,7 +154,7 @@ class IController(object):
             result = r(user, result, size=n)
         return result[:n]
 
-    @ContingencyProtocol()
+    #@ContingencyProtocol()
     def get_external_id_recommendations(self, user, n=10):
         """
         Returns the recommendations with a list of external_is's
@@ -165,7 +165,7 @@ class IController(object):
         """
         user = User.get_user_by_external_id(user)
         result = self.get_recommendation(user=user, n=n)
-        return [Item.get_item_by_id(r).external_id for r in result]
+        return [Item.get_item_external_id_by_id(r) for r in result]
 
 
 class TensorCoFiController(IController):

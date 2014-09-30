@@ -9,9 +9,8 @@ import pandas as pd
 import numpy as np
 from pkg_resources import resource_filename
 from django.test import TestCase
-from django.test.client import Client, MULTIPART_CONTENT
+from django.test.client import Client
 from django.core.cache import get_cache
-from django.core.management import call_command
 from testfm.evaluation import Evaluator
 from testfm.models.tensorcofi import PyTensorCoFi
 import recommendation
@@ -36,10 +35,8 @@ class TestRecommendation(TestCase):
         path = resource_filename(recommendation.__name__, "/")
         fill.FillTool({"items": True, "--mozilla": True, "prod": True}).load()
         fill.FillTool({"users": True, "--mozilla": True, "<path>": path+"data/user"}).load()
-        #call_command("fill", "items --mozilla prod")
-        #call_command("fill", "users", "--mozilla", path+"data/user")
-        call_command("modelcrafter", "train", "popularity")
-        call_command("modelcrafter", "train", "tensorcofi")
+        modelcrafter.main("train", "popularity")
+        modelcrafter.main("train", "tensorcofi")
         # Load user and items
         Item.load_to_cache()
         User.load_to_cache()
@@ -58,17 +55,15 @@ class TestRecommendation(TestCase):
             Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
         User.objects.all().delete()
         Matrix.objects.all().delete()
-        Popularity.drop_cache()
-        TensorCoFi.drop_cache()
         get_cache("default").clear()
         get_cache("local").clear()
 
     def test_get_recommendation(self):
         """
-        [recommendation.api.GetRecommendation] Get recommendation as json
+        [recommendation.api.GetRecommendation] Get recommendation as json for a user with more than 3 apps
         """
         response = \
-            self.client.get("/api/v2/recommend/5/0047765d0b6165476b11297e58a341c357af9c35e12efd8c060dabe293ea338d/")
+            self.client.get("/api/v2/recommend/5/00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/")
         assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
         rec = json.loads(response.content)
         assert rec["user"] in map(lambda x: x.external_id, User.objects.all()), "User don't exist in cache"
@@ -95,5 +90,5 @@ class TestRecommendation(TestCase):
         items = df.item.unique()
         t = evaluator.evaluate_model(tensor, df, all_items=items, non_relevant_count=100)
         tfm = evaluator.evaluate_model(tfm_tensor, df, all_items=items, non_relevant_count=100)
-        assert abs(t[0] - tfm[0]) < 0.10, \
+        assert abs(t[0] - tfm[0]) < 0.15, \
             "Difference between testfm implementation and frappe is to high (%f, %f)" % (t[0], tfm[0])
