@@ -7,7 +7,9 @@ __author__ = "joaonrb"
 import json
 import pandas as pd
 import numpy as np
+from time import sleep
 from pkg_resources import resource_filename
+from django.db import connection
 from django.test import TestCase
 from django.test.client import Client
 from django.core.cache import get_cache
@@ -51,8 +53,14 @@ class TestRecommendation(TestCase):
         Take elements from db
         """
         # This for sqlite delete
-        while Item.objects.all().count() != 0:
-            Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
+        if connection.vendor == "sqlite":
+            while Inventory.objects.all().count() != 0:
+                Inventory.objects.filter(pk__in=Inventory.objects.all()[:100]).delete()
+            while Item.objects.all().count() != 0:
+                Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
+        else:
+            Inventory.objects.all().delete()
+            Item.objects.all().delete()
         User.objects.all().delete()
         Matrix.objects.all().delete()
         get_cache("default").clear()
@@ -103,3 +111,45 @@ class TestRecommendation(TestCase):
         tfm = evaluator.evaluate_model(tfm_tensor, df, all_items=items, non_relevant_count=100)
         assert abs(t[0] - tfm[0]) < 0.15, \
             "Difference between testfm implementation and frappe is to high (%f, %f)" % (t[0], tfm[0])
+
+    def test_recommendation_get_user_item(self):
+        """
+        [recommendation.api.GetUserItems] Test Get user items
+        """
+        response = \
+            self.client.get("/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/")
+        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
+        its = json.loads(response.content)
+        assert its["user"] == "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173", "User is not correct"
+        assert len(its["items"]) == 1, "Owned items should be 1"
+        assert its["items"][0]["external_id"] == "413346", "Owned item is not 413346"
+
+    def test_recommendation_acquire_new_item(self):
+        """
+        [recommendation.api.GetUserItems] Test acquire new item
+        """
+        response = self.client.post(
+            "/api/v2/user-items/00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b/",
+            {"item_to_acquire": "504343"}
+        )
+        sleep(0.2)
+        user = User.get_user_by_external_id("00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b")
+        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
+        assert len(user.owned_items) == 3, "Owned items should be 3(%d)" % len(user.owned_items)
+        assert Item.get_item_by_external_id("504343").pk in user.owned_items.keys(), "New item not in owned items"
+
+    def test_recommendation_remove_new_item(self):
+        """
+        [recommendation.api.GetUserItems] Test remove old item
+        """
+        response = self.client.delete(
+            "/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/",
+            "item_to_remove=413346",
+            content_type="application/x-www-form-urlencoded; charset=UTF-8"
+        )
+        sleep(0.2)
+        assert response.status_code == 200, "Request failed. Status code %d. Message: %s" % \
+                                            (response.status_code, json.loads(response.content).get("error", ""))
+        assert len(User.get_user_by_external_id(
+            "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173").owned_items) == 0, \
+            "Owned items should be 0"

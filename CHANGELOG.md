@@ -1,4 +1,14 @@
-### Fix recommendation for less than 3 apps (HEAD, feature_cache_decorator)
+### Fix API tests (HEAD, feature_cache_decorator)
+>Tue, 30 Sep 2014 15:54:30 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix recommendation for less than 3 apps
 >Tue, 30 Sep 2014 12:19:18 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

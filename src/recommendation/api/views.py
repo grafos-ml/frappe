@@ -268,7 +268,7 @@ class UserItemsAPI(RecommendationAPI):
             items = Inventory.objects.filter(user__external_id=user_external_id)
             items = items.order_by("acquisition_date")
             items = items.values_list("item__external_id", "acquisition_date", "dropped_date")[offset:limit]
-            items = [{"external_id": int(item), "acquisition_date": date, "dropped_date": removed_date}
+            items = [{"external_id": item, "acquisition_date": date, "dropped_date": removed_date}
                      for item, date, removed_date in items]
         except User.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)

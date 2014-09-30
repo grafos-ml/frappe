@@ -48,7 +48,7 @@ class Locale(models.Model):
     @staticmethod
     @Cached(cache="local", timeout=60*60)
     def get_items_by_locale(locale_id):
-        return set([pk for pk, in Item.objects.filter(available_locales__in=[locale_id]).values_list("pk")])
+        return set([pk for pk, in Item.objects.filter(locales__in=[locale_id]).values_list("pk")])
 
     def save(self, *args, **kwargs):
         """
@@ -91,5 +91,25 @@ class ItemLocale(models.Model):
     def __unicode__(self):
         return u"%s: %s" % (self.item, self.locale)
 
+
+class UserLocale(models.Model):
+    """
+    Many to many table to locales
+    """
+
+    locale = models.ForeignKey(Locale, verbose_name=_("locale"), related_name="users")
+    user = models.ForeignKey(User, verbose_name=_("user"), related_name="locales")
+
+    class Meta:
+        verbose_name = _("user locale")
+        verbose_name_plural = _("user locales")
+        unique_together = ("locale", "user")
+
+    def __str__(self):
+        return "%s: %s" % (self.user, self.locale)
+
+    def __unicode__(self):
+        return u"%s: %s" % (self.user, self.locale)
+
 from django.contrib import admin
-admin.site.register([Locale, ItemLocale])
+admin.site.register([Locale, ItemLocale, UserLocale])

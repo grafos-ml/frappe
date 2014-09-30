@@ -125,9 +125,10 @@ class IController(object):
         try:
             return model.get_recommendation(user)  # Try to cache recommendation from tensorcofi last build.
         except (KeyError, IndexError):
+            if len(user.owned_items) < 3:
+                # Not enough items in user inventory to compute
+                raise NotEnoughItemsToCompute("User %s doesn't have enough items")
             apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
-            if len(apps_idx) < 3:
-                raise NotEnoughItemsToCompute  # Not enough items in user inventory to compute
             u_factors = model.online_user_factors(apps_idx)  # New factors for this user
             TensorCoFi.user_matrix[user.pk-1] = u_factors  # store new documentation in Cache
             return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
@@ -144,7 +145,7 @@ class IController(object):
         """
         try:
             result = self.get_recommendation_from_model(user=user)
-        except Exception as e:
+        except NotEnoughItemsToCompute as e:
             logging.exception(e)
             result = self.get_alternative_recommendation(user)
         for f in self.filters:
@@ -154,7 +155,7 @@ class IController(object):
             result = r(user, result, size=n)
         return result[:n]
 
-    #@ContingencyProtocol()
+    @ContingencyProtocol()
     def get_external_id_recommendations(self, user, n=10):
         """
         Returns the recommendations with a list of external_is's
