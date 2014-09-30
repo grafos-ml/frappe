@@ -426,16 +426,22 @@ class UserMatrix:
     @staticmethod
     @Cached()
     def get_user_array(index):
+        if len(User.get_user_by_id(index+1).owned_items) < 3:  # Index+1 = User ID
+            raise KeyError("User %d static recommendation doesn't exist" % (index+1))
         return Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0].numpy[index, :]
 
     def __getitem__(self, index):
         return self.get_user_array(index)
 
     def __setitem__(self, index, value):
-        dec = UserMatrix.get_user_array
-        dec.lock_this(
-            dec.cache.set
-        )(dec.key % index, value, dec.timeout)
+        try:
+            if len(User.get_user_by_id(index+1).owned_items) >= 3:  # Index+1 = User ID
+                dec = UserMatrix.get_user_array
+                dec.lock_this(
+                    dec.cache.set
+                )(dec.key % index, value, dec.timeout)
+        except User.DoesNotExist:
+            pass
 
     def __delitem__(self, index):
         dec = UserMatrix.get_user_array
@@ -478,8 +484,10 @@ class TensorCoFi(PyTensorCoFi):
         return self.n_items
 
     def get_score(self, user, item):
-        return np.dot(self.factors[0][self.data_map[self.get_user_column()][user]],
-                      self.factors[1][self.data_map[self.get_item_column()][item]].transpose())
+        factors = [Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0].numpy,
+                   Matrix.objects.filter(name="tensorcofi", model_id=1).order_by("-id")[0].numpy]
+        return np.dot(factors[0][self.data_map[self.get_user_column()][user]],
+                      factors[1][self.data_map[self.get_item_column()][item]].transpose())
 
     def get_recommendation(self, user, **context):
         """

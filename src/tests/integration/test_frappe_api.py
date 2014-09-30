@@ -58,12 +58,23 @@ class TestRecommendation(TestCase):
         get_cache("default").clear()
         get_cache("local").clear()
 
-    def test_get_recommendation(self):
+    def test_get_recommendation_more_than_3(self):
         """
         [recommendation.api.GetRecommendation] Get recommendation as json for a user with more than 3 apps
         """
         response = \
             self.client.get("/api/v2/recommend/5/00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/")
+        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
+        rec = json.loads(response.content)
+        assert rec["user"] in map(lambda x: x.external_id, User.objects.all()), "User don't exist in cache"
+        assert len(rec["recommendations"]) == 5, "Size of recommendation not 5"
+
+    def test_get_recommendation_less_than_3(self):
+        """
+        [recommendation.api.GetRecommendation] Get recommendation as json for a user with less than 3 apps
+        """
+        response = \
+            self.client.get("/api/v2/recommend/5/0047765d0b6165476b11297e58a341c357af9c35e12efd8c060dabe293ea338d/")
         assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
         rec = json.loads(response.content)
         assert rec["user"] in map(lambda x: x.external_id, User.objects.all()), "User don't exist in cache"

@@ -241,6 +241,7 @@ class TestTensorCoFi(TestCase):
         Item.objects.all().delete()
         User.objects.all().delete()
         Inventory.objects.all().delete()
+        Matrix.objects.all().delete()
         get_cache("default").clear()
         get_cache("local").clear()
 
@@ -254,24 +255,6 @@ class TestTensorCoFi(TestCase):
         self.assertEqual(len(self.df.user.unique()), tf.factors[0].shape[0])
         self.assertEqual(len(self.df.item.unique()), tf.factors[1].shape[0])
 
-    def test_score(self):
-        """
-        [recommendation.models.TensorCoFi] Test score in matrix
-        """
-        tf = TensorCoFi(n_users=len(self.df.user.unique()), n_items=len(self.df.item.unique()), n_factors=2)
-        inp = [{"user": 10, "item": 100},
-               {"user": 10, "item": 110},
-               {"user": 12, "item": 120}]
-        inp = pd.DataFrame(inp)
-        tf.fit(inp)
-        uid = tf.data_map[tf.get_user_column()][10]
-        iid = tf.data_map[tf.get_item_column()][100]
-        tf.factors[0][uid, 0] = 0
-        tf.factors[0][uid, 1] = 1
-        tf.factors[1][iid, 0] = 1
-        tf.factors[1][iid, 1] = 5
-        self.assertEqual(0*1+1*5, tf.get_score(10, 100))
-
     def test_training(self):
         """
         [recommendation.models.TensorCoFi] Test train from database
@@ -283,4 +266,12 @@ class TestTensorCoFi(TestCase):
         TensorCoFi.load_to_cache()
         t = TensorCoFi.get_model_from_cache()
         for user in User.objects.all():
-            assert isinstance(t.get_recommendation(user), np.ndarray), "Recommendation is not a numpy array"
+            if len(user.owned_items) > 2:
+                assert isinstance(t.get_recommendation(user), np.ndarray), "Recommendation is not a numpy array"
+            else:
+                try:
+                    t.get_recommendation(user)
+                except KeyError:
+                    pass
+                else:
+                    assert False, "User with less than 3 items give a static recommendation"
