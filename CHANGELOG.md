@@ -1,4 +1,14 @@
-### Fix API tests (HEAD, feature_cache_decorator)
+### FIx documentation concerning Rest API (HEAD, feature_cache_decorator)
+>Tue, 30 Sep 2014 15:58:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix API tests
 >Tue, 30 Sep 2014 15:54:30 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

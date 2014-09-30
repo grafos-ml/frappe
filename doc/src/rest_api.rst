@@ -121,7 +121,7 @@ Response:
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
-| recommendations| List<Number>  | A list with suggested apps ids.           |
+| recommendations| List<String>  | A list with suggested items ids.          |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 
@@ -144,11 +144,11 @@ Example::
         {
             user: "0033597455692156e68dfdc2fc3936595b560834d1a0d68d8606e23779f454e1",
             recommendations: [
-                453746,
-                463842,
-                461344,
-                408212
-                ]
+                "453746",
+                "463842",
+                "461344",
+                "408212"
+            ]
         }
 
 Go to the Application place in FF Store
@@ -235,7 +235,7 @@ Response:
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
-| external_id    | Integer       | The external id of the app.               |
+| external_id    | String        | The external id of the item.              |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
@@ -320,7 +320,7 @@ Response:
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 |                |               |                                           |
-| applications   | List          | A list of installed apps.                 |
+| items          | List          | A list of owned items.                    |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 
@@ -332,7 +332,7 @@ Installed Apps:
 |                   |               |                                           |
 +===================+===============+===========================================+
 |                   |               |                                           |
-| external_id       | String        | The app external id.                      |
+| external_id       | String        | The item external id.                     |
 |                   |               |                                           |
 +-------------------+---------------+-------------------------------------------+
 |                   |               |                                           |
@@ -353,7 +353,7 @@ Example::
         items: [
             {
                 acquisition_date: "2013-04-02T18:47:58Z",
-                external_id: 413346,
+                external_id: "413346",
                 dropped_date: null
             }
         ],
@@ -496,7 +496,7 @@ Response:
 |                |               |                                           |
 +================+===============+===========================================+
 |                |               |                                           |
-| response       | List          | A list of users apps.                     |
+| response       | List          | A list of users items.                    |
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 
