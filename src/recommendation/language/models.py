@@ -18,6 +18,8 @@ class Locale(models.Model):
     language_code = models.CharField(_("language code"), max_length=2)
     country_code = models.CharField(_("country code"), max_length=2, default="")
     name = models.CharField(_("country"), max_length=255, default="")
+    items = models.ManyToManyField(Item, verbose_name=_("items"), through="ItemLocale", blank=True, null=True)
+    users = models.ManyToManyField(User, verbose_name=_("users"), through="UserLocale", blank=True, null=True)
 
     class Meta:
         verbose_name = _("locale")
@@ -38,17 +40,17 @@ class Locale(models.Model):
     @staticmethod
     @Cached(cache="local")
     def get_item_locales(item_id):
-        return set([pk for pk, in Locale.objects.filter(items__in=[item_id]).values_list("pk")])
+        return set([pk[0] for pk in Item.get_item_by_id(item_id).locales.all().values_list("locale_id")])
 
     @staticmethod
     @Cached(cache="local")
     def get_user_locales(user_id):
-        return set([pk for pk, in Locale.objects.filter(users__in=[user_id]).values_list("pk")])
+        return set([pk[0] for pk in User.get_user_by_id(user_id).locales.all().values_list("locale_id")])
 
     @staticmethod
     @Cached(cache="local", timeout=60*60)
     def get_items_by_locale(locale_id):
-        return set([pk for pk, in Item.objects.filter(locales__in=[locale_id]).values_list("pk")])
+        return set([pk[0] for pk in ItemLocale.objects.filter(locale_id=locale_id).values_list("item_id")])
 
     def save(self, *args, **kwargs):
         """
@@ -77,7 +79,7 @@ class ItemLocale(models.Model):
     Many to many table to locales
     """
 
-    locale = models.ForeignKey(Locale, verbose_name=_("locale"), related_name="items")
+    locale = models.ForeignKey(Locale, verbose_name=_("locale"))
     item = models.ForeignKey(Item, verbose_name=_("item"), related_name="locales")
 
     class Meta:
@@ -97,7 +99,7 @@ class UserLocale(models.Model):
     Many to many table to locales
     """
 
-    locale = models.ForeignKey(Locale, verbose_name=_("locale"), related_name="users")
+    locale = models.ForeignKey(Locale, verbose_name=_("locale"))
     user = models.ForeignKey(User, verbose_name=_("user"), related_name="locales")
 
     class Meta:
