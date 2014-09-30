@@ -15,7 +15,7 @@ before_script:
 - ls -l
 - python manage.py syncdb --noinput
 script:
-- echo "yes" | python manage.py test -v2 --with-id
+- PYTHONPATH=. ../scripts/runtests --travis
 after_success:
 - cd ../doc
 - ls -l
