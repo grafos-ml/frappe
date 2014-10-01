@@ -3,7 +3,6 @@ pymysql
 django-cors-headers
 # Test.fm fails when installing from requirements file. TO fix in Test.fm project.
 #https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
-python-memcached
 djangorestframework
 futures==2.1.6
 pandas==0.14.1
