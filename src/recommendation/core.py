@@ -101,20 +101,42 @@ class IController(object):
         """
         Catch model
 
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_model()
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
+
         :return: The Model
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def get_alternative_recommendation(self, user):
         """
         Return an alternative recommendation when the first fail
+
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_alternative_recommendation(object())
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
+
         :return: list
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def get_recommendation_from_model(self, user):
         """
         Get a List of significance values for each app
+
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_recommendation_from_model(object())
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
 
         :param user: The user to get the recommendation
         :return: An array with the app scores for that user
@@ -138,6 +160,13 @@ class IController(object):
         """
         Method to get recommendation according with some user id
 
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_recommendation(user=object(), n=10)
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
+
         :param user: The user external_id. A way to identify the user.
         :param n: The number of recommendations to give in response.
         :return: A Python list the recommendation apps ids.
@@ -159,6 +188,13 @@ class IController(object):
     def get_external_id_recommendations(self, user, n=10):
         """
         Returns the recommendations with a list of external_is's
+
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_external_id_recommendations(object(), n=10)
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
 
         :param user: Same parameters that get_app_significance
         :param n:
@@ -233,4 +269,4 @@ def get_controller(name="default"):
     try:
         return RECOMMENDATION_ENGINES[name]
     except KeyError:
-        raise ControllerNotDefined
+        raise ControllerNotDefined()

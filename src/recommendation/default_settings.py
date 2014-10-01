@@ -29,7 +29,7 @@ TEMPLATE_DEBUG = DEBUG
 TESTING_MODE = 'test' in sys.argv
 
 MAX_THREADS = 2
-RESPONSE_TIMEOUT = 150./1000.
+RESPONSE_TIMEOUT = 200./1000.
 
 ALLOWED_HOSTS = ["*"]
 
@@ -110,6 +110,11 @@ STATIC_URL = "/static/"
 # Nose settings
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
+NOSE_ARGS = [
+    "--with-coverage",
+    "--cover-package=recommendation",
+    "--cover-html"
+]
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 DEBUG_TOOLBAR_PANELS = (

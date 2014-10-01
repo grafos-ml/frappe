@@ -27,7 +27,7 @@ class SimpleLocaleFilter(object):
         :return: A new set of recommendations ready to fill every item need for the user.
         :rtype: A list of items ids(int).
         """
-        unsupported_langs = Locale.get_user_locales(user.pk).symmetric_difference(l for l in Locale.get_all_locales())
+        unsupported_langs = Locale.get_user_locales(user.pk).symmetric_difference(Locale.get_all_locales())
         #print list(Locale.items_by_locale[l] for l in unsupported_langs)
         unsupported_items = set(chain(*(Locale.get_items_by_locale(l) for l in unsupported_langs)))
         for item in unsupported_items:

@@ -106,7 +106,7 @@ class TestLanguageFilter(TestCase):
 
     def test_reranker_diversity_no_redundancy(self):
         """
-        [recommendation.diversity.ReRanker] Test a diversity re-ranker on recommendation for non redundancy snd loss
+        [recommendation.diversity.ReRanker] Test a diversity re-ranker on recommendation for non redundancy and loss
         """
         diversity = SimpleDiversityReRanker()
         recommendation = [Item.get_item_by_external_id(i).pk for i in ("10001", "10002", "10003", "10004", "98766")]

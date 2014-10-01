@@ -1,4 +1,14 @@
-### Finish importing  and fixing all tests (HEAD, feature_cache_decorator)
+### Arrange some code basing in performance tests (HEAD, feature_cache_decorator)
+>Wed, 1 Oct 2014 16:41:48 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finish importing  and fixing all tests (origin/feature_cache_decorator)
 >Wed, 1 Oct 2014 12:24:01 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### [FIX] issue #17. Now, fill drops locales that don't respect the format. This particular issue occurred because of the locale "sr-Latn". (origin/feature_cache_decorator)
+### [FIX] issue #17. Now, fill drops locales that don't respect the format. This particular issue occurred because of the locale "sr-Latn".
 >Wed, 1 Oct 2014 12:08:16 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
