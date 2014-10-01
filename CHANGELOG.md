@@ -1,4 +1,14 @@
-### Merge remote-tracking branch 'remotes/origin/develop' (HEAD, master)
+### testfm cannot be in requirements (HEAD, master)
+>Wed, 1 Oct 2014 18:17:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Merge remote-tracking branch 'remotes/origin/develop' (origin/master, origin/HEAD)
 >Wed, 1 Oct 2014 16:56:01 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
