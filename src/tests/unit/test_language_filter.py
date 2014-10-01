@@ -77,6 +77,7 @@ class TestLanguageFilter(TestCase):
         """
         Take elements from db
         """
+        UserLocale.objects.all().delete()
         Locale.objects.all().delete()
         Inventory.objects.all().delete()
         Item.objects.all().delete()

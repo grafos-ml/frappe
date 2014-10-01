@@ -1,4 +1,14 @@
-### Fix language test and fill tests (HEAD, feature_cache_decorator)
+### Fix diversity tests (HEAD, feature_cache_decorator)
+>Wed, 1 Oct 2014 11:18:42 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix language test and fill tests (origin/feature_cache_decorator)
 >Tue, 30 Sep 2014 18:50:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -68,7 +78,7 @@
 
 
 
-### [FIX] Fill users and fill the name of items (origin/feature_cache_decorator)
+### [FIX] Fill users and fill the name of items
 >Mon, 29 Sep 2014 18:40:40 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
