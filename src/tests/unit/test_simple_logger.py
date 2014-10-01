@@ -12,6 +12,7 @@ from random import shuffle
 from django.test import TestCase
 from django.utils import timezone as dt
 from django.conf import settings
+from django.core.cache import get_cache
 from recommendation.models import Item, User, Inventory
 from recommendation.simple_logging.models import LogEntry, LOGGER_MAX_LOGS
 from recommendation.simple_logging.decorators import LogEvent
@@ -19,22 +20,22 @@ from recommendation.simple_logging.filters import SimpleLogFilter
 
 
 ITEMS = [
-    {"name": "facemagazine", "external_id": "10001"},
-    {"name": "twister", "external_id": "10002"},
-    {"name": "gfail", "external_id": "10003"},
-    {"name": "appwhat", "external_id": "10004"},
-    {"name": "pissedoffbirds", "external_id": "98766"},
+    {"id": 1, "name": "facemagazine", "external_id": "10001"},
+    {"id": 2, "name": "twister", "external_id": "10002"},
+    {"id": 3, "name": "gfail", "external_id": "10003"},
+    {"id": 4, "name": "appwhat", "external_id": "10004"},
+    {"id": 5, "name": "pissedoffbirds", "external_id": "98766"},
 ]
 
 
 USERS = [
-    {"external_id": "joaonrb", "items": ["10001", "10003", "10004"]},
-    {"external_id": "mumas", "items": ["10003", "10004", "98766"]},
-    {"external_id": "alex", "items": ["10003"]},
-    {"external_id": "rob", "items": ["10003", "10004"]},
-    {"external_id": "gabriela", "items": ["10002", "98766"]},
-    {"external_id": "ana", "items": []},
-    {"external_id": "margarida", "items": ["10001", "98766"]},
+    {"id": 1, "external_id": "joaonrb", "items": ["10001", "10003", "10004"]},
+    {"id": 2, "external_id": "mumas", "items": ["10003", "10004", "98766"]},
+    {"id": 3, "external_id": "alex", "items": ["10003"]},
+    {"id": 4, "external_id": "rob", "items": ["10003", "10004"]},
+    {"id": 5, "external_id": "gabriela", "items": ["10002", "98766"]},
+    {"id": 6, "external_id": "ana", "items": []},
+    {"id": 7, "external_id": "margarida", "items": ["10001", "98766"]},
 ]
 
 
@@ -64,9 +65,12 @@ class TestSimpleLoggerDecorator(TestCase):
         """
         Take elements from db
         """
+        LogEntry.objects.all().delete()
+        Inventory.objects.all().delete()
         Item.objects.all().delete()
         User.objects.all().delete()
-        LogEntry.objects.all().delete()
+        get_cache("default").clear()
+        get_cache("local").clear()
 
     def test_recommendation_logging(self):
         """

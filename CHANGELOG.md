@@ -1,4 +1,14 @@
-### [FIX] issue #17. Now, fill drops locales that don't respect the format. This particular issue occurred because of the locale "sr-Latn". (HEAD, feature_cache_decorator)
+### Finish importing  and fixing all tests (HEAD, feature_cache_decorator)
+>Wed, 1 Oct 2014 12:24:01 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FIX] issue #17. Now, fill drops locales that don't respect the format. This particular issue occurred because of the locale "sr-Latn". (origin/feature_cache_decorator)
 >Wed, 1 Oct 2014 12:08:16 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -18,7 +28,7 @@
 
 
 
-### Fix language test and fill tests (origin/feature_cache_decorator)
+### Fix language test and fill tests
 >Tue, 30 Sep 2014 18:50:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
