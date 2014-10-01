@@ -6,10 +6,9 @@ __author__ = "joaonrb"
 
 
 from django.db import models
-from django.db.models.signals import post_save, m2m_changed, post_delete
-from django.dispatch import receiver
 from django.utils.translation import ugettext as _
-from recommendation.models import Item, User, CacheManager, IterableCacheManager
+from recommendation.models import Item, User
+from recommendation.decorators import Cached
 
 
 class Locale(models.Model):
@@ -19,14 +18,8 @@ class Locale(models.Model):
     language_code = models.CharField(_("language code"), max_length=2)
     country_code = models.CharField(_("country code"), max_length=2, default="")
     name = models.CharField(_("country"), max_length=255, default="")
-    items = models.ManyToManyField(Item, verbose_name=_("items"), related_name="available_locales", blank=True)
-    users = models.ManyToManyField(User, verbose_name=_("users"), related_name="required_locales", blank=True)
-
-    all_locales = IterableCacheManager("locallid")
-    item_locales = CacheManager("locits")
-    user_locales = CacheManager("locusr")
-    items_by_locale = CacheManager("locitsb")
-    users_by_locale = CacheManager("locusrb")
+    items = models.ManyToManyField(Item, verbose_name=_("items"), through="ItemLocale", blank=True, null=True)
+    users = models.ManyToManyField(User, verbose_name=_("users"), through="UserLocale", blank=True, null=True)
 
     class Meta:
         verbose_name = _("locale")
@@ -35,6 +28,29 @@ class Locale(models.Model):
 
     def __str__(self):
         return "%s%s" % (self.language_code, "-%s" % self.country_code if self.country_code else "")
+
+    def __unicode__(self):
+        return u"%s%s" % (self.language_code, "-%s" % self.country_code if self.country_code else "")
+
+    @staticmethod
+    @Cached(cache="local", timeout=60*60)
+    def get_all_locales():
+        return {locale.pk: locale for locale in Locale.objects.all()}
+
+    @staticmethod
+    @Cached(cache="local")
+    def get_item_locales(item_id):
+        return set([pk[0] for pk in Item.get_item_by_id(item_id).locales.all().values_list("locale_id")])
+
+    @staticmethod
+    @Cached(cache="local")
+    def get_user_locales(user_id):
+        return set([pk[0] for pk in User.get_user_by_id(user_id).locales.all().values_list("locale_id")])
+
+    @staticmethod
+    @Cached(cache="local", timeout=60*60)
+    def get_items_by_locale(locale_id):
+        return set([pk[0] for pk in ItemLocale.objects.filter(locale_id=locale_id).values_list("item_id")])
 
     def save(self, *args, **kwargs):
         """
@@ -49,72 +65,53 @@ class Locale(models.Model):
 
     @staticmethod
     def load_to_cache():
+        for locale_id in Locale.get_all_locales():
+            Locale.get_item_locales(locale_id)
+            Locale.get_items_by_locale(locale_id)
         for u in User.objects.all():
-            Locale.user_locales[u.pk] = set([])
+            Locale.get_user_locales(u.pk)
         for i in Item.objects.all():
-            Locale.item_locales[i.pk] = set([])
-        for instance in Locale.objects.all():
-            for i in instance.items.all():
-                Locale.item_locales[i.pk] = Locale.item_locales.get(i.pk, set([]).union((instance.pk,)))
-                Locale.items_by_locale[instance.pk] = Locale.items_by_locale.get(instance.pk, set([])).union((i.pk,))
-            for u in instance.users.all():
-                Locale.user_locales[u.pk] = Locale.user_locales.get(u.pk, set([]).union((instance.pk,)))
-                Locale.users_by_locale[instance.pk] = Locale.users_by_locale.get(instance.pk, set([]).union((u.pk,)))
+            Locale.get_item_locales(i.pk)
 
 
-@receiver(post_save, sender=Locale)
-def add_locale_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):
+class ItemLocale(models.Model):
     """
-    Add locale to cache upon creation
+    Many to many table to locales
     """
-    Locale.all_locales[instance.pk] = instance
+
+    locale = models.ForeignKey(Locale, verbose_name=_("locale"))
+    item = models.ForeignKey(Item, verbose_name=_("item"), related_name="locales")
+
+    class Meta:
+        verbose_name = _("item locale")
+        verbose_name_plural = _("item locales")
+        unique_together = ("locale", "item")
+
+    def __str__(self):
+        return "%s: %s" % (self.item, self.locale)
+
+    def __unicode__(self):
+        return u"%s: %s" % (self.item, self.locale)
 
 
-@receiver(post_delete, sender=Locale)
-def remove_locale_to_cache(sender, instance, using, **kwargs):
+class UserLocale(models.Model):
     """
-    Remove locale to cache upon creation
+    Many to many table to locales
     """
-    del Locale.all_locales[instance.pk]
 
+    locale = models.ForeignKey(Locale, verbose_name=_("locale"))
+    user = models.ForeignKey(User, verbose_name=_("user"), related_name="locales")
 
-@receiver(m2m_changed, sender=Locale.items.through)
-def add_item_locale_to_cache(sender, instance, action, reverse, model, pk_set, using, *args, **kwargs):
-    """
-    Add item to locale cache upon creation
-    """
-    if action == "post_add":
-        for i in pk_set:
-            Locale.item_locales[i] = Locale.item_locales.get(i, set([])).union((instance.pk,))
-            Locale.items_by_locale[instance.pk] = Locale.items_by_locale.get(instance.pk, set([])).union((i,))
-    elif action == "post_remove":
-        for i in pk_set:
-            l = Locale.item_locales.get(i, set([]))
-            l.discard(instance.pk)
-            Locale.item_locales[i] = l
-            l = Locale.items_by_locale.get(instance.pk, set([]))
-            l.discard(i)
-            Locale.items_by_locale[instance.pk] = l
+    class Meta:
+        verbose_name = _("user locale")
+        verbose_name_plural = _("user locales")
+        unique_together = ("locale", "user")
 
+    def __str__(self):
+        return "%s: %s" % (self.user, self.locale)
 
-@receiver(m2m_changed, sender=Locale.users.through)
-def add_user_locale_to_cache(sender, instance, action, reverse, model, pk_set, using, *args, **kwargs):
-    """
-    Add users to locale cache upon creation
-    """
-    if action == "post_add":
-        for u in pk_set:
-            Locale.user_locales[u] = Locale.user_locales.get(u, set([])).union((instance.pk,))
-            Locale.users_by_locale[instance.pk] = Locale.users_by_locale.get(instance.pk, set([]).union((u,)))
-    elif action == "post_remove":
-        for u in pk_set:
-            l = Locale.user_locales.get(u, set([]))
-            l.discard(instance.pk)
-            Locale.user_locales[u] = l
-            l = Locale.users_by_locale.get(instance.pk, set([]))
-            l.discard(u)
-            Locale.users_by_locale[instance.pk] = l
-
+    def __unicode__(self):
+        return u"%s: %s" % (self.user, self.locale)
 
 from django.contrib import admin
-admin.site.register([Locale])
+admin.site.register([Locale, ItemLocale, UserLocale])

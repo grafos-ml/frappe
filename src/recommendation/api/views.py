@@ -4,13 +4,9 @@
 Created at Fev 19, 2014
 
 The views for the Recommend API.
-
-.. moduleauthor:: joaonrb <joaonrb@gmail.com>
 """
 __author__ = "joaonrb"
 
-import random
-from django.utils.cache import get_cache
 from django.utils.timezone import now
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
@@ -55,12 +51,6 @@ PARAMETERS_IN_MISS = {
 
 class APIResponse(HttpResponse):
     """
-    .. py:class:: recommendation.api.views.APIResponse(data)
-
-
-    About
-    -----
-
     A abstract HttpResponse that renders its content for the API.
     """
     content_type = None
@@ -74,12 +64,6 @@ class APIResponse(HttpResponse):
 
 class JSONResponse(APIResponse):
     """
-    .. py:class:: recommendation.api.views.JSONResponse(data)
-
-
-    About
-    -----
-
     A HttpResponse that renders its content into JSON.
     """
     content_type = "application/json"
@@ -88,12 +72,6 @@ class JSONResponse(APIResponse):
 
 class XMLResponse(APIResponse):
     """
-    .. py:class:: recommendation.api.views.XMLResponse(data)
-
-
-    About
-    -----
-
     A HttpResponse that renders its content into XML.
     """
     content_type = "application/xml"
@@ -102,12 +80,6 @@ class XMLResponse(APIResponse):
 
 class RecommendationAPI(APIView):
     """
-    .. py:class:: recommendation.api.views.RecommendationAPI()
-
-
-    About
-    -----
-
     An "abstract kind" of view class that implements a APIView from rest_framework
     """
     format_parser = None
@@ -118,9 +90,7 @@ class RecommendationAPI(APIView):
         Check the format of the request/response by the argument
 
         :param request: Django HTTP request
-        :type request: HTTPRequest
         :param data_format: The data format of the request/response. Must be something in "json", "xml",...
-        :type data_format: str
         :param args: Generic extra anonymous parameters
         :param kwargs: Generic key words parameters
         :return: A JSON or XML or whatever is configured and asked by the client response
@@ -152,24 +122,15 @@ class AbstractGoToItem(APIView):
         Click on an app.
 
         :param user_external_id: User external_id that do the click.
-        :type user_external_id: str or None
         :param item_external_id: Item external_id that is clicked.
-        :type item_external_id: str
         :param click_type: The type of click that is.
-        :type click_type: str
         :param rank: Rank of the item on recommendation. Default=None.
-        :type rank: int
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
 
 
 class UserRecommendationAPI(RecommendationAPI):
     """
-    .. py:class:: recommendation.api.views.UserRecommendationAPI()
-
-    About
-    -----
-
     A class based view for the recommendation. This View ony support the get method
     """
 
@@ -177,26 +138,22 @@ class UserRecommendationAPI(RecommendationAPI):
         "get"
     ]
 
-    def get(self, request, user_external_id="", number_of_recommendations=5):
+    def get(self, request, user_external_id, number_of_recommendations=5):
         """
         Get method to request recommendations
 
         :param request: This is the request. It is not needed but has to be here because of the django interface with
         views.
         :param user_external_id: The user that want the recommendation ore the object of the recommendations.
-        :type user_external_id: str
         :param number_of_recommendations: Number of recommendations that are requested.
-        :type number_of_recommendations: int
         :return: A HTTP response with a list of recommendations.
         """
-        if user_external_id == "":
-            user = random.sample(list(User.user_by_external_id), 1)[0]
-        else:
-            user = User.user_by_external_id[user_external_id]
 
         # Here is the decorator for recommendation
-        recommended_apps = get_controller().get_external_id_recommendations(user, n=int(number_of_recommendations))
-        data = {"user": user.external_id, "recommendations": recommended_apps}
+        recommended_apps = \
+            get_controller().get_external_id_recommendations(user_external_id, int(number_of_recommendations))
+
+        data = {"user": user_external_id, "recommendations": recommended_apps}
         return self.format_response(data)
 
 
@@ -250,11 +207,6 @@ class UsersAPI(RecommendationAPI):
 
 class UserItemsAPI(RecommendationAPI):
     """
-    ... py:class:: recommendation.api.views.AcquireItemAPI()
-
-    About
-    -----
-
     This API allows a user to check upon their acquired items, to acquire a new item and to drop an old one.
     """
 
@@ -272,34 +224,28 @@ class UserItemsAPI(RecommendationAPI):
     @staticmethod
     @GoToThreadQueue()
     @log_event(log_event.ACQUIRE)
-    def insert_acquisition(user_external_id, item_external_id):
+    def insert_acquisition(user, item):
         """
         Insert a new in user installed apps
 
-        :param user_external_id: The user external id.
-        :type user_external_id: str
-        :param item_external_id: The item external id.
-        :type item_external_id: str
+        :param user: The user.
+        :param item: The item.
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        Inventory.objects.create(item=Item.item_by_external_id[item_external_id],
-                                 user=User.user_by_external_id[user_external_id], acquisition_date=now())
+        Inventory.objects.create(item=item, user=user, acquisition_date=now())
 
     @staticmethod
     @GoToThreadQueue()
     @log_event(log_event.REMOVE)
-    def remove_item(user_external_id, item_external_id):
+    def remove_item(user, item):
         """
         Update a certain item to remove in the uninstall datetime field
 
-        param user_external_id: The user external id.
-        :type user_external_id: str
-        :param item_external_id: The item external id.
-        :type item_external_id: str
+        :param user: The user id.
+        :param item: The item id.
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        i = Inventory.objects.get(item=Item.item_by_external_id[item_external_id],
-                                  user=User.user_by_external_id[user_external_id])
+        i = Inventory.objects.get(item=item, user=user)
         i.dropped_date = now()
         i.save()
 
@@ -312,7 +258,6 @@ class UserItemsAPI(RecommendationAPI):
 
         :param request: The HTTP request.
         :param user_external_id: The user external id that are making the request.
-        :type user_external_id: str
         :return: A list of app external ids of the user owned (items that are in database with reference to this
          user and the dropped date set to null).
         """
@@ -323,7 +268,7 @@ class UserItemsAPI(RecommendationAPI):
             items = Inventory.objects.filter(user__external_id=user_external_id)
             items = items.order_by("acquisition_date")
             items = items.values_list("item__external_id", "acquisition_date", "dropped_date")[offset:limit]
-            items = [{"external_id": int(item), "acquisition_date": date, "dropped_date": removed_date}
+            items = [{"external_id": item, "acquisition_date": date, "dropped_date": removed_date}
                      for item, date, removed_date in items]
         except User.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
@@ -340,7 +285,6 @@ class UserItemsAPI(RecommendationAPI):
 
         :param request: The HTTP request.
         :param user_external_id: The user external id that are making the request.
-        :type user_external_id: str
         :return: A success response if the input was successful =p
         """
         try:
@@ -348,8 +292,7 @@ class UserItemsAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        self.insert_acquisition(user_external_id, item_id)
-        #User.user_by_external_id[user_external_id].owned_items = Item.item_by_external_id[item_id]
+        self.insert_acquisition(User.get_user_by_external_id(user_external_id), Item.get_item_by_external_id(item_id))
         return self.format_response(SUCCESS_MESSAGE)
 
     def delete(self, request, user_external_id):
@@ -361,7 +304,6 @@ class UserItemsAPI(RecommendationAPI):
 
         :param request: The HTTP request.
         :param user_external_id: The user external id that are making the request.
-        :type user_external_id: str
         :return: A success response if the input was successful =p
         """
         try:
@@ -369,20 +311,5 @@ class UserItemsAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        self.remove_item(user_external_id, item_id)
+        self.remove_item(User.get_user_by_external_id(user_external_id), Item.get_item_by_external_id(item_id))
         return self.format_response(SUCCESS_MESSAGE)
-
-
-class LocalCacheTest(RecommendationAPI):
-    """
-    Dummy apy just for testing local Cache
-    """
-
-    http_method_names = [
-        "get"
-    ]
-
-    def get(self, response, token):
-        from recommendation.api.models import TestLocalCache
-        TestLocalCache.objects.create(token=token)
-        return self.format_response(TestLocalCache.cache.get("dummy_lct", []))

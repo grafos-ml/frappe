@@ -1,4 +1,404 @@
-### Integration test for the production items data (HEAD, master)
+### Arrange some code basing in performance tests (origin/feature_cache_decorator, origin/develop, feature_cache_decorator, develop)
+>Wed, 1 Oct 2014 16:41:48 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finish importing  and fixing all tests
+>Wed, 1 Oct 2014 12:24:01 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FIX] issue #17. Now, fill drops locales that don't respect the format. This particular issue occurred because of the locale "sr-Latn".
+>Wed, 1 Oct 2014 12:08:16 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix diversity tests
+>Wed, 1 Oct 2014 11:18:42 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix language test and fill tests
+>Tue, 30 Sep 2014 18:50:47 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix owned items test and fill tests
+>Tue, 30 Sep 2014 17:09:29 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FEATURE] Script for tests
+>Tue, 30 Sep 2014 16:51:39 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### FIx documentation concerning Rest API
+>Tue, 30 Sep 2014 15:58:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix API tests
+>Tue, 30 Sep 2014 15:54:30 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix recommendation for less than 3 apps
+>Tue, 30 Sep 2014 12:19:18 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix test for api recommendation
+>Tue, 30 Sep 2014 11:47:13 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FIX] Fill users and fill the name of items
+>Mon, 29 Sep 2014 18:40:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Import core tests
+>Mon, 29 Sep 2014 16:35:09 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Import tensorcofi tests
+>Mon, 29 Sep 2014 16:29:55 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Imported tests for users. Added support for django 1.7.
+>Mon, 29 Sep 2014 16:26:36 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Imported tests
+>Mon, 29 Sep 2014 16:03:50 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Doc test for NPArrayField
+>Mon, 29 Sep 2014 12:16:52 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Doc test for util.py
+>Mon, 29 Sep 2014 10:58:55 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Updated documentation
+>Fri, 26 Sep 2014 18:08:11 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finished fill command
+>Fri, 26 Sep 2014 17:52:37 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Generalize a bit the fill
+>Fri, 26 Sep 2014 16:21:37 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finish items in fill
+>Fri, 26 Sep 2014 12:52:14 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Unique together locale and item
+>Fri, 26 Sep 2014 12:12:13 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Unique together genre and item
+>Fri, 26 Sep 2014 12:04:50 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Item part of fill almost done
+>Fri, 26 Sep 2014 12:01:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Half fill command done
+>Thu, 25 Sep 2014 19:36:22 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix logging
+>Thu, 25 Sep 2014 12:24:28 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Contingency on timeout done
+>Thu, 25 Sep 2014 12:16:21 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [ci skip] Contingency plan
+>Tue, 23 Sep 2014 18:27:20 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### sort requirements.txt
+>Tue, 23 Sep 2014 11:42:34 -0400
+
+>Author: Jason Thomas (jason@lithiumfox.com)
+
+>Commiter: Jason Thomas (jason@lithiumfox.com)
+
+
+
+
+### Add six, python-dateutil and pytz to requirements.
+>Tue, 23 Sep 2014 11:41:54 -0400
+
+>Author: Jason Thomas (jason@lithiumfox.com)
+
+>Commiter: Jason Thomas (jason@lithiumfox.com)
+
+
+
+
+### Minor arrange in code
+>Tue, 23 Sep 2014 17:04:48 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Minor change in recommendation models
+>Tue, 23 Sep 2014 15:55:51 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### [FEATURE] Lock available in decorated function
+>Tue, 23 Sep 2014 14:13:12 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Destroy old cache
+>Tue, 23 Sep 2014 13:55:51 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix tests fot logger
+>Tue, 23 Sep 2014 12:30:17 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change logger to decorator cache
+>Tue, 23 Sep 2014 12:23:22 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change logging reranker to decorator cache
+>Tue, 23 Sep 2014 12:10:43 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix query leak in language filter
+>Mon, 22 Sep 2014 17:42:01 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Diversity models to decorator cache
+>Mon, 22 Sep 2014 17:07:50 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Integration test for the production items data
 >Mon, 22 Sep 2014 15:01:35 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +408,49 @@
 
 
 
-### Add changes to documentation (origin/master, origin/develop, origin/HEAD, develop)
+### Performance test
+>Mon, 22 Sep 2014 11:21:06 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Updated name to pull a single name in the default locale
+>Fri, 19 Sep 2014 14:38:20 -0700
+
+>Author: Rob Hudson (chudson@mozilla.com)
+
+>Commiter: Rob Hudson (chudson@mozilla.com)
+
+
+
+
+### Language cache to decorator
+>Fri, 19 Sep 2014 17:13:26 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Merge remote-tracking branch 'remotes/origin/master' into feature_cache_decorator
+>Fri, 19 Sep 2014 16:35:18 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+Conflicts:
+	CHANGELOG.md
+
+
+
+### Add changes to documentation
 >Fri, 19 Sep 2014 16:27:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -48,6 +490,36 @@
 
 
 
+### Changing locale cache
+>Fri, 19 Sep 2014 15:31:48 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change popularity to decorator cache
+>Fri, 19 Sep 2014 12:38:52 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change tensorcofi to decorator cache
+>Thu, 18 Sep 2014 17:54:47 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
 ### Import prod requirements in dev requirements.
 >Thu, 18 Sep 2014 11:09:24 -0400
 
@@ -64,6 +536,36 @@
 >Author: Jason Thomas (jason@lithiumfox.com)
 
 >Commiter: Jason Thomas (jason@lithiumfox.com)
+
+
+
+
+### Change users to decorator cache
+>Thu, 18 Sep 2014 16:11:59 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change items to decorator cache
+>Thu, 18 Sep 2014 11:57:48 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### New cache decorator
+>Wed, 17 Sep 2014 15:15:19 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
 
 
 

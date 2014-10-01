@@ -9,14 +9,15 @@ Models for the logging system
 
 __author__ = "joaonrb"
 
-from collections import deque
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.admin import site
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from recommendation.models import Item, User, CacheManager
+from django.core.cache import get_cache
+from recommendation.models import Item, User
+from recommendation.decorators import Cached
 
 LOGGER_MAX_LOGS = 10 if settings.TESTING_MODE else getattr(settings, "LOGGER_MAX_LOGS", 50)
 
@@ -45,8 +46,6 @@ class LogEntry(models.Model):
     value = models.FloatField(_("value"), null=True, default=None)
     type = models.SmallIntegerField(_("type"), choices=TYPES.items(), default=RECOMMEND)
 
-    logs_for = CacheManager("slentries")
-
     class Meta:
         verbose_name = _("log entry")
         verbose_name_plural = _("log entries")
@@ -69,6 +68,14 @@ class LogEntry(models.Model):
         }
 
     @staticmethod
+    @Cached(lock_id=0)
+    def get_logs_for(user_id):
+        """
+        Get the user ids
+        """
+        return list(LogEntry.objects.filter(user_id=user_id).order_by("-timestamp")[:LOGGER_MAX_LOGS])
+
+    @staticmethod
     def load_to_cache():
         for user in User.objects.all():
             LogEntry.load_user(user)
@@ -78,25 +85,36 @@ class LogEntry(models.Model):
         """
         Load a single user to cache
         """
-        logs = LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]
-        LogEntry.logs_for[user.pk] = deque(reversed(logs), LOGGER_MAX_LOGS)
+        get_cache("default").set(
+            "get_logs_for_%d" % user.pk,
+            list(LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]),
+            None
+        )
+
+    @staticmethod
+    def add_logs(user, logs):
+        cache = get_cache("default")
+        k = "get_logs_for_%d" % user.pk
+        old_logs = LogEntry.get_logs_for(user.pk)
+        logs = logs + old_logs
+        cache.set(k, logs[:LOGGER_MAX_LOGS], None)
 
 
 @receiver(post_save, sender=LogEntry)
+@LogEntry.get_logs_for.lock_this
 def add_log_to_cache(sender, instance, created, raw, using, update_fields, *args, **kwargs):
     """
     Add log to cache upon creation
     """
-    logs = LogEntry.logs_for.get(instance.user.pk, deque([], LOGGER_MAX_LOGS))
-    logs.append(instance)
-    LogEntry.logs_for[instance.user.pk] = logs
+    LogEntry.add_logs(instance.user, [instance])
 
 
 @receiver(post_delete, sender=User)
+@LogEntry.get_logs_for.lock_this
 def delete_user_to_cache(sender, instance, using, **kwargs):
     """
     Add log to cache upon creation
     """
-    del LogEntry.logs_for[instance.pk]
+    get_cache("default").delete("get_logs_for_%d" % instance.pk)
 
 site.register([LogEntry])

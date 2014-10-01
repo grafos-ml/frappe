@@ -28,9 +28,9 @@ class SimpleLogFilter(object):
     points = (
         lambda x: (x.value-5)/2.,  # LogEntry.RECOMMEND
         lambda x: 0,  # LogEntry.CLICK_RECOMMENDED
-        lambda x: 5,  # LogEntry.INSTALL
-        lambda x: 10,  # LogEntry.REMOVE
-        lambda x: -3,  # LogEntry.CLICK
+        lambda x: 0,  # LogEntry.INSTALL
+        lambda x: -10,  # LogEntry.REMOVE
+        lambda x: 3,  # LogEntry.CLICK
     )
 
     @staticmethod
@@ -41,7 +41,7 @@ class SimpleLogFilter(object):
         """
         Calculate the new rank based on logs
         """
-        logs = LogEntry.logs_for.get(user.pk, [])
+        logs = LogEntry.get_logs_for(user.pk)
         #m = recommendation.mean()
         #print m
         #rec = {v: k for k, v in enumerate(recommendation, start=1)}

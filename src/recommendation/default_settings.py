@@ -28,7 +28,8 @@ TEMPLATE_DEBUG = DEBUG
 
 TESTING_MODE = 'test' in sys.argv
 
-MAX_THREADS = 4
+MAX_THREADS = 2
+RESPONSE_TIMEOUT = 200./1000.
 
 ALLOWED_HOSTS = ["*"]
 
@@ -39,9 +40,9 @@ INSTALLED_APPS = ([
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    #"django.contrib.sessions",
-    #"django.contrib.messages",
-    #"django.contrib.staticfiles",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 ] if DEBUG else []) + [
     "recommendation",
     "recommendation.api",
@@ -59,17 +60,17 @@ if TESTING_MODE:
     ]
 
 MIDDLEWARE_CLASSES = (
-    #"django.contrib.sessions.middleware.SessionMiddleware",
-    #"django.middleware.common.CommonMiddleware",
-    #"django.middleware.csrf.CsrfViewMiddleware",
-    #"django.contrib.auth.middleware.AuthenticationMiddleware",
-    #"django.contrib.messages.middleware.MessageMiddleware",
-    #"django.middleware.clickjacking.XFrameOptionsMiddleware",
-    #"django.middleware.transaction.TransactionMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.transaction.TransactionMiddleware",
     #"django.middleware.cache.UpdateCacheMiddleware",
     #"django.middleware.cache.FetchFromCacheMiddleware",
-    #"debug_toolbar.middleware.DebugToolbarMiddleware",
-)
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+) if DEBUG else ()
 
 ROOT_URLCONF = "recommendation.urls"
 
@@ -109,6 +110,11 @@ STATIC_URL = "/static/"
 # Nose settings
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
+NOSE_ARGS = [
+    "--with-coverage",
+    "--cover-package=recommendation",
+    "--cover-html"
+]
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 DEBUG_TOOLBAR_PANELS = (
@@ -138,15 +144,23 @@ REST_FRAMEWORK = {
 
 CACHES = {
     "default": {
+        #"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        #"LOCATION": "django_default_cache",
+        #"OPTIONS": {"MAX_ENTRIES": 1000000}
         "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
         "LOCATION": "127.0.0.1:11211",
 
-    } if not TESTING_MODE else {
+    #} if not TESTING_MODE else {
+    #    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    #    "LOCATION": "django_default_cache",
+    #    "OPTIONS": {
+    #        "MAX_ENTRIES": 1000000
+    #    }
+    },
+    "local": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "django_default_cache",
-        "OPTIONS": {
-            "MAX_ENTRIES": 1000000
-        }
+        "OPTIONS": {"MAX_ENTRIES": 1000000}
     }
 }
 

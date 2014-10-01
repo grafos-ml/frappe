@@ -10,19 +10,15 @@ import sys
 import base64
 import numpy as np
 import pandas as pd
-import functools
-try:
-    from uwsgidecorators import lock
-except Exception:
-    lock = lambda x: x
 from django.db import models
 from django.utils.translation import ugettext as _
-from django.core.cache import get_cache
 from django.utils.six import with_metaclass
+from django.core.cache import get_cache
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity as TestFMPopularity
+from recommendation.decorators import Cached
 if sys.version_info >= (3, 0):
     basestring = unicode = str
 
@@ -43,10 +39,42 @@ class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
         """
         Convert the value from the database to python like object
 
+        >>> # Passing a numpy array with one dimension with data type float 32
+        >>> # np.np.array([1, 2, 3, 4], dtype=np.float32)
+        >>> string_array = "1:4:AACAPwAAAEAAAEBAAACAQA=="
+        >>> np_array = NPArrayField().to_python(string_array)
+
+        >>> print(np_array)  # Is an array from 1 to 4
+        [ 1.  2.  3.  4.]
+
+        >>> type(np_array)  # Is a numpy array
+        <type 'numpy.ndarray'>
+
+        >>> len(np_array.shape) == 1  # Has one dimension
+        True
+
+        >>> for i in np_array:
+        ...     print(i)
+        ...     print(type(i))
+        1.0
+        <type 'numpy.float32'>
+        2.0
+        <type 'numpy.float32'>
+        3.0
+        <type 'numpy.float32'>
+        4.0
+        <type 'numpy.float32'>
+
+        >>> # Passing a numpy array with one dimension with data type float 64
+        >>> # np.np.array([1, 2, 3, 4], dtype=np.float64)
+        >>> string_array = "1:4:AQAAAAAAAAACAAAAAAAAAAMAAAAAAAAABAAAAAAAAAA="
+        >>> np_array64 = NPArrayField().to_python(string_array)
+        Traceback (most recent call last):
+        ...
+        ValueError: total size of new array must be unchanged
+
         :param value: String from database
-        :type value: str
         :return: A numpy matrix
-        :rtype: numpy.Array
         """
         if isinstance(value, basestring):
             value = bytes(value, "utf-8") if sys.version_info >= (3, 0) else bytes(value)
@@ -60,93 +88,18 @@ class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
 
     def get_prep_value(self, value):
         """
-        Prepare the value from python like object to database like value
+        Prepare the value from python like object to database like value.
+
+        >>> np_array = np.array([1, 2, 3, 4], dtype=np.float32)
+        >>> np_string = NPArrayField().get_prep_value(np_array)
+        >>> print(np_string)
+        1:4:AACAPwAAAEAAAEBAAACAQA==
 
         :param value: Matrix to keep in database
-        :type value: numpy.Array
         :return: Base64 representation string encoded in utf-8
-        :rtype: str
         """
         return ":".join([str(len(value.shape)), ":".join(map(lambda x: str(x), value.shape)),
                          base64.b64encode(value.tostring())])
-
-
-class CacheManager(object):
-    """
-    An iterable structure that holds in the settings default cache to keep for fast access.
-    """
-
-    def __init__(self, prefix, cache="default"):
-        self._cache = get_cache(cache)
-        self._prefix = prefix
-
-    def __getitem__(self, key):
-        k = "%s%s" % (self._prefix, key)
-        result = self._cache.get(k)
-        if result is None:
-            raise KeyError(k)
-        return result
-
-    @functools.wraps(lock)
-    def __setitem__(self, key, value):
-        k = "%s%s" % (self._prefix, key)
-        self._cache.set(k, value, None)
-
-    @functools.wraps(lock)
-    def __delitem__(self, key):
-        k = "%s%s" % (self._prefix, key)
-        self._cache.delete(k)
-
-    def get(self, key, default=None):
-        try:
-            return self[key]
-        except KeyError:
-            return default
-
-
-class IterableCacheManager(CacheManager):
-    """
-    An iterable structure that holds in the settings default cache to keep for fast access.
-    """
-
-    def __init__(self, prefix, cache="default"):
-        super(IterableCacheManager, self).__init__(prefix, cache)
-        self._list = "%s.list" % prefix
-        self._cache.set(self._list, self._cache.get(self._list) or set([]), None)
-
-    def __getitem__(self, key):
-        k = "%s%s" % (self._prefix, key)
-        result = self._cache.get(k)
-        if result is None:
-            raise KeyError(k)
-        return result
-
-    @functools.wraps(lock)
-    def __setitem__(self, key, value):
-        k = "%s%s" % (self._prefix, key)
-        # This might need a lock
-        keys = self._cache.get(self._list)
-        keys.add(k)
-        self._cache.set(self._list, keys, None)
-        #########################
-        self._cache.set(k, value, None)
-
-    @functools.wraps(lock)
-    def __delitem__(self, key):
-        # TODO Test of this
-        k = "%s%s" % (self._prefix, key)
-        # This might need a lock
-        keys = self._cache.get(self._list)
-        keys.remove(k)
-        self._cache.set(self._list, keys, None)
-        #########################
-        self._cache.delete(k)
-
-    def __iter__(self):
-        return iter(self._cache.get_many(list(self._cache.get(self._list))).values())
-
-    def __len__(self):
-        return len(self._cache.get(self._list))
 
 
 class Item(models.Model):
@@ -156,10 +109,50 @@ class Item(models.Model):
     name = models.CharField(_("name"), max_length=255)
     external_id = models.CharField(_("external id"), max_length=255, unique=True)
 
-    # Cache Managers
+    @staticmethod
+    def get_item_by_id(item_id):
+        """
+        Return item by id.
+        """
+        return Item.get_item_by_external_id(Item.get_item_external_id_by_id(item_id))
 
-    item_by_id = IterableCacheManager("recitid")
-    item_by_external_id = IterableCacheManager("recitei")
+    @staticmethod
+    @Cached()
+    def get_item_external_id_by_id(item_id):
+        """
+        Return item id from external_id.
+        """
+        return Item.objects.filter(pk=item_id).values_list("external_id")[0][0]
+
+    @staticmethod
+    @Cached()
+    def get_item_by_external_id(external_id):
+        """
+        Return item from external id.
+        """
+        return Item.objects.get(external_id=external_id)
+
+    def put_item_to_cache(self):
+        """
+        Loads an app to database.
+        """
+        Item.get_item_by_external_id.lock_this(
+            Item.get_item_by_external_id.cache.set
+        )(Item.get_item_by_external_id.key % self.external_id, self, Item.get_item_by_external_id.timeout)
+        Item.get_item_external_id_by_id.lock_this(
+            Item.get_item_external_id_by_id.cache.set
+        )(Item.get_item_external_id_by_id.key % self.pk, self.external_id, Item.get_item_external_id_by_id.timeout)
+
+    def del_item_from_cache(self):
+        """
+        delete an app to database
+        """
+        Item.get_item_by_external_id.lock_this(
+            Item.get_item_by_external_id.cache.delete
+        )(Item.get_item_by_external_id.key % self.external_id)
+        Item.get_item_external_id_by_id.lock_this(
+            Item.get_item_external_id_by_id.cache.delete
+        )(Item.get_item_external_id_by_id.key % self.pk)
 
     class Meta:
         verbose_name = _("item")
@@ -173,9 +166,8 @@ class Item(models.Model):
 
     @staticmethod
     def load_to_cache():
-        for app in Item.objects.all().prefetch_related():
-            Item.item_by_id[app.pk] = app
-            Item.item_by_external_id[app.external_id] = app
+        for item in Item.objects.all().prefetch_related():
+            item.put_item_to_cache()
 
 
 @receiver(post_save, sender=Item)
@@ -183,8 +175,7 @@ def add_item_to_cache(sender, instance, created, raw, using, update_fields, *arg
     """
     Add item to cache upon creation
     """
-    Item.item_by_id[instance.pk] = instance
-    Item.item_by_external_id[instance.external_id] = instance
+    instance.put_item_to_cache()
 
 
 @receiver(post_delete, sender=Item)
@@ -192,8 +183,7 @@ def delete_item_to_cache(sender, instance, using, **kwargs):
     """
     Add item to cache upon creation
     """
-    del Item.item_by_id[instance.pk]
-    del Item.item_by_external_id[instance.external_id]
+    instance.del_item_from_cache()
 
 
 class User(models.Model):
@@ -202,10 +192,6 @@ class User(models.Model):
     """
     external_id = models.CharField(_("external id"), max_length=255, unique=True)
     items = models.ManyToManyField(Item, verbose_name=_("items"), blank=True, through="Inventory")
-
-    user_by_id = IterableCacheManager("recusid")
-    user_by_external_id = IterableCacheManager("recusei")
-    user_items = IterableCacheManager("recusit")
 
     class Meta:
         verbose_name = _("user")
@@ -217,19 +203,72 @@ class User(models.Model):
     def __unicode__(self):
         return unicode(self.external_id)
 
+    @staticmethod
+    @Cached()
+    def get_user_by_id(user_id):
+        """
+        Get user by their id
+        :param user_id: User id
+        :return: A user instance
+        """
+        return User.objects.get(pk=user_id)
+
+    @staticmethod
+    @Cached()
+    def get_user_id_by_external_id(external_id):
+        """
+        Get the user id from external id
+        :param external_id: User external id
+        :return: The user id
+        """
+        return User.objects.filter(external_id=external_id).values_list("pk")[0][0]
+
+    @staticmethod
+    def get_user_by_external_id(external_id):
+        """
+        Get the user id from external id
+        :param external_id: User external id
+        :return: The User instance
+        """
+        return User.get_user_by_id(User.get_user_id_by_external_id(external_id))
+
+    @staticmethod
+    @Cached()
+    def get_user_items(user_id):
+        """
+        Get user items
+        :param user_id: User id
+        :return: A list of user items in inventory
+        """
+        return {
+            entry.item.pk: {
+                "acquisition": entry.acquisition_date,
+                "dropped": entry.dropped_date
+            }
+            for entry in Inventory.objects.filter(user_id=user_id)
+        }
+
     @property
     def all_items(self):
         """
         All items from this user. Key item id and value the inventory register
         """
-        return {k: v for k, v in User.user_items[self.pk].items()}
+        items = User.get_user_items(self.pk)
+        return {
+            item_id: Item.get_item_by_id(item_id)
+            for item_id, dates in items.items()
+        }
 
     @property
     def owned_items(self):
         """
         Get the owned items from cache. Key item id and value the inventory register
         """
-        return {k: v for k, v in User.user_items[self.pk].items() if v.dropped_date is None}
+        items = User.get_user_items(self.pk)
+        return {
+            item_id: Item.get_item_by_id(item_id)
+            for item_id, dates in items.items() if dates["dropped"] is None
+        }
 
     @staticmethod
     def load_to_cache():
@@ -240,20 +279,51 @@ class User(models.Model):
         """
         Load a single user to cache
         """
-        User.user_by_id[self.pk] = self
-        User.user_by_external_id[self.external_id] = self
-        user_items = self.user_items.get(self.pk, {})
-        for item in Inventory.objects.filter(user=self):
-            user_items[item.item.pk] = item
-        self.user_items[self.pk] = user_items
+        User.get_user_by_id.lock_this(
+            User.get_user_by_id.cache.set
+        )(User.get_user_by_id.key % self.pk, self, User.get_user_by_id.timeout)
+        User.get_user_id_by_external_id.lock_this(
+            User.get_user_id_by_external_id.cache.set
+        )(User.get_user_id_by_external_id.key % self.external_id, self.pk, User.get_user_id_by_external_id.timeout)
+        User.get_user_items(self.pk)
 
-    def load_item(self, item):
+    def delete_user(self):
         """
-        Load a single item to inventory
+        Load a single user to cache
         """
-        user_items = self.user_items.get(self.pk, {})
-        user_items[item.item.pk] = item
-        self.user_items[self.pk] = user_items
+        User.get_user_by_id.lock_this(
+            User.get_user_by_id.cache.delete
+        )(User.get_user_by_id.key % self.external_id)
+        User.get_user_id_by_external_id.lock_this(
+            User.get_user_id_by_external_id.cache.delete
+        )(User.get_user_id_by_external_id.key % self.external_id)
+        User.get_user_items.lock_this(
+            User.get_user_items.cache.delete
+        )(User.get_user_items.key % self.external_id)
+
+    def load_item(self, entry):
+        """
+        Load a single inventory entry
+        """
+        cache = User.get_user_items.cache
+        entries = cache.get(User.get_user_items.key % self.pk, {})
+        entries[entry.item.pk] = {
+            "acquisition": entry.acquisition_date,
+            "dropped": entry.dropped_date
+        }
+        cache.set(User.get_user_items.key % self.pk, entries)
+
+    def delete_item(self, entry):
+        """
+        Load a single inventory entry
+        """
+        cache = User.get_user_items.cache
+        entries = cache.get(User.get_user_items.key % self.pk, {})
+        try:
+            del entries[entry.item.pk]
+        except KeyError:
+            pass
+        cache.set(User.get_user_items.key % self.pk, entries)
 
 
 @receiver(post_save, sender=User)
@@ -269,9 +339,7 @@ def delete_user_to_cache(sender, instance, using, *args, **kwargs):
     """
     Add item to cache upon creation
     """
-    del User.user_by_id[instance.pk]
-    del User.user_by_external_id[instance.external_id]
-    del User.user_items[instance.pk]
+    instance.delete_user()
 
 
 class Inventory(models.Model):
@@ -313,9 +381,7 @@ def delete_inventory_to_cache(sender, instance, using, *args, **kwargs):
     """
     Add item to cache upon creation
     """
-    user_items = User.user_items.get(instance.user.pk, {})
-    del user_items[instance.item.pk]
-    User.user_items[instance.user.pk] = user_items
+    instance.user.delete_item(instance)
 
 
 class Matrix(models.Model):
@@ -355,19 +421,47 @@ class MySQLMapDummy:
         pass
 
 
+class UserMatrix:
+
+    @staticmethod
+    @Cached()
+    def get_user_array(index):
+        if len(User.get_user_by_id(index+1).owned_items) < 3:  # Index+1 = User ID
+            raise KeyError("User %d static recommendation doesn't exist" % (index+1))
+        return Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0].numpy[index, :]
+
+    def __getitem__(self, index):
+        return self.get_user_array(index)
+
+    def __setitem__(self, index, value):
+        try:
+            if len(User.get_user_by_id(index+1).owned_items) >= 3:  # Index+1 = User ID
+                dec = UserMatrix.get_user_array
+                dec.lock_this(
+                    dec.cache.set
+                )(dec.key % index, value, dec.timeout)
+        except User.DoesNotExist:
+            pass
+
+    def __delitem__(self, index):
+        dec = UserMatrix.get_user_array
+        dec.lock_this(
+            dec.cache.delete
+        )(dec.key % index)
+
+
 class TensorCoFi(PyTensorCoFi):
     """
     A creator of TensorCoFi models
     """
 
-    cache = CacheManager("tensorcofi")
-    user_matrix = CacheManager("tcumatrix")
+    user_matrix = UserMatrix()
 
     def __init__(self, n_users=None, n_items=None, **kwargs):
         """
         """
         if not isinstance(n_items, int) or not isinstance(n_users, int):
-            raise AttributeError("Parameter n_items and n_users must have integer")
+            raise AttributeError("Parameter n_items and n_users must be integers")
         super(TensorCoFi, self).__init__(**kwargs)
         self.dimensions = [n_users, n_items]
         self.n_users = n_users
@@ -390,8 +484,10 @@ class TensorCoFi(PyTensorCoFi):
         return self.n_items
 
     def get_score(self, user, item):
-        return np.dot(self.factors[0][self.data_map[self.get_user_column()][user]],
-                      self.factors[1][self.data_map[self.get_item_column()][item]].transpose())
+        factors = [Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0].numpy,
+                   Matrix.objects.filter(name="tensorcofi", model_id=1).order_by("-id")[0].numpy]
+        return np.dot(factors[0][self.data_map[self.get_user_column()][user]],
+                      factors[1][self.data_map[self.get_item_column()][item]].transpose())
 
     def get_recommendation(self, user, **context):
         """
@@ -401,24 +497,25 @@ class TensorCoFi(PyTensorCoFi):
 
     @staticmethod
     def load_to_cache():
-        tensor = TensorCoFi(n_users=User.objects.all().count(), n_items=Item.objects.all().count())
+        tensor = TensorCoFi.get_model_from_cache()
+        return tensor
 
+    @staticmethod
+    @Cached(cache="local")
+    def get_model_from_cache(*args, **kwargs):
+        tensor = TensorCoFi(n_users=User.objects.aggregate(max=models.Max("pk"))["max"],
+                            n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         try:
-            users = Matrix.objects.filter(name=tensor.get_name(), model_id=0).order_by("-id")[0]
-            items = Matrix.objects.filter(name=tensor.get_name(), model_id=1).order_by("-id")[0]
+            users = Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0]
+            items = Matrix.objects.filter(name="tensorcofi", model_id=1).order_by("-id")[0]
         except IndexError:
             raise NotCached("%s not in db" % tensor.get_name())
 
         for i, u in enumerate(users.numpy):
-            TensorCoFi.user_matrix[i] = u
+            tensor.user_matrix[i] = u
         tensor.item_matrix = items.numpy
-        TensorCoFi.cache[""] = tensor
-
-    @staticmethod
-    def get_model_from_cache(*args, **kwargs):
-        model = TensorCoFi.cache[""]
-        model.factors = [model.user_matrix, model.item_matrix]
-        return model
+        tensor.factors = [tensor.user_matrix, tensor.item_matrix]
+        return tensor
 
     @staticmethod
     def get_model(*args, **kwargs):
@@ -431,7 +528,7 @@ class TensorCoFi(PyTensorCoFi):
         """
         tensor = TensorCoFi(n_users=User.objects.aggregate(max=models.Max("pk"))["max"],
                             n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
-        data = np.array(sorted([(u-1, i-1, 1.) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
+        data = np.array(sorted([(u-1, i-1, 1) for u, i in Inventory.objects.all().values_list("user_id", "item_id")]))
         return tensor.train(data)
 
     def train(self, data):
@@ -440,11 +537,15 @@ class TensorCoFi(PyTensorCoFi):
         """
         super(TensorCoFi, self).train(data)
         users, items = super(TensorCoFi, self).get_model()
-        users = Matrix(name=self.get_name(), model_id=0, numpy=users)
+        users = Matrix(name="tensorcofi", model_id=0, numpy=users)
         users.save()
-        items = Matrix(name=self.get_name(), model_id=1, numpy=items)
+        items = Matrix(name="tensorcofi", model_id=1, numpy=items)
         items.save()
         return users, items
+
+    @staticmethod
+    def drop_cache():
+        TensorCoFi.get_model_from_cache.cache.delete("get_model_from_cache")
 
 
 @receiver(post_save, sender=Inventory)
@@ -476,12 +577,10 @@ class Popularity(TestFMPopularity):
     Popularity connector for db and test.fm
     """
 
-    cache = CacheManager("popularity")
-
     def __init__(self, n_items=None, *args, **kwargs):
 
         if not isinstance(n_items, int):
-            raise AttributeError("Parameter n_items must have integer")
+            raise AttributeError("Parameter n_items must be integer")
         super(Popularity, self).__init__(*args, **kwargs)
         self.n_items = n_items
         self.data_map = {
@@ -513,15 +612,20 @@ class Popularity(TestFMPopularity):
         self._counts = {i+1: value[i] for i in range(self.n_items)}
 
     @staticmethod
-    def load_to_cache():
+    @Cached(cache="local")
+    def load_popularity():
         model = Popularity(n_items=Item.objects.all().count())
-        pop = Matrix.objects.filter(name=model.get_name()).order_by("-id")[0]
+        pop = Matrix.objects.filter(name="popularity").order_by("-id")[0]
         model.recommendation = pop.numpy
-        Popularity.cache[""] = model
+        return model
+
+    @staticmethod
+    def load_to_cache():
+        return Popularity.load_popularity()
 
     @staticmethod
     def get_model():
-        return Popularity.cache[""]
+        return Popularity.load_popularity()
 
     def get_recommendation(self, user, **context):
         """
@@ -539,5 +643,9 @@ class Popularity(TestFMPopularity):
         users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
         data = pd.DataFrame({"item": items, "user": users})
         popular_model.fit(data)
-        Matrix.objects.create(name=popular_model.get_name(), numpy=popular_model.recommendation)
+        Matrix.objects.create(name="popularity", numpy=popular_model.recommendation)
     train_from_db = train
+
+    @staticmethod
+    def drop_cache():
+        get_cache("default").delete("load_popularity")

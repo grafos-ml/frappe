@@ -13,6 +13,41 @@ if sys.version_info >= (3, 0):
 def initialize(cls):
     """
     Return a tuple with the class, a tuple with args and a dict with keyword args.
+
+    >>> cls, atr, kwatr = initialize("random.random")
+    >>> n = cls(*atr, **kwatr)
+    >>> print(type(n))
+    <type 'float'>
+    >>> print(0. <= n <= 1.)
+    True
+
+    >>> cls, atr, kwatr = initialize(("random.randint", (0, 10), {}))
+    >>> n = cls(*atr, **kwatr)
+    >>> print(type(n))
+    <type 'int'>
+    >>> print(0 <= n <= 10)
+    True
+
+    >>> cls, atr, kwatr = initialize(object())
+    Traceback (most recent call last):
+    ...
+    AttributeError: Attribute must be string or tuple with the first element string.
+
+    >>> cls, atr, kwatr = initialize(("random", object()))
+    Traceback (most recent call last):
+    ...
+    AttributeError: The second element in tuple must be list, tuple or dict with python native structs.
+
+    >>> cls, atr, kwatr = initialize(("random", object(), object()))
+    Traceback (most recent call last):
+    ...
+    AttributeError: The second element in tuple must be list or and the third must be dict.
+
+    >>> cls, atr, kwatr = initialize(("random", object(), object(), object()))
+    Traceback (most recent call last):
+    ...
+    AttributeError: Tuple must be size 2 or 3.
+
     :param cls:
     :return:
     """

@@ -5,10 +5,12 @@ The core module for the recommendation system. Here is defined the flow for a re
 
 __author__ = "joaonrb"
 
+import logging
 import numpy as np
 from django.conf import settings
-from recommendation.models import Item, TensorCoFi, Popularity, User
+from recommendation.models import Item, User, TensorCoFi, Popularity, Inventory
 from recommendation.util import initialize
+from recommendation.decorators import ContingencyProtocol
 
 try:
     RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")
@@ -19,9 +21,8 @@ except AttributeError:
 try:
     logger, _, _ = initialize(RECOMMENDATION_SETTINGS["logger"])
 except KeyError:
-    from recommendation import default_settings
-    logger, _, _ = initialize(getattr(default_settings, "RECOMMENDATION_SETTINGS")["logger"])
-
+    from recommendation.decorators import NoLogger
+    logger = NoLogger()
 log_event = logger
 
 
@@ -44,6 +45,13 @@ class IController(object):
         """
         Register a filter in this controller queue
 
+        >>> class Filter:
+        ...     pass
+        >>> controller = IController()
+        >>> controller.register_filter(Filter())
+        >>> print(controller.filters)  #doctest: +ELLIPSIS
+        [<recommendation.core.Filter instance at 0x...>]
+
         :param filters: A filter to add to the controller
         """
         for f in filters:
@@ -54,12 +62,23 @@ class IController(object):
     def filters(self):
         """
         A list with all the filters registered in this controller
+
+        >>> controller = IController()
+        >>> print(controller._filters == controller.filters)
+        True
         """
         return self._filters[:]
 
     def register_reranker(self, *rerankers):
         """
         Register a reranker for this controller.
+
+        >>> class Reranker:
+        ...     pass
+        >>> controller = IController()
+        >>> controller.register_reranker(Reranker())
+        >>> print(controller.rerankers)  #doctest: +ELLIPSIS
+        [<recommendation.core.Reranker instance at 0x...>]
 
         :param rerankers: A reranker to add to the controller.
         """
@@ -71,6 +90,10 @@ class IController(object):
     def rerankers(self):
         """
         A list with all the reranker registered in this controller
+
+        >>> controller = IController()
+        >>> print(controller._re_rankers == controller.rerankers)
+        True
         """
         return self._re_rankers[:]
 
@@ -78,23 +101,44 @@ class IController(object):
         """
         Catch model
 
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_model()
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
+
         :return: The Model
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def get_alternative_recommendation(self, user):
         """
         Return an alternative recommendation when the first fail
+
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_alternative_recommendation(object())
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
+
         :return: list
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def get_recommendation_from_model(self, user):
         """
         Get a List of significance values for each app
 
-        :param user: The user to get the recommendation
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_recommendation_from_model(object())
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
 
+        :param user: The user to get the recommendation
         :return: An array with the app scores for that user
         """
         # Fix user.pk -> user.pk-1: The model was giving recommendation for the
@@ -102,11 +146,11 @@ class IController(object):
         model = self.get_model()
         try:
             return model.get_recommendation(user)  # Try to cache recommendation from tensorcofi last build.
-        except KeyError:
-            # If
+        except (KeyError, IndexError):
+            if len(user.owned_items) < 3:
+                # Not enough items in user inventory to compute
+                raise NotEnoughItemsToCompute("User %s doesn't have enough items")
             apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
-            if len(apps_idx) < 3:
-                raise NotEnoughItemsToCompute()  # Not enough items in user inventory to compute
             u_factors = model.online_user_factors(apps_idx)  # New factors for this user
             TensorCoFi.user_matrix[user.pk-1] = u_factors  # store new documentation in Cache
             return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
@@ -116,6 +160,13 @@ class IController(object):
         """
         Method to get recommendation according with some user id
 
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_recommendation(user=object(), n=10)
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
+
         :param user: The user external_id. A way to identify the user.
         :param n: The number of recommendations to give in response.
         :return: A Python list the recommendation apps ids.
@@ -123,8 +174,8 @@ class IController(object):
         """
         try:
             result = self.get_recommendation_from_model(user=user)
-        except Exception:
-            print("Wild error appear in core recommendation")
+        except NotEnoughItemsToCompute as e:
+            logging.exception(e)
             result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
@@ -133,16 +184,25 @@ class IController(object):
             result = r(user, result, size=n)
         return result[:n]
 
+    @ContingencyProtocol()
     def get_external_id_recommendations(self, user, n=10):
         """
         Returns the recommendations with a list of external_is's
+
+        >>> class TestController(IController):
+        ...     pass
+        >>> TestController().get_external_id_recommendations(object(), n=10)
+        Traceback (most recent call last):
+        ...
+        NotImplementedError
 
         :param user: Same parameters that get_app_significance
         :param n:
         :return: Item external id list
         """
+        user = User.get_user_by_external_id(user)
         result = self.get_recommendation(user=user, n=n)
-        return [Item.item_by_id[r].external_id for r in result]
+        return [Item.get_item_external_id_by_id(r) for r in result]
 
 
 class TensorCoFiController(IController):
@@ -209,4 +269,4 @@ def get_controller(name="default"):
     try:
         return RECOMMENDATION_ENGINES[name]
     except KeyError:
-        raise ControllerNotDefined
+        raise ControllerNotDefined()
