@@ -1,4 +1,14 @@
-### remove double in requirements (HEAD, master)
+### ... (origin/feature_cache_decorator, feature_cache_decorator, develop)
+>Wed, 1 Oct 2014 20:15:46 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### remove double in requirements (origin/master, origin/HEAD)
 >Wed, 1 Oct 2014 18:54:22 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### testfm cannot be in requirements (origin/master, origin/HEAD)
+### testfm cannot be in requirements
 >Wed, 1 Oct 2014 18:17:40 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -31,7 +41,7 @@ Conflicts:
 
 
 
-### Arrange some code basing in performance tests (origin/feature_cache_decorator, origin/develop, feature_cache_decorator, develop)
+### Arrange some code basing in performance tests (origin/develop)
 >Wed, 1 Oct 2014 16:41:48 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
