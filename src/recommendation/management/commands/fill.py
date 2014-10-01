@@ -207,14 +207,20 @@ class FillTool(object):
                 try:
                     name = json_item["name"][json_item["default_locale"]]
                 except KeyError:
-                    name = json_item["name"]
+                    name = json_item.get("name", "NO NAME")
+                except UnicodeEncodeError as e:
+                    logging.error(e)
+                    name = "NO NAME"
                 new_items[item_eid] = Item(external_id=item_eid, name=name)
+
+            # In case of json[self.item_genres_field] = None
             json_categories = json_item.get(self.item_genres_field, None) or ()
             if isinstance(json_categories, basestring):
                 categories.add(json_categories)
             else:
                 categories = categories.union(json_item[self.item_genres_field])
 
+            # In case of json[self.item_locales_field] = None
             json_locales = json_item.get(self.item_locales_field, None) or ()
             if isinstance(json_locales, basestring):
                 locales.add(json_locales)
@@ -285,8 +291,11 @@ class FillTool(object):
                 language_code, country_code = locale.split("-")
             except ValueError:
                 language_code, country_code = locale, ""
-            json_locales[locale] = (language_code, country_code)
-            query_locales = query_locales | Q(language_code=language_code, country_code=country_code)
+            if len(language_code) < 3 and len(country_code) < 3:
+                json_locales[locale] = (language_code, country_code)
+                query_locales = query_locales | Q(language_code=language_code, country_code=country_code)
+            else:
+                logging.warn("Dropped locale %s for not respecting format XX-XX or XX" % locale)
 
         locales = {str(locale): locale for locale in Locale.objects.filter(query_locales)}
         if len(locales) != len(locales_names):
@@ -294,9 +303,10 @@ class FillTool(object):
             new_query = Q()
             for json_locale in locales_names:
                 if json_locale not in locales:
-                    language_code, country_code = json_locales[json_locale]
-                    new_locales.append(Locale(language_code=language_code, country_code=country_code))
-                    new_query = new_query | Q(language_code=language_code, country_code=country_code)
+                    if json_locale in json_locales:
+                        language_code, country_code = json_locales[json_locale]
+                        new_locales.append(Locale(language_code=language_code, country_code=country_code))
+                        new_query = new_query | Q(language_code=language_code, country_code=country_code)
 
             if connection.vendor == "sqlite":
                 for i in range(0, len(new_locales), SQLITE_MAX_ROWS):
@@ -366,16 +376,18 @@ class FillTool(object):
             for json_item in self.objects:
                 json_locales = json_item.get(self.item_locales_field, None) or ()
                 for locale in json_locales:
-                    query_item_locales = \
-                        query_item_locales | Q(locale_id=locales[locale].pk, item_id=items[json_item[self.item_field]].pk)
-                    item_locales[locales[locale].pk, items[json_item[self.item_field]].pk] = \
-                        ItemLocale(locale=locales[locale], item=items[json_item[self.item_field]])
-                    i += 1
-                    if i >= SQLITE_MAX_ROWS:
-                        for item_locale in ItemLocale.objects.filter(query_item_locales):
-                            del item_locales[item_locale.locale_id, item_locale.item_id]
-                        i = 0
-                        query_item_locales = Q()
+                    if locale in locales:
+                        query_item_locales = \
+                            query_item_locales | Q(locale_id=locales[locale].pk,
+                                                   item_id=items[json_item[self.item_field]].pk)
+                        item_locales[locales[locale].pk, items[json_item[self.item_field]].pk] = \
+                            ItemLocale(locale=locales[locale], item=items[json_item[self.item_field]])
+                        i += 1
+                        if i >= SQLITE_MAX_ROWS:
+                            for item_locale in ItemLocale.objects.filter(query_item_locales):
+                                del item_locales[item_locale.locale_id, item_locale.item_id]
+                            i = 0
+                            query_item_locales = Q()
             for item_locale in ItemLocale.objects.filter(query_item_locales):
                 del item_locales[item_locale.locale_id, item_locale.item_id]
             for i in range(0, len(item_locales), SQLITE_MAX_ROWS):
@@ -387,10 +399,12 @@ class FillTool(object):
             for json_item in self.objects:
                 json_locales = json_item.get(self.item_locales_field, None) or ()
                 for locale in json_locales:
-                    query_item_locales = \
-                        query_item_locales | Q(locale_id=locales[locale].pk, item_id=items[json_item[self.item_field]].pk)
-                    item_locales[locales[locale].pk, items[json_item[self.item_field]].pk] = \
-                        ItemLocale(locale=locales[locale], item=items[json_item[self.item_field]])
+                    if locale in locales:
+                        query_item_locales = \
+                            query_item_locales | Q(locale_id=locales[locale].pk,
+                                                   item_id=items[json_item[self.item_field]].pk)
+                        item_locales[locales[locale].pk, items[json_item[self.item_field]].pk] = \
+                            ItemLocale(locale=locales[locale], item=items[json_item[self.item_field]])
             for item_locale in ItemLocale.objects.filter(query_item_locales):
                 del item_locales[item_locale.locale_id, item_locale.item_id]
             ItemLocale.objects.bulk_create(item_locales.values())

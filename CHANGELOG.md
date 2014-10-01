@@ -1,4 +1,14 @@
-### Fix diversity tests (HEAD, feature_cache_decorator)
+### [FIX] issue #17. Now, fill drops locales that don't respect the format. This particular issue occurred because of the locale "sr-Latn". (HEAD, feature_cache_decorator)
+>Wed, 1 Oct 2014 12:08:16 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix diversity tests
 >Wed, 1 Oct 2014 11:18:42 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
