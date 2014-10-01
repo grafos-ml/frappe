@@ -1,3 +1,16 @@
+### Merge remote-tracking branch 'remotes/origin/develop' (HEAD, master)
+>Wed, 1 Oct 2014 16:56:01 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+Conflicts:
+	requirements.txt
+	src/recommendation/management/commands/fill.py
+
+
+
 ### Arrange some code basing in performance tests (origin/feature_cache_decorator, origin/develop, feature_cache_decorator, develop)
 >Wed, 1 Oct 2014 16:41:48 +0200
 
