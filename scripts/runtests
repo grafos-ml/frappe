@@ -15,6 +15,8 @@ Options:
 """
 
 import os
+import sys
+import subprocess
 from docopt import docopt
 from pkg_resources import resource_filename
 
@@ -31,13 +33,14 @@ def main():
             opts["--unit"] = True
 
     if opts["--unit"]:
-        os.popen("echo yes | %s" % resource_filename(__name__, "/../src/manage.py test -v2 --with-id %s" % UNIT_OPTS))
+        command = "echo yes | %s" % resource_filename(__name__, "/../src/manage.py test -v2 --with-id %s" % UNIT_OPTS)
     elif opts["--integration"]:
-        os.popen("echo yes | %s" % resource_filename(__name__, "/../src/manage.py test -v2 --with-id %s" %
-                                                     INTEGRATION_OPTS))
+        command = "echo yes | %s" % resource_filename(__name__, "/../src/manage.py test -v2 --with-id %s" %
+                                                      INTEGRATION_OPTS)
     else:
-        os.popen("echo yes | %s" % resource_filename(__name__, "/../src/manage.py test -v2 --with-id %s %s" %
-                                                     (INTEGRATION_OPTS, UNIT_OPTS)))
+        command = "echo yes | %s" % resource_filename(__name__, "/../src/manage.py test -v2 --with-id %s %s" %
+                                                     (INTEGRATION_OPTS, UNIT_OPTS))
+    exit(subprocess.call(command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, shell=True))
 
 
 if __name__ == "__main__":

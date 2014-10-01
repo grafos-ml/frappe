@@ -1,3 +1,13 @@
+### Fix test script (HEAD, master)
+>Wed, 1 Oct 2014 21:09:11 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
 ### ... (origin/feature_cache_decorator, feature_cache_decorator, develop)
 >Wed, 1 Oct 2014 20:15:46 +0200
 
@@ -8,7 +18,7 @@
 
 
 
-### remove double in requirements (origin/master, origin/HEAD)
+### remove double in requirements
 >Wed, 1 Oct 2014 18:54:22 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
