@@ -348,7 +348,7 @@ class FillTool(object):
             for i in range(0, len(item_genres), SQLITE_MAX_ROWS):
                 j = i+SQLITE_MAX_ROWS
                 ItemGenre.objects.bulk_create(item_genres.values()[i:j])
-        else:  # NO SQLITE
+        else:
             query_item_genres = Q()
             item_genres = {}
             for json_item in self.objects:

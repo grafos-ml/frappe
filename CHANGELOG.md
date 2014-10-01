@@ -1,4 +1,14 @@
-### Arrange some code basing in performance tests (HEAD, feature_cache_decorator)
+### ... (HEAD, feature_cache_decorator)
+>Wed, 1 Oct 2014 20:15:46 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Arrange some code basing in performance tests (origin/feature_cache_decorator, origin/develop, develop)
 >Wed, 1 Oct 2014 16:41:48 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Finish importing  and fixing all tests (origin/feature_cache_decorator)
+### Finish importing  and fixing all tests
 >Wed, 1 Oct 2014 12:24:01 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -378,7 +388,7 @@
 
 
 
-### Integration test for the production items data (origin/master, origin/HEAD, master)
+### Integration test for the production items data
 >Mon, 22 Sep 2014 15:01:35 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -420,7 +430,7 @@ Conflicts:
 
 
 
-### Add changes to documentation (origin/develop, develop)
+### Add changes to documentation
 >Fri, 19 Sep 2014 16:27:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
