@@ -246,8 +246,19 @@ class FillTool(object):
         else:
             Item.objects.bulk_create(new_items.values())
         logging.debug("%d new items saved with bulk_create" % len(new_items))
-        for item in Item.objects.filter(external_id__in=new_items.keys()):
-            items[item.external_id] = item
+
+        if connection.vendor == "sqlite":
+            jsl_items = list(json_items.keys())
+            for i in range(0, len(json_items), SQLITE_MAX_ROWS):
+                items.update(
+                    {
+                        item.external_id: item
+                        for item in Item.objects.filter(external_id__in=jsl_items[i:i+SQLITE_MAX_ROWS])
+                    }
+                )
+        else:
+            items.update({item.external_id: item for item in Item.objects.filter(external_id__in=json_items.keys())})
+
         assert len(items) == len(self.objects), \
             "Size of items and size of self.objects are different (%d != %d)" % (len(items), len(self.objects))
 

@@ -1,4 +1,14 @@
-### Fix logs (HEAD, master)
+### Aonother fix in fill for sqlite (HEAD, master)
+>Thu, 2 Oct 2014 11:22:10 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix logs
 >Thu, 2 Oct 2014 11:17:01 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
