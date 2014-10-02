@@ -198,7 +198,18 @@ class FillTool(object):
                 objs.append(obj)
         self.objects = objs
         json_items = {json_item[self.item_field]: json_item for json_item in self.objects}  # Map items for easy treatment
-        items = {item.external_id: item for item in Item.objects.filter(external_id__in=json_items.keys())}
+        if connection.vendor == "sqlite":
+            items = {}
+            jsl_items = list(json_items.keys())
+            for i in range(0, len(json_items), SQLITE_MAX_ROWS):
+                items.update(
+                    {
+                        item.external_id: item
+                        for item in Item.objects.filter(external_id__in=jsl_items[i:i+SQLITE_MAX_ROWS])
+                    }
+                )
+        else:
+            items = {item.external_id: item for item in Item.objects.filter(external_id__in=json_items.keys())}
         new_items = {}
         categories = set([])
         locales = set([])
