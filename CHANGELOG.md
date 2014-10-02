@@ -1,4 +1,14 @@
-### Aonother fix in fill for sqlite (HEAD, master)
+### Added the cors Start build a client (HEAD, develop)
+>Thu, 2 Oct 2014 17:06:30 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Aonother fix in fill for sqlite (origin/master, origin/HEAD, master)
 >Thu, 2 Oct 2014 11:22:10 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -18,7 +28,7 @@
 
 
 
-### Fix tests for sqlite Database (origin/master, origin/HEAD)
+### Fix tests for sqlite Database
 >Thu, 2 Oct 2014 10:53:19 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -38,7 +48,7 @@
 
 
 
-### ... (origin/feature_cache_decorator, feature_cache_decorator, develop)
+### ... (origin/feature_cache_decorator, feature_cache_decorator)
 >Wed, 1 Oct 2014 20:15:46 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

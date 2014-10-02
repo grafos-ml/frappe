@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Freppè Client</title>
+        <link rel="stylesheet" href="static/angular-1.2.26/docs/components/bootstrap-3.1.1/css/bootstrap.min.css">
+        <!--link rel="stylesheet" href="static/css/bootstrap-theme.min.css"-->
+        <script src="static/js/jquery-2.1.1.min.js"></script>
+        <script src="static/angular-1.2.26/docs/components/bootstrap-3.1.1/js/bootstrap.min.js"></script>
+        <script src="static/angular-1.2.26/angular.min.js"></script>
+        <script src="static/angular-1.2.26/angular-route.min.js"></script>
+        <script src="static/js/frappe_client.js"></script>
+    </head>
+    <body ng-app="frappeApp" class="ng-scope">
+        <header class="navbar navbar-default" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand">Frappè</a>
+                </div>
+                <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+                    <form class="navbar-form navbar-right" ng-submit="loadUsers()">
+                        <div class="input-group">
+                            <input type="text" class="form-control" ng-model="frappeText" placeholder="Put frappe service here">
+                            <span class="input-group-btn">
+                                <input class="btn btn-default" type="submit" value="go">
+                            </span>
+                        </div>
+                    </form>
+                </nav>
+            </div>
+        </header>
+        <div class="container">
+            <div ng-view></div>
+        </div>
+    </body>
+</html>
