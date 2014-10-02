@@ -1,4 +1,14 @@
-### Fix tests for sqlite Database (HEAD, master)
+### Fix logs (HEAD, master)
+>Thu, 2 Oct 2014 11:17:01 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix tests for sqlite Database (origin/master, origin/HEAD)
 >Thu, 2 Oct 2014 10:53:19 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Fix test script (origin/master, origin/HEAD)
+### Fix test script
 >Wed, 1 Oct 2014 21:09:11 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

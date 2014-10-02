@@ -484,7 +484,7 @@ class FillTool(object):
                 try:
                     item_id = items[str(json_item[self.user_item_identifier_field])].pk
                 except KeyError:
-                    logging.error("Item with external_id %s does not exist!" % json_item[self.user_item_identifier_field])
+                    logging.warn("Item with external_id %s does not exist!" % json_item[self.user_item_identifier_field])
                 else:
                     user_id = users[json_user[self.user_field]].pk
                     query_inventory = query_inventory | Q(item_id=item_id, user_id=user_id)
@@ -502,7 +502,7 @@ class FillTool(object):
                     inv.acquisition_date = tmp_inv.acquisition_date
                     inv.dropped_date = tmp_inv.dropped_date
                     inventory[(item_id, user_id)] = inv
-                    logging.WARNING(">>> Item %s will be updated for user %s")
+                    logging.debug(">>> Item %s will be updated for user %s")
                 else:
                     del inventory[(item_id, user_id)]
 

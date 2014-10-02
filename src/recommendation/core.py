@@ -7,6 +7,7 @@ __author__ = "joaonrb"
 
 import logging
 import numpy as np
+import traceback
 from django.conf import settings
 from recommendation.models import Item, User, TensorCoFi, Popularity, Inventory
 from recommendation.util import initialize
@@ -149,7 +150,7 @@ class IController(object):
         except (KeyError, IndexError):
             if len(user.owned_items) < 3:
                 # Not enough items in user inventory to compute
-                raise NotEnoughItemsToCompute("User %s doesn't have enough items")
+                raise NotEnoughItemsToCompute("User %s doesn't have enough items" % user)
             apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
             u_factors = model.online_user_factors(apps_idx)  # New factors for this user
             TensorCoFi.user_matrix[user.pk-1] = u_factors  # store new documentation in Cache
@@ -174,8 +175,8 @@ class IController(object):
         """
         try:
             result = self.get_recommendation_from_model(user=user)
-        except NotEnoughItemsToCompute as e:
-            logging.exception(e)
+        except NotEnoughItemsToCompute:
+            logging.debug(traceback.format_exc())
             result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
