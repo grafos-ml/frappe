@@ -12,6 +12,7 @@
         <script src="static/angular-1.2.26/angular.min.js"></script>
         <script src="static/angular-1.2.26/angular-route.min.js"></script>
         <script src="static/js/frappe_client.js"></script>
+        <script type="text/ng-template" src="./templates/user.html"></script>
     </head>
     <body ng-app="frappeApp" class="ng-scope">
         <header class="navbar navbar-default" role="navigation">
@@ -25,7 +26,7 @@
                     </button>
                     <a class="navbar-brand">Frappè</a>
                 </div>
-                <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+                <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation" ng-controller="FrappeController">
                     <form class="navbar-form navbar-right" ng-submit="loadUsers()">
                         <div class="input-group">
                             <input type="text" class="form-control" ng-model="frappeText" placeholder="Put frappe service here">

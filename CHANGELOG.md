@@ -1,4 +1,14 @@
-### Added the cors Start build a client (HEAD, develop)
+### Client with owned items (HEAD, develop)
+>Fri, 3 Oct 2014 11:29:10 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Added the cors Start build a client
 >Thu, 2 Oct 2014 17:06:30 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
