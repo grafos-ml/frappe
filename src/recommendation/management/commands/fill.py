@@ -448,15 +448,22 @@ class FillTool(object):
         :return:
         """
         objs = []
+        user_items = {}
+        json_users = {}
         for obj in self.objects:
             if self.user_file_identifier_field in obj:
                 obj[self.user_field] = str(obj[self.user_field])
                 for item in obj.get(self.user_items_field, ()):
                     item[self.user_item_identifier_field] = str(item[self.user_item_identifier_field])
+                    user_item = obj[self.user_field], item
+                    try:
+                        user_items[str(item[self.user_item_identifier_field])].append(user_item)
+                    except KeyError:
+                        user_items[str(item[self.user_item_identifier_field])] = [user_item]
                 objs.append(obj)
+                json_users[obj[self.user_field]] = obj
         self.objects = objs
 
-        json_users = {json_user[self.user_field]: json_user for json_user in self.objects}  # Map users for easy treatment
         users = {user.external_id: user for user in User.objects.filter(external_id__in=json_users)}
         new_users = {}
         item_eids = set([])
@@ -478,10 +485,10 @@ class FillTool(object):
         logging.debug("Preparing items")
         items = {item.external_id: item for item in Item.objects.filter(external_id__in=item_eids)}
 
-        self.fill_inventory(users, items)
+        self.fill_inventory(users, items, user_items)
         logging.debug("Items loaded")
 
-    def fill_inventory(self, users, items):
+    def fill_inventory(self, users, items, user_items):
         """
         Fill the user inventory
         :param users:
@@ -490,25 +497,25 @@ class FillTool(object):
         """
         query_inventory = Q()
         inventory = {}
-        for json_user in self.objects:
-            for json_item in json_user.get(self.user_items_field, ()):
-                try:
-                    item_id = items[str(json_item[self.user_item_identifier_field])].pk
-                except KeyError:
-                    logging.warn("Item with external_id %s does not exist!" % json_item[self.user_item_identifier_field])
-                else:
-                    user_id = users[json_user[self.user_field]].pk
-                    query_inventory = query_inventory | Q(item_id=item_id, user_id=user_id)
+        for item_eid, user_inv in user_items.items():
+            try:
+                item_id = items[item_eid].pk
+            except KeyError:
+                logging.warn("Item with external_id %s does not exist!" % item_eid)
+            else:
+                for user_eid, item_story in user_inv:
+                    user_id = users[user_eid].pk
                     inv = Inventory(item_id=item_id, user_id=user_id)
-                    inv.acquisition_date = datetime.strptime(json_item[self.user_item_acquisition_field], self.date_format)
-                    if self.user_item_dropped_field in json_item:
-                        inv.dropped_date = datetime.strptime(json_item[self.user_item_dropped_field], self.date_format)
+                    query_inventory = query_inventory | Q(item_id=item_id, user_id=user_id)
+                    inv.acquisition_date = datetime.strptime(item_story[self.user_item_acquisition_field], self.date_format)
+                    if self.user_item_dropped_field in item_story and item_story[self.user_item_dropped_field] is not None:
+                        inv.dropped_date = datetime.strptime(item_story[self.user_item_dropped_field], self.date_format)
                     inventory[item_id, user_id] = inv
 
         for inv in Inventory.objects.filter(query_inventory):
-            item_id, user_id = inv.item_id, inv.user_id
-            if (item_id, user_id) in inventory:
-                tmp_inv = inventory[(item_id, user_id)]
+            item_user = inv.item_id, inv.user_id
+            if item_user in inventory:
+                tmp_inv = inventory[item_user]
                 if inv.acquisition_date != tmp_inv.acquisition_date or inv.dropped_date != tmp_inv.dropped_date:
                     inv.acquisition_date = tmp_inv.acquisition_date
                     inv.dropped_date = tmp_inv.dropped_date

@@ -1,4 +1,14 @@
-### Client show recommendations finished (HEAD, develop)
+### Fix Fill for users (HEAD, develop)
+>Fri, 3 Oct 2014 16:37:43 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Client show recommendations finished (origin/develop)
 >Fri, 3 Oct 2014 13:18:03 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -111,7 +121,7 @@ Conflicts:
 
 
 
-### Arrange some code basing in performance tests (origin/develop)
+### Arrange some code basing in performance tests
 >Wed, 1 Oct 2014 16:41:48 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

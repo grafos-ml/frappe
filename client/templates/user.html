@@ -50,10 +50,10 @@
     </div>
     <div class="col-xs-12">
         <div class="col-sm-6 col-md-3" ng-repeat="item in recommended">
+            {{ item.index }} - {{ item.details.name[item.details.default_locale].slice(0, 20) }}({{ item.external_id }})
             <a class="thumbnail" data-toggle="modal" data-target="#opt_{{ item.external_id }}">
                 <img alt="{{ item.details.name[item.details.default_locale] }}" src="{{ item.details.icons.128 }}" class="ff-large-icon" id="{{ item.external_id }}">
             </a>
-            <p>{{ item.index }} - {{ item.details.name[item.details.default_locale] }}({{ item.external_id }})</p>
             <div class="modal fade" id="opt_{{ item.external_id }}">
                 <div class="modal-dialog">
                     <div class="modal-content col-lg-offset-2 col-lg-6">
