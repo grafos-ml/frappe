@@ -2,55 +2,8 @@
  * Created by joaonrb on 2/20/14.
  */
 
-var perPage = 4;
-
-function goTo(page, pager, listElement){
-    if(page >= 0 && page < listElement.children().size()/perPage) {
-        var startAt = page * perPage, endOn = startAt + perPage;
-        listElement.children().css('display','none').slice(startAt, endOn).css('display','block');
-        $(pager).data("curr",page);
-    }
-}
-
-function Paginator(container, paginator) {
-    this.constructor = function(container, paginator) {
-        this.listElement = $(container);
-        this.numItems = this.listElement.children().size();
-        this.paginator = paginator;
-        this.numPages = Math.ceil(this.numItems/perPage);
-        $(this.paginator).data("curr",0);
-        this.curr = 0;
-        this.buildPaginator();
-        $(this.paginator+' .page_link:first').addClass('active');
-        this.listElement.children().css('display', 'none');
-        this.listElement.children().slice(0, perPage).css('display','block');
-
-        $(this.paginator+' li .page_link').click(function() {
-            var clickedPage = $(this).html().valueOf() - 1;
-            goTo(clickedPage, paginator, $(container), perPage);
-        });
-
-        $(this.paginator+' .page_prev').click(this.previous);
-        $(this.paginator+' .page_next').click(this.next);
-    };
-    this.previous = function() {
-        var goToPage = parseInt($(paginator).data("curr")) - 1;
-        goTo(goToPage, paginator, $(container));
-    };
-    this.next = function() {
-        var goToPage = parseInt($(paginator).data("curr")) + 1;
-        goTo(goToPage, paginator, $(container));
-    };
-    this.constructor(container,paginator);
-}
-
-Paginator.prototype.buildPaginator = function() {
-    $(this.paginator).html(" ");
-    $('<li><a href="#" class="page_prev">&laquo;</a></li>').appendTo(this.paginator);
-    while(this.numPages > this.curr)
-        $('<li><a href="#" class="page_link">' + (++this.curr) + '</a></li>').appendTo(this.paginator);
-    $('<li><a href="#" class="page_next">&raquo;</a></li>').appendTo(this.paginator);
-}
+var ICONS_PER_PAGE = 4;
+var NUMBER_OF_RECOMMENDATIONS = 16;
 
 function loadRecommendations(user) {
     uri = "/api/v2/recommend/32/"+user+".json";
@@ -107,6 +60,7 @@ function item_acquire(user, item) {
 
 USERLIST = "/users/";
 USERITEMS = "user-items/";
+USERRECOMMEND = "recommend/"
 
 angular.module("frappeApp", ["ngRoute"])
     .controller("FrappeController", ["$scope", function($scope) {
@@ -137,21 +91,51 @@ angular.module("frappeApp", ["ngRoute"])
                 controller: function ($scope, $http, $routeParams) {
                         $http({method: "GET", url: $routeParams.frappeURL.concat(USERITEMS, $routeParams.user, "/")})
                             .success(function (data, status) {
-                                $scope.items = data.items;
+                                $scope.all_items = data.items;
+                                $scope.from = 0;
+                                $scope.to  = ICONS_PER_PAGE;
+                                $scope.current_page = 1;
+                                $scope.pages = [];
+                                for(var i=0; (i*ICONS_PER_PAGE) < data.items.length; i++) {
+                                    $scope.pages.push(i+1);
+                                }
                                 $scope.user = data.user;
                                 $scope.url = $routeParams.frappeURL;
                                 $.each(data.items, function (i, item) {
                                     $http({method: "GET", url: "https://marketplace.firefox.com/api/v2/apps/app/".concat(item.external_id, "/")})
                                         .success(function (data, status) {
-                                            $scope.items[i].details = data;
-                                            $scope.items[i].index = i+1;
+                                            $scope.all_items[i].details = data;
+                                            $scope.all_items[i].index = i+1;
                                         })
                                 });
-                            })
+                            });
+                        $scope.reloadRecommended = function(user) {
+                            $scope.recommended = [];
+                            $http({method: "GET", url: $routeParams.frappeURL.concat(USERRECOMMEND, NUMBER_OF_RECOMMENDATIONS, "/", user, "/")})
+                                .success(function (data, status) {
+                                    $.each(data.recommendations, function (i, item) {
+                                        $scope.recommended.push({"external_id": item, "index": i + 1})
+                                        $http({method: "GET", url: "https://marketplace.firefox.com/api/v2/apps/app/".concat(item, "/")})
+                                            .success(function (data, status) {
+                                                $scope.recommended[i].details = data;
+                                            })
+                                    });
+                                });
+                        };
+                        $scope.change_page_to = function(page) {
+                            if((page-1) in $scope.pages) {
+                                $scope.from = (page-1) * ICONS_PER_PAGE;
+                                $scope.to  = page * ICONS_PER_PAGE;
+                                $scope.current_page = page;
+                            }
+                        }
+                        $scope.reloadRecommended($routeParams.user);
                     }
+
             }).otherwise({
                 redirectTo: '/'
             });
             // configure html5 to get links working on jsfiddle
             //$locationProvider.html5Mode(true);
-        }]);
+        }
+    ]);

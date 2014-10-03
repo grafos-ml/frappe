@@ -1,4 +1,14 @@
-### Client with owned items (HEAD, develop)
+### Client show recommendations finished (HEAD, develop)
+>Fri, 3 Oct 2014 13:18:03 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Client with owned items
 >Fri, 3 Oct 2014 11:29:10 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
