@@ -1,4 +1,14 @@
-### Fix Fill for users (HEAD, develop)
+### Add threading to fill (HEAD, develop)
+>Mon, 6 Oct 2014 16:21:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix Fill for users
 >Fri, 3 Oct 2014 16:37:43 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

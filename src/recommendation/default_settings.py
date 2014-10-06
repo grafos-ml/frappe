@@ -22,7 +22,7 @@ pymysql.install_as_MySQLdb()
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -89,10 +89,15 @@ WSGI_APPLICATION = "recommendation.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "recommender.db"),
-        "ATOMIC_REQUESTS": True,
-        "TEST_NAME": "test_default.db",
+        #"ENGINE": "django.db.backends.sqlite3",
+        #"NAME": os.path.join(BASE_DIR, "recommender.db"),
+        #"ATOMIC_REQUESTS": True,
+        #"TEST_NAME": "test_default.db",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "ffos",
+        "USER": "FFOS",
+        "PASSWORD": "pasteldenata",
+        "HOST": "ana"
     }
 }
 

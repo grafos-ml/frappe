@@ -6,8 +6,8 @@ Frappe fill - Fill database
 Usage:
   fill (items|users) <path> [options]
   fill (items|users) --webservice=<url> [options]
-  fill items --mozilla (dev | prod) [today | yesterday | <date>] [--verbose] [--workers=<n>]
-  fill (items|users) --mozilla <path> [--verbose] [--workers=<n>]
+  fill items --mozilla (dev | prod) [today | yesterday | <date>] [--verbose]
+  fill (items|users) --mozilla <path> [--verbose]
   fill --help
   fill --version
 
@@ -23,7 +23,6 @@ Options:
   --user-item-acquired=<field>     Field to identify item acquisition date [default: acquired].
   --user-item-dropped=<field>      Field to identify item acquisition date [default: dropped].
   --date-format=<field>            Field to date format [default: %Y-%m-%dT%H:%M:%S]
-  --workers=<n>                    Number of workers [default: 2].
   -v --verbose                     Set verbose mode.
   -h --help                        Show this screen.
   --version                        Show version.
@@ -40,8 +39,6 @@ import tarfile
 import json
 import errno
 import shutil
-import itertools
-from concurrent.futures import ProcessPoolExecutor
 from datetime import date, timedelta, datetime
 from django.db import connection
 from django.db.models import Q
@@ -51,7 +48,6 @@ from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre, ItemGenre
 from recommendation.language.models import Locale, ItemLocale
 from recommendation.default_settings import TESTING_MODE
-
 
 MOZILLA_DEV_ITEMS_API = "https://marketplace-dev-cdn.allizom.org/dumped-apps/tarballs/%Y-%m-%d.tgz"
 MOZILLA_PROD_ITEMS_API = "https://marketplace.cdn.mozilla.net/dumped-apps/tarballs/%Y-%m-%d.tgz"
@@ -69,7 +65,6 @@ MOZILLA_USER_ITEM_DROPPED_FIELD = "dropped"
 MOZILLA_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 SQLITE_MAX_ROWS = 950
-MAX_FILES_TO_MEM = 100
 
 
 class FillTool(object):
@@ -78,7 +73,6 @@ class FillTool(object):
 
     def __init__(self, parameters):
         self.parameters = parameters
-        self.max_workers = int(parameters.get("--workers", 2))
         self.is_item = parameters.get("items", False)
         self.is_user = parameters.get("users", False)
         self.use_tmp = True
@@ -110,6 +104,7 @@ class FillTool(object):
         elif parameters.get("<path>", False):
             self.path = parameters["<path>"]
             self.use_tmp = False
+        self.objects = []
         self.item_file_identifier_field = parameters["--item-file-identifier"]
         self.item_field = parameters["--item"]
         self.item_locales_field = parameters["--item-locales"]
@@ -157,19 +152,6 @@ class FillTool(object):
         # Return yesterday
         return date.today() - timedelta(1)
 
-    def __call__(self, files):
-        """
-
-        :param all_files:
-        :param start:
-        :param end:
-        :return:
-        """
-        for i in range(0, len(files), MAX_FILES_TO_MEM):
-            j = (i + MAX_FILES_TO_MEM) if i+MAX_FILES_TO_MEM < len(files) else len(files)
-            self.fill_db(files[i:j])
-            logging.info("Process %d have %.2f%% done" % (os.getpid(), j * 100. / len(files)))
-
     def load(self):
         """
         Load the files to db
@@ -177,49 +159,47 @@ class FillTool(object):
         logging.debug("Starting")
         if self.path:
             try:
-                all_files = list(
-                    itertools.chain(*(["/".join([path, name]) for name in files if name[-5:].lower() == ".json"]
-                                      for path, _, files in os.walk(self.path))))
-                files_per_worker = int(len(all_files) / float(self.max_workers))
-                with ProcessPoolExecutor(max_workers=self.max_workers) as pool:
-                    for i0 in range(self.max_workers):
-                        i = i0 * files_per_worker
-                        j = (i + files_per_worker) if i0+1 != self.max_workers else None
-                        pool.submit(self, all_files[i:j])
+                logging.debug("Load files into memory")
+                self.load_files()
+                logging.debug("Files loaded to memory")
+                self.fill_db()
+                logging.debug("Files loaded to database")
             finally:
                 if self.use_tmp:
                     self.clean_tmp()
                     logging.debug("Tmp files deleted")
                 logging.debug("Done!")
 
-    @staticmethod
-    def load_files(files):
+    def load_files(self):
         """
         Load files to memory
         """
-        return [json.load(open(f)) for f in files]
+        for path, _, files in os.walk(self.path):
+            for name in files:
+                if name[-5:].lower() == '.json':
+                    f = '/'.join([path, name])
+                    self.objects.append(json.load(open(f)))
 
-    def fill_db(self, objects):
+    def fill_db(self):
         """
         Put objects in db
         """
-        objects = self.load_files(objects)
         if self.is_item:
-            self.fill_db_with_items(objects)
+            self.fill_db_with_items()
         else:
-            self.fill_db_with_users(objects)
+            self.fill_db_with_users()
 
-    def fill_db_with_items(self, objects):
+    def fill_db_with_items(self):
         """
         Put items in db
         """
         objs = []
-        for obj in objects:
+        for obj in self.objects:
             if self.item_file_identifier_field in obj:
                 obj[self.item_field] = str(obj[self.item_field])
                 objs.append(obj)
-        objects = objs
-        json_items = {json_item[self.item_field]: json_item for json_item in objects}  # Map items for easy treatment
+        self.objects = objs
+        json_items = {json_item[self.item_field]: json_item for json_item in self.objects}  # Map items for easy treatment
         if connection.vendor == "sqlite":
             items = {}
             jsl_items = list(json_items.keys())
@@ -259,7 +239,7 @@ class FillTool(object):
                 locales.add(json_locales)
             else:
                 locales = locales.union(json_locales)
-        #logging.debug("Items ready to be saved")
+        logging.debug("Items ready to be saved")
         if connection.vendor == "sqlite":
             new_items_list = list(new_items.values())
             for i in range(0, len(new_items_list), SQLITE_MAX_ROWS):
@@ -267,7 +247,7 @@ class FillTool(object):
                 Item.objects.bulk_create(new_items_list[i:j])
         else:
             Item.objects.bulk_create(new_items.values())
-        #logging.debug("%d new items saved with bulk_create" % len(new_items))
+        logging.debug("%d new items saved with bulk_create" % len(new_items))
 
         if connection.vendor == "sqlite":
             jsl_items = list(json_items.keys())
@@ -281,19 +261,19 @@ class FillTool(object):
         else:
             items.update({item.external_id: item for item in Item.objects.filter(external_id__in=json_items.keys())})
 
-        assert len(items) == len(objects), \
-            "Size of items and size of objects are different (%d != %d)" % (len(items), len(objects))
+        assert len(items) == len(self.objects), \
+            "Size of items and size of self.objects are different (%d != %d)" % (len(items), len(self.objects))
 
         if "recommendation.diversity" in settings.INSTALLED_APPS and not TESTING_MODE:
-            #logging.debug("Preparing genres")
+            logging.debug("Preparing genres")
             db_categories = self.get_genres(categories)
-            self.fill_item_genre(objects, items, db_categories)
+            self.fill_item_genre(items, db_categories)
             logging.debug("Genres loaded")
 
         if "recommendation.language" in settings.INSTALLED_APPS and not TESTING_MODE:
-            #logging.debug("Preparing languages")
+            logging.debug("Preparing languages")
             db_locales = self.get_locales(locales)
-            self.fill_item_locale(objects, items, db_locales)
+            self.fill_item_locale(items, db_locales)
             logging.debug("Locales loaded")
 
     @staticmethod
@@ -362,7 +342,7 @@ class FillTool(object):
                 locales[str(locale)] = locale
         return locales
 
-    def fill_item_genre(self, objects, items, genres):
+    def fill_item_genre(self, items, genres):
         """
         Fill item genres connection
         :param items:
@@ -373,7 +353,7 @@ class FillTool(object):
             query_item_genres = Q()
             item_genres = {}
             i = 0
-            for json_item in objects:
+            for json_item in self.objects:
                 json_genres = json_item.get(self.item_genres_field, None) or ()
                 for json_genre in json_genres:
                     query_item_genres = \
@@ -395,7 +375,7 @@ class FillTool(object):
         else:
             query_item_genres = Q()
             item_genres = {}
-            for json_item in objects:
+            for json_item in self.objects:
                 json_genres = json_item.get(self.item_genres_field, None) or ()
                 for json_genre in json_genres:
                     query_item_genres = \
@@ -404,9 +384,9 @@ class FillTool(object):
                         ItemGenre(item=items[json_item[self.item_field]], type=genres[json_genre])
             for item_genre in ItemGenre.objects.filter(query_item_genres):
                 del item_genres[(item_genre.item_id, item_genre.type_id)]
-            ItemGenre.objects.bulk_create(item_genres.values())
+            ItemGenre.objects.bulk_create(item_genres)
 
-    def fill_item_locale(self, objects, items, locales):
+    def fill_item_locale(self, items, locales):
         """
         Fill item locales connection
         :param items:
@@ -417,7 +397,7 @@ class FillTool(object):
             query_item_locales = Q()
             item_locales = {}
             i = 0
-            for json_item in objects:
+            for json_item in self.objects:
                 json_locales = json_item.get(self.item_locales_field, None) or ()
                 for locale in json_locales:
                     if locale in locales:
@@ -440,7 +420,7 @@ class FillTool(object):
         else:
             query_item_locales = Q()
             item_locales = {}
-            for json_item in objects:
+            for json_item in self.objects:
                 json_locales = json_item.get(self.item_locales_field, None) or ()
                 for locale in json_locales:
                     if locale in locales:
@@ -464,15 +444,15 @@ class FillTool(object):
             if exc.errno != errno.ENOENT:  # ENOENT - no such file or directory
                 raise  # re-raise exception
 
-    def fill_db_with_users(self, objects):
+    def fill_db_with_users(self):
         """
-        Put users in Database
+        Put users in db
         :return:
         """
         size = 0
         user_items = {}
-        json_users = set([])
-        for obj in objects:
+        json_users = {}
+        for obj in self.objects:
             if self.user_file_identifier_field in obj:
                 obj[self.user_field] = str(obj[self.user_field])
                 for item in obj.get(self.user_items_field, ()):
@@ -483,14 +463,18 @@ class FillTool(object):
                     except KeyError:
                         user_items[str(item[self.user_item_identifier_field])] = [user_item]
                 size += 1
-                json_users.add(obj[self.user_field])
+                json_users[obj[self.user_field]] = obj
+        del self.objects
 
         users = {user.external_id: user for user in User.objects.filter(external_id__in=json_users)}
         new_users = {}
-        for user_eid in json_users:
+        item_eids = set([])
+        for user_eid, json_user in json_users.items():
             if user_eid not in users:
                 new_users[user_eid] = User(external_id=user_eid)
-        #logging.debug("Users ready to be saved")
+            item_eids = item_eids.union(map(lambda x: str(x[self.user_item_identifier_field]),
+                                            json_user.get(self.user_items_field, ())))
+        logging.debug("Users ready to be saved")
         User.objects.bulk_create(new_users.values())
         for user in User.objects.filter(external_id__in=new_users.keys()):
             users[user.external_id] = user
@@ -498,19 +482,21 @@ class FillTool(object):
         assert len(users) == size, \
             "Size of loaded objects and users in db is not the same (%d != %d)" % (len(users), size)
 
-        #logging.debug("%d new users saved with bulk_create" % len(new_users))
+        logging.debug("%d new users saved with bulk_create" % len(new_users))
 
-        #logging.debug("Preparing items")
-        items = {item.external_id: item for item in Item.objects.filter(external_id__in=user_items)}
+        logging.debug("Preparing items")
+        items = {item.external_id: item for item in Item.objects.filter(external_id__in=item_eids)}
 
         if connection.vendor == "sqlite":
+            import click
             user_items = user_items.items()
-            for i in range(0, len(user_items)):
-                j = i+SQLITE_MAX_ROWS
-                self.fill_inventory(users, items, user_items[i:j])
+            with click.progressbar(range(0, len(user_items), SQLITE_MAX_ROWS), label="Fill Inventory") as bar:
+                for i in bar:
+                    j = i+SQLITE_MAX_ROWS
+                    self.fill_inventory(users, items, user_items[i:j])
         else:
-            self.fill_inventory(users, items, user_items.items())
-        #logging.debug("Items loaded")
+            self.fill_inventory(users, items, user_items)
+        logging.debug("Items loaded")
 
     def fill_inventory(self, users, items, user_items):
         """
@@ -524,6 +510,7 @@ class FillTool(object):
         i = j = 0
         for item_eid, user_inv in user_items:
             i += 1
+            print i, j
             try:
                 item_id = items[item_eid].pk
             except KeyError:
@@ -534,22 +521,24 @@ class FillTool(object):
                     inv = Inventory(item_id=item_id, user_id=user_id)
                     query_inventory = query_inventory | Q(item_id=item_id, user_id=user_id)
                     inv.acquisition_date = datetime.strptime(item_story[self.user_item_acquisition_field], self.date_format)
-                    #if self.user_item_dropped_field in item_story and item_story[self.user_item_dropped_field] is not None:
-                    #    inv.dropped_date = datetime.strptime(item_story[self.user_item_dropped_field], self.date_format)
+                    if self.user_item_dropped_field in item_story and item_story[self.user_item_dropped_field] is not None:
+                        inv.dropped_date = datetime.strptime(item_story[self.user_item_dropped_field], self.date_format)
                     inventory[item_id, user_id] = inv
 
         for inv in Inventory.objects.filter(query_inventory):
             j += 1
+            print i, j
             item_user = inv.item_id, inv.user_id
             if item_user in inventory:
                 tmp_inv = inventory[item_user]
-                if inv.acquisition_date != tmp_inv.acquisition_date:  # or inv.dropped_date != tmp_inv.dropped_date:
+                if inv.acquisition_date != tmp_inv.acquisition_date or inv.dropped_date != tmp_inv.dropped_date:
                     inv.acquisition_date = tmp_inv.acquisition_date
-                    #inv.dropped_date = tmp_inv.dropped_date
+                    inv.dropped_date = tmp_inv.dropped_date
                     inventory[(item_id, user_id)] = inv
                     logging.debug(">>> Item %s will be updated for user %s")
                 else:
                     del inventory[(item_id, user_id)]
+
         Inventory.objects.bulk_create(inventory.values())
 
 
