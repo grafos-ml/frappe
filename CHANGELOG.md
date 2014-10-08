@@ -1,4 +1,14 @@
-### Create mysql test database before travis script (HEAD, develop)
+### Remove syncdb from travis (HEAD, develop)
+>Wed, 8 Oct 2014 17:25:35 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Create mysql test database before travis script (origin/develop)
 >Wed, 8 Oct 2014 16:28:20 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Arrange queries to boost speed (origin/develop)
+### Arrange queries to boost speed
 >Wed, 8 Oct 2014 15:51:07 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

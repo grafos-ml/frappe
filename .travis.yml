@@ -14,7 +14,6 @@ before_script:
 - mysql -e 'create database ffos_test;'
 - cd src
 - ls -l
-- python manage.py syncdb --noinput
 script:
 - PYTHONPATH=. ../scripts/runtests --travis
 after_success:
