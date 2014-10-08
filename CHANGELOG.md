@@ -1,4 +1,14 @@
-### Arrange queries to boost speed (HEAD, develop)
+### Create mysql test database before travis script (HEAD, develop)
+>Wed, 8 Oct 2014 16:28:20 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Arrange queries to boost speed (origin/develop)
 >Wed, 8 Oct 2014 15:51:07 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Add threading to fill (origin/develop)
+### Add threading to fill
 >Mon, 6 Oct 2014 16:21:40 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

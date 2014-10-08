@@ -4,8 +4,8 @@
 Frappe fill - Fill database
 
 Usage:
-  fill (items|users) <path> [options]
-  fill (items|users) --webservice=<url> [options]
+  fill (items|users) <path> [options ...] [--verbose] [--workers=<n>]
+  fill (items|users) --webservice=<url> [options ...] [--verbose] [--workers=<n>]
   fill items --mozilla (dev | prod) [today | yesterday | <date>] [--verbose] [--workers=<n>]
   fill (items|users) --mozilla <path> [--verbose] [--workers=<n>]
   fill --help
