@@ -58,7 +58,7 @@ function item_acquire(user, item) {
         });
 }
 
-USERLIST = "/users/";
+USERLIST = "/users/?users=20";
 USERITEMS = "user-items/";
 USERRECOMMEND = "recommend/"
 

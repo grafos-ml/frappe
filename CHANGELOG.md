@@ -1,4 +1,14 @@
-### Add threading to fill (HEAD, develop)
+### Arrange queries to boost speed (HEAD, develop)
+>Wed, 8 Oct 2014 15:51:07 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add threading to fill (origin/develop)
 >Mon, 6 Oct 2014 16:21:40 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -18,7 +28,7 @@
 
 
 
-### Client show recommendations finished (origin/develop)
+### Client show recommendations finished
 >Fri, 3 Oct 2014 13:18:03 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

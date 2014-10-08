@@ -85,11 +85,11 @@ class LogEntry(models.Model):
         """
         Load a single user to cache
         """
-        get_cache("default").set(
-            "get_logs_for_%d" % user.pk,
-            list(LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]),
-            None
-        )
+        LogEntry.get_logs_for.lock_this(
+            LogEntry.get_logs_for.cache.set
+        )(LogEntry.get_logs_for.key % user.pk,
+          list(LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]),
+          LogEntry.get_logs_for.timeout)
 
     @staticmethod
     def add_logs(user, logs):

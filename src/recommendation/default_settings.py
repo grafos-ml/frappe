@@ -26,7 +26,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
-TESTING_MODE = 'test' in sys.argv
+TESTING_MODE = "test" in sys.argv
 
 MAX_THREADS = 2
 RESPONSE_TIMEOUT = 200./1000.
@@ -86,18 +86,13 @@ WSGI_APPLICATION = "recommendation.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
 DATABASES = {
     "default": {
-        #"ENGINE": "django.db.backends.sqlite3",
-        #"NAME": os.path.join(BASE_DIR, "recommender.db"),
-        #"ATOMIC_REQUESTS": True,
-        #"TEST_NAME": "test_default.db",
         "ENGINE": "django.db.backends.mysql",
         "NAME": "ffos",
-        "USER": "FFOS",
-        "PASSWORD": "pasteldenata",
-        "HOST": "ana"
+        "USER": "root",
+        "PASSWORD": os.environ.get("FRAPPE_PASSWORD", ""),
+        "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost")
     }
 }
 
@@ -156,26 +151,15 @@ REST_FRAMEWORK = {
 
 CACHES = {
     "default": {
-        #"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        #"LOCATION": "django_default_cache",
-        #"OPTIONS": {"MAX_ENTRIES": 1000000}
         "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
         "LOCATION": "127.0.0.1:11211",
-
-    #} if not TESTING_MODE else {
-    #    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    #    "LOCATION": "django_default_cache",
-    #    "OPTIONS": {
-    #        "MAX_ENTRIES": 1000000
-    #    }
     },
     "local": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "django_default_cache",
-        "OPTIONS": {"MAX_ENTRIES": 1000000}
+        "OPTIONS": {"MAX_ENTRIES": 10000000}
     }
 }
-
 # Settings for the recommendation
 
 RECOMMENDATION_SETTINGS = {

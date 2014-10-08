@@ -130,7 +130,7 @@ class ContingencyProtocol(object):
             future = clone_pool.submit(function, self, user, n)
             try:
                 result = future.result(getattr(settings, "RESPONSE_TIMEOUT", 150./1000.))
-            except TimeoutError:
+            except (TimeoutError, Exception):
                 future.cancel()
                 logging.log(logging.ERROR, "TimeOut error: Contingency Protocol delivered the recommendation")
                 result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)

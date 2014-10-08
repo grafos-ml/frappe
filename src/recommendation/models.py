@@ -10,6 +10,7 @@ import sys
 import base64
 import numpy as np
 import pandas as pd
+import click
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.six import with_metaclass
@@ -166,8 +167,11 @@ class Item(models.Model):
 
     @staticmethod
     def load_to_cache():
-        for item in Item.objects.all().prefetch_related():
-            item.put_item_to_cache()
+        from recommendation.language.models import Locale
+        with click.progressbar(Item.objects.all(), label="Loading items to cache") as bar:
+            for item in bar:
+                item.put_item_to_cache()
+                Locale.get_item_locales(item.pk)
 
 
 @receiver(post_save, sender=Item)
@@ -241,7 +245,7 @@ class User(models.Model):
         :return: A list of user items in inventory
         """
         return {
-            entry.item.pk: {
+            entry.item_id: {
                 "acquisition": entry.acquisition_date,
                 "dropped": entry.dropped_date
             }
@@ -270,10 +274,48 @@ class User(models.Model):
             for item_id, dates in items.items() if dates["dropped"] is None
         }
 
+    def has_more_than(self, n):
+        """
+        Check if user has more than n items owned
+        """
+        count = 0
+        for dates in User.get_user_items(self.pk).values():
+            if dates["dropped"] is None:
+                count += 1
+                if count > n:
+                    return True
+        return False
+
     @staticmethod
     def load_to_cache():
-        for user in User.objects.all():
-            user.load_user()
+        from recommendation.language.models import Locale
+        users = []
+        with click.progressbar(User.objects.all(), label="Loading users to cache") as bar:
+            for user in bar:
+                user.load_user()
+                users.append(user.pk)
+                Locale.get_user_locales(user.pk)
+        with click.progressbar(range(0, len(users), 2000), label="Loading owned items to cache") as bar:
+            for i in bar:
+                j = i + 2000
+                inventory = {}
+                for entry in Inventory.objects.filter(user_id__in=users[i:j]):
+                    try:
+                        inventory[entry.user_id][entry.item_id] = {
+                            "acquisition": entry.acquisition_date,
+                            "dropped": entry.dropped_date
+                        }
+                    except KeyError:
+                        inventory[entry.user_id] = {
+                            entry.item_id: {
+                                "acquisition": entry.acquisition_date,
+                                "dropped": entry.dropped_date
+                            }
+                        }
+                for ueid, items in inventory.items():
+                    User.get_user_items.lock_this(
+                        User.get_user_items.cache.set
+                    )(User.get_user_items.key % ueid, items, User.get_user_items.timeout)
 
     def load_user(self):
         """
@@ -285,7 +327,7 @@ class User(models.Model):
         User.get_user_id_by_external_id.lock_this(
             User.get_user_id_by_external_id.cache.set
         )(User.get_user_id_by_external_id.key % self.external_id, self.pk, User.get_user_id_by_external_id.timeout)
-        User.get_user_items(self.pk)
+        #User.get_user_items(self.pk)
 
     def delete_user(self):
         """
@@ -307,7 +349,7 @@ class User(models.Model):
         """
         cache = User.get_user_items.cache
         entries = cache.get(User.get_user_items.key % self.pk, {})
-        entries[entry.item.pk] = {
+        entries[entry.item_id] = {
             "acquisition": entry.acquisition_date,
             "dropped": entry.dropped_date
         }
@@ -426,7 +468,7 @@ class UserMatrix:
     @staticmethod
     @Cached()
     def get_user_array(index):
-        if len(User.get_user_by_id(index+1).owned_items) < 3:  # Index+1 = User ID
+        if not User.get_user_by_id(index+1).has_more_than(2):  # Index+1 = User ID
             raise KeyError("User %d static recommendation doesn't exist" % (index+1))
         return Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0].numpy[index, :]
 
@@ -435,7 +477,7 @@ class UserMatrix:
 
     def __setitem__(self, index, value):
         try:
-            if len(User.get_user_by_id(index+1).owned_items) >= 3:  # Index+1 = User ID
+            if User.get_user_by_id(index+1).has_more_than(2):  # Index+1 = User ID
                 dec = UserMatrix.get_user_array
                 dec.lock_this(
                     dec.cache.set
@@ -448,6 +490,15 @@ class UserMatrix:
         dec.lock_this(
             dec.cache.delete
         )(dec.key % index)
+
+
+class FactorsContainer:
+
+    def __init__(self, model):
+        self.__model = model
+
+    def __getitem__(self, index):
+        return [self.__model.user_matrix, self.__model.get_item_matrix()][index]
 
 
 class TensorCoFi(PyTensorCoFi):
@@ -497,25 +548,35 @@ class TensorCoFi(PyTensorCoFi):
 
     @staticmethod
     def load_to_cache():
-        tensor = TensorCoFi.get_model_from_cache()
-        return tensor
+        try:
+            users = Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0]
+        except IndexError:
+            raise NotCached("TensorCoFi not in db")
+
+        with click.progressbar(enumerate(users.numpy),
+                               length=users.numpy.shape[0],
+                               label="Loading TensorCoFi users to cache") as bar:
+            for i, u in bar:
+                TensorCoFi.user_matrix[i] = u
+        TensorCoFi.get_item_matrix()
+
+    @staticmethod
+    @Cached(cache="local")
+    def get_item_matrix():
+        try:
+            items = Matrix.objects.filter(name="tensorcofi", model_id=1).order_by("-id")[0]
+        except IndexError:
+            raise NotCached("tensocofi model not in db")
+        return items.numpy
 
     @staticmethod
     @Cached(cache="local")
     def get_model_from_cache(*args, **kwargs):
         tensor = TensorCoFi(n_users=User.objects.aggregate(max=models.Max("pk"))["max"],
                             n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
-        try:
-            users = Matrix.objects.filter(name="tensorcofi", model_id=0).order_by("-id")[0]
-            items = Matrix.objects.filter(name="tensorcofi", model_id=1).order_by("-id")[0]
-        except IndexError:
-            raise NotCached("%s not in db" % tensor.get_name())
-
-        for i, u in enumerate(users.numpy):
-            tensor.user_matrix[i] = u
-        tensor.item_matrix = items.numpy
-        tensor.factors = [tensor.user_matrix, tensor.item_matrix]
+        tensor.factors = FactorsContainer(tensor)
         return tensor
+
 
     @staticmethod
     def get_model(*args, **kwargs):

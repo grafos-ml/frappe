@@ -9,6 +9,7 @@ Diversification models necessary to apply the diversification to a recommendatio
 """
 __author__ = "joaonrb"
 
+import click
 from itertools import chain
 from collections import Counter
 from django.utils.translation import ugettext as _
@@ -64,10 +65,12 @@ class Genre(models.Model):
         :return:
         """
         cache = Genre.get_genre_by_id.cache
-        for genre in Genre.objects.all().annotate(count_items=Count("items")):
-            Genre.get_genre_by_id.lock_this(
-                cache.set
-            )(Genre.get_genre_by_id.key % genre.pk, genre, Genre.get_genre_by_id.timeout)
+        with click.progressbar(Genre.objects.all().annotate(count_items=Count("items")),
+                               label="Loading genres to cache") as bar:
+            for genre in bar:
+                Genre.get_genre_by_id.lock_this(
+                    cache.set
+                )(Genre.get_genre_by_id.key % genre.pk, genre, Genre.get_genre_by_id.timeout)
 
         Genre.get_all_genres()
 
@@ -108,16 +111,18 @@ class ItemGenre(models.Model):
         :return:
         """
         genres = {}
-        for item_genre in ItemGenre.objects.all():
-            try:
-                genres[item_genre.item.pk].append(item_genre.type.pk)
-            except KeyError:
-                genres[item_genre.item.pk] = [item_genre.type.pk]
+        with click.progressbar(ItemGenre.objects.all(), label="Loading item by genres to cache") as bar:
+            for item_genre in bar:
+                try:
+                    genres[item_genre.item.pk].append(item_genre.type.pk)
+                except KeyError:
+                    genres[item_genre.item.pk] = [item_genre.type.pk]
         cache = ItemGenre.get_genre_by_item.cache
-        for item_id, genre in genres.items():
-            ItemGenre.get_genre_by_item.lock_this(
-                cache.set
-            )(ItemGenre.get_genre_by_item.key % item_id, genre, ItemGenre.get_genre_by_item.timeout)
+        with click.progressbar(genres.items(), label="Loading genres by item to cache") as bar:
+            for item_id, genre in bar:
+                ItemGenre.get_genre_by_item.lock_this(
+                    cache.set
+                )(ItemGenre.get_genre_by_item.key % item_id, genre, ItemGenre.get_genre_by_item.timeout)
 
     @staticmethod
     def load_item(item):

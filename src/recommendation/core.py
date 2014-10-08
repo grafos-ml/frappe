@@ -148,7 +148,7 @@ class IController(object):
         try:
             return model.get_recommendation(user)  # Try to cache recommendation from tensorcofi last build.
         except (KeyError, IndexError):
-            if len(user.owned_items) < 3:
+            if not user.has_more_than(2):
                 # Not enough items in user inventory to compute
                 raise NotEnoughItemsToCompute("User %s doesn't have enough items" % user)
             apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
