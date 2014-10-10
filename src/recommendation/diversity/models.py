@@ -114,9 +114,9 @@ class ItemGenre(models.Model):
         with click.progressbar(ItemGenre.objects.all(), label="Loading item by genres to cache") as bar:
             for item_genre in bar:
                 try:
-                    genres[item_genre.item.pk].append(item_genre.type.pk)
+                    genres[item_genre.item_id].append(item_genre.type_id)
                 except KeyError:
-                    genres[item_genre.item.pk] = [item_genre.type.pk]
+                    genres[item_genre.item_id] = [item_genre.type_id]
         cache = ItemGenre.get_genre_by_item.cache
         with click.progressbar(genres.items(), label="Loading genres by item to cache") as bar:
             for item_id, genre in bar:

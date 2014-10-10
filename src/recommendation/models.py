@@ -287,11 +287,9 @@ class User(models.Model):
 
     @staticmethod
     def load_to_cache():
-        users = []
         with click.progressbar(User.objects.all(), label="Loading users to cache") as bar:
             for user in bar:
                 user.load_user()
-                users.append(user.pk)
         lenght = Inventory.objects.all().count()
         with click.progressbar(range(0, lenght, 100000),
                                label="Loading owned items to cache") as bar:

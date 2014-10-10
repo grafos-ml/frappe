@@ -1,4 +1,14 @@
-### Improved loading owned items to +/- 30 seconds (HEAD, inventory_upgrade)
+### Improve global load to 2 min (HEAD, inventory_upgrade)
+>Fri, 10 Oct 2014 17:14:34 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Improved loading owned items to +/- 30 seconds
 >Fri, 10 Oct 2014 15:57:11 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
