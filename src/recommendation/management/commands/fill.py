@@ -126,6 +126,11 @@ class FillTool(object):
             logging.basicConfig(format="%(asctime)s %(levelname)s: %(message)s",
                                 datefmt="%m-%d-%Y %H:%M:%S",
                                 level=logging.DEBUG)
+    def walk_files(self):
+        for path, _, files in os.walk(self.path):
+            for name in files:
+                if name[-5:].lower() == ".json":
+                    yield "/".join([path, name])
 
     def get_files(self, url):
         tmp_path = tempfile.mkdtemp(suffix="_frappe")
@@ -166,10 +171,11 @@ class FillTool(object):
         :param end:
         :return:
         """
-        for i in range(0, len(files), max_files):
-            j = (i + max_files) if i+max_files < len(files) else len(files)
-            self.fill_db(files[i:j])
-            logging.info("Process %d have %.2f%% done" % (os.getpid(), j * 100. / len(files)))
+        self.fill_db(files)
+        #for i in range(0, len(files), max_files):
+            #j = (i + max_files) if i+max_files < len(files) else len(files)
+            #self.fill_db(files[i:j])
+            #logging.info("Process %d have %.2f%% done" % (os.getpid(), j * 100. / len(files)))
 
     def load(self):
         """
@@ -178,28 +184,27 @@ class FillTool(object):
         logging.debug("Starting")
         if self.path:
             try:
-                all_files = list(
-                    itertools.chain(*(["/".join([path, name]) for name in files if name[-5:].lower() == ".json"]
-                                      for path, _, files in os.walk(self.path))))
-                files_per_worker = len(all_files) / self.max_workers
-                #self(all_files, MAX_FILES_TO_MEM)
-                with ProcessPoolExecutor(max_workers=self.max_workers) as pool:
-                    for i0 in range(self.max_workers):
-                        i = i0 * files_per_worker
-                        j = (i + files_per_worker) if i0+1 != self.max_workers else None
-                        pool.submit(self, *(all_files[i:j], MAX_FILES_TO_MEM))
+                all_files = self.walk_files()
+                #files_per_worker = len(all_files) / self.max_workers
+                self(all_files, MAX_FILES_TO_MEM)
+                #with ProcessPoolExecutor(max_workers=self.max_workers) as pool:
+                #    for i0 in range(self.max_workers):
+                #        i = i0 * files_per_worker
+                #        j = (i + files_per_worker) if i0+1 != self.max_workers else None
+                #        pool.submit(self, *(all_files[i:j], MAX_FILES_TO_MEM))
             finally:
                 if self.use_tmp:
                     self.clean_tmp()
                     logging.debug("Tmp files deleted")
                 logging.debug("Done!")
 
-    @staticmethod
-    def load_files(files):
+    def load_files(self, files):
         """
         Load files to memory
         """
-        return [json.load(open(f)) for f in files]
+        import click
+        with click.progressbar(files, label="Loading files to memory") as bar:
+            return [json.load(open(f)) for f in bar]
 
     def fill_db(self, objects):
         """
@@ -389,19 +394,21 @@ class FillTool(object):
         size = 0
         user_items = {}
         json_users = set([])
-        for obj in objects:
-            if self.user_file_identifier_field in obj:
-                obj[self.user_field] = str(obj[self.user_field])
-                for item in obj.get(self.user_items_field, ()):
-                    item[self.user_item_identifier_field] = str(item[self.user_item_identifier_field])
-                    user_item = obj[self.user_field], item
-                    try:
-                        user_items[str(item[self.user_item_identifier_field])].append(user_item)
-                    except KeyError:
-                        user_items[str(item[self.user_item_identifier_field])] = [user_item]
-                size += 1
-                json_users.add(obj[self.user_field])
-
+        import click
+        with click.progressbar(objects, label="Preparing users") as bar:
+            for obj in bar:
+                if self.user_file_identifier_field in obj:
+                    obj[self.user_field] = str(obj[self.user_field])
+                    for item in obj.get(self.user_items_field, ()):
+                        item[self.user_item_identifier_field] = str(item[self.user_item_identifier_field])
+                        user_item = obj[self.user_field], item
+                        try:
+                            user_items[str(item[self.user_item_identifier_field])].append(user_item)
+                        except KeyError:
+                            user_items[str(item[self.user_item_identifier_field])] = [user_item]
+                    size += 1
+                    json_users.add(obj[self.user_field])
+        del objects
         users = {user.external_id: user for user in User.objects.filter(external_id__in=json_users)}
         new_users = {}
         for user_eid in json_users:
@@ -419,8 +426,14 @@ class FillTool(object):
 
         #logging.debug("Preparing items")
         items = {item.external_id: item for item in Item.objects.filter(external_id__in=user_items)}
-
-        self.fill_inventory(users, items, user_items.items())
+        r = range(0, len(user_items), 100)
+        n = len(r)
+        user_items = user_items.items()
+        user_items = [user_items[i:i+100] for i in r]
+        with click.progressbar(user_items, length=n, label="Load items for user inventory") as bar:
+            for user_item in bar:
+                self.fill_inventory(users, items, user_item)
+                del user_item
         #logging.debug("Items loaded")
 
     def fill_inventory(self, users, items, user_items):
@@ -430,7 +443,6 @@ class FillTool(object):
         :param items:
         :return:
         """
-        query_inventory = Q()
         inventory = {}
         i = j = 0
         for item_eid, user_inv in user_items:
@@ -443,24 +455,23 @@ class FillTool(object):
                 for user_eid, item_story in user_inv:
                     user_id = users[user_eid].pk
                     inv = Inventory(item_id=item_id, user_id=user_id)
-                    query_inventory = query_inventory | Q(item_id=item_id, user_id=user_id)
-                    inv.acquisition_date = datetime.strptime(item_story[self.user_item_acquisition_field], self.date_format)
-                    #if self.user_item_dropped_field in item_story and item_story[self.user_item_dropped_field] is not None:
-                    #    inv.dropped_date = datetime.strptime(item_story[self.user_item_dropped_field], self.date_format)
+                    if self.user_item_dropped_field in item_story and \
+                                item_story[self.user_item_dropped_field] is not None:
+                        inv.is_dropped = True
                     inventory[item_id, user_id] = inv
-        if len(query_inventory) > 0:
-            for inv in Inventory.objects.filter(query_inventory):
-                j += 1
-                item_user = inv.item_id, inv.user_id
-                if item_user in inventory:
-                    tmp_inv = inventory[item_user]
-                    if inv.acquisition_date != tmp_inv.acquisition_date:  # or inv.dropped_date != tmp_inv.dropped_date:
-                        inv.acquisition_date = tmp_inv.acquisition_date
-                        #inv.dropped_date = tmp_inv.dropped_date
-                        inventory[(item_id, user_id)] = inv
-                        logging.debug(">>> Item %s will be updated for user %s")
-                    else:
-                        del inventory[item_id, user_id]
+
+        to_delete = Q()
+        for inv in Inventory.objects.filter(item_id__in=user_items):
+            j += 1
+            item_user = inv.item_id, inv.user_id
+            if item_user in inventory:
+                tmp_inv = inventory[item_user]
+                if inv.is_dropped != tmp_inv.is_dropped:
+                    to_delete = to_delete | Q(user_id=inv.user_id, item_id=inv.item_id)
+                else:
+                    del inventory[item_user]
+        if len(to_delete) > 0:
+            Inventory.objects.filter(to_delete).delete()
         Inventory.objects.bulk_create(inventory.values())
 
 

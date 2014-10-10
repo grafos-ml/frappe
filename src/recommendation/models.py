@@ -11,6 +11,8 @@ import base64
 import numpy as np
 import pandas as pd
 import click
+import pandas.io.sql as psql
+from django.db import connection
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.six import with_metaclass
@@ -171,7 +173,7 @@ class Item(models.Model):
         with click.progressbar(Item.objects.all(), label="Loading items to cache") as bar:
             for item in bar:
                 item.put_item_to_cache()
-                Locale.get_item_locales(item.pk)
+                #Locale.get_item_locales(item.pk)
 
 
 @receiver(post_save, sender=Item)
@@ -245,10 +247,7 @@ class User(models.Model):
         :return: A list of user items in inventory
         """
         return {
-            entry.item_id: {
-                "acquisition": entry.acquisition_date,
-                "dropped": entry.dropped_date
-            }
+            entry.item_id: entry.is_dropped
             for entry in Inventory.objects.filter(user_id=user_id)
         }
 
@@ -271,7 +270,7 @@ class User(models.Model):
         items = User.get_user_items(self.pk)
         return {
             item_id: Item.get_item_by_id(item_id)
-            for item_id, dates in items.items() if dates["dropped"] is None
+            for item_id, is_dropped in items.items() if not is_dropped
         }
 
     def has_more_than(self, n):
@@ -279,8 +278,8 @@ class User(models.Model):
         Check if user has more than n items owned
         """
         count = 0
-        for dates in User.get_user_items(self.pk).values():
-            if dates["dropped"] is None:
+        for is_dropped in User.get_user_items(self.pk).values():
+            if not is_dropped:
                 count += 1
                 if count > n:
                     return True
@@ -288,34 +287,29 @@ class User(models.Model):
 
     @staticmethod
     def load_to_cache():
-        from recommendation.language.models import Locale
         users = []
         with click.progressbar(User.objects.all(), label="Loading users to cache") as bar:
             for user in bar:
                 user.load_user()
                 users.append(user.pk)
-                Locale.get_user_locales(user.pk)
-        with click.progressbar(range(0, len(users), 2000), label="Loading owned items to cache") as bar:
+        lenght = Inventory.objects.all().count()
+        with click.progressbar(range(0, lenght, 100000),
+                               label="Loading owned items to cache") as bar:
+            inventory = {}
+            max_id = 0
             for i in bar:
-                j = i + 2000
-                inventory = {}
-                for entry in Inventory.objects.filter(user_id__in=users[i:j]):
+                for max_id, user_id, item_id, is_dropped in Inventory.objects.filter(id__gt=max_id)\
+                        .order_by("pk")[i:i+100000].values_list("pk", "user_id", "item_id", "is_dropped"):
                     try:
-                        inventory[entry.user_id][entry.item_id] = {
-                            "acquisition": entry.acquisition_date,
-                            "dropped": entry.dropped_date
-                        }
+                        inventory[user_id][item_id] = is_dropped
                     except KeyError:
-                        inventory[entry.user_id] = {
-                            entry.item_id: {
-                                "acquisition": entry.acquisition_date,
-                                "dropped": entry.dropped_date
-                            }
+                        inventory[user_id] = {
+                            item_id: is_dropped
                         }
-                for ueid, items in inventory.items():
-                    User.get_user_items.lock_this(
-                        User.get_user_items.cache.set
-                    )(User.get_user_items.key % ueid, items, User.get_user_items.timeout)
+            for ueid, items in inventory.items():
+                User.get_user_items.lock_this(
+                    User.get_user_items.cache.set
+                )(User.get_user_items.key % ueid, items, User.get_user_items.timeout)
 
     def load_user(self):
         """
@@ -349,10 +343,7 @@ class User(models.Model):
         """
         cache = User.get_user_items.cache
         entries = cache.get(User.get_user_items.key % self.pk, {})
-        entries[entry.item_id] = {
-            "acquisition": entry.acquisition_date,
-            "dropped": entry.dropped_date
-        }
+        entries[entry.item_id] = entry.is_dropped
         cache.set(User.get_user_items.key % self.pk, entries)
 
     def delete_item(self, entry):
@@ -391,22 +382,23 @@ class Inventory(models.Model):
     """
     user = models.ForeignKey(User, verbose_name=_("user"))
     item = models.ForeignKey(Item, verbose_name=_("item"))
-    acquisition_date = models.DateTimeField(_("acquisition date"))
-    dropped_date = models.DateTimeField(_("dropped date"), null=True, blank=True)
+    #acquisition_date = models.DateTimeField(_("acquisition date"))
+    #dropped_date = models.DateTimeField(_("dropped date"), null=True, blank=True)
+    is_dropped = models.BooleanField(_("is dropped"), default=False)
 
     class Meta:
         verbose_name = _("owned item")
         verbose_name_plural = _("owned items")
-        unique_together = ("user", "item")
+        #unique_together = ("user", "item")
 
     def __str__(self):
         return _("%(state)s %(item)s item for user %(user)s") % {
-            "state": _("dropped") if self.dropped_date else _("owned"), "item": self.item.name,
+            "state": _("dropped") if self.is_dropped else _("owned"), "item": self.item.name,
             "user": self.user.external_id}
 
     def __unicode__(self):
         return _("%(state)s %(item)s item for user %(user)s") % {
-            "state": _("dropped") if self.dropped_date else _("owned"), "item": self.item.name,
+            "state": _("dropped") if self.is_dropped else _("owned"), "item": self.item.name,
             "user": self.user.external_id}
 
 

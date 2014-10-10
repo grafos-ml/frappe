@@ -1,4 +1,14 @@
-### Remove syncdb from travis (HEAD, develop)
+### Improved loading owned items to +/- 30 seconds (HEAD, inventory_upgrade)
+>Fri, 10 Oct 2014 15:57:11 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Remove syncdb from travis (origin/develop, develop)
 >Wed, 8 Oct 2014 17:25:35 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Create mysql test database before travis script (origin/develop)
+### Create mysql test database before travis script
 >Wed, 8 Oct 2014 16:28:20 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
