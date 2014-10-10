@@ -25,11 +25,9 @@ Popularity.load_to_cache()
 TensorCoFi.load_to_cache()
 
 
-#if "recommendation.language" in settings.INSTALLED_APPS:
-#    print("Loading languages to cache...")
-#    from recommendation.language.models import Locale
-#    Locale.load_to_cache()
-#    print("done!")
+if "recommendation.language" in settings.INSTALLED_APPS:
+    from recommendation.language.models import Locale
+    Locale.load_to_cache()
 
 
 #if "recommendation.simple_logging" in settings.INSTALLED_APPS:

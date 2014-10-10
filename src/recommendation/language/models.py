@@ -5,6 +5,7 @@ The locale models moudle. It must contain the locale
 __author__ = "joaonrb"
 
 
+import click
 from django.db import models
 from django.utils.translation import ugettext as _
 from recommendation.models import Item, User
@@ -65,13 +66,36 @@ class Locale(models.Model):
 
     @staticmethod
     def load_to_cache():
-        for locale_id in Locale.get_all_locales():
-            Locale.get_item_locales(locale_id)
-            Locale.get_items_by_locale(locale_id)
-        #for u in User.objects.all():
-        #    Locale.get_user_locales(u.pk)
-        #for i in Item.objects.all():
-        #    Locale.get_item_locales(i.pk)
+        with click.progressbar(Locale.get_all_locales(), label="Loading locales to cache") as bar:
+            for locale_id in bar:
+                Locale.get_item_locales(locale_id)
+                Locale.get_items_by_locale(locale_id)
+
+        users = {}
+        with click.progressbar(UserLocale.objects.all().values_list("user_id", "locale_id"),
+                               label="Loading user locales to cache") as bar:
+            for user_id, genre_id in bar:
+                try:
+                    users[user_id].add(genre_id)
+                except KeyError:
+                    users[user_id] = set([genre_id])
+            for user_id, genres in users.items():
+                Locale.get_user_locales.lock_this(
+                    Locale.get_user_locales.cache.set
+                )(Locale.get_user_locales.key % user_id, genres, Locale.get_user_locales.timeout)
+
+        items = {}
+        with click.progressbar(ItemLocale.objects.all().values_list("item_id", "locale_id"),
+                               label="Loading item locales to cache") as bar:
+            for item_id, genre_id in bar:
+                try:
+                    items[item_id].add(genre_id)
+                except KeyError:
+                    items[item_id] = set([genre_id])
+            for item_id, genres in items.items():
+                Locale.get_item_locales.lock_this(
+                    Locale.get_item_locales.cache.set
+                )(Locale.get_item_locales.key % item_id, genres, Locale.get_item_locales.timeout)
 
 
 class ItemLocale(models.Model):

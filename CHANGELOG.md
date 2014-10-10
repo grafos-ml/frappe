@@ -1,4 +1,14 @@
-### Improve global load to 2 min (HEAD, inventory_upgrade)
+### Improve global load to 1.4 min (HEAD, inventory_upgrade)
+>Fri, 10 Oct 2014 18:24:15 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Improve global load to 2 min
 >Fri, 10 Oct 2014 17:14:34 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
