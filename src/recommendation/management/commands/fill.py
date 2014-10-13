@@ -4,10 +4,10 @@
 Frappe fill - Fill database
 
 Usage:
-  fill (items|users) <path> [options ...] [--verbose] [--workers=<n>]
-  fill (items|users) --webservice=<url> [options ...] [--verbose] [--workers=<n>]
-  fill items --mozilla (dev | prod) [today | yesterday | <date>] [--verbose] [--workers=<n>]
-  fill (items|users) --mozilla <path> [--verbose] [--workers=<n>]
+  fill (items|users) <path> [options ...] [--verbose]
+  fill (items|users) --webservice=<url> [options ...] [--verbose]
+  fill items --mozilla (dev | prod) [today | yesterday | <date>] [--verbose]
+  fill (items|users) --mozilla <path> [--verbose]
   fill --help
   fill --version
 
@@ -23,7 +23,6 @@ Options:
   --user-item-acquired=<field>     Field to identify item acquisition date [default: acquired].
   --user-item-dropped=<field>      Field to identify item acquisition date [default: dropped].
   --date-format=<field>            Field to date format [default: %Y-%m-%dT%H:%M:%S]
-  --workers=<n>                    Number of workers [default: 2].
   -v --verbose                     Set verbose mode.
   -h --help                        Show this screen.
   --version                        Show version.
@@ -40,10 +39,7 @@ import tarfile
 import json
 import errno
 import shutil
-import itertools
-from concurrent.futures import ProcessPoolExecutor
 from datetime import date, timedelta, datetime
-from django.db import connection
 from django.db.models import Q
 from django_docopt_command import DocOptCommand
 from django.conf import settings
@@ -78,7 +74,6 @@ class FillTool(object):
 
     def __init__(self, parameters):
         self.parameters = parameters
-        self.max_workers = int(parameters.get("--workers", 2))
         self.is_item = parameters.get("items", False)
         self.is_user = parameters.get("users", False)
         self.use_tmp = True
@@ -126,6 +121,7 @@ class FillTool(object):
             logging.basicConfig(format="%(asctime)s %(levelname)s: %(message)s",
                                 datefmt="%m-%d-%Y %H:%M:%S",
                                 level=logging.DEBUG)
+
     def walk_files(self):
         for path, _, files in os.walk(self.path):
             for name in files:
@@ -160,22 +156,7 @@ class FillTool(object):
             return datetime.strptime(self.parameters["<date>"], "%Y-%m.%d").date()
         if self.parameters.get("today", False):
             return date.today()
-        # Return yesterday
         return date.today() - timedelta(1)
-
-    def __call__(self, files, max_files):
-        """
-
-        :param all_files:
-        :param start:
-        :param end:
-        :return:
-        """
-        self.fill_db(files)
-        #for i in range(0, len(files), max_files):
-            #j = (i + max_files) if i+max_files < len(files) else len(files)
-            #self.fill_db(files[i:j])
-            #logging.info("Process %d have %.2f%% done" % (os.getpid(), j * 100. / len(files)))
 
     def load(self):
         """
@@ -184,27 +165,19 @@ class FillTool(object):
         logging.debug("Starting")
         if self.path:
             try:
-                all_files = self.walk_files()
-                #files_per_worker = len(all_files) / self.max_workers
-                self(all_files, MAX_FILES_TO_MEM)
-                #with ProcessPoolExecutor(max_workers=self.max_workers) as pool:
-                #    for i0 in range(self.max_workers):
-                #        i = i0 * files_per_worker
-                #        j = (i + files_per_worker) if i0+1 != self.max_workers else None
-                #        pool.submit(self, *(all_files[i:j], MAX_FILES_TO_MEM))
+                self.fill_db(self.walk_files())
             finally:
                 if self.use_tmp:
                     self.clean_tmp()
                     logging.debug("Tmp files deleted")
                 logging.debug("Done!")
 
-    def load_files(self, files):
+    @staticmethod
+    def load_files(files):
         """
         Load files to memory
         """
-        import click
-        with click.progressbar(files, label="Loading files to memory") as bar:
-            return [json.load(open(f)) for f in bar]
+        return (json.load(open(f)) for f in files)
 
     def fill_db(self, objects):
         """
@@ -393,27 +366,28 @@ class FillTool(object):
         """
         size = 0
         user_items = {}
-        json_users = set([])
+        json_users = []
         import click
-        with click.progressbar(objects, label="Preparing users") as bar:
+        with click.progressbar(objects, label="Loading users to memory") as bar:
             for obj in bar:
                 if self.user_file_identifier_field in obj:
-                    obj[self.user_field] = str(obj[self.user_field])
+                    user_id = str(obj[self.user_field])
                     for item in obj.get(self.user_items_field, ()):
-                        item[self.user_item_identifier_field] = str(item[self.user_item_identifier_field])
-                        user_item = obj[self.user_field], item
+                        item_id = str(item[self.user_item_identifier_field])
+                        user_item = user_id, self.user_item_dropped_field in item
                         try:
-                            user_items[str(item[self.user_item_identifier_field])].append(user_item)
+                            user_items[item_id].append(user_item)
                         except KeyError:
-                            user_items[str(item[self.user_item_identifier_field])] = [user_item]
+                            user_items[item_id] = [user_item]
                     size += 1
-                    json_users.add(obj[self.user_field])
-        del objects
+                    json_users.append(user_id)
+        logging.debug("Done!")
         users = {user.external_id: user for user in User.objects.filter(external_id__in=json_users)}
         new_users = {}
         for user_eid in json_users:
             if user_eid not in users:
                 new_users[user_eid] = User(external_id=user_eid)
+        del json_users
         #logging.debug("Users ready to be saved")
         User.objects.bulk_create(new_users.values())
         for user in User.objects.filter(external_id__in=new_users.keys()):
@@ -425,18 +399,20 @@ class FillTool(object):
         #logging.debug("%d new users saved with bulk_create" % len(new_users))
 
         #logging.debug("Preparing items")
-        items = {item.external_id: item for item in Item.objects.filter(external_id__in=user_items)}
-        r = range(0, len(user_items), 100)
+        items = {ieid: iid for ieid, iid in Item.objects.filter(external_id__in=user_items).values_list("external_id",
+                                                                                                        "id")}
+        r = range(0, len(user_items), 300)
         n = len(r)
         user_items = user_items.items()
-        user_items = [user_items[i:i+100] for i in r]
+        user_items = [user_items[i:i+300] for i in r]
         with click.progressbar(user_items, length=n, label="Load items for user inventory") as bar:
             for user_item in bar:
                 self.fill_inventory(users, items, user_item)
                 del user_item
         #logging.debug("Items loaded")
 
-    def fill_inventory(self, users, items, user_items):
+    @staticmethod
+    def fill_inventory(users, items, user_items):
         """
         Fill the user inventory
         :param users:
@@ -444,25 +420,19 @@ class FillTool(object):
         :return:
         """
         inventory = {}
-        i = j = 0
         for item_eid, user_inv in user_items:
-            i += 1
             try:
-                item_id = items[item_eid].pk
+                item_id = items[item_eid]
             except KeyError:
                 logging.warn("Item with external_id %s does not exist!" % item_eid)
             else:
-                for user_eid, item_story in user_inv:
+                for user_eid, is_dropped in user_inv:
                     user_id = users[user_eid].pk
-                    inv = Inventory(item_id=item_id, user_id=user_id)
-                    if self.user_item_dropped_field in item_story and \
-                                item_story[self.user_item_dropped_field] is not None:
-                        inv.is_dropped = True
+                    inv = Inventory(item_id=item_id, user_id=user_id, is_dropped=is_dropped)
                     inventory[item_id, user_id] = inv
 
         to_delete = Q()
         for inv in Inventory.objects.filter(item_id__in=user_items):
-            j += 1
             item_user = inv.item_id, inv.user_id
             if item_user in inventory:
                 tmp_inv = inventory[item_user]

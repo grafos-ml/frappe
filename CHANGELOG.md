@@ -1,4 +1,14 @@
-### Fix docs (HEAD, inventory_upgrade)
+### Improve fill users to 20 min / 10M connections (HEAD, inventory_upgrade)
+>Mon, 13 Oct 2014 14:08:11 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix docs
 >Mon, 13 Oct 2014 12:09:43 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
