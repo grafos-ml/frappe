@@ -324,7 +324,7 @@ Response:
 |                |               |                                           |
 +----------------+---------------+-------------------------------------------+
 
-Installed Apps:
+Owned Items:
 
 +-------------------+---------------+-------------------------------------------+
 |                   |               |                                           |
@@ -336,13 +336,7 @@ Installed Apps:
 |                   |               |                                           |
 +-------------------+---------------+-------------------------------------------+
 |                   |               |                                           |
-| acquisition_date  | DateTime      | The installation date with the format:    |
-|                   |               | YYYY-MM-DDTHH:MM:SSZ                      |
-|                   |               |                                           |
-+-------------------+---------------+-------------------------------------------+
-|                   |               |                                           |
-| dropped_date      | DateTime      | The installation date with the format:    |
-|                   |               | YYYY-MM-DDTHH:MM:SSZ. May be Null.        |
+| is_dropped        | Boolean       | Is the item was dropped by user.          |
 |                   |               |                                           |
 +-------------------+---------------+-------------------------------------------+
 
@@ -352,9 +346,8 @@ Example::
     {
         items: [
             {
-                acquisition_date: "2013-04-02T18:47:58Z",
+                is_dropped: false,
                 external_id: "413346",
-                dropped_date: null
             }
         ],
         user: "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173"

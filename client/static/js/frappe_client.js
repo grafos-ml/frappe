@@ -5,32 +5,6 @@
 var ICONS_PER_PAGE = 4;
 var NUMBER_OF_RECOMMENDATIONS = 16;
 
-function loadRecommendations(user) {
-    uri = "/api/v2/recommend/32/"+user+".json";
-    $.getJSON(uri, function(data) {
-        var items = [];
-        $.each(data.recommendations, function(index) {
-            $.getJSON("/api/v2/item/"+data.recommendations[index]+".json?user="+user+"&rank="+(index+1),
-                function(elem_data) {
-                    elem_data.installation_date = data.recommendations[index].acquisition_date;
-                    elem_data.removed_date = data.recommendations[index].dropped_date;
-                    elem_data.install_or_remove = "plus";
-                    elem_data.install_or_remove_color = "success";
-                    elem_data.action = "item_acquire('"+user+"','"+elem_data.external_id+"');";
-                    elem_data.index = index+1;
-                    items.push(elem_data);
-                    if(data.recommendations.length == index+1) {
-                        window.setTimeout(function () {
-                            var html = appContainer({"apps": items});
-                            $("#recommendedApps").html(html);
-                            loadLargeIcons();
-                        }, 1000);
-                    }
-                });
-        });
-    });
-}
-
 function item_remove(user, item) {
     uri = "/api/v2/user-items/"+user+"/";
     $.ajax({

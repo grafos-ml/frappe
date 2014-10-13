@@ -1,4 +1,14 @@
-### Fix tests (HEAD, inventory_upgrade)
+### Fix docs (HEAD, inventory_upgrade)
+>Mon, 13 Oct 2014 12:09:43 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix tests
 >Mon, 13 Oct 2014 12:01:37 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
