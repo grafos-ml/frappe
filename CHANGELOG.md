@@ -1,4 +1,14 @@
-### Fix user items rest API (HEAD, inventory_upgrade)
+### Set default settings (HEAD, inventory_upgrade)
+>Mon, 13 Oct 2014 20:48:09 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix user items rest API
 >Mon, 13 Oct 2014 20:32:48 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
