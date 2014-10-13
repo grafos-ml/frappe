@@ -256,10 +256,9 @@ class User(models.Model):
         """
         All items from this user. Key item id and value the inventory register
         """
-        items = User.get_user_items(self.pk)
         return {
             item_id: Item.get_item_by_id(item_id)
-            for item_id, dates in items.items()
+            for item_id, is_dropped in User.get_user_items(self.pk).items()
         }
 
     @property
@@ -267,10 +266,9 @@ class User(models.Model):
         """
         Get the owned items from cache. Key item id and value the inventory register
         """
-        items = User.get_user_items(self.pk)
         return {
             item_id: Item.get_item_by_id(item_id)
-            for item_id, is_dropped in items.items() if not is_dropped
+            for item_id, is_dropped in User.get_user_items(self.pk).items() if not is_dropped
         }
 
     def has_more_than(self, n):

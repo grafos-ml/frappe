@@ -1,4 +1,14 @@
-### Improve fill users to 20 min / 10M connections (HEAD, inventory_upgrade)
+### Fix user items rest API (HEAD, inventory_upgrade)
+>Mon, 13 Oct 2014 20:32:48 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Improve fill users to 20 min / 10M connections
 >Mon, 13 Oct 2014 14:08:11 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

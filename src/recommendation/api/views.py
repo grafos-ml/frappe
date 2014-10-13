@@ -264,13 +264,17 @@ class UserItemsAPI(RecommendationAPI):
         offset = int(request.GET.get("offset", 0))  # Offset of items
         number_of_items = int(request.GET.get("items", 20))  # Number of items to present
         limit = offset+number_of_items
+        user = User.get_user_by_external_id(user_external_id)
         try:
-            items = Inventory.objects.filter(user__external_id=user_external_id)
-            items = items.values_list("item__external_id", "is_dropped")[offset:limit]
-            items = [{"external_id": item, "is_dropped": is_dropped}
-                     for item, is_dropped in items]
-        except User.DoesNotExist:
+            items = [
+                {
+                    "external_id": Item.get_item_external_id_by_id(item_id),
+                    "is_dropped": is_dropped
+                } for item_id, is_dropped in User.get_user_items(user.pk).items()[offset:limit]
+            ]
+        except KeyError:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
+
         data = {"user": user_external_id, "items": items}
         return self.format_response(data)
 

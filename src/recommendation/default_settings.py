@@ -167,11 +167,11 @@ RECOMMENDATION_SETTINGS = {
         "core": "recommendation.core.TensorCoFiController",
         "filters": [] if TESTING_MODE else [
             "recommendation.filter_owned.filters.FilterOwned",
-            "recommendation.language.filters.SimpleLocaleFilter",
-            "recommendation.simple_logging.filters.SimpleLogFilter",
+            #"recommendation.language.filters.SimpleLocaleFilter",
+            #"recommendation.simple_logging.filters.SimpleLogFilter",
         ],
         "rerankers": [] if TESTING_MODE else [
-            "recommendation.diversity.rerankers.SimpleDiversityReRanker"
+            #"recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },
     "logger": "recommendation.simple_logging.decorators.LogEvent"

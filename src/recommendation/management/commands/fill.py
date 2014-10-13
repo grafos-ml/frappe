@@ -420,28 +420,31 @@ class FillTool(object):
         :return:
         """
         inventory = {}
+        inventory_query = Q()
         for item_eid, user_inv in user_items:
             try:
                 item_id = items[item_eid]
             except KeyError:
                 logging.warn("Item with external_id %s does not exist!" % item_eid)
             else:
+                users_ids = []
                 for user_eid, is_dropped in user_inv:
                     user_id = users[user_eid].pk
-                    inv = Inventory(item_id=item_id, user_id=user_id, is_dropped=is_dropped)
-                    inventory[item_id, user_id] = inv
-
-        to_delete = Q()
-        for inv in Inventory.objects.filter(item_id__in=user_items):
-            item_user = inv.item_id, inv.user_id
-            if item_user in inventory:
-                tmp_inv = inventory[item_user]
-                if inv.is_dropped != tmp_inv.is_dropped:
-                    to_delete = to_delete | Q(user_id=inv.user_id, item_id=inv.item_id)
-                else:
-                    del inventory[item_user]
-        if len(to_delete) > 0:
-            Inventory.objects.filter(to_delete).delete()
+                    inventory[item_id, user_id] = Inventory(item_id=item_id, user_id=user_id, is_dropped=is_dropped)
+                    users_ids.append(user_id)
+                inventory_query = inventory_query | Q(item_id=item_id, user_id__in=users_ids)
+        if len(inventory_query) > 0:
+            to_delete = Q()
+            for inv in Inventory.objects.filter(inventory_query):
+                item_user = inv.item_id, inv.user_id
+                if item_user in inventory:
+                    tmp_inv = inventory[item_user]
+                    if inv.is_dropped != tmp_inv.is_dropped:
+                        to_delete = to_delete | Q(user_id=inv.user_id, item_id=inv.item_id)
+                    else:
+                        del inventory[item_user]
+            if len(to_delete) > 0:
+                Inventory.objects.filter(to_delete).delete()
         Inventory.objects.bulk_create(inventory.values())
 
 
