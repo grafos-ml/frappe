@@ -164,7 +164,7 @@ class TestUser(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i))
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -204,12 +204,12 @@ class TestUser(TestCase):
             user = User.get_user_by_external_id(u["external_id"])
             for i in u["items"]:
                 ivent = Inventory.objects.get(item=user.all_items[Item.get_item_by_external_id(i).pk], user=user)
-                ivent.dropped_date = dt.now()
+                ivent.is_dropped = True
                 ivent.save()
                 assert Item.get_item_by_external_id(i).pk not in user.owned_items, \
                     "Item %s is in user %s owned items" % (i, user.external_id)
                 ivent = Inventory.objects.get(item=user.all_items[Item.get_item_by_external_id(i).pk], user=user)
-                ivent.dropped_date = None
+                ivent.is_dropped = False
                 ivent.save()
 
 
@@ -231,7 +231,7 @@ class TestTensorCoFi(TestCase):
         for i, u in enumerate(USERS, start=1):
             user = User.objects.create(pk=(i*2), external_id=u["external_id"])
             for item in u["items"]:
-                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(item), acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(item))
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):

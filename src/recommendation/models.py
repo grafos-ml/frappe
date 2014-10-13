@@ -289,7 +289,12 @@ class User(models.Model):
     def load_to_cache():
         with click.progressbar(User.objects.all(), label="Loading users to cache") as bar:
             for user in bar:
-                user.load_user()
+                User.get_user_by_id.lock_this(
+                    User.get_user_by_id.cache.set
+                )(User.get_user_by_id.key % user.pk, user, User.get_user_by_id.timeout)
+            User.get_user_id_by_external_id.lock_this(
+                User.get_user_id_by_external_id.cache.set
+            )(User.get_user_id_by_external_id.key % user.external_id, user.pk, User.get_user_id_by_external_id.timeout)
         lenght = Inventory.objects.all().count()
         with click.progressbar(range(0, lenght, 100000),
                                label="Loading owned items to cache") as bar:
@@ -319,7 +324,7 @@ class User(models.Model):
         User.get_user_id_by_external_id.lock_this(
             User.get_user_id_by_external_id.cache.set
         )(User.get_user_id_by_external_id.key % self.external_id, self.pk, User.get_user_id_by_external_id.timeout)
-        #User.get_user_items(self.pk)
+        User.get_user_items(self.pk)
 
     def delete_user(self):
         """

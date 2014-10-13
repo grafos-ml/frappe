@@ -57,7 +57,7 @@ class TestSimpleLoggerDecorator(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i))
         time.sleep(1.)
 
     @classmethod
@@ -150,7 +150,7 @@ class TestSimpleLoggerCache(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i))
             for _ in range(3):
                 recommendation = [Item.get_item_by_external_id(i).pk
                                   for i in ("10001", "10002", "10003", "10004", "98766")]
@@ -204,7 +204,7 @@ class TestFilterByLog(TestCase):
         for u in USERS:
             user = User.objects.create(external_id=u["external_id"])
             for i in u["items"]:
-                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i), acquisition_date=dt.now())
+                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(i))
             for _ in range(3):
                 recommendation = [Item.get_item_by_external_id(i).pk
                                   for i in ("10001", "10002", "10003", "10004", "98766")]

@@ -232,7 +232,7 @@ class UserItemsAPI(RecommendationAPI):
         :param item: The item.
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        Inventory.objects.create(item=item, user=user, acquisition_date=now())
+        Inventory.objects.create(item=item, user=user)
 
     @staticmethod
     @GoToThreadQueue()
@@ -246,7 +246,7 @@ class UserItemsAPI(RecommendationAPI):
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
         i = Inventory.objects.get(item=item, user=user)
-        i.dropped_date = now()
+        i.is_dropped = True
         i.save()
 
     def get(self, request, user_external_id):
@@ -266,10 +266,9 @@ class UserItemsAPI(RecommendationAPI):
         limit = offset+number_of_items
         try:
             items = Inventory.objects.filter(user__external_id=user_external_id)
-            items = items.order_by("acquisition_date")
-            items = items.values_list("item__external_id", "acquisition_date", "dropped_date")[offset:limit]
-            items = [{"external_id": item, "acquisition_date": date, "dropped_date": removed_date}
-                     for item, date, removed_date in items]
+            items = items.values_list("item__external_id", "is_dropped")[offset:limit]
+            items = [{"external_id": item, "is_dropped": is_dropped}
+                     for item, is_dropped in items]
         except User.DoesNotExist:
             return self.format_response(self.NOT_FOUND_ERROR_MESSAGE, status=NOT_FOUND_ERROR)
         data = {"user": user_external_id, "items": items}
