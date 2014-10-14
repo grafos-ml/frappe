@@ -209,7 +209,7 @@ class FillTool(object):
             if item_eid not in items:
                 try:
                     name = json_item["name"][json_item["default_locale"]]
-                except KeyError:
+                except (KeyError, TypeError):
                     name = json_item.get("name", "NO NAME")
                 except UnicodeEncodeError as e:
                     logging.error(e)

@@ -1,4 +1,14 @@
-### Add Funcionality to client (HEAD, inventory_upgrade)
+### Minor fix fill (HEAD, master)
+>Tue, 14 Oct 2014 18:43:47 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add Funcionality to client (tag: v2.1, origin/master, origin/inventory_upgrade, origin/develop, origin/HEAD, inventory_upgrade, develop)
 >Tue, 14 Oct 2014 15:29:59 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -18,7 +28,7 @@
 
 
 
-### Set default settings (origin/inventory_upgrade)
+### Set default settings
 >Mon, 13 Oct 2014 20:48:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -98,7 +108,7 @@
 
 
 
-### Remove syncdb from travis (origin/develop, develop)
+### Remove syncdb from travis
 >Wed, 8 Oct 2014 17:25:35 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -178,7 +188,7 @@
 
 
 
-### Aonother fix in fill for sqlite (origin/master, origin/HEAD, master)
+### Aonother fix in fill for sqlite
 >Thu, 2 Oct 2014 11:22:10 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
