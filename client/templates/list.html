@@ -5,9 +5,13 @@
             <tr ng-repeat="user in users">
             <td>{{ user.id }}</td>
             <td>
-                <a href="#/{{ user.external_id }}/url/{{ url }}/">{{ user.external_id }}</a>
+                <a href="#/user/{{ user.external_id }}/url/{{ url }}/">{{ user.external_id }}</a>
             </td>
             <td>{{ user.number_of_items }}</td>
         </tr>
     </tbody>
 </table>
+<ul class="pagination">
+    <li><a href="#/page/{{ page-1 }}/url/{{ url }}" ng-class="(page == 1) ? 'disabled' : ''">&laquo;</a></li>
+    <li><a href="#/page/{{ page+1 }}/url/{{ url }}">&raquo;</a></li>
+</ul>

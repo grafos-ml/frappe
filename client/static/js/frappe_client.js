@@ -32,7 +32,7 @@ function item_acquire(user, item) {
         });
 }
 
-USERLIST = "/users/?users=20";
+USERLIST = "/users/";
 USERITEMS = "user-items/";
 USERRECOMMEND = "recommend/"
 
@@ -40,18 +40,19 @@ angular.module("frappeApp", ["ngRoute"])
     .controller("FrappeController", ["$scope", function($scope) {
 
         $scope.loadUsers = function() {
-            window.location.replace("#/url/" + $scope.frappeText +"");
+            window.location.replace("#/page/1/url/" + $scope.frappeText);
         };
     }])
     .config(["$routeProvider",
         function($routeProvider) {
-            $routeProvider.when("/url/:frappeURL*", {
+            $routeProvider.when("/page/:page/url/:frappeURL*", {
                 templateUrl: "templates/list.html",
                 controller: function ($scope, $http, $routeParams) {
-                    $http({method: "GET", url: $routeParams.frappeURL + USERLIST})
+                    $http({method: "GET", url: $routeParams.frappeURL.concat(USERLIST, "?users=15", "&offset=", (($routeParams.page-1)*15).toString())})
                         .success(function(data, status) {
                             $scope.users = data;
                             $scope.url = $routeParams.frappeURL;
+                            $scope.page = parseInt($routeParams.page);
                             $.each(data, function(i, user){
                                 $http({method: "GET", url: $routeParams.frappeURL.concat("/", USERITEMS, user.external_id, "/")})
                                     .success(function(data, status) {
@@ -60,7 +61,7 @@ angular.module("frappeApp", ["ngRoute"])
                             });
                         })
                 }
-            }).when("/:user/url/:frappeURL*", {
+            }).when("/user/:user/url/:frappeURL*", {
                 templateUrl: "./templates/user.html",
                 controller: function ($scope, $http, $routeParams) {
                         $http({method: "GET", url: $routeParams.frappeURL.concat(USERITEMS, $routeParams.user, "/")})

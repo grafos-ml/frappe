@@ -1,4 +1,14 @@
-### Add popularity tests (HEAD, inventory_upgrade)
+### Add Funcionality to client (HEAD, inventory_upgrade)
+>Tue, 14 Oct 2014 15:29:59 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add popularity tests
 >Tue, 14 Oct 2014 11:43:41 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
