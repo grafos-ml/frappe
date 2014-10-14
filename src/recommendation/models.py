@@ -169,11 +169,9 @@ class Item(models.Model):
 
     @staticmethod
     def load_to_cache():
-        from recommendation.language.models import Locale
         with click.progressbar(Item.objects.all(), label="Loading items to cache") as bar:
             for item in bar:
                 item.put_item_to_cache()
-                #Locale.get_item_locales(item.pk)
 
 
 @receiver(post_save, sender=Item)

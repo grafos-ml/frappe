@@ -1,4 +1,14 @@
-### Set default settings (HEAD, inventory_upgrade)
+### Add popularity tests (HEAD, inventory_upgrade)
+>Tue, 14 Oct 2014 11:43:41 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Set default settings (origin/inventory_upgrade)
 >Mon, 13 Oct 2014 20:48:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -6,13 +6,9 @@ __author__ = "joaonrb"
 
 import sys
 import numpy as np
-import pandas as pd
-import testfm
 from django.core.cache import get_cache
-from pkg_resources import resource_filename
-from django.utils import timezone as dt
 from django.test import TestCase, TransactionTestCase
-from recommendation.models import Matrix, Item, User, Inventory, TensorCoFi
+from recommendation.models import Matrix, Item, User, Inventory
 if sys.version_info >= (3, 0):
     from functools import reduce
 
@@ -211,67 +207,3 @@ class TestUser(TestCase):
                 ivent = Inventory.objects.get(item=user.all_items[Item.get_item_by_external_id(i).pk], user=user)
                 ivent.is_dropped = False
                 ivent.save()
-
-
-class TestTensorCoFi(TestCase):
-    """
-    Test suite for the tensorCoFi implementation for this recommendation
-    """
-
-    @classmethod
-    def setup_class(cls, *args, **kwargs):
-        """
-        Put elements in db
-        """
-        cls.df = pd.read_csv(resource_filename(testfm.__name__, "data/movielenshead.dat"), sep="::", header=None,
-                             names=["user", "item", "rating", "date", "title"])
-        cls.df = cls.df.head(n=100)
-        for i, app in enumerate(ITEMS, start=1):
-            Item.objects.create(pk=(i*2), **app)
-        for i, u in enumerate(USERS, start=1):
-            user = User.objects.create(pk=(i*2), external_id=u["external_id"])
-            for item in u["items"]:
-                Inventory.objects.create(user=user, item=Item.get_item_by_external_id(item))
-
-    @classmethod
-    def teardown_class(cls, *args, **kwargs):
-        """
-        Take elements from db
-        """
-        Item.objects.all().delete()
-        User.objects.all().delete()
-        Inventory.objects.all().delete()
-        Matrix.objects.all().delete()
-        get_cache("default").clear()
-        get_cache("local").clear()
-
-    def test_fit(self):
-        """
-        [recommendation.models.TensorCoFi] Test size of matrix after tensorCoFi fit
-        """
-        tf = TensorCoFi(n_users=len(self.df.user.unique()), n_items=len(self.df.item.unique()), n_factors=2)
-        tf.fit(self.df)
-        #item and user are row vectors
-        self.assertEqual(len(self.df.user.unique()), tf.factors[0].shape[0])
-        self.assertEqual(len(self.df.item.unique()), tf.factors[1].shape[0])
-
-    def test_training(self):
-        """
-        [recommendation.models.TensorCoFi] Test train from database
-        """
-        try:
-            TensorCoFi.train_from_db()
-        except Exception:
-            assert False, "Training is not working for jumping ids"
-        TensorCoFi.load_to_cache()
-        t = TensorCoFi.get_model_from_cache()
-        for user in User.objects.all():
-            if len(user.owned_items) > 2:
-                assert isinstance(t.get_recommendation(user), np.ndarray), "Recommendation is not a numpy array"
-            else:
-                try:
-                    t.get_recommendation(user)
-                except KeyError:
-                    pass
-                else:
-                    assert False, "User with less than 3 items give a static recommendation"
