@@ -32,6 +32,8 @@ Contents
   filters
   rerankers
   rest_api
+  client
+  results
   changelog
 
 .. _Django: https://www.djangoproject.com/

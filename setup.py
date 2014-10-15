@@ -2,7 +2,7 @@
 #! -*- encoding: utf-8 -*-
 
 __author__ = "joaonrb"
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 
 try:
     import testfm
@@ -34,7 +34,7 @@ setup(
     license="copyright.txt",
     include_package_data=True,
     install_requires=[
-        "django==1.6.7",
+        "django",
         "pymysql",
         "django-cors-headers",
         "djangorestframework",
@@ -42,6 +42,7 @@ setup(
         #"django-uwsgi-cache",
         "uwsgi",
         "docopt",
+        "django-docopt-command",
         "click"
     ],
     long_description=README,

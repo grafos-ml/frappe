@@ -1,4 +1,14 @@
-### Minor fix fill (HEAD, master)
+### Added client documentation (HEAD, master)
+>Wed, 15 Oct 2014 14:52:32 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Minor fix fill (tag: v2.1.1, origin/master, origin/HEAD)
 >Tue, 14 Oct 2014 18:43:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Add Funcionality to client (tag: v2.1, origin/master, origin/inventory_upgrade, origin/develop, origin/HEAD, inventory_upgrade, develop)
+### Add Funcionality to client (tag: v2.1, origin/inventory_upgrade, origin/develop, inventory_upgrade, develop)
 >Tue, 14 Oct 2014 15:29:59 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
