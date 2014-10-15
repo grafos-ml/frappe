@@ -1,4 +1,4 @@
-.. frappe documentation master file
+.. _frappe_documentation_master_file
 
 Welcome to Frappe's documentation!
 ==================================

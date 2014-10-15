@@ -23,7 +23,7 @@ Options:
   -v --version           Show version.
 """
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 import urllib2
 from docopt import docopt
@@ -45,7 +45,7 @@ class NullDevice():
 class ServerBenchmarkScript(object):
 
     def __init__(self):
-        self.arguments = docopt(__doc__, version="Server Benchmark 1.0.1")
+        self.arguments = docopt(__doc__, version="Server Benchmark 1.0.2")
         if not self.arguments:
             exit(0)
         if self.arguments["--file"]:
@@ -88,7 +88,10 @@ class ServerBenchmarkScript(object):
             time=(datetime.now() - start).total_seconds() * 1000.,
         )
 
-    def __call__(self):
+    def __call__(self, url):
+        return self.get(url)
+
+    def run(self):
         if self.no_verbose:
             std_output = sys.stdout
             sys.stdout = NullDevice()
@@ -101,7 +104,7 @@ class ServerBenchmarkScript(object):
             get_url_sample = lambda x: sample(self.urls, x)
         else:
             get_url_sample = lambda x: self.urls[:x]
-        with ThreadPoolExecutor(max_workers=self.processes) as pool:
+        with ProcessPoolExecutor(max_workers=self.processes) as pool:
             tries = self.n
             data = []
             n = self.n / self.concurrency
@@ -113,7 +116,7 @@ class ServerBenchmarkScript(object):
                 for _ in bar:
                     tries -= self.concurrency
                     results = [
-                        pool.submit(self.get, url)
+                        pool.submit(self, url)
                         for url in get_url_sample(self.concurrency if tries > 0 else tries+self.concurrency)
                     ]
                     for future in results:
@@ -157,4 +160,4 @@ class ServerBenchmarkScript(object):
         print " Percentile 100%%(time)\t\t%.0f" % success.time.quantile(1.)
 
 if __name__ == "__main__":
-    ServerBenchmarkScript()()
+    ServerBenchmarkScript().run()

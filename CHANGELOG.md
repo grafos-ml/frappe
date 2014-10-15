@@ -1,4 +1,14 @@
-### Added client documentation (HEAD, master)
+### Minor sb script (HEAD, master)
+>Wed, 15 Oct 2014 15:26:44 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Added client documentation
 >Wed, 15 Oct 2014 14:52:32 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
