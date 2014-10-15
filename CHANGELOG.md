@@ -1,4 +1,14 @@
-### Minor sb script (HEAD, master)
+### Result documentation (HEAD, master)
+>Wed, 15 Oct 2014 16:09:07 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Minor sb script
 >Wed, 15 Oct 2014 15:26:44 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
