@@ -16,12 +16,20 @@ Options:
 
 import os
 import sys
-import subprocess
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "recommendation.default_settings")
+import django
+django.setup()
+from django.core.management import call_command
 from docopt import docopt
-from pkg_resources import resource_filename
 
-UNIT_OPTS = "tests/unit/ --with-doctest recommendation/util.py recommendation/core.py recommendation/models.py"
-INTEGRATION_OPTS = "tests/integration/"
+UNIT_OPTS = [
+    "tests/unit/",
+    "--with-doctest",
+    "recommendation/util.py",
+    "recommendation/core.py",
+    "recommendation/models.py"
+]
+INTEGRATION_OPTS = ["tests/integration/"]
 
 
 def main():
@@ -31,16 +39,13 @@ def main():
             opts["--all"] = True
         else:
             opts["--unit"] = True
-
+    sys.argv = sys.argv[:1]
     if opts["--unit"]:
-        command = "echo yes | %s" % resource_filename(__name__, "/../src/manage.py test -v2 --with-id %s" % UNIT_OPTS)
+        call_command(*(["test", "--verbosity=2", "--with-id"] + UNIT_OPTS))
     elif opts["--integration"]:
-        command = "echo yes | %s" % resource_filename(__name__, "/../src/manage.py test -v2 --with-id %s" %
-                                                      INTEGRATION_OPTS)
+        call_command(*(["test", "--verbosity=2", "--with-id"] + INTEGRATION_OPTS))
     else:
-        command = "echo yes | %s" % resource_filename(__name__, "/../src/manage.py test -v2 --with-id %s %s" %
-                                                     (INTEGRATION_OPTS, UNIT_OPTS))
-    exit(subprocess.call(command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, shell=True))
+        call_command(*(["test", "--verbosity=2", "--with-id"] + INTEGRATION_OPTS + UNIT_OPTS))
 
 
 if __name__ == "__main__":

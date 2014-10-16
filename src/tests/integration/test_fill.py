@@ -18,6 +18,8 @@ from django.core.cache import get_cache
 import recommendation
 from recommendation.management.commands import fill
 from recommendation.models import Item, User, Inventory
+from recommendation.language.models import Locale, ItemLocale, UserLocale
+from recommendation.diversity.models import ItemGenre, Genre
 
 
 PRODUCTION_SERVER = 'https://marketplace.cdn.mozilla.net/dumped-apps/tarballs/%Y-%m-%d.tgz'
@@ -44,6 +46,11 @@ class TestFill(TestCase):
 
     @classmethod
     def teardown(cls, *args, **kwargs):
+        ItemGenre.objects.all().delete()
+        Genre.objects.all().delete()
+        ItemLocale.objects.all().delete()
+        UserLocale.objects.all().delete()
+        Locale.objects.all().delete()
         # This for sqlite delete
         if connection.vendor == "sqlite":
             while Inventory.objects.all().count() != 0:

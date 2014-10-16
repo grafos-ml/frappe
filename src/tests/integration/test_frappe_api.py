@@ -18,6 +18,8 @@ from testfm.models.tensorcofi import PyTensorCoFi
 import recommendation
 from recommendation.management.commands import fill, modelcrafter
 from recommendation.models import Item, User, Inventory, Matrix, TensorCoFi, Popularity
+from recommendation.language.models import Locale, ItemLocale, UserLocale
+from recommendation.diversity.models import ItemGenre, Genre
 
 
 class TestRecommendation(TestCase):
@@ -52,6 +54,11 @@ class TestRecommendation(TestCase):
         """
         Take elements from db
         """
+        ItemGenre.objects.all().delete()
+        Genre.objects.all().delete()
+        ItemLocale.objects.all().delete()
+        UserLocale.objects.all().delete()
+        Locale.objects.all().delete()
         # This for sqlite delete
         if connection.vendor == "sqlite":
             while Inventory.objects.all().count() != 0:

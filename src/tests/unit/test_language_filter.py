@@ -70,6 +70,8 @@ class TestLanguageFilter(TestCase):
             for language in u["languages"]:
                 l = Locale.objects.get(country_code=language)
                 UserLocale.objects.create(locale=l, user=user)
+        Item.load_to_cache()
+        User.load_to_cache()
         Locale.load_to_cache()
 
     @classmethod

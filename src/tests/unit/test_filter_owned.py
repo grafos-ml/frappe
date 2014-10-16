@@ -7,7 +7,6 @@ __author__ = "joaonrb"
 import numpy as np
 import random
 from django.test import TestCase
-from django.utils import timezone as dt
 from django.core.cache import get_cache
 from recommendation.models import Item, User, Inventory
 from recommendation.filter_owned.filters import FilterOwned

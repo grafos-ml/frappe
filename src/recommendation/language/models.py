@@ -68,7 +68,6 @@ class Locale(models.Model):
     def load_to_cache():
         with click.progressbar(Locale.get_all_locales(), label="Loading locales to cache") as bar:
             for locale_id in bar:
-                Locale.get_item_locales(locale_id)
                 Locale.get_items_by_locale(locale_id)
 
         users = {}
