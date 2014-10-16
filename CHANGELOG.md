@@ -1,4 +1,14 @@
 ### Attempt to fix travis mysql (HEAD, master)
+>Thu, 16 Oct 2014 18:09:42 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Attempt to fix travis mysql (origin/master, origin/HEAD)
 >Thu, 16 Oct 2014 17:23:31 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Add siege result (origin/master, origin/HEAD)
+### Add siege result
 >Thu, 16 Oct 2014 15:46:40 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
