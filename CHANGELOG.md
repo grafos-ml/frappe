@@ -1,4 +1,14 @@
-### Result documentation (HEAD, master)
+### Fix sql in travis (HEAD, master)
+>Thu, 16 Oct 2014 11:56:12 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Result documentation (origin/master, origin/HEAD)
 >Wed, 15 Oct 2014 16:09:07 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -28,7 +38,7 @@
 
 
 
-### Minor fix fill (tag: v2.1.1, origin/master, origin/HEAD)
+### Minor fix fill (tag: v2.1.1)
 >Tue, 14 Oct 2014 18:43:47 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
