@@ -11,7 +11,8 @@ install:
 - pip install https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
 - pip install -r requirements.dev.txt
 before_script:
-- echo "[server]\nmax_allowed_packet=64M" | sudo tee -a /etc/mysql/my.cnf
+- echo "[server]" | sudo tee -a /etc/mysql/my.cnf
+- echo "max_allowed_packet=64M" | sudo tee -a /etc/mysql/my.cnf
 - sudo service mysql restart
 - mysql -e 'create database ffos_test;'
 - cd src
