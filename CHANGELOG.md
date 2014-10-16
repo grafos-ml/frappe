@@ -1,4 +1,14 @@
-### Fix sql in travis (HEAD, master)
+### Add siege result (HEAD, master)
+>Thu, 16 Oct 2014 15:46:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix sql in travis (origin/master, origin/HEAD)
 >Thu, 16 Oct 2014 11:56:12 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Result documentation (origin/master, origin/HEAD)
+### Result documentation
 >Wed, 15 Oct 2014 16:09:07 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
