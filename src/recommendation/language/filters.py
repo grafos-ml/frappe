@@ -5,7 +5,7 @@ The filters for the locale functionality
 __author__ = 'joaonrb'
 
 from itertools import chain
-from recommendation.language.models import Locale
+from recommendation.language.models import Locale, Region
 
 
 class SimpleLocaleFilter(object):
@@ -18,14 +18,6 @@ class SimpleLocaleFilter(object):
     def __call__(self, user, early_recommendation, size=None, **kwargs):
         """
         Call the filter
-
-        :param user: The user that want to know what he wants for apps.
-        :type user: recommendation.models.User
-        :param early_recommendation: A list with recommendation ids in order to be recommended (ranked).
-        :type early_recommendation: list.
-        :param size: The size of the recommendation asked
-        :return: A new set of recommendations ready to fill every item need for the user.
-        :rtype: A list of items ids(int).
         """
         unsupported_langs = Locale.get_user_locales(user.pk).symmetric_difference(Locale.get_all_locales())
         #print list(Locale.items_by_locale[l] for l in unsupported_langs)
@@ -35,3 +27,20 @@ class SimpleLocaleFilter(object):
                 early_recommendation[item-1] = float("-inf")
         return early_recommendation
 
+
+class SimpleRegionFilter(object):
+    """
+    A locale filter.
+    Fetch the locale of the user and put every item in the recommendation that is not from that locale to the end.
+    User can have multiple locales.
+    """
+
+    def __call__(self, user, early_recommendation, size=None, **kwargs):
+        """
+        Call the filter
+        """
+        user_locales = Region.get_user_regions(user.pk)
+        for item_id, score in enumerate(sum(Region.get_item_list_by_region(region)for region in user_locales), start=1):
+            if score == 0:
+                early_recommendation[item_id] = float("-inf")
+        return early_recommendation

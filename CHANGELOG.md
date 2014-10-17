@@ -1,4 +1,14 @@
-### Create region models (HEAD, develop)
+### Create region filter (HEAD, develop)
+>Fri, 17 Oct 2014 17:41:15 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Create region models
 >Fri, 17 Oct 2014 16:32:34 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -169,7 +169,7 @@ RECOMMENDATION_SETTINGS = {
         "core": "recommendation.core.TensorCoFiController",
         "filters": [] if TESTING_MODE else [
             "recommendation.filter_owned.filters.FilterOwned",
-            "recommendation.language.filters.SimpleLocaleFilter",
+            "recommendation.language.filters.SimpleRegionFilter",
             "recommendation.simple_logging.filters.SimpleLogFilter",
         ],
         "rerankers": [] if TESTING_MODE else [

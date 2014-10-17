@@ -8,6 +8,7 @@ __author__ = "joaonrb"
 import click
 from django.db import models
 from django.utils.translation import ugettext as _
+import numpy as np
 from recommendation.models import Item, User
 from recommendation.decorators import Cached
 
@@ -163,6 +164,44 @@ class Region(models.Model):
     @Cached(cache="local")
     def get_user_regions(user_id):
         return UserRegion.objects.filter(user_id=user_id).value_list()
+
+    @staticmethod
+    @Cached(cache="local")
+    def get_item_list_by_region(region_id):
+        items = np.zeros((Item.objects.aggregate(max=models.Max("pk"))["max"]))
+        for item in ItemRegion.objects.filter(region_id=region_id).values_list("item_id"):
+            items[item-1] = 1
+        return items
+
+    @staticmethod
+    def load_to_cache():
+        with click.progressbar(Region.objects.all(), label="Loading regions to cache") as bar:
+            for region in bar:
+                Region.get_regions.lock_this(
+                    Region.get_regions.cache.set
+                )(Region.get_regions.key % region.pk, region, Region.get_regions.timeout)
+        users = {}
+        with click.progressbar(UserRegion.objects.all().values_list("user_id", "region_id"),
+                               label="Loading user regions to cache") as bar:
+            for user_id, region_id in bar:
+                try:
+                    users[user_id].append(region_id)
+                except KeyError:
+                    users[user_id] = [region_id]
+            for user, regions in users.items():
+                Region.get_user_regions.lock_this(
+                    Region.get_user_regions.cache.set
+                )(Region.get_user_regions.key % user, regions, Region.get_user_regions.timeout)
+        items = np.zeros((Region.objects.aggregate(max=models.Max("pk"))["max"],
+                          Item.objects.aggregate(max=models.Max("pk"))["max"]))
+        with click.progressbar(ItemRegion.objects.all().values_list("item_id", "region_id"),
+                               label="Loading item regions to cache") as bar:
+            for item_id, region_id in bar:
+                items[region_id-1, item_id-1] = 1
+        for i in range(items.shape[0]):
+            Region.get_item_list_by_region.lock_this(
+                Region.get_item_list_by_region.cache.set
+            )(Region.get_item_list_by_region.key % (i+1), items[i, :], Region.get_item_list_by_region.timeout)
 
 
 class UserRegion(models.Model):
