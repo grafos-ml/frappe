@@ -6,6 +6,7 @@ django-nose
 coverage
 django-coverage
 django-debug-toolbar
+git+https://github.com/joerick/pyinstrument.git#egg=pyinstrument
 
 # for Documentation
 sphinx

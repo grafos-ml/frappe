@@ -1,4 +1,14 @@
-### Update results (HEAD, master)
+### Add PyInstrument (HEAD, master)
+>Fri, 17 Oct 2014 15:29:00 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Update results (origin/master, origin/HEAD)
 >Fri, 17 Oct 2014 12:14:12 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Prevent nose from destroying database (origin/master, origin/HEAD)
+### Prevent nose from destroying database
 >Fri, 17 Oct 2014 11:25:21 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
