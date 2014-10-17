@@ -57,15 +57,15 @@ _______
      $ siege -c60 -t1m -b -i -f frappe/mozzila/user_reco_url.txt
 
      Lifting the server siege...      done.
-     Transactions:		       31867 hits
+     Transactions:		       1513 hits
      Availability:		       100.00 %
-     Elapsed time:		       59.41 secs
-     Data transferred:	               4.47 MB
-     Response time:		       0.11 secs
-     Transaction rate:	               536.39 trans/sec
-     Throughput:		       0.08 MB/sec
-     Concurrency:		       59.90
-     Successful transactions:          31867
+     Elapsed time:		       59.08 secs
+     Data transferred:	               0.21 MB
+     Response time:		       0.16 secs
+     Transaction rate:	               25.61 trans/sec
+     Throughput:		       0.00 MB/sec
+     Concurrency:		       3.99
+     Successful transactions:          1513
      Failed transactions:	       0
-     Longest transaction:	       0.32
-     Shortest transaction:	       0.01
+     Longest transaction:	       0.35
+     Shortest transaction:	       0.11

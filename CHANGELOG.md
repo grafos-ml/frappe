@@ -1,4 +1,14 @@
-### Prevent nose from destroying database (HEAD, master)
+### Update results (HEAD, master)
+>Fri, 17 Oct 2014 12:14:12 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Prevent nose from destroying database (origin/master, origin/HEAD)
 >Fri, 17 Oct 2014 11:25:21 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Fix test script (origin/master, origin/HEAD)
+### Fix test script
 >Thu, 16 Oct 2014 21:55:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
