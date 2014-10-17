@@ -1,4 +1,14 @@
-### Fix test script (HEAD, master)
+### Prevent nose from destroying database (HEAD, master)
+>Fri, 17 Oct 2014 11:25:21 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix test script (origin/master, origin/HEAD)
 >Thu, 16 Oct 2014 21:55:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Attempt to fix travis mysql (origin/master, origin/HEAD)
+### Attempt to fix travis mysql
 >Thu, 16 Oct 2014 19:25:42 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

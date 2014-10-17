@@ -28,7 +28,7 @@ def get_coordinates(shape, n):
     return result
 
 
-class TestNPArrayField(TransactionTestCase):
+class TestNPArrayField(TestCase):
     """
     Test suite for NPArray field with dimension bigger than 1
 
@@ -48,6 +48,15 @@ class TestNPArrayField(TransactionTestCase):
         if cls.array_samples is None:
             cls.array_samples = \
                 [np.random.random(tuple(cls.MAX_ELEMENTS for _ in range(dim+1))).astype(np.float32) for dim in range(3)]
+
+    @classmethod
+    def teardown_class(cls, *args, **kwargs):
+        """
+        Take elements from db
+        """
+        Matrix.objects.all().delete()
+        get_cache("default").clear()
+        get_cache("local").clear()
 
     def test_input_array_field(self):
         """
@@ -103,7 +112,7 @@ USERS = [
 ]
 
 
-class TestItems(TransactionTestCase):
+class TestItems(TestCase):
     """
     Test the item models
 
@@ -125,6 +134,7 @@ class TestItems(TransactionTestCase):
         """
         Take elements from db
         """
+        Item.objects.all().delete()
         get_cache("default").clear()
         get_cache("local").clear()
 
