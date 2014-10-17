@@ -136,5 +136,73 @@ class UserLocale(models.Model):
     def __unicode__(self):
         return u"%s: %s" % (self.user, self.locale)
 
+
+class Region(models.Model):
+    """
+    Models for region
+    """
+
+    name = models.CharField(_("name"), max_length=255, unique=True)
+
+    class Meta:
+        verbose_name = _("region")
+        verbose_name_plural = _("regions")
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+    @staticmethod
+    @Cached(cache="local", timeout=60*60)
+    def get_regions(region_id):
+        return Region.objects.filter(pk=region_id)
+
+    @staticmethod
+    @Cached(cache="local")
+    def get_user_regions(user_id):
+        return UserRegion.objects.filter(user_id=user_id).value_list()
+
+
+class UserRegion(models.Model):
+    """
+    User regions
+    """
+
+    user = models.ForeignKey(User, _("user"), related_name="regions")
+    region = models.ForeignKey(Region, _("region"), related_name="users")
+
+    class Meta:
+        verbose_name = _("user region")
+        verbose_name_plural = _("user regions")
+        unique_together = ("user", "region")
+
+    def __str__(self):
+        return "%s for %s" % (self.region, self.user)
+
+    def __unicode__(self):
+        return u"%s for %s" % (self.region, self.user)
+
+
+class ItemRegion(models.Model):
+    """
+    User regions
+    """
+
+    item = models.ForeignKey(Item, _("item"), related_name="regions")
+    region = models.ForeignKey(Region, _("region"), related_name="items")
+
+    class Meta:
+        verbose_name = _("item region")
+        verbose_name_plural = _("item regions")
+        unique_together = ("item", "region")
+
+    def __str__(self):
+        return "%s for %s" % (self.region, self.user)
+
+    def __unicode__(self):
+        return u"%s for %s" % (self.region, self.user)
+
 from django.contrib import admin
-admin.site.register([Locale, ItemLocale, UserLocale])
+admin.site.register([Locale, ItemLocale, UserLocale, Region, ItemRegion, UserRegion])

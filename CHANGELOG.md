@@ -1,4 +1,14 @@
-### Add PyInstrument (HEAD, master)
+### Create region models (HEAD, develop)
+>Fri, 17 Oct 2014 16:32:34 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add PyInstrument (origin/master, origin/HEAD, master)
 >Fri, 17 Oct 2014 15:29:00 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Update results (origin/master, origin/HEAD)
+### Update results
 >Fri, 17 Oct 2014 12:14:12 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -128,7 +138,7 @@
 
 
 
-### Add Funcionality to client (tag: v2.1, origin/inventory_upgrade, origin/develop, inventory_upgrade, develop)
+### Add Funcionality to client (tag: v2.1, origin/inventory_upgrade, origin/develop)
 >Tue, 14 Oct 2014 15:29:59 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -348,7 +358,7 @@
 
 
 
-### ... (origin/feature_cache_decorator, feature_cache_decorator)
+### ... (origin/feature_cache_decorator)
 >Wed, 1 Oct 2014 20:15:46 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
