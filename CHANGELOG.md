@@ -1,4 +1,14 @@
-### Region fix models (HEAD, develop)
+### Region filter np.array.sum (HEAD, develop)
+>Mon, 20 Oct 2014 16:29:00 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Region fix models (origin/develop)
 >Mon, 20 Oct 2014 16:02:23 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Region filter change sum ro np.sum (origin/develop)
+### Region filter change sum ro np.sum
 >Mon, 20 Oct 2014 15:37:22 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
