@@ -4,6 +4,7 @@ The filters for the locale functionality
 """
 __author__ = 'joaonrb'
 
+import numpy as np
 from itertools import chain
 from recommendation.language.models import Locale, Region
 
@@ -41,7 +42,7 @@ class SimpleRegionFilter(object):
         """
         user_regions = [Region.get_item_list_by_region(region) for region in Region.get_user_regions(user.pk)]
         if len(user_regions) > 0:
-            for item_id, score in enumerate(sum(user_regions), start=1):
+            for item_id, score in enumerate(np.sum(user_regions), start=1):
                 if score == 0:
                     early_recommendation[item_id] = float("-inf")
         return early_recommendation

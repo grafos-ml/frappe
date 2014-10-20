@@ -74,7 +74,6 @@ MIDDLEWARE_CLASSES = (
     #"django.middleware.cache.FetchFromCacheMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ) if DEBUG else (
-    "pyinstrument.middleware.ProfilerMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
 )
