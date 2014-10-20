@@ -1,5 +1,5 @@
-### Region filter np.array.sum (HEAD, develop)
->Mon, 20 Oct 2014 16:36:40 +0200
+### Region filter np.sum(axis=0) (HEAD, develop)
+>Mon, 20 Oct 2014 16:45:05 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
 
@@ -9,6 +9,16 @@
 
 
 ### Region filter np.array.sum (origin/develop)
+>Mon, 20 Oct 2014 16:36:40 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Region filter np.array.sum
 >Mon, 20 Oct 2014 16:29:00 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
