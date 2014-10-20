@@ -521,14 +521,13 @@ class FillTool(object):
         user_regions = {}
         db_regions = {region.slug: region.pk for region in Region.objects.all()}
         with click.progressbar(regions.items(), label="Load user regions inventory") as bar:
-            for region, users_ei in bar:
+            for region, ueis in bar:
                 try:
                     region_id = db_regions[region]
                 except KeyError:
                     pass
                 else:
-                    region_query = region_query | Q(region_id=region_id,
-                                                    user_id__in=map(lambda x: users[x].pk, users_ei))
+                    region_query = region_query | Q(region_id=region_id, user_id__in=map(lambda x: users[x].pk, ueis))
                     user_regions[region_id] = {
                         user_id: UserRegion(user_id=user_id, region_id=region_id)
                         for user_id in users
@@ -542,13 +541,13 @@ class FillTool(object):
         user_locales = {}
         db_locales = {str(locale): locale.pk for locale in Locale.objects.all()}
         with click.progressbar(langs.items(), label="Load user locales inventory") as bar:
-            for locale, users in bar:
+            for locale, ueis in bar:
                 try:
                     locale_id = db_locales[locale]
                 except KeyError:
                     pass
                 else:
-                    locale_query = locale_query | Q(locale_id=locale_id, user_id__in=users)
+                    locale_query = locale_query | Q(locale_id=locale_id, user_id__in=map(lambda x: users[x].pk, ueis))
                     user_locales[locale_id] = {
                         user_id: UserLocale(user_id=user_id, locale_id=locale_id)
                         for user_id in users
