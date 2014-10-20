@@ -39,8 +39,9 @@ class SimpleRegionFilter(object):
         """
         Call the filter
         """
-        user_locales = Region.get_user_regions(user.pk)
-        for item_id, score in enumerate(sum(Region.get_item_list_by_region(region)for region in user_locales), start=1):
-            if score == 0:
-                early_recommendation[item_id] = float("-inf")
+        user_regions = [Region.get_item_list_by_region(region) for region in Region.get_user_regions(user.pk)]
+        if len(user_regions) > 0:
+            for item_id, score in enumerate(sum(user_regions), start=1):
+                if score == 0:
+                    early_recommendation[item_id] = float("-inf")
         return early_recommendation

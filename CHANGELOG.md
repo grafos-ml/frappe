@@ -1,4 +1,14 @@
-### Fix region model loader (HEAD, develop)
+### Fix region filter (HEAD, develop)
+>Mon, 20 Oct 2014 13:15:12 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix region model loader (origin/develop)
 >Mon, 20 Oct 2014 12:59:25 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Fix fill user locale (origin/develop)
+### Fix fill user locale
 >Mon, 20 Oct 2014 12:46:49 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -166,7 +166,7 @@ class Region(models.Model):
     @staticmethod
     @Cached(cache="local")
     def get_user_regions(user_id):
-        return [region_id for region_id, in UserRegion.objects.filter(user_id=user_id).values_list("region")]
+        return [region_id for region_id, in UserRegion.objects.filter(user_id=user_id).values_list("region_id")]
 
     @staticmethod
     @Cached(cache="local")
