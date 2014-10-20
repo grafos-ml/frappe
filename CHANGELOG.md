@@ -1,5 +1,5 @@
 ### Fix fill user locale (HEAD, develop)
->Mon, 20 Oct 2014 12:30:31 +0200
+>Mon, 20 Oct 2014 12:46:49 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
 
@@ -9,6 +9,16 @@
 
 
 ### Fix fill user locale (origin/develop)
+>Mon, 20 Oct 2014 12:30:31 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix fill user locale
 >Mon, 20 Oct 2014 12:23:52 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
