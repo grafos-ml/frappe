@@ -42,7 +42,7 @@ class SimpleRegionFilter(object):
         """
         user_regions = tuple([Region.get_item_list_by_region(region) for region in Region.get_user_regions(user.pk)])
         if len(user_regions) > 0:
-            for item_id, score in enumerate(np.ndarray.sum(user_regions), start=1):
+            for item_id, score in enumerate(np.ndarray.sum(*user_regions), start=1):
                 if score == 0:
                     early_recommendation[item_id] = float("-inf")
         return early_recommendation
