@@ -1,4 +1,14 @@
-### User fill regions (HEAD, develop)
+### version (HEAD, develop)
+>Mon, 20 Oct 2014 12:06:25 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### User fill regions (origin/develop)
 >Mon, 20 Oct 2014 12:02:16 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -178,7 +188,7 @@
 
 
 
-### Add Funcionality to client (tag: v2.1, origin/inventory_upgrade, origin/develop)
+### Add Funcionality to client (tag: v2.1, origin/inventory_upgrade)
 >Tue, 14 Oct 2014 15:29:59 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
