@@ -144,6 +144,9 @@ class Region(models.Model):
     """
 
     name = models.CharField(_("name"), max_length=255, unique=True)
+    slug = models.CharField(_("slug"), max_length=10, unique=True)
+    items = models.ManyToManyField(Item, verbose_name=_("items"), through="ItemRegion", blank=True, null=True)
+    users = models.ManyToManyField(User, verbose_name=_("users"), through="UserRegion", blank=True, null=True)
 
     class Meta:
         verbose_name = _("region")
@@ -209,8 +212,8 @@ class UserRegion(models.Model):
     User regions
     """
 
-    user = models.ForeignKey(User, _("user"), related_name="regions")
-    region = models.ForeignKey(Region, _("region"), related_name="users")
+    user = models.ForeignKey(User, verbose_name=_("user"))
+    region = models.ForeignKey(Region, verbose_name=_("region"))
 
     class Meta:
         verbose_name = _("user region")
@@ -229,8 +232,8 @@ class ItemRegion(models.Model):
     User regions
     """
 
-    item = models.ForeignKey(Item, _("item"), related_name="regions")
-    region = models.ForeignKey(Region, _("region"), related_name="items")
+    item = models.ForeignKey(Item, verbose_name=_("item"))
+    region = models.ForeignKey(Region, verbose_name=_("region"))
 
     class Meta:
         verbose_name = _("item region")

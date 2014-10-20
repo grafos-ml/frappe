@@ -45,7 +45,7 @@ from django_docopt_command import DocOptCommand
 from django.conf import settings
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre, ItemGenre
-from recommendation.language.models import Locale, ItemLocale
+from recommendation.language.models import Locale, ItemLocale, Region, ItemRegion
 from recommendation.default_settings import TESTING_MODE
 
 
@@ -205,6 +205,7 @@ class FillTool(object):
         new_items = {}
         categories = set([])
         locales = set([])
+        regions = set([])
         for item_eid, json_item in json_items.items():
             if item_eid not in items:
                 try:
@@ -229,6 +230,8 @@ class FillTool(object):
                 locales.add(json_locales)
             else:
                 locales = locales.union(json_locales)
+            json_regions = json_item.get("regions", None) or ()
+            regions = regions.union((region["name"], region["slug"]) for region in json_regions)
         #logging.debug("Items ready to be saved")
         Item.objects.bulk_create(new_items.values())
         #logging.debug("%d new items saved with bulk_create" % len(new_items))
@@ -247,7 +250,9 @@ class FillTool(object):
         if "recommendation.language" in settings.INSTALLED_APPS and not TESTING_MODE:
             #logging.debug("Preparing languages")
             db_locales = self.get_locales(locales)
+            db_regions = self.get_regions(regions)
             self.fill_item_locale(objects, items, db_locales)
+            self.fill_item_region(objects, items, db_regions)
             #logging.debug("Locales loaded")
 
     @staticmethod
@@ -268,6 +273,25 @@ class FillTool(object):
             for genre in Genre.objects.filter(name__in=new_genres):
                 genres[genre.name] = genre
         return genres
+
+    @staticmethod
+    def get_regions(region_names):
+        """
+        Get regions from database and create the ones that don't exist.
+        :param region_names:
+        :return: A dict with regions mapped to their name
+        """
+        regions = {region.name: region for region in Region.objects.filter(name__in=map(lambda x: x[0], region_names))}
+        if len(regions) != len(region_names):
+            new_regions = {}
+            for region_name, region_slug in region_names:
+                if region_name not in regions:
+                    new_regions[region_name] = Region(name=region_name, slug=region_slug)
+
+            Region.objects.bulk_create(new_regions.values())
+            for region in Region.objects.filter(name__in=new_regions):
+                regions[region.name] = region
+        return regions
 
     @staticmethod
     def get_locales(locales_names):
@@ -347,6 +371,28 @@ class FillTool(object):
             for item_locale in ItemLocale.objects.filter(query_item_locales):
                 del item_locales[item_locale.locale_id, item_locale.item_id]
         ItemLocale.objects.bulk_create(item_locales.values())
+
+    def fill_item_region(self, objects, items, regions):
+        """
+        Fill item locales connection
+        :param items:
+        :param locales:
+        :return:
+        """
+        query_item_regions = Q()
+        item_regions = {}
+        for json_item in objects:
+            json_regions = map(lambda x: x["name"], json_item.get("regions", None) or ())
+            for region in json_regions:
+                if region in regions:
+                    query_item_regions = query_item_regions | Q(region_id=regions[region].pk,
+                                                                item_id=items[json_item[self.item_field]].pk)
+                    item_regions[regions[region].pk, items[json_item[self.item_field]].pk] = \
+                        ItemRegion(region=regions[region], item=items[json_item[self.item_field]])
+        if len(query_item_regions) > 0:
+            for item_region in ItemRegion.objects.filter(query_item_regions):
+                del item_regions[item_region.region_id, item_region.item_id]
+        ItemRegion.objects.bulk_create(item_regions.values())
 
     def clean_tmp(self):
         """

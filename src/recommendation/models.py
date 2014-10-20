@@ -101,8 +101,9 @@ class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
         :param value: Matrix to keep in database
         :return: Base64 representation string encoded in utf-8
         """
-        return ":".join([str(len(value.shape)), ":".join(map(lambda x: str(x), value.shape)),
-                         base64.b64encode(value.tostring())])
+        if value:
+            return ":".join([str(len(value.shape)), ":".join(map(lambda x: str(x), value.shape)),
+                            base64.b64encode(value.tostring())])
 
 
 class Item(models.Model):
