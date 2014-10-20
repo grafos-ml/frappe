@@ -47,7 +47,7 @@ from django_docopt_command import DocOptCommand
 from django.conf import settings
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre, ItemGenre
-from recommendation.language.models import Locale, ItemLocale, Region, ItemRegion
+from recommendation.language.models import Locale, ItemLocale, Region, ItemRegion, UserRegion, UserLocale
 from recommendation.default_settings import TESTING_MODE
 
 
@@ -422,6 +422,8 @@ class FillTool(object):
         size = 0
         user_items = {}
         json_users = []
+        regions = {}
+        langs = {}
         with click.progressbar(objects, label="Loading users to memory") as bar:
             for obj in bar:
                 if self.user_file_identifier_field in obj:
@@ -435,7 +437,19 @@ class FillTool(object):
                             user_items[item_id] = [user_item]
                     size += 1
                     json_users.append(user_id)
+                    if "region" in obj:
+                        try:
+                            regions[obj["region"]].append(user_id)
+                        except KeyError:
+                            regions[obj["region"]] = [user_id]
+                    if "lang" in obj:
+                        try:
+                            langs[obj["lang"]].append(user_id)
+                        except KeyError:
+                            langs[obj["lang"]] = [user_id]
         logging.debug("Done!")
+        if "recommendation.language" in settings.INSTALLED_APPS and not TESTING_MODE:
+            self.fill_user_locale(regions, langs)
         users = {user.external_id: user for user in User.objects.filter(external_id__in=json_users)}
         new_users = {}
         for user_eid in json_users:
@@ -500,6 +514,51 @@ class FillTool(object):
             if len(to_delete) > 0:
                 Inventory.objects.filter(to_delete).delete()
         Inventory.objects.bulk_create(inventory.values())
+
+    @staticmethod
+    def fill_user_locale(regions, langs):
+        region_query = Q()
+        user_regions = {}
+        db_regions = {region.slug: region.pk for region in Region.objects.all()}
+        with click.progressbar(regions.items(), label="Load user regions inventory") as bar:
+            for region, users in bar:
+                try:
+                    region_id = db_regions[region]
+                except KeyError:
+                    pass
+                else:
+                    region_query = region_query | Q(region_id=region_id, user_id__in=users)
+                    user_regions[region_id] = {
+                        user_id: UserRegion(user_id=user_id, region_id=region_id)
+                        for user_id in users
+                    }
+        if len(region_query) > 0:
+            for ur in UserRegion.objects.filter(region_query):
+                del user_regions[ur.region_id][ur.user_id]
+        UserRegion.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_regions.values())))
+
+        locale_query = Q()
+        user_locales = {}
+        db_locales = {str(locale): locale.pk for locale in Locale.objects.all()}
+        with click.progressbar(langs.items(), label="Load user locales inventory") as bar:
+            for locale, users in bar:
+                try:
+                    locale_id = db_locales[locale]
+                except KeyError:
+                    pass
+                else:
+                    locale_query = locale_query | Q(locale_id=locale_id, user_id__in=users)
+                    user_locales[locale_id] = {
+                        user_id: UserLocale(user_id=user_id, locale_id=locale_id)
+                        for user_id in users
+                    }
+
+        if len(locale_query) > 0:
+            for ur in UserLocale.objects.filter(locale_query):
+                del user_locales[ur.locale_id][ur.user_id]
+        UserLocale.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_locales.values())))
+
+
 
 
 class Command(DocOptCommand):

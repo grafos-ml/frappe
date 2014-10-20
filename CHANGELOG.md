@@ -1,4 +1,14 @@
-### Improved regions fill (HEAD, develop)
+### User fill regions (HEAD, develop)
+>Mon, 20 Oct 2014 12:02:16 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Improved regions fill
 >Mon, 20 Oct 2014 11:25:07 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
