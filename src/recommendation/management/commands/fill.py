@@ -448,8 +448,6 @@ class FillTool(object):
                         except KeyError:
                             langs[obj["lang"]] = [user_id]
         logging.debug("Done!")
-        if "recommendation.language" in settings.INSTALLED_APPS and not TESTING_MODE:
-            self.fill_user_locale(regions, langs)
         users = {user.external_id: user for user in User.objects.filter(external_id__in=json_users)}
         new_users = {}
         for user_eid in json_users:
@@ -464,6 +462,8 @@ class FillTool(object):
         assert len(users) == size, \
             "Size of loaded objects and users in db is not the same (%d != %d)" % (len(users), size)
 
+        if "recommendation.language" in settings.INSTALLED_APPS and not TESTING_MODE:
+            self.fill_user_locale(users, regions, langs)
         #logging.debug("%d new users saved with bulk_create" % len(new_users))
 
         #logging.debug("Preparing items")
@@ -516,18 +516,19 @@ class FillTool(object):
         Inventory.objects.bulk_create(inventory.values())
 
     @staticmethod
-    def fill_user_locale(regions, langs):
+    def fill_user_locale(users, regions, langs):
         region_query = Q()
         user_regions = {}
         db_regions = {region.slug: region.pk for region in Region.objects.all()}
         with click.progressbar(regions.items(), label="Load user regions inventory") as bar:
-            for region, users in bar:
+            for region, users_ei in bar:
                 try:
                     region_id = db_regions[region]
                 except KeyError:
                     pass
                 else:
-                    region_query = region_query | Q(region_id=region_id, user_id__in=users)
+                    region_query = region_query | Q(region_id=region_id,
+                                                    user_id__in=map(lambda x: users[x].pk, users_ei))
                     user_regions[region_id] = {
                         user_id: UserRegion(user_id=user_id, region_id=region_id)
                         for user_id in users

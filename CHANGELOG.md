@@ -1,4 +1,14 @@
-### version (HEAD, develop)
+### Fx on fill for users (HEAD, develop)
+>Mon, 20 Oct 2014 12:15:46 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### version (origin/develop)
 >Mon, 20 Oct 2014 12:06:25 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### User fill regions (origin/develop)
+### User fill regions
 >Mon, 20 Oct 2014 12:02:16 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
