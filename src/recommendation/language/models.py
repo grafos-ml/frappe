@@ -172,7 +172,7 @@ class Region(models.Model):
     @Cached(cache="local")
     def get_item_list_by_region(region_id):
         items = np.zeros((Item.objects.aggregate(max=models.Max("pk"))["max"]))
-        for item in ItemRegion.objects.filter(region_id=region_id).values_list("item_id"):
+        for item, in ItemRegion.objects.filter(region_id=region_id).values_list("item_id"):
             items[item-1] = 1
         return items
 
