@@ -529,8 +529,8 @@ class FillTool(object):
                 else:
                     region_query = region_query | Q(region_id=region_id, user_id__in=map(lambda x: users[x].pk, ueis))
                     user_regions[region_id] = {
-                        user_id: UserRegion(user_id=user_id, region_id=region_id)
-                        for user_id in users
+                        users[user_eid]: UserRegion(user_id=users[user_eid], region_id=region_id)
+                        for user_eid in ueis
                     }
         if len(region_query) > 0:
             for ur in UserRegion.objects.filter(region_query):
@@ -549,8 +549,8 @@ class FillTool(object):
                 else:
                     locale_query = locale_query | Q(locale_id=locale_id, user_id__in=map(lambda x: users[x].pk, ueis))
                     user_locales[locale_id] = {
-                        user_id: UserLocale(user_id=user_id, locale_id=locale_id)
-                        for user_id in users
+                        users[user_eid]: UserLocale(user_id=users[user_eid], locale_id=locale_id)
+                        for user_eid in ueis
                     }
 
         if len(locale_query) > 0:
