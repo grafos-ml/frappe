@@ -241,10 +241,10 @@ class ItemRegion(models.Model):
         unique_together = ("item", "region")
 
     def __str__(self):
-        return "%s for %s" % (self.region, self.user)
+        return "%s for %s" % (self.region, self.item)
 
     def __unicode__(self):
-        return u"%s for %s" % (self.region, self.user)
+        return u"%s for %s" % (self.region, self.item)
 
 from django.contrib import admin
 admin.site.register([Locale, ItemLocale, UserLocale, Region, ItemRegion, UserRegion])

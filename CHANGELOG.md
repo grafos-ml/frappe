@@ -1,4 +1,14 @@
-### First draft of fill regions for items(take to long) (HEAD, develop)
+### Improved regions fill (HEAD, develop)
+>Mon, 20 Oct 2014 11:25:07 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### First draft of fill regions for items(take to long)
 >Mon, 20 Oct 2014 10:34:06 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
