@@ -1,4 +1,14 @@
-### Region filter np.sum(axis=0) (HEAD, develop)
+### Fix mapping in filter (HEAD, develop)
+>Mon, 20 Oct 2014 17:18:02 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Region filter np.sum(axis=0) (origin/develop)
 >Mon, 20 Oct 2014 16:45:05 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Region filter np.array.sum (origin/develop)
+### Region filter np.array.sum
 >Mon, 20 Oct 2014 16:36:40 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
