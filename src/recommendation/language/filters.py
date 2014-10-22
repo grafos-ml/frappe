@@ -44,5 +44,8 @@ class SimpleRegionFilter(object):
         if len(user_regions) > 0:
             for item_id, score in enumerate(np.sum(user_regions, axis=0), start=1):
                 if score == 0:
-                    early_recommendation[item_id-1] = float("-inf")
+                    try:
+                        early_recommendation[item_id-1] = float("-inf")
+                    except IndexError:
+                        pass
         return early_recommendation

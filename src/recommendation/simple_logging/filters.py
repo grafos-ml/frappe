@@ -26,16 +26,16 @@ class SimpleLogFilter(object):
 
     """
     points = (
-        lambda x: (x.value-5)/2.,  # LogEntry.RECOMMEND
-        lambda x: 0,  # LogEntry.CLICK_RECOMMENDED
-        lambda x: 0,  # LogEntry.INSTALL
-        lambda x: -10,  # LogEntry.REMOVE
-        lambda x: 3,  # LogEntry.CLICK
+        lambda x, n: (x.value-n)/2.,  # LogEntry.RECOMMEND
+        lambda x, n: 0,  # LogEntry.CLICK_RECOMMENDED
+        lambda x, n: 0,  # LogEntry.INSTALL
+        lambda x, n: -10,  # LogEntry.REMOVE
+        lambda x, n: 3,  # LogEntry.CLICK
     )
 
     @staticmethod
-    def evaluate(log):
-        return SimpleLogFilter.points[log.type](log)
+    def evaluate(log, n):
+        return SimpleLogFilter.points[log.type](log, n)
 
     def __call__(self, user, recommendation, size=4, **kwargs):
         """
@@ -46,7 +46,10 @@ class SimpleLogFilter(object):
         #print m
         #rec = {v: k for k, v in enumerate(recommendation, start=1)}
         for log in logs:
-            recommendation[log.item_id-1] += (self.evaluate(log) * 0.01)
+            try:
+                recommendation[log.item_id-1] += (self.evaluate(log, size) * 0.01)
+            except IndexError:
+                pass
         return recommendation
 
 

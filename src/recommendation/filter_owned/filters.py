@@ -22,5 +22,8 @@ class FilterOwned(object):
         :return:
         """
         for item in user.owned_items.values():
-            recommendation[item.pk-1] = float("-inf")
+            try:
+                recommendation[item.pk-1] = float("-inf")
+            except IndexError:
+                pass
         return recommendation

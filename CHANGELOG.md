@@ -1,4 +1,14 @@
-### Update results in doc (HEAD, master)
+### Fix new items in filters and rerankers. (HEAD, master)
+>Wed, 22 Oct 2014 15:40:39 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Update results in doc (origin/master, origin/HEAD)
 >Wed, 22 Oct 2014 12:41:24 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -218,7 +228,7 @@
 
 
 
-### Add PyInstrument (origin/master, origin/HEAD)
+### Add PyInstrument
 >Fri, 17 Oct 2014 15:29:00 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
