@@ -54,18 +54,11 @@ _______
      Percentile 99%(time)		134 ms
      Percentile 100%(time)		219 ms
 
-     $ siege -c60 -t1m -b -i -f frappe/mozzila/user_reco_url.txt
+     $ siege [-c4 -c8 -c16 -c32 -c64] -t1m -b -i -f frappe/mozzila/user_reco_url.txt
 
-     Lifting the server siege...      done.
-     Transactions:		       1513 hits
-     Availability:		       100.00 %
-     Elapsed time:		       59.08 secs
-     Data transferred:	               0.21 MB
-     Response time:		       0.16 secs
-     Transaction rate:	               25.61 trans/sec
-     Throughput:		       0.00 MB/sec
-     Concurrency:		       3.99
-     Successful transactions:          1513
-     Failed transactions:	       0
-     Longest transaction:	       0.35
-     Shortest transaction:	       0.11
+            Date & Time,  Trans,  Elap Time,  Data Trans,  Resp Time,  Trans Rate,  Throughput,  Concurrent,    OKAY,   Failed
+    2014-10-21 06:02:29,   2343,      29.24,           0,       0.05,       80.13,        0.00,        4.00,    2343,       0
+    2014-10-21 06:03:25,   2087,      29.35,           0,       0.11,       71.11,        0.00,        7.98,    2087,       0
+    2014-10-21 06:04:42,   2388,      29.90,           0,       0.20,       79.87,        0.00,       15.93,    2388,       0
+    2014-10-21 06:00:36,   2321,      29.70,           0,       0.41,       78.15,        0.00,       31.77,    2321,       0
+    2014-10-21 06:07:32,   2286,      29.08,           0,       0.80,       78.61,        0.00,       63.03,    2286,       0

@@ -1,4 +1,14 @@
-### Test suit for regions (HEAD, develop)
+### Update results in doc (HEAD, master)
+>Wed, 22 Oct 2014 12:41:24 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Test suit for regions (origin/develop, develop)
 >Wed, 22 Oct 2014 12:30:37 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Fix mapping in filter (origin/develop)
+### Fix mapping in filter
 >Mon, 20 Oct 2014 17:18:02 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -208,7 +218,7 @@
 
 
 
-### Add PyInstrument (origin/master, origin/HEAD, master)
+### Add PyInstrument (origin/master, origin/HEAD)
 >Fri, 17 Oct 2014 15:29:00 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
