@@ -18,7 +18,7 @@ from testfm.models.tensorcofi import PyTensorCoFi
 import recommendation
 from recommendation.management.commands import fill, modelcrafter
 from recommendation.models import Item, User, Inventory, Matrix, TensorCoFi, Popularity
-from recommendation.language.models import Locale, ItemLocale, UserLocale
+from recommendation.language.models import Locale, ItemLocale, UserLocale, Region, UserRegion, ItemRegion
 from recommendation.diversity.models import ItemGenre, Genre
 
 
@@ -54,6 +54,9 @@ class TestRecommendation(TestCase):
         """
         Take elements from db
         """
+        ItemRegion.objects.all().delete()
+        UserRegion.objects.all().delete()
+        Region.objects.all().delete()
         ItemGenre.objects.all().delete()
         Genre.objects.all().delete()
         ItemLocale.objects.all().delete()

@@ -18,7 +18,7 @@ from django.core.cache import get_cache
 import recommendation
 from recommendation.management.commands import fill
 from recommendation.models import Item, User, Inventory
-from recommendation.language.models import Locale, ItemLocale, UserLocale
+from recommendation.language.models import Locale, ItemLocale, UserLocale, Region, ItemRegion, UserRegion
 from recommendation.diversity.models import ItemGenre, Genre
 
 
@@ -46,6 +46,9 @@ class TestFill(TestCase):
 
     @classmethod
     def teardown(cls, *args, **kwargs):
+        ItemRegion.objects.all().delete()
+        UserRegion.objects.all().delete()
+        Region.objects.all().delete()
         ItemGenre.objects.all().delete()
         Genre.objects.all().delete()
         ItemLocale.objects.all().delete()

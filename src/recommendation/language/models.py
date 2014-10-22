@@ -212,7 +212,7 @@ class UserRegion(models.Model):
     User regions
     """
 
-    user = models.ForeignKey(User, verbose_name=_("user"))
+    user = models.ForeignKey(User, verbose_name=_("user"), related_name="regions")
     region = models.ForeignKey(Region, verbose_name=_("region"))
 
     class Meta:
@@ -232,7 +232,7 @@ class ItemRegion(models.Model):
     User regions
     """
 
-    item = models.ForeignKey(Item, verbose_name=_("item"))
+    item = models.ForeignKey(Item, verbose_name=_("item"), related_name="regions")
     region = models.ForeignKey(Region, verbose_name=_("region"))
 
     class Meta:

@@ -93,7 +93,9 @@ DATABASES = {
         "NAME": "ffos",
         "USER": "root",
         "PASSWORD": os.environ.get("FRAPPE_PASSWORD", ""),
-        "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost")
+        "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost"),
+        "TEST_CHARSET": "utf8",
+        "TEST_COLLATION": "utf8_general_ci",
     }
 }
 

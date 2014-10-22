@@ -1,4 +1,14 @@
-### Fix mapping in filter (HEAD, develop)
+### Test suit for regions (HEAD, develop)
+>Wed, 22 Oct 2014 12:30:37 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix mapping in filter (origin/develop)
 >Mon, 20 Oct 2014 17:18:02 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Region filter np.sum(axis=0) (origin/develop)
+### Region filter np.sum(axis=0)
 >Mon, 20 Oct 2014 16:45:05 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

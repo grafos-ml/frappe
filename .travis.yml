@@ -14,7 +14,7 @@ before_script:
 - echo "[mysqld]" | sudo tee -a /etc/mysql/my.cnf
 - echo "max_allowed_packet=512M" | sudo tee -a /etc/mysql/my.cnf
 - sudo service mysql restart
-- mysql -e 'create database ffos_test;'
+- mysql -e 'CREATE DATABASE ffos_test CHARACTER SET utf8 COLLATE utf8_general_ci;'
 - cd src
 - ls -l
 script:
