@@ -26,8 +26,6 @@ DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
-TESTING_MODE = "test" in sys.argv
-
 MAX_THREADS = 2
 RESPONSE_TIMEOUT = 200./1000.
 
@@ -53,7 +51,7 @@ INSTALLED_APPS = ([
     "recommendation.diversity"
 ]
 
-if TESTING_MODE:
+if int(os.environ.get("FRAPPE_TEST", 0)):
     INSTALLED_APPS += [
         "django_nose",
         #"debug_toolbar",
@@ -75,7 +73,7 @@ MIDDLEWARE_CLASSES = (
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ) if DEBUG else (
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    #"django.middleware.common.CommonMiddleware",
 )
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -168,12 +166,13 @@ CACHES = {
 RECOMMENDATION_SETTINGS = {
     "default": {
         "core": "recommendation.core.TensorCoFiController",
-        "filters": [] if TESTING_MODE else [
+        "filters": [
+            "recommendation.filter_none.filters.FilterNoneItems",
             "recommendation.filter_owned.filters.FilterOwned",
             "recommendation.language.filters.SimpleRegionFilter",
             "recommendation.simple_logging.filters.SimpleLogFilter",
         ],
-        "rerankers": [] if TESTING_MODE else [
+        "rerankers": [
             "recommendation.diversity.rerankers.SimpleDiversityReRanker"
         ]
     },

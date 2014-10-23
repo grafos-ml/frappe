@@ -180,7 +180,7 @@ class IController(object):
             result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
-        result = [aid+1 for aid, _ in sorted(enumerate(result), key=lambda x: x[1], reverse=True)]
+        result = [aid for aid, _ in sorted(enumerate(result, start=1), key=lambda x: x[1], reverse=True)]
         for r in self.rerankers:
             result = r(user, result, size=n)
         return result[:n]

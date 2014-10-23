@@ -1,4 +1,14 @@
-### Fix new items in filters and rerankers. (HEAD, master)
+### None items filter (HEAD, master)
+>Thu, 23 Oct 2014 16:17:11 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix new items in filters and rerankers.
 >Wed, 22 Oct 2014 15:40:39 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

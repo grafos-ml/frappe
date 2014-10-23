@@ -2,6 +2,7 @@
 
 __author__ = "joaonrb"
 
+import os
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from django.conf import settings
 from django.core.cache import get_cache
@@ -120,8 +121,9 @@ class ContingencyProtocol(object):
     """
     def __init__(self):
         self.__name__ = "ContingencyProtocol"
+        self.decorator = self.no_contingency if int(os.environ.get("FRAPPE_TEST", 0)) else self.with_contingency
 
-    def __call__(self, function):
+    def with_contingency(self, function):
         """
         The call of the view.
         """
@@ -136,6 +138,21 @@ class ContingencyProtocol(object):
                 result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
             return result
         return decorated
+
+    def no_contingency(self, function):
+        """
+        The call of the view.
+        """
+
+        def decorated(self, user, n=10):
+            return function(self, user, n)
+        return decorated
+
+    def __call__(self, function):
+        """
+        The call of the view.
+        """
+        return self.decorator(function)
 
 SAMPLE = ["364927",
           "409126",

@@ -22,7 +22,7 @@ from recommendation.language.models import Locale, ItemLocale, UserLocale, Regio
 from recommendation.diversity.models import ItemGenre, Genre
 
 
-class TestRecommendation(TestCase):
+class TestFrappeAPI(TestCase):
     """
     Test suite for recommendation system
 
@@ -62,15 +62,101 @@ class TestRecommendation(TestCase):
         ItemLocale.objects.all().delete()
         UserLocale.objects.all().delete()
         Locale.objects.all().delete()
-        # This for sqlite delete
-        if connection.vendor == "sqlite":
-            while Inventory.objects.all().count() != 0:
-                Inventory.objects.filter(pk__in=Inventory.objects.all()[:100]).delete()
-            while Item.objects.all().count() != 0:
-                Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
-        else:
-            Inventory.objects.all().delete()
-            Item.objects.all().delete()
+        Inventory.objects.all().delete()
+        Item.objects.all().delete()
+        User.objects.all().delete()
+        Matrix.objects.all().delete()
+        get_cache("default").clear()
+        get_cache("local").clear()
+
+    def test_recommendation_get_user_item(self):
+        """
+        [recommendation.api.GetUserItems] Test Get user items
+        """
+        response = \
+            self.client.get("/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/")
+        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
+        its = json.loads(response.content)
+        assert its["user"] == "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173", "User is not correct"
+        assert len(its["items"]) == 1, "Owned items should be 1"
+        assert its["items"][0]["external_id"] == "413346", "Owned item is not 413346"
+
+    def test_recommendation_acquire_new_item(self):
+        """
+        [recommendation.api.GetUserItems] Test acquire new item
+        """
+        response = self.client.post(
+            "/api/v2/user-items/00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b/",
+            {"item_to_acquire": "504343"}
+        )
+        sleep(0.8)
+        user = User.get_user_by_external_id("00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b")
+        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
+        assert len(user.owned_items) == 3, "Owned items should be 3(%d)" % len(user.owned_items)
+        assert Item.get_item_by_external_id("504343").pk in user.owned_items.keys(), "New item not in owned items"
+
+    def test_recommendation_remove_new_item(self):
+        """
+        [recommendation.api.GetUserItems] Test remove old item
+        """
+        response = self.client.delete(
+            "/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/",
+            "item_to_remove=413346",
+            content_type="application/x-www-form-urlencoded; charset=UTF-8"
+        )
+        sleep(0.8)
+        assert response.status_code == 200, "Request failed. Status code %d. Message: %s" % \
+                                            (response.status_code, json.loads(response.content).get("error", ""))
+        assert len(User.get_user_by_external_id(
+            "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173").owned_items) == 0, \
+            "Owned items should be 0"
+
+
+class TestRecommendation(TestCase):
+    """
+    Test suite for recommendation system
+
+    Test:
+        - Get recommendation
+        - Test recommendation against test.fm results
+    """
+
+    @classmethod
+    def setup_class(cls, *args, **kwargs):
+        """
+        Put elements in db
+        """
+        path = resource_filename(recommendation.__name__, "/")
+        fill.FillTool({"items": True, "--mozilla": True, "prod": True}).load()
+        fill.FillTool({"users": True, "--mozilla": True, "<path>": path+"data/user"}).load()
+        modelcrafter.main("train", "popularity")
+        modelcrafter.main("train", "tensorcofi")
+        # Load user and items
+        Item.load_to_cache()
+        User.load_to_cache()
+        # Load main models
+        Popularity.load_to_cache()
+        TensorCoFi.load_to_cache()
+        Locale.load_to_cache()
+        Region.load_to_cache()
+        Genre.load_to_cache()
+        cls.client = Client()
+
+    @classmethod
+    def teardown_class(cls, *args, **kwargs):
+        """
+        Take elements from db
+        """
+        ItemRegion.objects.all().delete()
+        UserRegion.objects.all().delete()
+        Region.objects.all().delete()
+        ItemGenre.objects.all().delete()
+        Genre.objects.all().delete()
+        ItemLocale.objects.all().delete()
+        UserLocale.objects.all().delete()
+        Locale.objects.all().delete()
+        Inventory.objects.all().delete()
+        Item.objects.all().delete()
         User.objects.all().delete()
         Matrix.objects.all().delete()
         get_cache("default").clear()
@@ -122,44 +208,122 @@ class TestRecommendation(TestCase):
         assert abs(t[0] - tfm[0]) < 0.15, \
             "Difference between testfm implementation and frappe is to high (%f, %f)" % (t[0], tfm[0])
 
-    def test_recommendation_get_user_item(self):
+    def test_liveliness_of_recommendation_size_5(self):
         """
-        [recommendation.api.GetUserItems] Test Get user items
+        [recommendation.api.GetRecommendation] Test liveliness for size 5 recommendation
         """
+        size = 5
         response = \
-            self.client.get("/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/")
-        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
-        its = json.loads(response.content)
-        assert its["user"] == "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173", "User is not correct"
-        assert len(its["items"]) == 1, "Owned items should be 1"
-        assert its["items"][0]["external_id"] == "413346", "Owned item is not 413346"
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
 
-    def test_recommendation_acquire_new_item(self):
-        """
-        [recommendation.api.GetUserItems] Test acquire new item
-        """
-        response = self.client.post(
-            "/api/v2/user-items/00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b/",
-            {"item_to_acquire": "504343"}
-        )
-        sleep(0.8)
-        user = User.get_user_by_external_id("00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b")
-        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
-        assert len(user.owned_items) == 3, "Owned items should be 3(%d)" % len(user.owned_items)
-        assert Item.get_item_by_external_id("504343").pk in user.owned_items.keys(), "New item not in owned items"
+        rec0 = json.loads(response.content)["recommendations"]
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
 
-    def test_recommendation_remove_new_item(self):
+        rec1 = json.loads(response.content)["recommendations"]
+        measure = 0
+        for item in rec1:
+            if item in rec0:
+                measure += 1
+        assert measure < (size/2.), "New recommendation not different enough"
+
+    def test_liveliness_of_recommendation_size_15(self):
         """
-        [recommendation.api.GetUserItems] Test remove old item
+        [recommendation.api.GetRecommendation] Test liveliness for size 15 recommendation
         """
-        response = self.client.delete(
-            "/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/",
-            "item_to_remove=413346",
-            content_type="application/x-www-form-urlencoded; charset=UTF-8"
+        size = 15
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec0 = json.loads(response.content)["recommendations"]
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec1 = json.loads(response.content)["recommendations"]
+        measure = 0
+        for item in rec1:
+            if item in rec0:
+                measure += 1
+        assert measure < (size/2.), "New recommendation not different enough"
+
+    def test_liveliness_of_recommendation_size_25(self):
+        """
+        [recommendation.api.GetRecommendation] Test liveliness for size 25 recommendation
+        """
+        size = 25
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec0 = json.loads(response.content)["recommendations"]
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec1 = json.loads(response.content)["recommendations"]
+        measure = 0
+        for item in rec1:
+            if item in rec0:
+                measure += 1
+        assert measure < (size/2.), "New recommendation not different enough"
+
+    def test_diversity_on_recommendation_5(self):
+        """
+        [recommendation.api.GetRecommendation] Test diversity for size 5 recommendation
+        """
+        size = 5
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        user_id = User.get_user_id_by_external_id("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
+        user_genres = ItemGenre.genre_in(
+            Item.get_item_by_id(item_id) for item_id in User.get_user_items(user_id)
         )
-        sleep(0.8)
-        assert response.status_code == 200, "Request failed. Status code %d. Message: %s" % \
-                                            (response.status_code, json.loads(response.content).get("error", ""))
-        assert len(User.get_user_by_external_id(
-            "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173").owned_items) == 0, \
-            "Owned items should be 0"
+        recommendation_genres = ItemGenre.genre_in(
+            Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
+        )
+        for genre in user_genres:
+            assert genre in recommendation_genres, \
+                "Genre %s not in recommendation genres" % str(Genre.get_genre_by_id(genre))
+
+    def test_diversity_on_recommendation_15(self):
+        """
+        [recommendation.api.GetRecommendation] Test diversity for size 15 recommendation
+        """
+        size = 15
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        user_id = User.get_user_id_by_external_id("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
+        user_genres = ItemGenre.genre_in(
+            Item.get_item_by_id(item_id) for item_id in User.get_user_items(user_id)
+        )
+        recommendation_genres = ItemGenre.genre_in(
+            Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
+        )
+        for genre in user_genres:
+            assert genre in recommendation_genres, \
+                "Genre %s not in recommendation genres" % str(Genre.get_genre_by_id(genre))
+
+    def test_diversity_on_recommendation_25(self):
+        """
+        [recommendation.api.GetRecommendation] Test diversity for size 25 recommendation
+        """
+        size = 25
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        user_id = User.get_user_id_by_external_id("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
+        user_genres = ItemGenre.genre_in(
+            Item.get_item_by_id(item_id) for item_id in User.get_user_items(user_id)
+        )
+        recommendation_genres = ItemGenre.genre_in(
+            Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
+        )
+        for genre in user_genres:
+            assert genre in recommendation_genres, \
+                "Genre %s not in recommendation genres" % str(Genre.get_genre_by_id(genre))
