@@ -23,7 +23,7 @@ class FilterOwned(object):
         """
         for item in user.owned_items.values():
             try:
-                recommendation[item.pk-1] = float("-inf")
+                recommendation[item.pk-1] = -1000
             except IndexError:
                 pass
         return recommendation

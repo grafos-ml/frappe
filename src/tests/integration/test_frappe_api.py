@@ -9,7 +9,6 @@ import pandas as pd
 import numpy as np
 from time import sleep
 from pkg_resources import resource_filename
-from django.db import connection
 from django.test import TestCase
 from django.test.client import Client
 from django.core.cache import get_cache
@@ -182,7 +181,8 @@ class TestRecommendation(TestCase):
         assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
         rec = json.loads(response.content)
         assert rec["user"] in map(lambda x: x.external_id, User.objects.all()), "User don't exist in cache"
-        assert len(rec["recommendations"]) == 5, "Size of recommendation not 5"
+        print rec
+        assert len(rec["recommendations"]) == 5, "Size of recommendation not 5 (%d)" % len(rec["recommendations"])
 
     def test_recommendation_with_testfm(self):
         """
@@ -210,7 +210,7 @@ class TestRecommendation(TestCase):
 
     def test_liveliness_of_recommendation_size_5(self):
         """
-        [recommendation.api.GetRecommendation] Test liveliness for size 5 recommendation
+        [recommendation.api.GetRecommendation] Test liveliness for size 5 recommendation (at least 3 different items)
         """
         size = 5
         response = \
@@ -231,7 +231,7 @@ class TestRecommendation(TestCase):
 
     def test_liveliness_of_recommendation_size_15(self):
         """
-        [recommendation.api.GetRecommendation] Test liveliness for size 15 recommendation
+        [recommendation.api.GetRecommendation] Test liveliness for size 15 recommendation (at least 8 different items)
         """
         size = 15
         response = \
@@ -252,7 +252,7 @@ class TestRecommendation(TestCase):
 
     def test_liveliness_of_recommendation_size_25(self):
         """
-        [recommendation.api.GetRecommendation] Test liveliness for size 25 recommendation
+        [recommendation.api.GetRecommendation] Test liveliness for size 25 recommendation (at least 9 different items)
         """
         size = 25
         response = \
@@ -269,7 +269,7 @@ class TestRecommendation(TestCase):
         for item in rec1:
             if item in rec0:
                 measure += 1
-        assert measure < (size/2.), "New recommendation not different enough"
+        assert measure < (size*2./3.), "New recommendation not different enough"
 
     def test_diversity_on_recommendation_5(self):
         """
@@ -286,8 +286,10 @@ class TestRecommendation(TestCase):
         recommendation_genres = ItemGenre.genre_in(
             Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
         )
-        for genre in user_genres:
-            assert genre in recommendation_genres, \
+        less, more = (user_genres, recommendation_genres) if len(user_genres) < len(recommendation_genres) else \
+            (recommendation_genres, user_genres)
+        for genre in less:
+            assert genre in more, \
                 "Genre %s not in recommendation genres" % str(Genre.get_genre_by_id(genre))
 
     def test_diversity_on_recommendation_15(self):
@@ -305,9 +307,16 @@ class TestRecommendation(TestCase):
         recommendation_genres = ItemGenre.genre_in(
             Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
         )
-        for genre in user_genres:
-            assert genre in recommendation_genres, \
-                "Genre %s not in recommendation genres" % str(Genre.get_genre_by_id(genre))
+        less, more = (user_genres, recommendation_genres) if len(user_genres) < len(recommendation_genres) else \
+            (recommendation_genres, user_genres)
+        measure = 0
+        for genre in less:
+            if genre in more:
+                measure += 1
+
+        assert measure > len(less)/2., \
+            "Not sufficient genres in recommendation" \
+            "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))
 
     def test_diversity_on_recommendation_25(self):
         """
@@ -324,6 +333,8 @@ class TestRecommendation(TestCase):
         recommendation_genres = ItemGenre.genre_in(
             Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
         )
-        for genre in user_genres:
-            assert genre in recommendation_genres, \
+        less, more = (user_genres, recommendation_genres) if len(user_genres) < len(recommendation_genres) else \
+            (recommendation_genres, user_genres)
+        for genre in less:
+            assert genre in more, \
                 "Genre %s not in recommendation genres" % str(Genre.get_genre_by_id(genre))

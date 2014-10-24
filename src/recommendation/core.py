@@ -12,6 +12,7 @@ from django.conf import settings
 from recommendation.models import Item, User, TensorCoFi, Popularity, Inventory
 from recommendation.util import initialize
 from recommendation.decorators import ContingencyProtocol
+from recommendation.filter_none.filters import FilterNoneItems
 
 try:
     RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")
@@ -180,7 +181,8 @@ class IController(object):
             result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
-        result = [aid for aid, _ in sorted(enumerate(result, start=1), key=lambda x: x[1], reverse=True)]
+        result = [aid for aid, _ in filter(lambda x: x[1] != float("-inf"),
+                                           sorted(enumerate(result, start=1), key=lambda x: x[1], reverse=True))]
         for r in self.rerankers:
             result = r(user, result, size=n)
         return result[:n]
@@ -231,7 +233,8 @@ class NotEnoughItemsToCompute(Exception):
     """
     Exception for when user is short in Items to compute a new recommendation
     """
-    pass
+    def __init__(self, *args, **kwargs):
+        super(NotEnoughItemsToCompute, self).__init__(*args, **kwargs)
 
 RECOMMENDATION_ENGINES = {}
 for engine, engine_settings in RECOMMENDATION_SETTINGS.items():

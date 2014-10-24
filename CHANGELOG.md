@@ -1,4 +1,14 @@
-### None items filter (HEAD, master)
+### Fix popularity (HEAD, master)
+>Fri, 24 Oct 2014 14:36:13 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### None items filter
 >Thu, 23 Oct 2014 16:17:11 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

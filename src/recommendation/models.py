@@ -667,7 +667,7 @@ class Popularity(TestFMPopularity):
     @staticmethod
     @Cached(cache="local")
     def load_popularity():
-        model = Popularity(n_items=Item.objects.all().count())
+        model = Popularity(n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         pop = Matrix.objects.filter(name="popularity").order_by("-id")[0]
         model.recommendation = pop.numpy
         return model
@@ -692,7 +692,7 @@ class Popularity(TestFMPopularity):
         Train the popular model
         :return:
         """
-        popular_model = Popularity(n_items=Item.objects.all().count())
+        popular_model = Popularity(n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
         data = pd.DataFrame({"item": items, "user": users})
         popular_model.fit(data)

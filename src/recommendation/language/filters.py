@@ -25,7 +25,7 @@ class SimpleLocaleFilter(object):
         unsupported_items = set(chain(*(Locale.get_items_by_locale(l) for l in unsupported_langs)))
         for item in unsupported_items:
             if not any(x in Locale.get_item_locales(item) for x in Locale.get_user_locales(user.pk)):
-                early_recommendation[item-1] = float("-inf")
+                early_recommendation[item-1] = -1000
         return early_recommendation
 
 
@@ -45,7 +45,7 @@ class SimpleRegionFilter(object):
             for item_id, score in enumerate(np.sum(user_regions, axis=0), start=1):
                 if score == 0:
                     try:
-                        early_recommendation[item_id-1] = float("-inf")
+                        early_recommendation[item_id-1] = -1000
                     except IndexError:
                         pass
         return early_recommendation
