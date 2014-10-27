@@ -119,9 +119,9 @@ STATIC_URL = "/static/"
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 NOSE_ARGS = [
-    "--with-coverage",
-    "--cover-package=recommendation",
-    "--cover-html"
+    #"--with-coverage",
+    #"--cover-package=recommendation",
+    #"--cover-html"
 ]
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
