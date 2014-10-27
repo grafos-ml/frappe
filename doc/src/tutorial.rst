@@ -1,8 +1,8 @@
 .. _tutorial:
 
-========
-Tutorial
-========
+=======================
+Tutorial for Developers
+=======================
 
 Make a filter
 -------------
@@ -74,3 +74,19 @@ with the other filters.
 
 
 .. _test.fm: https://github.com/grafos-ml/test.fm
+
+
+Overview of the serving system
+------------------------------
+
+While implementing recsys serving engine we had to make some architecture choices.
+For example, we do on-line recommendation computations instead of precomputing recommendations
+for each user and serving them. This provides flexibility, but limit us on the number
+of request per second we can serve. Currently we can respond in reasonable time for catalogue of 50K items.
+
+Here we want to overview the system and explain some design choices. The full documentation will be expanded
+in the branch (v3_develop) where implementation will take place.
+
+
+
+

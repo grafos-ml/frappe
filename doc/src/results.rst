@@ -1,12 +1,12 @@
 .. _results
 
-Results
-=======
+Performance
+===========
 
 Some results over computing performance and result accuracy.
 
-Performance
------------
+Response Times
+--------------
 
 Tests on performance were made with Mozilla data set deployed on uwsgi with 4 processes and nginx proxy. The script
 run to get the performance is under the project on directory folders and the user_reco_url.txt is a file with all users
