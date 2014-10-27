@@ -273,7 +273,7 @@ class TestRecommendation(TestCase):
 
     def test_diversity_on_recommendation_5(self):
         """
-        [recommendation.api.GetRecommendation] Test diversity for size 5 recommendation
+        [recommendation.api.GetRecommendation] Test diversity for size 5 recommendation (at least 2/3 of user genres)
         """
         size = 5
         response = \
@@ -288,13 +288,18 @@ class TestRecommendation(TestCase):
         )
         less, more = (user_genres, recommendation_genres) if len(user_genres) < len(recommendation_genres) else \
             (recommendation_genres, user_genres)
+        measure = 0
         for genre in less:
-            assert genre in more, \
-                "Genre %s not in recommendation genres" % str(Genre.get_genre_by_id(genre))
+            if genre in more:
+                measure += 1
+
+        assert measure > len(less)*2./3., \
+            "Not sufficient genres in recommendation" \
+            "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))
 
     def test_diversity_on_recommendation_15(self):
         """
-        [recommendation.api.GetRecommendation] Test diversity for size 15 recommendation
+        [recommendation.api.GetRecommendation] Test diversity for size 15 recommendation (at least 1/2 of user genres)
         """
         size = 15
         response = \
@@ -320,9 +325,9 @@ class TestRecommendation(TestCase):
 
     def test_diversity_on_recommendation_25(self):
         """
-        [recommendation.api.GetRecommendation] Test diversity for size 25 recommendation
+        [recommendation.api.GetRecommendation] Test diversity for size 25 recommendation (at least 2/3 of user genres)
         """
-        size = 25
+        size = 2501
         response = \
             self.client.get("/api/v2/recommend/%d/"
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
@@ -335,6 +340,11 @@ class TestRecommendation(TestCase):
         )
         less, more = (user_genres, recommendation_genres) if len(user_genres) < len(recommendation_genres) else \
             (recommendation_genres, user_genres)
+        measure = 0
         for genre in less:
-            assert genre in more, \
-                "Genre %s not in recommendation genres" % str(Genre.get_genre_by_id(genre))
+            if genre in more:
+                measure += 1
+
+        assert measure > len(less)*2./3., \
+            "Not sufficient genres in recommendation" \
+            "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))

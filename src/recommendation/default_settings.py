@@ -52,11 +52,11 @@ INSTALLED_APPS = ([
 ]
 
 if int(os.environ.get("FRAPPE_TEST", 0)):
-    INSTALLED_APPS += [
+    INSTALLED_APPS = [
         "django_nose",
         #"debug_toolbar",
         "django_coverage"
-    ]
+    ] + INSTALLED_APPS
 
 MIDDLEWARE_CLASSES = (
     "pyinstrument.middleware.ProfilerMiddleware",

@@ -1,4 +1,14 @@
-### Fix popularity (HEAD, master)
+### Fix tests (HEAD, master)
+>Mon, 27 Oct 2014 10:36:50 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix popularity (origin/master, origin/HEAD)
 >Fri, 24 Oct 2014 14:36:13 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -28,7 +38,7 @@
 
 
 
-### Update results in doc (origin/master, origin/HEAD)
+### Update results in doc
 >Wed, 22 Oct 2014 12:41:24 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
