@@ -11,8 +11,11 @@ import base64
 import numpy as np
 import pandas as pd
 import click
-import pandas.io.sql as psql
-from django.db import connection
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+from six import string_types
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.six import with_metaclass
@@ -22,42 +25,35 @@ from django.dispatch import receiver
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity as TestFMPopularity
 from recommendation.decorators import Cached
-if sys.version_info >= (3, 0):
-    basestring = unicode = str
 
 
-class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
+class MappedField(with_metaclass(models.SubfieldBase, models.TextField)):
     """
-    Numpy Array field to store numpy arrays in database
-
-    In the Frappe backend it was called Base64Field. This is better I think.
+    Mapped structure to be saved in database.
     """
 
-    description = """Matrix for tensor controller to find nice app suggestions"""
+    description = """Mapped structure."""
     __metaclass__ = models.SubfieldBase
-
-    DECODE_MATRIX = (lambda self, x: base64.decodebytes(x)) \
-        if sys.version_info >= (3, 0) else (lambda self, x: base64.decodestring(x))
 
     def to_python(self, value):
         """
         Convert the value from the database to python like object
 
-        >>> # Passing a numpy array with one dimension with data type float 32
-        >>> # np.np.array([1, 2, 3, 4], dtype=np.float32)
-        >>> string_array = "1:4:AACAPwAAAEAAAEBAAACAQA=="
-        >>> np_array = NPArrayField().to_python(string_array)
+        >>> # Dictionary with numpy array
+        >>> # {1: np.np.array([1, 2, 3, 4], dtype=np.float32)}
+        >>> string = "(dp1\nI1\ncnumpy.core.multiarray\n_reconstruct\np2\n(cnumpy\nndarray\np3\n(I0\ntS'b'\ntRp4\n(I1\n(I4\ntcnumpy\ndtype\np5\n(S'f4'\nI0\nI1\ntRp6\n(I3\nS'<'\nNNNI-1\nI-1\nI0\ntbI00\nS'\\x00\\x00\\x80?\\x00\\x00\\x00@\\x00\\x00@@\\x00\\x00\\x80@'\ntbs."
+        >>> some_dict = MappedField().to_python(string)
 
-        >>> print(np_array)  # Is an array from 1 to 4
-        [ 1.  2.  3.  4.]
+        >>> print(some_dict)
+        {1: array([ 1.,  2.,  3.,  4.], dtype=float32)}
 
-        >>> type(np_array)  # Is a numpy array
-        <type 'numpy.ndarray'>
+        >>> type(some_dict)
+        <type 'dict'>
 
-        >>> len(np_array.shape) == 1  # Has one dimension
+        >>> len(some_dict[1].shape) == 1  # Has one dimension
         True
 
-        >>> for i in np_array:
+        >>> for i in some_dict[1]:
         ...     print(i)
         ...     print(type(i))
         1.0
@@ -69,42 +65,54 @@ class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
         4.0
         <type 'numpy.float32'>
 
-        >>> # Passing a numpy array with one dimension with data type float 64
-        >>> # np.np.array([1, 2, 3, 4], dtype=np.float64)
-        >>> string_array = "1:4:AQAAAAAAAAACAAAAAAAAAAMAAAAAAAAABAAAAAAAAAA="
-        >>> np_array64 = NPArrayField().to_python(string_array)
-        Traceback (most recent call last):
-        ...
-        ValueError: total size of new array must be unchanged
-
         :param value: String from database
         :return: A numpy matrix
         """
-        if isinstance(value, basestring):
-            value = bytes(value, "utf-8") if sys.version_info >= (3, 0) else bytes(value)
-        if isinstance(value, bytes):
-            parts = value.split(":")
-            dim, rest = int(parts[0]), parts[1:]
-            shape, matrix = rest[:dim], np.fromstring(self.DECODE_MATRIX(":".join(rest[dim:])), dtype=np.float32)
-            matrix.shape = tuple(int(i) for i in shape)
-            return matrix
+        if isinstance(value, string_types):
+            return pickle.loads(value)
         return value
 
     def get_prep_value(self, value):
         """
         Prepare the value from python like object to database like value.
 
-        >>> np_array = np.array([1, 2, 3, 4], dtype=np.float32)
-        >>> np_string = NPArrayField().get_prep_value(np_array)
-        >>> print(np_string)
-        1:4:AACAPwAAAEAAAEBAAACAQA==
+        >>> some_dict = {1: np.array([1, 2, 3, 4], dtype=np.float32)}
+        >>> string = MappedField().get_prep_value(some_dict)
+        >>> print(string)
+        (dp1
+        I1
+        cnumpy.core.multiarray
+        _reconstruct
+        p2
+        (cnumpy
+        ndarray
+        p3
+        (I0
+        tS'b'
+        tRp4
+        (I1
+        (I4
+        tcnumpy
+        dtype
+        p5
+        (S'f4'
+        I0
+        I1
+        tRp6
+        (I3
+        S'<'
+        NNNI-1
+        I-1
+        I0
+        tbI00
+        S'\x00\x00\x80?\x00\x00\x00@\x00\x00@@\x00\x00\x80@'
+        tbs.
 
         :param value: Matrix to keep in database
         :return: Base64 representation string encoded in utf-8
         """
-        if isinstance(value, np.ndarray):
-            return ":".join([str(len(value.shape)), ":".join(map(lambda x: str(x), value.shape)),
-                            base64.b64encode(value.tostring())])
+        if isinstance(value, dict):
+            return pickle.dumps(value)
 
 
 class Item(models.Model):

@@ -1,4 +1,14 @@
-### Improve NPArrayMatrix (HEAD, v3_develop)
+### Change np array field to mapped field (HEAD, v3_develop)
+>Mon, 27 Oct 2014 14:47:54 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Improve NPArrayMatrix
 >Mon, 27 Oct 2014 11:42:25 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
