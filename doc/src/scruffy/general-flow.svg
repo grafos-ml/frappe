@@ -3,13 +3,13 @@
 <ns0:desc>This was produced by version 4.4 of GNU libplot, a free library for exporting 2-D vector graphics.</ns0:desc>
 <ns0:polygon fill="white" height="1" id="background" points="0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,1.000000" stroke="none" width="1" x="0" y="0" />
 <ns0:g fill="none" fill-opacity="1" fill-rule="evenodd" font-size-adjust="none" font-stretch="normal" font-style="normal" font-variant="normal" font-weight="normal" id="content" letter-spacing="normal" stroke="black" stroke-dasharray="none" stroke-dashoffset="0" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10.433" stroke-opacity="1" text-anchor="start" transform="translate(0.12313,0.41563) scale(1,-1) scale(0.125) " word-spacing="normal" xml:space="preserve">
-<ns0:polygon fill="white" height="0.3" points="0.000000,-0.150000 0.577083,-0.159375 0.780000,-0.150000 0.764375,0.091667 0.780000,0.150000 0.530000,0.163542 0.000000,0.150000" stroke-width="0.0094118" style="fill:url(#white);" width="0.78" x="0" y="-0.15" />
+<ns0:polygon fill="white" height="0.3" points="0.000000,-0.150000 0.642708,-0.157292 0.780000,-0.150000 0.792500,0.035417 0.780000,0.150000 0.618542,0.136458 0.000000,0.150000" stroke-width="0.0094118" style="fill:url(#white);" width="0.78" x="0" y="-0.15" />
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(0.2125,-0.049028) scale(1,-1) scale(0.0069444) ">Client</ns0:text>
-<ns0:polygon fill="white" height="0.3" points="1.280000,-0.150000 2.302917,-0.137500 2.710000,-0.150000 2.694375,-0.028125 2.710000,0.150000 1.490208,0.142708 1.280000,0.150000" stroke-width="0.0094118" style="fill:url(#white);" width="1.43" x="1.28" y="-0.15" />
+<ns0:polygon fill="white" height="0.3" points="1.280000,-0.150000 1.485208,-0.163542 2.710000,-0.150000 2.694375,0.030208 2.710000,0.150000 1.425625,0.133333 1.280000,0.150000" stroke-width="0.0094118" style="fill:url(#white);" width="1.43" x="1.28" y="-0.15" />
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(1.6592,-0.049028) scale(1,-1) scale(0.0069444) ">A/B testing</ns0:text>
-<ns0:polygon fill="white" height="0.3" points="3.210000,-0.150000 3.443333,-0.130208 4.250000,-0.150000 4.262500,-0.057292 4.250000,0.150000 3.980208,0.164583 3.210000,0.150000" stroke-width="0.0094118" style="fill:url(#white);" width="1.04" x="3.21" y="-0.15" />
+<ns0:polygon fill="white" height="0.3" points="3.210000,-0.150000 3.455833,-0.163542 4.250000,-0.150000 4.241667,0.014583 4.250000,0.150000 3.539583,0.142708 3.210000,0.150000" stroke-width="0.0094118" style="fill:url(#white);" width="1.04" x="3.21" y="-0.15" />
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(3.4367,-0.049028) scale(1,-1) scale(0.0069444) ">Module A</ns0:text>
-<ns0:polygon fill="white" height="0.3" points="4.750000,-0.150000 5.048958,-0.131250 5.530000,-0.150000 5.549792,0.039583 5.530000,0.150000 5.268542,0.159375 4.750000,0.150000" stroke-width="0.0094118" style="fill:url(#white);" width="0.78" x="4.75" y="-0.15" />
+<ns0:polygon fill="white" height="0.3" points="4.750000,-0.150000 5.467708,-0.136458 5.530000,-0.150000 5.540417,0.022917 5.530000,0.150000 4.818542,0.159375 4.750000,0.150000" stroke-width="0.0094118" style="fill:url(#white);" width="0.78" x="4.75" y="-0.15" />
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(4.9238,-0.049028) scale(1,-1) scale(0.0069444) ">Logger</ns0:text>
 <ns0:polyline points="0.390000,-0.150000 0.390000,-0.250000" stroke-dasharray="0.05, 0.05" stroke-width="0.0094118" />
 <ns0:polyline points="0.340000,-0.250000 0.440000,-0.250000" stroke-width="0.0094118" />
@@ -19,33 +19,33 @@
 <ns0:polyline points="3.680000,-0.250000 3.780000,-0.250000" stroke-width="0.0094118" />
 <ns0:polyline points="5.140000,-0.150000 5.140000,-0.250000" stroke-dasharray="0.05, 0.05" stroke-width="0.0094118" />
 <ns0:polyline points="5.090000,-0.250000 5.190000,-0.250000" stroke-width="0.0094118" />
-<ns0:polyline points="0.450000,-0.500000 0.742708,-0.486458 1.935000,-0.500000" stroke-width="0.0094118" />
+<ns0:polyline points="0.450000,-0.500000 1.409375,-0.505208 1.935000,-0.500000" stroke-width="0.0094118" />
 <ns0:polygon fill="black" points="1.835000,-0.475000 1.935000,-0.500000 1.835000,-0.525000" stroke-width="0.0094118" />
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(0.42444,-0.46569) scale(1,-1) scale(0.0069444) ">request recommendation</ns0:text>
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(1.1732,-0.63236) scale(1,-1) scale(0.0069444) "> </ns0:text>
-<ns0:polyline points="2.055000,-0.750000 3.496667,-0.768750 3.670000,-0.750000" stroke-width="0.0094118" />
+<ns0:polyline points="2.055000,-0.750000 3.255000,-0.739583 3.670000,-0.750000" stroke-width="0.0094118" />
 <ns0:polygon fill="black" points="3.570000,-0.725000 3.670000,-0.750000 3.570000,-0.775000" stroke-width="0.0094118" />
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(2.3801,-0.71569) scale(1,-1) scale(0.0069444) ">forward request</ns0:text>
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(2.8432,-0.88236) scale(1,-1) scale(0.0069444) "> </ns0:text>
-<ns0:polyline points="3.670000,-1.000000 3.382500,-0.988542 0.450000,-1.000000" stroke-width="0.0094118" />
+<ns0:polyline points="3.670000,-1.000000 2.325208,-1.005208 0.450000,-1.000000" stroke-width="0.0094118" />
 <ns0:polygon fill="black" points="0.550000,-1.025000 0.450000,-1.000000 0.550000,-0.975000" stroke-width="0.0094118" />
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(1.5428,-0.96569) scale(1,-1) scale(0.0069444) ">returns topk recs</ns0:text>
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(2.0407,-1.1324) scale(1,-1) scale(0.0069444) "> </ns0:text>
-<ns0:polyline points="3.790000,-1.250000 4.444167,-1.243750 5.080000,-1.250000" stroke-width="0.0094118" />
+<ns0:polyline points="3.790000,-1.250000 4.948333,-1.263542 5.080000,-1.250000" stroke-width="0.0094118" />
 <ns0:polygon fill="black" points="4.980000,-1.225000 5.080000,-1.250000 4.980000,-1.275000" stroke-width="0.0094118" />
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(4.0026,-1.2157) scale(1,-1) scale(0.0069444) ">logs the event</ns0:text>
 <ns0:text fill="black" font-family="Purisa" font-size="20px" stroke="none" transform="translate(4.4157,-1.3824) scale(1,-1) scale(0.0069444) "> </ns0:text>
-<ns0:polyline points="0.340000,-0.250000 0.329583,-1.298958 0.340000,-1.500000" stroke-width="0.0094118" />
-<ns0:polyline points="0.440000,-0.250000 0.449375,-0.423958 0.440000,-1.500000" stroke-width="0.0094118" />
+<ns0:polyline points="0.340000,-0.250000 0.356667,-0.525000 0.340000,-1.500000" stroke-width="0.0094118" />
+<ns0:polyline points="0.440000,-0.250000 0.452500,-0.632292 0.440000,-1.500000" stroke-width="0.0094118" />
 <ns0:polyline points="0.340000,-1.500000 0.440000,-1.500000" stroke-width="0.0094118" />
-<ns0:polyline points="1.945000,-0.250000 1.963750,-0.819792 1.945000,-1.500000" stroke-width="0.0094118" />
-<ns0:polyline points="2.045000,-0.250000 2.052292,-0.828125 2.045000,-1.500000" stroke-width="0.0094118" />
+<ns0:polyline points="1.945000,-0.250000 1.933542,-0.733333 1.945000,-1.500000" stroke-width="0.0094118" />
+<ns0:polyline points="2.045000,-0.250000 2.059583,-0.805208 2.045000,-1.500000" stroke-width="0.0094118" />
 <ns0:polyline points="1.945000,-1.500000 2.045000,-1.500000" stroke-width="0.0094118" />
-<ns0:polyline points="3.680000,-0.250000 3.668542,-0.764583 3.680000,-1.500000" stroke-width="0.0094118" />
-<ns0:polyline points="3.780000,-0.250000 3.793542,-1.288542 3.780000,-1.500000" stroke-width="0.0094118" />
+<ns0:polyline points="3.680000,-0.250000 3.691458,-1.187500 3.680000,-1.500000" stroke-width="0.0094118" />
+<ns0:polyline points="3.780000,-0.250000 3.789375,-1.090625 3.780000,-1.500000" stroke-width="0.0094118" />
 <ns0:polyline points="3.680000,-1.500000 3.780000,-1.500000" stroke-width="0.0094118" />
-<ns0:polyline points="5.090000,-0.250000 5.074375,-1.245833 5.090000,-1.500000" stroke-width="0.0094118" />
-<ns0:polyline points="5.190000,-0.250000 5.184792,-0.327083 5.190000,-1.500000" stroke-width="0.0094118" />
+<ns0:polyline points="5.090000,-0.250000 5.102500,-1.411458 5.090000,-1.500000" stroke-width="0.0094118" />
+<ns0:polyline points="5.190000,-0.250000 5.178542,-0.795833 5.190000,-1.500000" stroke-width="0.0094118" />
 <ns0:polyline points="5.090000,-1.500000 5.190000,-1.500000" stroke-width="0.0094118" />
 </ns0:g>
 </ns0:svg>
