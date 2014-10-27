@@ -101,6 +101,7 @@ implements core algorithm and business rules around them. Module asks the core a
 for each item, then asks filters to filter irrelevant recommendations and at the end asks reranker to 
 modify scores. The result is returned to the client and is logged to the auditing system.
 
+
 Module
 ~~~~~~
 .. image:: scruffy/module-class.png
@@ -115,51 +116,101 @@ reranker finally modifies the ranked list according to some criteria such as div
 .. image:: scruffy/module-flow.png
     :align: center
 
-The flow diagram above
-shows an example of how the module processes the recommendations. The filters are fired in a chain just after
-the scoring algorithms predicted utility scores for all the items. A reranker is usually quite expensive
-to execute and runs last before the result is returned.
+The flow diagram above shows an example of how a Module processes the
+recommendations. We have two predictors that return a vectors of scores, which
+are then aggregated (i.e. weighted average) into a single vector of scores.
+The filters are fired in a chain just after the aggregator. A reranker is
+usually quite expensive to execute and runs last before the result is
+returned.
 
-The serving system should be fast, therefore, parts of the code is quite optimised. We will speak here optimisations
-done for the Matrix Factorisation style recommender. Here to get a score for a user and an item we take a user model
-(represented as a vector of floats) and compute a dot product with an item model (also a vector of floats). Because we
-want to do it for all the items, we multiply user vector with and item matrix (bunch of vectors). As an output we get
-a vector of length the same as the number of items. We do vector matrix multiplication just because it is about 10x 
-faster than going one item by one item and computing a dot product. 
+Note, that Module constantly pols the database to check if there are new
+models (data used by predictors) available. It loads these models in a background process and swaps
+the old models with the new models.
 
-Because we use matrices, we have a technical challenge that the indexes for apps should start from 0, and better
-there should be no gaps between ids. Now, it looks easy in the beginning, but gets slightly more complicated when
-one considers such scenarios:
-
-1. We rebuild models (user and item representations) at different frequencies for different models
-2. The item data is dynamic, and some items go away, while others are added
-3. Aggregator averages two scoring vectors, therefore these should be of equallength
-
-Id Map
-~~~~~~
-
-Or solution to this problems is the following:
-
-First, we store the user and item model as serialised (pickled) python dictionary (see XXX code):
+The serving system should be fast, therefore, parts of the code is quite
+optimised. We will speak here about optimisations done for the Matrix
+Factorisation style recommender
+(http://sifter.org/~simon/journal/20061211.html). When using this model,
+we get an utility score for a user and an item by computing a dot
+product between their representation in a latent space (vectors of
+floats).
 
 .. code-block:: python
    :linenos:
 	
-	#model1
+    import numpy
+    item1 = numpy.array([  6.9,   6.9,   2.2])
+    user1 = numpy.array([  0.2,   2.2,   0.4]) 
+    numpy.dot(user1, item1) #17.44
+    
+Here the user and item are represented in a 3-dimensional latent space and
+the utility score of user1 liking item1 is 17.44. The scores do not mean
+a lot by themselves in isolation, but we can tell if the user would like
+item1 more than item2.
+	
+Because we want to compute a score for all the items, we multiply user vector with
+an item matrix (bunch of vectors). As an output we get a vector of
+length the same as the number of items. 
+
+.. code-block:: python
+   :linenos:
+	
+    items = numpy.array([[ 6.9,  6.9,  2.2],
+                [ 3.1,  3.1,  3.1],
+                [ 0. ,  0. ,  0. ],
+                [ 3.1,  3.1,  2.1]])
+	
+	numpy.dot(items, user1)
+	#array([ 17.44,   8.68,   0.  ,   8.28])
+	
+Here we see that user1 likes an item at position 0 of the array more
+than any other item. We do vector matrix multiplication just because it
+is about 10x faster than going one item by one item and computing a dot
+product. Numpy with CPU level optimisations is really efficient and we
+want to harnest that power.
+
+Because we use matrices, we have a technical challenge that the indexes
+for apps should start from 0, and better there should be no gaps between
+ids (saving memory). It looks simple in the beginning, but gets slightly
+more complicated when one considers such scenarios:
+
+1. The item data is dynamic, and some items go away, while others are added. This create problems of gaps within the matrices.
+2. We rebuild models (user and item representations) at different frequencies for different models. This can create problems that some model has more items than others.
+3. Aggregator averages two scoring vectors, therefore these should be of equal length
+
+Id Map
+~~~~~~
+
+Or solution to this problems is the following: First, we store an item model 
+as serialised (pickled) python dictionary (see XXX code). We store
+user model in the database together with other user information. Usually
+we have much more users than items in the system. Therefore, it can be that
+user matrix is very big and we can not store it in memory. On the other hand,
+we can load user model (or compute it) when a user comes to the system. So if the user
+has not been recently using the system, the first request will be non-personalised.
+Then we will load or compute a user model and consequent recommendations will be
+personalised. In the code block bellow we have an item model as a dictionary:
+
+.. code-block:: python
+   :linenos:
+	
+    #item model1
     {"item1": array([[  6.9,   6.9,   2.2]]),
      "item2": array([[  3.1,   3.1,   3.1]]),
      "item5": array([[  3.1,   3.1,   2.1]])}
 
-This occupies XXX times more on database than saving just array, however, we get simplicity and flexibility
-of having item ids as they appear in the system. 
+This representation occupies up to 3 times more space in a relational database than saving
+just an float array as BLOB, however, we get simplicity and flexibility of having item
+ids as they appear in the system.
 
-Each Module loads all the arrays for each of the predictor into memory. Imagine we have two models that we want
-to use for a prediction. The one displayed above ("item1", "item2", "item5") and another one:
+Each Module loads all the arrays for each of the predictors into memory.
+Imagine we have two models that we want to use for a prediction. The one
+displayed above ("item1", "item2", "item5") and another one:
 
 .. code-block:: python
    :linenos:
    
-   	#model2
+    #item model2
     {"item1": array([[  0.9,   0.9,   0.2]]),
      "item3": array([[  0.1,   0.1,   0.1]])}
 
