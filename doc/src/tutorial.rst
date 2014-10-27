@@ -11,8 +11,7 @@ A filter is a callable class that can be used to implement a business logic to f
 Filters are executed after a recommendation model (such as Collaborative Filtering) made user-item utility score predictions.
 
 .. code-block:: python
-   :linenos:
-
+   
    class SomeFilter(object):
 
         def __call__(self, user, recommendation, size):
@@ -47,8 +46,7 @@ You should edit settings.py and modify *RECOMMENDATION_SETTINGS* variable by reg
 with the other filters.
 
 .. code-block:: python
-   :linenos:
-
+   
    # settings.py
 
    RECOMMENDATION_SETTINGS = {
@@ -92,7 +90,6 @@ Here we want to give an overview of the more tricky parts of the system, so that
 could understand them before diving into the code.
 
 .. image:: scruffy/general-flow.png
-    :align: center
 
 The flow diagram above shows the general flow of the information in the frappe system. The Client
 (in our case it is someone who uses frappe as a service) asks for a recommendation. Our A/B testing system
@@ -105,7 +102,6 @@ modify scores. The result is returned to the client and is logged to the auditin
 Module
 ~~~~~~
 .. image:: scruffy/module-class.png
-    :align: center
 
 A Module is an object that encapsulates most of the functionality of the recommender system. 
 It has predictors such as matrix factorisation that computes scores; aggregator combine these scores
@@ -114,7 +110,6 @@ business logic not to show some of the recommendations, such as apps already own
 reranker finally modifies the ranked list according to some criteria such as diversity.
 
 .. image:: scruffy/module-flow.png
-    :align: center
 
 The flow diagram above shows an example of how a Module processes the
 recommendations. We have two predictors that return a vectors of scores, which
@@ -136,8 +131,7 @@ product between their representation in a latent space (vectors of
 floats).
 
 .. code-block:: python
-   :linenos:
-	
+
     import numpy
     item1 = numpy.array([  6.9,   6.9,   2.2])
     user1 = numpy.array([  0.2,   2.2,   0.4]) 
@@ -153,8 +147,7 @@ an item matrix (bunch of vectors). As an output we get a vector of
 length the same as the number of items. 
 
 .. code-block:: python
-   :linenos:
-	
+
     items = numpy.array([[ 6.9,  6.9,  2.2],
                 [ 3.1,  3.1,  3.1],
                 [ 0. ,  0. ,  0. ],
@@ -192,8 +185,7 @@ Then we will load or compute a user model and consequent recommendations will be
 personalised. In the code block bellow we have an item model as a dictionary:
 
 .. code-block:: python
-   :linenos:
-	
+
     #items model1
     {"item1": array([[  6.9,   6.9,   2.2]]),
      "item2": array([[  3.1,   3.1,   3.1]]),
@@ -208,8 +200,7 @@ Imagine we have two models that we want to use for a prediction. The one
 displayed above ("item1", "item2", "item5") and another one:
 
 .. code-block:: python
-   :linenos:
-   
+
     #items model2
     {"item1": array([[  0.9,   0.9,   0.2]]),
      "item3": array([[  0.1,   0.1,   0.1]])}
@@ -219,8 +210,7 @@ integer id. This internal id represents a row in the matrix. In our case we woul
 double dictionary mapping:
 
 .. code-block:: python
-   :linenos:
-   
+
 	{"item1" : 0, "item2": 1, "item3": 2, "item5": 3}
 	{0: "item1", 1: "item2", 2: "item3", 3: "item5"}
 	
@@ -228,7 +218,6 @@ We need double map as we will have to go from row ids to item ids and back in va
 For each of the predictor we construct an item matrix using the IdMap:
 
 .. code-block:: python
-   :linenos:
 
     #items of model1
     array([[ 6.9,  6.9,  2.2],
