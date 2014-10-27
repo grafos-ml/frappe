@@ -138,26 +138,60 @@ one considers such scenarios:
 Id Map
 ~~~~~~
 
-Or solution to this problems is following:
+Or solution to this problems is the following:
 
-We store the user and item model as serialised (pickled) python dictionary (see XXX code):
+First, we store the user and item model as serialised (pickled) python dictionary (see XXX code):
+
+.. code-block:: python
+   :linenos:
+	
+	#model1
+    {"item1": array([[  6.9,   6.9,   2.2]]),
+     "item2": array([[  3.1,   3.1,   3.1]]),
+     "item5": array([[  3.1,   3.1,   2.1]])}
+
+This occupies XXX times more on database than saving just array, however, we get simplicity and flexibility
+of having item ids as they appear in the system. 
+
+Each Module loads all the arrays for each of the predictor into memory. Imagine we have two models that we want
+to use for a prediction. The one displayed above ("item1", "item2", "item5") and another one:
+
+.. code-block:: python
+   :linenos:
+   
+   	#model2
+    {"item1": array([[  0.9,   0.9,   0.2]]),
+     "item3": array([[  0.1,   0.1,   0.1]])}
+
+Next, it constructs a single one-to-one IdMap that maps these string ids, to an internal
+integer id. This internal id represents an row in the matrix. In our case we would have a
+double dictionary mapping:
+
+.. code-block:: python
+   :linenos:
+   
+	{"item1" : 0, "item2": 1, "item3": 2, "item5": 3}
+	
+For each of the predictor we construct an item matrix using the IdMap:
 
 .. code-block:: python
    :linenos:
 
-    {"item1": array([[  6.95231057e-310,   6.95231057e-310,   2.20022438e-314]]),
-     "item2": array([[  3.10503618e+231,   3.10503618e+231,   3.10503618e+231]]),
-     "item5": array([[  3.10503618e+231,   3.10503618e+231,   2.12199580e-314]])}
+    #items of model1
+    array([[ 6.9,  6.9,  2.2],
+       [ 3.1,  3.1,  3.1],
+       [ 0. ,  0. ,  0. ],
+       [ 3.1,  3.1,  2.1]])
+       
+    #items of model2
+    array([[ 0.9,  0.9,  0.2],
+       [ 0. ,  0. ,  0. ],
+       [ 0.1,  0.1,  0.1],
+       [ 0. ,  0. ,  0. ]])
 
-This occupies XXX times more on database than saving just array, however, we get flexibility
-of having item ids as they appear in the system. Each Module loads all the arrays for each of the
-predictor into memory. Next, it constructs a single one-to-one IdMap that maps these string ids, to an internal
-integer id. This internal id represents an row in the matrix.
-
-For each of the predictor we construct an item matrix using the IdMap. If some item
-is missing in the loaded data, we simply put zeros there. So each model contains consistent
-IdMap for all the predictors within the Module. Now, module constructs filters and rerankers
-that also are unique for each Module.
+If some item is missing in the loaded data ("item3" for model1), we simply put zeros there. 
+Now, each Module contains consistent IdMap for all the predictors within the Module. 
+Next, module constructs filters and rerankers using the same IdMap that also are unique for each Module.
 
 
 
