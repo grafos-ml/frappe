@@ -136,6 +136,7 @@ product between their representation in a latent space (vectors of
 floats).
 
 .. code-block:: python
+
    :linenos:
 	
     import numpy
