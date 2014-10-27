@@ -1,2 +1,4 @@
 .idea
 doc/build
+*.pyc
+src/frappe.egg-info/
