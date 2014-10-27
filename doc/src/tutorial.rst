@@ -146,7 +146,7 @@ floats).
 Here the user and item are represented in a 3-dimensional latent space and
 the utility score of user1 liking item1 is 17.44. The scores do not mean
 a lot by themselves in isolation, but we can tell if the user would like
-item1 more than item2.
+item1 more than item2 (higher score means bigger utility, more "me like this").
 	
 Because we want to compute a score for all the items, we multiply user vector with
 an item matrix (bunch of vectors). As an output we get a vector of
@@ -194,7 +194,7 @@ personalised. In the code block bellow we have an item model as a dictionary:
 .. code-block:: python
    :linenos:
 	
-    #item model1
+    #items model1
     {"item1": array([[  6.9,   6.9,   2.2]]),
      "item2": array([[  3.1,   3.1,   3.1]]),
      "item5": array([[  3.1,   3.1,   2.1]])}
@@ -210,19 +210,21 @@ displayed above ("item1", "item2", "item5") and another one:
 .. code-block:: python
    :linenos:
    
-    #item model2
+    #items model2
     {"item1": array([[  0.9,   0.9,   0.2]]),
      "item3": array([[  0.1,   0.1,   0.1]])}
 
 Next, it constructs a single one-to-one IdMap that maps these string ids, to an internal
-integer id. This internal id represents an row in the matrix. In our case we would have a
+integer id. This internal id represents a row in the matrix. In our case we would have a
 double dictionary mapping:
 
 .. code-block:: python
    :linenos:
    
 	{"item1" : 0, "item2": 1, "item3": 2, "item5": 3}
+	{0: "item1", 1: "item2", 2: "item3", 3: "item5"}
 	
+We need double map as we will have to go from row ids to item ids and back in various parts of the code.
 For each of the predictor we construct an item matrix using the IdMap:
 
 .. code-block:: python
