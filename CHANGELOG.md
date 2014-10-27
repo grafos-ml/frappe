@@ -1,4 +1,14 @@
-### Change coverage measure for django project (HEAD, v3_develop)
+### Improve NPArrayMatrix (HEAD, v3_develop)
+>Mon, 27 Oct 2014 11:42:25 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change coverage measure for django project
 >Mon, 27 Oct 2014 11:24:38 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

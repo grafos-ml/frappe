@@ -36,7 +36,8 @@ class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
     description = """Matrix for tensor controller to find nice app suggestions"""
     __metaclass__ = models.SubfieldBase
 
-    DECODE_MATRIX = lambda self, x: (base64.decodebytes if sys.version_info >= (3, 0) else base64.decodestring)(x)
+    DECODE_MATRIX = (lambda self, x: base64.decodebytes(x)) \
+        if sys.version_info >= (3, 0) else (lambda self, x: base64.decodestring(x))
 
     def to_python(self, value):
         """
