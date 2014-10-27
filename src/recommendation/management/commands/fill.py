@@ -48,7 +48,6 @@ from django.conf import settings
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre, ItemGenre
 from recommendation.language.models import Locale, ItemLocale, Region, ItemRegion, UserRegion, UserLocale
-from recommendation.default_settings import TESTING_MODE
 
 
 MOZILLA_DEV_ITEMS_API = "https://marketplace-dev-cdn.allizom.org/dumped-apps/tarballs/%Y-%m-%d.tgz"
@@ -247,13 +246,13 @@ class FillTool(object):
         assert len(items) == len(objects), \
             "Size of items and size of objects are different (%d != %d)" % (len(items), len(objects))
 
-        if "recommendation.diversity" in settings.INSTALLED_APPS and not TESTING_MODE:
+        if "recommendation.diversity" in settings.INSTALLED_APPS:
             #logging.debug("Preparing genres")
             db_categories = self.get_genres(categories)
             self.fill_item_genre(objects, items, db_categories)
             #logging.debug("Genres loaded")
 
-        if "recommendation.language" in settings.INSTALLED_APPS and not TESTING_MODE:
+        if "recommendation.language" in settings.INSTALLED_APPS:
             #logging.debug("Preparing languages")
             db_locales = self.get_locales(locales)
             db_regions = self.get_regions(regions)
@@ -462,7 +461,7 @@ class FillTool(object):
         assert len(users) == size, \
             "Size of loaded objects and users in db is not the same (%d != %d)" % (len(users), size)
 
-        if "recommendation.language" in settings.INSTALLED_APPS and not TESTING_MODE:
+        if "recommendation.language" in settings.INSTALLED_APPS:
             self.fill_user_locale(users, regions, langs)
         #logging.debug("%d new users saved with bulk_create" % len(new_users))
 
@@ -557,8 +556,6 @@ class FillTool(object):
             for ur in UserLocale.objects.filter(locale_query):
                 del user_locales[ur.locale_id][ur.user_id]
         UserLocale.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_locales.values())))
-
-
 
 
 class Command(DocOptCommand):

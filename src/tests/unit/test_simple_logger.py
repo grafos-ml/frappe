@@ -6,12 +6,9 @@ __author__ = "joaonrb"
 
 import numpy as np
 import random
-import unittest as un
 import time
 from random import shuffle
 from django.test import TestCase
-from django.utils import timezone as dt
-from django.conf import settings
 from django.core.cache import get_cache
 from recommendation.models import Item, User, Inventory
 from recommendation.simple_logging.models import LogEntry, LOGGER_MAX_LOGS
@@ -167,14 +164,12 @@ class TestSimpleLoggerCache(TestCase):
         User.objects.all().delete()
         LogEntry.objects.all().delete()
 
-    @un.skipIf(not settings.TESTING_MODE, "Testing mode is not set to true")
     def test_max_log_is_10(self):
         """
         [recommendation.cache.SimpleLogger] Test if the cache limit in debug mode is 10
         """
-        assert LOGGER_MAX_LOGS == 10, "Log cache limit is not set to 10"
+        assert LOGGER_MAX_LOGS == 10, "Log cache limit is not set to 10 (%s)" % LOGGER_MAX_LOGS
 
-    @un.skipIf(not settings.TESTING_MODE, "Testing mode is not set to true")
     def test_size_of_logs_in_cache(self):
         """
         [recommendation.cache.SimpleLogger] Test size of cache is 10 for all users in system

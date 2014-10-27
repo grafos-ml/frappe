@@ -1,4 +1,44 @@
-### Update results in doc (HEAD, master)
+### Fix tests (HEAD, master)
+>Mon, 27 Oct 2014 10:36:50 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix popularity (origin/master, origin/HEAD)
+>Fri, 24 Oct 2014 14:36:13 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### None items filter
+>Thu, 23 Oct 2014 16:17:11 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix new items in filters and rerankers.
+>Wed, 22 Oct 2014 15:40:39 +0200
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Update results in doc
 >Wed, 22 Oct 2014 12:41:24 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -218,7 +258,7 @@
 
 
 
-### Add PyInstrument (origin/master, origin/HEAD)
+### Add PyInstrument
 >Fri, 17 Oct 2014 15:29:00 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

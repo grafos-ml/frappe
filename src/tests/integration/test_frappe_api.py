@@ -9,7 +9,6 @@ import pandas as pd
 import numpy as np
 from time import sleep
 from pkg_resources import resource_filename
-from django.db import connection
 from django.test import TestCase
 from django.test.client import Client
 from django.core.cache import get_cache
@@ -22,7 +21,7 @@ from recommendation.language.models import Locale, ItemLocale, UserLocale, Regio
 from recommendation.diversity.models import ItemGenre, Genre
 
 
-class TestRecommendation(TestCase):
+class TestFrappeAPI(TestCase):
     """
     Test suite for recommendation system
 
@@ -62,65 +61,12 @@ class TestRecommendation(TestCase):
         ItemLocale.objects.all().delete()
         UserLocale.objects.all().delete()
         Locale.objects.all().delete()
-        # This for sqlite delete
-        if connection.vendor == "sqlite":
-            while Inventory.objects.all().count() != 0:
-                Inventory.objects.filter(pk__in=Inventory.objects.all()[:100]).delete()
-            while Item.objects.all().count() != 0:
-                Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
-        else:
-            Inventory.objects.all().delete()
-            Item.objects.all().delete()
+        Inventory.objects.all().delete()
+        Item.objects.all().delete()
         User.objects.all().delete()
         Matrix.objects.all().delete()
         get_cache("default").clear()
         get_cache("local").clear()
-
-    def test_get_recommendation_more_than_3(self):
-        """
-        [recommendation.api.GetRecommendation] Get recommendation as json for a user with more than 3 apps
-        """
-        response = \
-            self.client.get("/api/v2/recommend/5/00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/")
-        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
-        rec = json.loads(response.content)
-        assert rec["user"] in map(lambda x: x.external_id, User.objects.all()), "User don't exist in cache"
-        assert len(rec["recommendations"]) == 5, "Size of recommendation not 5"
-
-    def test_get_recommendation_less_than_3(self):
-        """
-        [recommendation.api.GetRecommendation] Get recommendation as json for a user with less than 3 apps
-        """
-        response = \
-            self.client.get("/api/v2/recommend/5/0047765d0b6165476b11297e58a341c357af9c35e12efd8c060dabe293ea338d/")
-        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
-        rec = json.loads(response.content)
-        assert rec["user"] in map(lambda x: x.external_id, User.objects.all()), "User don't exist in cache"
-        assert len(rec["recommendations"]) == 5, "Size of recommendation not 5"
-
-    def test_recommendation_with_testfm(self):
-        """
-        [recommendation.api.GetRecommendation] Test recommendation with testfm
-        """
-        data = np.array(zip(*map(lambda x: (x["user_id"]-1, x["item_id"]-1, 1.),
-                                 Inventory.objects.all().values("user_id", "item_id"))), dtype=np.float32)
-        users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
-        df = pd.DataFrame({"user": pd.Series(users), "item": pd.Series(items)}, dtype=np.float32)
-        evaluator = Evaluator(use_multi_threading=False)
-        tensor = TensorCoFi.get_model_from_cache()
-        tfm_tensor = PyTensorCoFi()
-        tfm_tensor.data_map = tensor.data_map
-        tfm_tensor.users_size = lambda: tensor.users_size()
-        tfm_tensor.items_size = lambda: tensor.items_size()
-        tfm_tensor.get_score = lambda user, item: \
-            np.dot(tfm_tensor.factors[0][tfm_tensor.data_map[tfm_tensor.get_user_column()][user]],
-                   tfm_tensor.factors[1][tfm_tensor.data_map[tfm_tensor.get_item_column()][item]].transpose())
-        tfm_tensor.train(data.transpose())
-        items = df.item.unique()
-        t = evaluator.evaluate_model(tensor, df, all_items=items, non_relevant_count=100)
-        tfm = evaluator.evaluate_model(tfm_tensor, df, all_items=items, non_relevant_count=100)
-        assert abs(t[0] - tfm[0]) < 0.15, \
-            "Difference between testfm implementation and frappe is to high (%f, %f)" % (t[0], tfm[0])
 
     def test_recommendation_get_user_item(self):
         """
@@ -163,3 +109,242 @@ class TestRecommendation(TestCase):
         assert len(User.get_user_by_external_id(
             "006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173").owned_items) == 0, \
             "Owned items should be 0"
+
+
+class TestRecommendation(TestCase):
+    """
+    Test suite for recommendation system
+
+    Test:
+        - Get recommendation
+        - Test recommendation against test.fm results
+    """
+
+    @classmethod
+    def setup_class(cls, *args, **kwargs):
+        """
+        Put elements in db
+        """
+        path = resource_filename(recommendation.__name__, "/")
+        fill.FillTool({"items": True, "--mozilla": True, "prod": True}).load()
+        fill.FillTool({"users": True, "--mozilla": True, "<path>": path+"data/user"}).load()
+        modelcrafter.main("train", "popularity")
+        modelcrafter.main("train", "tensorcofi")
+        # Load user and items
+        Item.load_to_cache()
+        User.load_to_cache()
+        # Load main models
+        Popularity.load_to_cache()
+        TensorCoFi.load_to_cache()
+        Locale.load_to_cache()
+        Region.load_to_cache()
+        Genre.load_to_cache()
+        cls.client = Client()
+
+    @classmethod
+    def teardown_class(cls, *args, **kwargs):
+        """
+        Take elements from db
+        """
+        ItemRegion.objects.all().delete()
+        UserRegion.objects.all().delete()
+        Region.objects.all().delete()
+        ItemGenre.objects.all().delete()
+        Genre.objects.all().delete()
+        ItemLocale.objects.all().delete()
+        UserLocale.objects.all().delete()
+        Locale.objects.all().delete()
+        Inventory.objects.all().delete()
+        Item.objects.all().delete()
+        User.objects.all().delete()
+        Matrix.objects.all().delete()
+        get_cache("default").clear()
+        get_cache("local").clear()
+
+    def test_get_recommendation_more_than_3(self):
+        """
+        [recommendation.api.GetRecommendation] Get recommendation as json for a user with more than 3 apps
+        """
+        response = \
+            self.client.get("/api/v2/recommend/5/00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/")
+        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
+        rec = json.loads(response.content)
+        assert rec["user"] in map(lambda x: x.external_id, User.objects.all()), "User don't exist in cache"
+        assert len(rec["recommendations"]) == 5, "Size of recommendation not 5"
+
+    def test_get_recommendation_less_than_3(self):
+        """
+        [recommendation.api.GetRecommendation] Get recommendation as json for a user with less than 3 apps
+        """
+        response = \
+            self.client.get("/api/v2/recommend/5/0047765d0b6165476b11297e58a341c357af9c35e12efd8c060dabe293ea338d/")
+        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
+        rec = json.loads(response.content)
+        assert rec["user"] in map(lambda x: x.external_id, User.objects.all()), "User don't exist in cache"
+        print rec
+        assert len(rec["recommendations"]) == 5, "Size of recommendation not 5 (%d)" % len(rec["recommendations"])
+
+    def test_recommendation_with_testfm(self):
+        """
+        [recommendation.api.GetRecommendation] Test recommendation with testfm
+        """
+        data = np.array(zip(*map(lambda x: (x["user_id"]-1, x["item_id"]-1, 1.),
+                                 Inventory.objects.all().values("user_id", "item_id"))), dtype=np.float32)
+        users, items = zip(*Inventory.objects.all().values_list("user_id", "item_id"))
+        df = pd.DataFrame({"user": pd.Series(users), "item": pd.Series(items)}, dtype=np.float32)
+        evaluator = Evaluator(use_multi_threading=False)
+        tensor = TensorCoFi.get_model_from_cache()
+        tfm_tensor = PyTensorCoFi()
+        tfm_tensor.data_map = tensor.data_map
+        tfm_tensor.users_size = lambda: tensor.users_size()
+        tfm_tensor.items_size = lambda: tensor.items_size()
+        tfm_tensor.get_score = lambda user, item: \
+            np.dot(tfm_tensor.factors[0][tfm_tensor.data_map[tfm_tensor.get_user_column()][user]],
+                   tfm_tensor.factors[1][tfm_tensor.data_map[tfm_tensor.get_item_column()][item]].transpose())
+        tfm_tensor.train(data.transpose())
+        items = df.item.unique()
+        t = evaluator.evaluate_model(tensor, df, all_items=items, non_relevant_count=100)
+        tfm = evaluator.evaluate_model(tfm_tensor, df, all_items=items, non_relevant_count=100)
+        assert abs(t[0] - tfm[0]) < 0.15, \
+            "Difference between testfm implementation and frappe is to high (%f, %f)" % (t[0], tfm[0])
+
+    def test_liveliness_of_recommendation_size_5(self):
+        """
+        [recommendation.api.GetRecommendation] Test liveliness for size 5 recommendation (at least 3 different items)
+        """
+        size = 5
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec0 = json.loads(response.content)["recommendations"]
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec1 = json.loads(response.content)["recommendations"]
+        measure = 0
+        for item in rec1:
+            if item in rec0:
+                measure += 1
+        assert measure < (size/2.), "New recommendation not different enough"
+
+    def test_liveliness_of_recommendation_size_15(self):
+        """
+        [recommendation.api.GetRecommendation] Test liveliness for size 15 recommendation (at least 8 different items)
+        """
+        size = 15
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec0 = json.loads(response.content)["recommendations"]
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec1 = json.loads(response.content)["recommendations"]
+        measure = 0
+        for item in rec1:
+            if item in rec0:
+                measure += 1
+        assert measure < (size/2.), "New recommendation not different enough"
+
+    def test_liveliness_of_recommendation_size_25(self):
+        """
+        [recommendation.api.GetRecommendation] Test liveliness for size 25 recommendation (at least 9 different items)
+        """
+        size = 25
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec0 = json.loads(response.content)["recommendations"]
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+
+        rec1 = json.loads(response.content)["recommendations"]
+        measure = 0
+        for item in rec1:
+            if item in rec0:
+                measure += 1
+        assert measure < (size*2./3.), "New recommendation not different enough"
+
+    def test_diversity_on_recommendation_5(self):
+        """
+        [recommendation.api.GetRecommendation] Test diversity for size 5 recommendation (at least 2/3 of user genres)
+        """
+        size = 5
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        user_id = User.get_user_id_by_external_id("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
+        user_genres = ItemGenre.genre_in(
+            Item.get_item_by_id(item_id) for item_id in User.get_user_items(user_id)
+        )
+        recommendation_genres = ItemGenre.genre_in(
+            Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
+        )
+        less, more = (user_genres, recommendation_genres) if len(user_genres) < len(recommendation_genres) else \
+            (recommendation_genres, user_genres)
+        measure = 0
+        for genre in less:
+            if genre in more:
+                measure += 1
+
+        assert measure > len(less)*2./3., \
+            "Not sufficient genres in recommendation" \
+            "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))
+
+    def test_diversity_on_recommendation_15(self):
+        """
+        [recommendation.api.GetRecommendation] Test diversity for size 15 recommendation (at least 1/2 of user genres)
+        """
+        size = 15
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        user_id = User.get_user_id_by_external_id("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
+        user_genres = ItemGenre.genre_in(
+            Item.get_item_by_id(item_id) for item_id in User.get_user_items(user_id)
+        )
+        recommendation_genres = ItemGenre.genre_in(
+            Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
+        )
+        less, more = (user_genres, recommendation_genres) if len(user_genres) < len(recommendation_genres) else \
+            (recommendation_genres, user_genres)
+        measure = 0
+        for genre in less:
+            if genre in more:
+                measure += 1
+
+        assert measure > len(less)/2., \
+            "Not sufficient genres in recommendation" \
+            "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))
+
+    def test_diversity_on_recommendation_25(self):
+        """
+        [recommendation.api.GetRecommendation] Test diversity for size 25 recommendation (at least 2/3 of user genres)
+        """
+        size = 2501
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        user_id = User.get_user_id_by_external_id("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
+        user_genres = ItemGenre.genre_in(
+            Item.get_item_by_id(item_id) for item_id in User.get_user_items(user_id)
+        )
+        recommendation_genres = ItemGenre.genre_in(
+            Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
+        )
+        less, more = (user_genres, recommendation_genres) if len(user_genres) < len(recommendation_genres) else \
+            (recommendation_genres, user_genres)
+        measure = 0
+        for genre in less:
+            if genre in more:
+                measure += 1
+
+        assert measure > len(less)*2./3., \
+            "Not sufficient genres in recommendation" \
+            "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))

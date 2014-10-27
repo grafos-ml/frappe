@@ -54,7 +54,7 @@ _______
      Percentile 99%(time)		134 ms
      Percentile 100%(time)		219 ms
 
-     $ siege [-c4 -c8 -c16 -c32 -c64] -t1m -b -i -f frappe/mozzila/user_reco_url.txt
+     $ siege [-c4 -c8 -c16 -c32 -c64] -t1m -b -i -f user_reco_url.txt
 
             Date & Time,  Trans,  Elap Time,  Data Trans,  Resp Time,  Trans Rate,  Throughput,  Concurrent,    OKAY,   Failed
     2014-10-21 06:02:29,   2343,      29.24,           0,       0.05,       80.13,        0.00,        4.00,    2343,       0

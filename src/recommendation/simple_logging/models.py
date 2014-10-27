@@ -9,6 +9,7 @@ Models for the logging system
 
 __author__ = "joaonrb"
 
+import os
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.admin import site
@@ -19,7 +20,7 @@ from django.core.cache import get_cache
 from recommendation.models import Item, User
 from recommendation.decorators import Cached
 
-LOGGER_MAX_LOGS = 10 if settings.TESTING_MODE else getattr(settings, "LOGGER_MAX_LOGS", 50)
+LOGGER_MAX_LOGS = 10 if int(os.environ.get("FRAPPE_TEST", 0)) else getattr(settings, "LOGGER_MAX_LOGS", 50)
 
 
 class LogEntry(models.Model):

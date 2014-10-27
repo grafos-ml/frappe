@@ -17,6 +17,7 @@ Options:
 import os
 import sys
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "recommendation.default_settings")
+os.environ.setdefault("FRAPPE_TEST", "1")
 import django
 django.setup()
 from django.core.management import call_command

@@ -38,8 +38,14 @@ class SimpleDiversity(object):
         self.counter = {}
         for genre_id in Genre.get_all_genres():
             genre = Genre.get_genre_by_id(genre_id)
-            p_global = genre.count_items / number_items
-            p_local = user_genres.get(genre, 0.) / user_items_count if user_items_count else 0.
+            try:
+                p_global = genre.count_items / number_items
+            except ZeroDivisionError:
+                p_global = 0.
+            try:
+                p_local = user_genres.get(genre, 0.) / user_items_count
+            except ZeroDivisionError:
+                p_local = 0.
             self.counter[genre.pk] = int(weighted_p(p_global, p_local, alpha_constant) * size)
 
     def __call__(self, recommendation, item_id):
