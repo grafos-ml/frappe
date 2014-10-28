@@ -323,7 +323,3 @@ def delete_inventory_to_cache(sender, instance, using, *args, **kwargs):
     Add item to cache upon creation
     """
     instance.user.delete_item(instance)
-
-
-from django.contrib import admin
-admin.site.register([Item, User, Inventory])

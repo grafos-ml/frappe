@@ -1,4 +1,14 @@
-### ZipPythonObjectField (HEAD, v3_develop)
+### half way for module (HEAD, v3_develop)
+>Tue, 28 Oct 2014 16:54:02 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### ZipPythonObjectField
 >Tue, 28 Oct 2014 14:59:39 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
