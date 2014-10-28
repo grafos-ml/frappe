@@ -1,4 +1,14 @@
-### New version setup (HEAD, v3_develop)
+### ZipPythonObjectField (HEAD, v3_develop)
+>Tue, 28 Oct 2014 14:59:39 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### New version setup
 >Tue, 28 Oct 2014 11:28:37 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

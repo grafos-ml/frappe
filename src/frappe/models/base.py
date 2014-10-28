@@ -8,9 +8,9 @@ __author__ = "joaonrb"
 import click
 from django.db import models
 from django.utils.translation import ugettext as _
-from frappe.decorators import Cached
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from frappe.decorators import Cached
 
 
 class Item(models.Model):
