@@ -7,14 +7,10 @@ __author__ = "joaonrb"
 
 
 import sys
+import base64
 import numpy as np
 import pandas as pd
 import click
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-from six import string_types
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.six import with_metaclass
@@ -26,6 +22,86 @@ from testfm.models.baseline_model import Popularity as TestFMPopularity
 from recommendation.decorators import Cached
 if sys.version_info >= (3, 0):
     basestring = unicode = str
+
+
+class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
+    """
+    Numpy Array field to store numpy arrays in database
+
+    In the Frappe backend it was called Base64Field. This is better I think.
+    """
+
+    description = """Matrix for tensor controller to find nice app suggestions"""
+    __metaclass__ = models.SubfieldBase
+
+    DECODE_MATRIX = lambda self, x: (base64.decodebytes if sys.version_info >= (3, 0) else base64.decodestring)(x)
+
+    def to_python(self, value):
+        """
+        Convert the value from the database to python like object
+
+        >>> # Passing a numpy array with one dimension with data type float 32
+        >>> # np.np.array([1, 2, 3, 4], dtype=np.float32)
+        >>> string_array = "1:4:AACAPwAAAEAAAEBAAACAQA=="
+        >>> np_array = NPArrayField().to_python(string_array)
+
+        >>> print(np_array)  # Is an array from 1 to 4
+        [ 1.  2.  3.  4.]
+
+        >>> type(np_array)  # Is a numpy array
+        <type 'numpy.ndarray'>
+
+        >>> len(np_array.shape) == 1  # Has one dimension
+        True
+
+        >>> for i in np_array:
+        ...     print(i)
+        ...     print(type(i))
+        1.0
+        <type 'numpy.float32'>
+        2.0
+        <type 'numpy.float32'>
+        3.0
+        <type 'numpy.float32'>
+        4.0
+        <type 'numpy.float32'>
+
+        >>> # Passing a numpy array with one dimension with data type float 64
+        >>> # np.np.array([1, 2, 3, 4], dtype=np.float64)
+        >>> string_array = "1:4:AQAAAAAAAAACAAAAAAAAAAMAAAAAAAAABAAAAAAAAAA="
+        >>> np_array64 = NPArrayField().to_python(string_array)
+        Traceback (most recent call last):
+        ...
+        ValueError: total size of new array must be unchanged
+
+        :param value: String from database
+        :return: A numpy matrix
+        """
+        if isinstance(value, basestring):
+            value = bytes(value, "utf-8") if sys.version_info >= (3, 0) else bytes(value)
+        if isinstance(value, bytes):
+            parts = value.split(":")
+            dim, rest = int(parts[0]), parts[1:]
+            shape, matrix = rest[:dim], np.fromstring(self.DECODE_MATRIX(":".join(rest[dim:])), dtype=np.float32)
+            matrix.shape = tuple(int(i) for i in shape)
+            return matrix
+        return value
+
+    def get_prep_value(self, value):
+        """
+        Prepare the value from python like object to database like value.
+
+        >>> np_array = np.array([1, 2, 3, 4], dtype=np.float32)
+        >>> np_string = NPArrayField().get_prep_value(np_array)
+        >>> print(np_string)
+        1:4:AACAPwAAAEAAAEBAAACAQA==
+
+        :param value: Matrix to keep in database
+        :return: Base64 representation string encoded in utf-8
+        """
+        if isinstance(value, np.ndarray):
+            return ":".join([str(len(value.shape)), ":".join(map(lambda x: str(x), value.shape)),
+                             base64.b64encode(value.tostring())])
 
 
 class Item(models.Model):
@@ -220,8 +296,8 @@ class User(models.Model):
             inventory = {}
             max_id = 0
             for i in bar:
-                for max_id, user_id, item_id, is_dropped in Inventory.objects.filter(id__gt=max_id)\
-                        .order_by("pk")[i:i+100000].values_list("pk", "user_id", "item_id", "is_dropped"):
+                for max_id, user_id, item_id, is_dropped in Inventory.objects.filter(id__gt=max_id) \
+                                                                    .order_by("pk")[i:i+100000].values_list("pk", "user_id", "item_id", "is_dropped"):
                     try:
                         inventory[user_id][item_id] = is_dropped
                     except KeyError:
@@ -340,155 +416,6 @@ def delete_inventory_to_cache(sender, instance, using, *args, **kwargs):
     instance.user.delete_item(instance)
 
 
-class MappedField(with_metaclass(models.SubfieldBase, models.TextField)):
-    """
-    Mapped structure to be saved in database.
-    """
-
-    description = """Mapped structure."""
-    __metaclass__ = models.SubfieldBase
-
-    def to_python(self, value):
-        """
-        Convert the value from the database to python like object
-
-        >>> # Dictionary with numpy array
-        >>> # {1: np.np.array([1, 2, 3, 4], dtype=np.float32)}
-        >>> string = "(dp1\nI1\ncnumpy.core.multiarray\n_reconstruct\np2\n(cnumpy\nndarray\np3\n(I0\ntS'b'\ntRp4\n(I1\n(I4\ntcnumpy\ndtype\np5\n(S'f4'\nI0\nI1\ntRp6\n(I3\nS'<'\nNNNI-1\nI-1\nI0\ntbI00\nS'\\x00\\x00\\x80?\\x00\\x00\\x00@\\x00\\x00@@\\x00\\x00\\x80@'\ntbs."
-        >>> some_dict = MappedField().to_python(string)
-
-        >>> print(some_dict)
-        {1: array([ 1.,  2.,  3.,  4.], dtype=float32)}
-
-        >>> type(some_dict)
-        <type 'dict'>
-
-        >>> len(some_dict[1].shape) == 1  # Has one dimension
-        True
-
-        >>> for i in some_dict[1]:
-        ...     print(i)
-        ...     print(type(i))
-        1.0
-        <type 'numpy.float32'>
-        2.0
-        <type 'numpy.float32'>
-        3.0
-        <type 'numpy.float32'>
-        4.0
-        <type 'numpy.float32'>
-
-        :param value: String from database
-        :return: A numpy matrix
-        """
-        if isinstance(value, string_types):
-            return pickle.loads(value)
-        return value
-
-    def get_prep_value(self, value):
-        """
-        Prepare the value from python like object to database like value.
-
-        >>> some_dict = {1: np.array([1, 2, 3, 4], dtype=np.float32)}
-        >>> string = MappedField().get_prep_value(some_dict)
-        >>> print(string)
-        (dp1
-        I1
-        cnumpy.core.multiarray
-        _reconstruct
-        p2
-        (cnumpy
-        ndarray
-        p3
-        (I0
-        tS'b'
-        tRp4
-        (I1
-        (I4
-        tcnumpy
-        dtype
-        p5
-        (S'f4'
-        I0
-        I1
-        tRp6
-        (I3
-        S'<'
-        NNNI-1
-        I-1
-        I0
-        tbI00
-        S'\x00\x00\x80?\x00\x00\x00@\x00\x00@@\x00\x00\x80@'
-        tbs.
-
-        :param value: Matrix to keep in database
-        :return: Base64 representation string encoded in utf-8
-        """
-        if isinstance(value, dict):
-            return pickle.dumps(value)
-
-
-class Module(models.Model):
-    """
-    Recommendation module for the frappe system
-    """
-
-    identifier = models.CharField(_("identifier"), max_length=50)
-    predictors = models.ManyToManyField("Predictor", verbose_name=_("predictors"))
-    filters = models.ManyToManyField("Filter", verbose_name=_("filters"))
-    rerankers = models.ManyToManyField("ReRanker", verbose_name=_("re-rankers"))
-
-    class Meta:
-        verbose_name = _("module")
-        verbose_name_plural = _("modules")
-
-    def predict_scores(self, user):
-        """
-        Get score array (recommendation)
-        """
-        return sum(*map(lambda x: x.predict_scores(user), self.get_all_predictors()))
-
-    def __str__(self):
-        return self.identifier
-
-    def __unicode__(self):
-        return self.identifier
-
-
-class Predictor(models.Model):
-    """
-    Predictor
-    """
-
-    identifier = models.CharField(_("identifier"), max_length=255)
-    python_class = models.CharField(_("identifier"), max_length=255)
-    model = MappedField(_("model"), null=True, blank=True)
-
-    class Meta:
-        verbose_name = _("predictor")
-        verbose_name_plural = _("predictors")
-
-    def __str__(self):
-        return self.identifier
-
-    def __unicode__(self):
-        return self.identifier
-
-    def predict_scores(self, user):
-        """
-        Get score array
-        """
-        return self.get_predictor_scores(self, user)
-
-    @staticmethod
-    @Cached()
-    def get_predictor_scores(identifier, user):
-        """
-        Get the predictor from this predictor setts.
-        """
-
-
-
 class Matrix(models.Model):
     """
     Numpy Matrix in database
@@ -496,7 +423,7 @@ class Matrix(models.Model):
 
     name = models.CharField(_("name"), max_length=255)
     model_id = models.SmallIntegerField(_("model id"), null=True, blank=True)
-    numpy = MappedField(_("numpy array"))
+    numpy = NPArrayField(_("numpy array"))
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
 
     class Meta:
