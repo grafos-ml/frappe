@@ -123,8 +123,8 @@ Note, that the Module constantly pols the database to check if there are new
 models available. It loads these models in a background process and swaps
 the old models with the new models.
 
-The serving system is fast, and most parts of the code are 
-optimised for faste execution. We describe here the optimisations performed for the Matrix
+The serving system should be efficient, therefore, most parts of the code are 
+optimised for fast execution. We describe here the optimisations performed for the Matrix
 Factorisation algorithm
 (http://sifter.org/~simon/journal/20061211.html). When using this model,
 we get a utility score for a user and an item by computing a dot
@@ -241,7 +241,7 @@ Extensions and Generality
 
 The above described system could be a building block for a simple and effective recommendation system. 
 We have a limit on the number of items in the catalogue. To mitigate this problem we could use 
-(beatifull new result) ALSH http://arxiv.org/abs/1405.5869
+(beautiful new result) ALSH http://arxiv.org/abs/1405.5869
 Basically instead of using full item matrix, we would divide items into buckets based on ALSH,
 and perform above defined operations for several buckets. Here only reranker should be fired
 last and combine all the results from many buckets into a sigle answer.
