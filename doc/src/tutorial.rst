@@ -7,8 +7,8 @@ Tutorial for Developers
 Make a filter
 -------------
 
-A filter is a callable class that can be used to implement a business logic to filter out irrelevant recommendations.
-Filters are executed after a recommendation model (such as Collaborative Filtering) made user-item utility score predictions.
+A filter is a callable class that can be used to implement a business logic to filter out items from the final recommendation list.
+Filters are executed after a recommendation model (such as Collaborative Filtering) has made user-item utility score predictions.
 
 .. code-block:: python
    
@@ -17,10 +17,10 @@ Filters are executed after a recommendation model (such as Collaborative Filteri
         def __call__(self, user, recommendation, size):
             """
 
-            :param user: An recommendation.models.User instance for the user that ask for the recommendation.
-            :param recommendation: An numpy.array with shape (n,) being n the number of items in the system.
+            :param user: A recommendation.models.User instance of the user that is asking for recommendations.
+            :param recommendation: An numpy.array with shape (n,) n being the number of items in the system.
                 The index of the array should represent the id for the item in the database and the value a
-                score in witch the recommendation will be evaluated.
+                score in which the recommendation will be evaluated.
             :param size: The size of the recommendation asked.
             """
             for item in user.owned_items:
@@ -80,24 +80,24 @@ Overview of the serving system
 General Flow
 ~~~~~~~~~~~~
 
-While implementing recsys serving engine we had to make some architectural choices.
-For example, we do on-line recommendation computations instead of precomputing recommendations
-for each user and serving them later out of cache. This provides flexibility and possibility to include additional
-features such as context-aware recommendations. However, 
-it limit us on the number of request per second we can serve. Currently we can respond in 
-reasonable time (check the results section for the info) for catalogue of up to 100K items.
+While implementing the recommendations serving engine we had to make some architectural choices.
+For example, we do the recommendation computations on-line instead of precomputing recommendations
+for each user and serving them later out of a cache. This provides flexibility and possibilities to include additional
+features such as context information into the recommendations. However, 
+it limit the number of recommendation request per second that we can serve. The recommendations rate of the engine is more than 
+enough to cope (check the results section for the info) with a catalogue of up to 100K items.
 
-Here we want to give an overview of the more tricky parts of the system, so that the developers
-could understand them before diving into the code.
+Here we want to give an overview of the more tricky parts of the system, so that developers
+can understand them before diving into the code.
 
 .. image:: scruffy/general-flow.png
 
-The flow diagram above shows the general flow of the information in the frappe system. The Client
-(in our case it is someone who uses frappe as a service) asks for a recommendation. Our A/B testing system
+The flow diagram above shows the general flow of the information in the frappe recommendation system. The Client
+(in our case it is someone who uses frappe as a service) asks for a recommendation. The Frappe A/B testing system
 selects the module to do recommendations. The Module has predictors, filters and rerankers that
-implements core algorithm and business rules around them. Module asks the core algorithm to predict scores
-for each item, then asks filters to filter irrelevant recommendations and at the end asks reranker to 
-modify scores. The result is returned to the client and is logged to the auditing system for further analysis.
+implements the core recommendation algorithms and the business rules around them. The Module asks the core algorithm to predict (relevance) scores
+for each item, then asks the filters to (based on some predetermined logic) filter items out from the recommendations and finally asks the 
+reranker to modify the scores. The result is returned to the client and is logged at the auditing system for further analysis.
 
 
 Module
