@@ -84,7 +84,7 @@ While implementing the recommendations serving engine we had to make some archit
 For example, we do the recommendation computations on-line instead of precomputing recommendations
 for each user and serving them later out of a cache. This provides flexibility and possibilities to include additional
 features such as context information into the recommendations. However, 
-it limit the number of recommendation request per second that we can serve. The recommendations rate of the engine is more than 
+it limits the number of recommendation requests per second that we can serve. The recommendations rate of the engine is more than 
 enough to cope (check the results section for the info) with a catalogue of up to 100K items.
 
 Here we want to give an overview of the more tricky parts of the system, so that developers
