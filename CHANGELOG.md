@@ -1,4 +1,74 @@
-### Change np array field to mapped field (HEAD, v3_develop)
+### New version setup (HEAD, v3_develop)
+>Tue, 28 Oct 2014 11:26:58 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### minor
+>Mon, 27 Oct 2014 16:49:53 +0100
+
+>Author: mumas (linas.baltrunas@gmail.com)
+
+>Commiter: mumas (linas.baltrunas@gmail.com)
+
+
+
+
+### removed line numbers
+>Mon, 27 Oct 2014 16:48:57 +0100
+
+>Author: Linas (linas.baltrunas@gmail.com)
+
+>Commiter: Linas (linas.baltrunas@gmail.com)
+
+removed line numbers as otherwise the code is not displayed
+
+
+### small fixes
+>Mon, 27 Oct 2014 16:34:09 +0100
+
+>Author: mumas (linas.baltrunas@gmail.com)
+
+>Commiter: mumas (linas.baltrunas@gmail.com)
+
+
+
+
+### more examples
+>Mon, 27 Oct 2014 16:26:23 +0100
+
+>Author: mumas (linas.baltrunas@gmail.com)
+
+>Commiter: mumas (linas.baltrunas@gmail.com)
+
+
+
+
+### added example with matrices
+>Mon, 27 Oct 2014 15:26:56 +0100
+
+>Author: mumas (linas.baltrunas@gmail.com)
+
+>Commiter: mumas (linas.baltrunas@gmail.com)
+
+
+
+
+### first version of documentation
+>Mon, 27 Oct 2014 14:59:15 +0100
+
+>Author: mumas (linas.baltrunas@gmail.com)
+
+>Commiter: mumas (linas.baltrunas@gmail.com)
+
+
+
+
+### Change np array field to mapped field
 >Mon, 27 Oct 2014 14:47:54 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

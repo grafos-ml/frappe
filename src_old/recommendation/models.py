@@ -7,7 +7,6 @@ __author__ = "joaonrb"
 
 
 import sys
-import base64
 import numpy as np
 import pandas as pd
 import click
@@ -25,94 +24,8 @@ from django.dispatch import receiver
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity as TestFMPopularity
 from recommendation.decorators import Cached
-
-
-class MappedField(with_metaclass(models.SubfieldBase, models.TextField)):
-    """
-    Mapped structure to be saved in database.
-    """
-
-    description = """Mapped structure."""
-    __metaclass__ = models.SubfieldBase
-
-    def to_python(self, value):
-        """
-        Convert the value from the database to python like object
-
-        >>> # Dictionary with numpy array
-        >>> # {1: np.np.array([1, 2, 3, 4], dtype=np.float32)}
-        >>> string = "(dp1\nI1\ncnumpy.core.multiarray\n_reconstruct\np2\n(cnumpy\nndarray\np3\n(I0\ntS'b'\ntRp4\n(I1\n(I4\ntcnumpy\ndtype\np5\n(S'f4'\nI0\nI1\ntRp6\n(I3\nS'<'\nNNNI-1\nI-1\nI0\ntbI00\nS'\\x00\\x00\\x80?\\x00\\x00\\x00@\\x00\\x00@@\\x00\\x00\\x80@'\ntbs."
-        >>> some_dict = MappedField().to_python(string)
-
-        >>> print(some_dict)
-        {1: array([ 1.,  2.,  3.,  4.], dtype=float32)}
-
-        >>> type(some_dict)
-        <type 'dict'>
-
-        >>> len(some_dict[1].shape) == 1  # Has one dimension
-        True
-
-        >>> for i in some_dict[1]:
-        ...     print(i)
-        ...     print(type(i))
-        1.0
-        <type 'numpy.float32'>
-        2.0
-        <type 'numpy.float32'>
-        3.0
-        <type 'numpy.float32'>
-        4.0
-        <type 'numpy.float32'>
-
-        :param value: String from database
-        :return: A numpy matrix
-        """
-        if isinstance(value, string_types):
-            return pickle.loads(value)
-        return value
-
-    def get_prep_value(self, value):
-        """
-        Prepare the value from python like object to database like value.
-
-        >>> some_dict = {1: np.array([1, 2, 3, 4], dtype=np.float32)}
-        >>> string = MappedField().get_prep_value(some_dict)
-        >>> print(string)
-        (dp1
-        I1
-        cnumpy.core.multiarray
-        _reconstruct
-        p2
-        (cnumpy
-        ndarray
-        p3
-        (I0
-        tS'b'
-        tRp4
-        (I1
-        (I4
-        tcnumpy
-        dtype
-        p5
-        (S'f4'
-        I0
-        I1
-        tRp6
-        (I3
-        S'<'
-        NNNI-1
-        I-1
-        I0
-        tbI00
-        S'\x00\x00\x80?\x00\x00\x00@\x00\x00@@\x00\x00\x80@'
-        tbs.
-
-        :param value: Matrix to keep in database
-        :return: Base64 representation string encoded in utf-8
-        """
-        if isinstance(value, dict):
-            return pickle.dumps(value)
+if sys.version_info >= (3, 0):
+    basestring = unicode = str
 
 
 class Item(models.Model):
@@ -427,6 +340,155 @@ def delete_inventory_to_cache(sender, instance, using, *args, **kwargs):
     instance.user.delete_item(instance)
 
 
+class MappedField(with_metaclass(models.SubfieldBase, models.TextField)):
+    """
+    Mapped structure to be saved in database.
+    """
+
+    description = """Mapped structure."""
+    __metaclass__ = models.SubfieldBase
+
+    def to_python(self, value):
+        """
+        Convert the value from the database to python like object
+
+        >>> # Dictionary with numpy array
+        >>> # {1: np.np.array([1, 2, 3, 4], dtype=np.float32)}
+        >>> string = "(dp1\nI1\ncnumpy.core.multiarray\n_reconstruct\np2\n(cnumpy\nndarray\np3\n(I0\ntS'b'\ntRp4\n(I1\n(I4\ntcnumpy\ndtype\np5\n(S'f4'\nI0\nI1\ntRp6\n(I3\nS'<'\nNNNI-1\nI-1\nI0\ntbI00\nS'\\x00\\x00\\x80?\\x00\\x00\\x00@\\x00\\x00@@\\x00\\x00\\x80@'\ntbs."
+        >>> some_dict = MappedField().to_python(string)
+
+        >>> print(some_dict)
+        {1: array([ 1.,  2.,  3.,  4.], dtype=float32)}
+
+        >>> type(some_dict)
+        <type 'dict'>
+
+        >>> len(some_dict[1].shape) == 1  # Has one dimension
+        True
+
+        >>> for i in some_dict[1]:
+        ...     print(i)
+        ...     print(type(i))
+        1.0
+        <type 'numpy.float32'>
+        2.0
+        <type 'numpy.float32'>
+        3.0
+        <type 'numpy.float32'>
+        4.0
+        <type 'numpy.float32'>
+
+        :param value: String from database
+        :return: A numpy matrix
+        """
+        if isinstance(value, string_types):
+            return pickle.loads(value)
+        return value
+
+    def get_prep_value(self, value):
+        """
+        Prepare the value from python like object to database like value.
+
+        >>> some_dict = {1: np.array([1, 2, 3, 4], dtype=np.float32)}
+        >>> string = MappedField().get_prep_value(some_dict)
+        >>> print(string)
+        (dp1
+        I1
+        cnumpy.core.multiarray
+        _reconstruct
+        p2
+        (cnumpy
+        ndarray
+        p3
+        (I0
+        tS'b'
+        tRp4
+        (I1
+        (I4
+        tcnumpy
+        dtype
+        p5
+        (S'f4'
+        I0
+        I1
+        tRp6
+        (I3
+        S'<'
+        NNNI-1
+        I-1
+        I0
+        tbI00
+        S'\x00\x00\x80?\x00\x00\x00@\x00\x00@@\x00\x00\x80@'
+        tbs.
+
+        :param value: Matrix to keep in database
+        :return: Base64 representation string encoded in utf-8
+        """
+        if isinstance(value, dict):
+            return pickle.dumps(value)
+
+
+class Module(models.Model):
+    """
+    Recommendation module for the frappe system
+    """
+
+    identifier = models.CharField(_("identifier"), max_length=50)
+    predictors = models.ManyToManyField("Predictor", verbose_name=_("predictors"))
+    filters = models.ManyToManyField("Filter", verbose_name=_("filters"))
+    rerankers = models.ManyToManyField("ReRanker", verbose_name=_("re-rankers"))
+
+    class Meta:
+        verbose_name = _("module")
+        verbose_name_plural = _("modules")
+
+    def predict_scores(self, user):
+        """
+        Get score array (recommendation)
+        """
+        return sum(*map(lambda x: x.predict_scores(user), self.get_all_predictors()))
+
+    def __str__(self):
+        return self.identifier
+
+    def __unicode__(self):
+        return self.identifier
+
+
+class Predictor(models.Model):
+    """
+    Predictor
+    """
+
+    identifier = models.CharField(_("identifier"), max_length=255)
+    python_class = models.CharField(_("identifier"), max_length=255)
+    model = MappedField(_("model"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("predictor")
+        verbose_name_plural = _("predictors")
+
+    def __str__(self):
+        return self.identifier
+
+    def __unicode__(self):
+        return self.identifier
+
+    def predict_scores(self, user):
+        """
+        Get score array
+        """
+        return self.get_predictor_scores(self, user)
+
+    @staticmethod
+    @Cached()
+    def get_predictor_scores(identifier, user):
+        """
+        Get the predictor from this predictor setts.
+        """
+
+
+
 class Matrix(models.Model):
     """
     Numpy Matrix in database
@@ -434,7 +496,7 @@ class Matrix(models.Model):
 
     name = models.CharField(_("name"), max_length=255)
     model_id = models.SmallIntegerField(_("model id"), null=True, blank=True)
-    numpy = NPArrayField(_("numpy array"))
+    numpy = MappedField(_("numpy array"))
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
 
     class Meta:
