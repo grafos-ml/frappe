@@ -82,9 +82,10 @@ General Flow
 
 While implementing recsys serving engine we had to make some architectural choices.
 For example, we do on-line recommendation computations instead of precomputing recommendations
-for each user and later serving them. This provides flexibility and possibility to include context, 
-but limit us on the number of request per second we can serve. Currently we can respond in 
-reasonable time for catalogue of 50K items.
+for each user and serving them later out of cache. This provides flexibility and possibility to include additional
+features such as context-aware recommendations. However, 
+it limit us on the number of request per second we can serve. Currently we can respond in 
+reasonable time (check the results section for the info) for catalogue of up to 100K items.
 
 Here we want to give an overview of the more tricky parts of the system, so that the developers
 could understand them before diving into the code.
@@ -96,7 +97,7 @@ The flow diagram above shows the general flow of the information in the frappe s
 selects the module to do recommendations. The Module has predictors, filters and rerankers that
 implements core algorithm and business rules around them. Module asks the core algorithm to predict scores
 for each item, then asks filters to filter irrelevant recommendations and at the end asks reranker to 
-modify scores. The result is returned to the client and is logged to the auditing system.
+modify scores. The result is returned to the client and is logged to the auditing system for further analysis.
 
 
 Module
@@ -104,9 +105,9 @@ Module
 .. image:: scruffy/module-class.png
 
 A Module is an object that encapsulates most of the functionality of the recommender system. 
-It has predictors such as matrix factorisation that computes scores; aggregator combine these scores
-into a vector of scores (one score for one app); filters implement
-business logic not to show some of the recommendations, such as apps already owned by the user;
+It has predictors such as matrix factorisation that computes scores (one vector for each predictor); 
+aggregator combine these scores into a single vector of scores (one score for one app); filters implement
+business logic such as not to show some of the recommendations, i.e., items already owned/experienced by the user;
 reranker finally modifies the ranked list according to some criteria such as diversity.
 
 .. image:: scruffy/module-flow.png
@@ -137,12 +138,12 @@ floats).
     user1 = numpy.array([  0.2,   2.2,   0.4]) 
     numpy.dot(user1, item1) #17.44
     
-Here the user and item are represented in a 3-dimensional latent space and
+Here the user and the item are represented in a 3-dimensional latent space and
 the utility score of user1 liking item1 is 17.44. The scores do not mean
 a lot by themselves in isolation, but we can tell if the user would like
 item1 more than item2 (higher score means bigger utility, more "me like this").
 	
-Because we want to compute a score for all the items, we multiply user vector with
+Because we want to compute scores for all the items, we multiply user vector with
 an item matrix (bunch of vectors). As an output we get a vector of
 length the same as the number of items. 
 
@@ -234,6 +235,22 @@ For each of the predictor we construct an item matrix using the IdMap:
 If some item is missing in the loaded data ("item3" for model1), we simply put zeros there. 
 Now, each Module contains consistent IdMap for all the predictors within the Module. 
 Next, module constructs filters and rerankers using the same IdMap that also are unique for each Module.
+
+Extensions and Generality
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The above described system could be a building block for a simple and effective recsys system. 
+We have a limit on the number of items in the catalogue. To mitigate this problem we could use 
+(beatifull new result) ALSH http://arxiv.org/abs/1405.5869
+Basically instead of using full item matrix, we would divide items into buckets based on ALSH,
+and perform above defined operations for several buckets. Here only reranker should be fired
+last and combine all the results from many buckets into a sigle answer.
+
+Matrix Factorisation is not the only method we can serve. In fact, many methods could be fit
+into such serving system (popularity, random, personalised popularity). 
+Other methods that are very different could reimplement the getScores(user) interface.
+The filters and rerankers would still be the same and save some coding time.
+
 
 
 
