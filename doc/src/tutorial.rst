@@ -105,30 +105,30 @@ Module
 .. image:: scruffy/module-class.png
 
 A Module is an object that encapsulates most of the functionality of the recommender system. 
-It has predictors such as matrix factorisation that computes scores (one vector for each predictor); 
-aggregator combine these scores into a single vector of scores (one score for one app); filters implement
-business logic such as not to show some of the recommendations, i.e., items already owned/experienced by the user;
-reranker finally modifies the ranked list according to some criteria such as diversity.
+It has predictor methods such as matrix factorisation that compute scores (one vector for each predictor); 
+aggregators combine these scores into a single vector of scores (one score for each item); filters implement
+additional recommendation (business) logic e.g. do not to show items already owned/viewed by the user.
+The reranker finally modifies the ranked list according to some criteria such as diversity.
 
 .. image:: scruffy/module-flow.png
 
 The flow diagram above shows an example of how a Module processes the
 recommendations. We have two predictors that return a vectors of scores, which
 are then aggregated (i.e. weighted average) into a single vector of scores.
-The filters are fired in a chain just after the aggregator. A reranker is
+The filters are executed in a chain just after the aggregator. A reranker is
 usually quite expensive to execute and runs last before the result is
 returned.
 
-Note, that Module constantly pols the database to check if there are new
-models (data used by predictors) available. It loads these models in a background process and swaps
+Note, that the Module constantly pols the database to check if there are new
+models available. It loads these models in a background process and swaps
 the old models with the new models.
 
-The serving system should be fast, therefore, parts of the code is quite
-optimised. We will speak here about optimisations done for the Matrix
-Factorisation style recommender
+The serving system is fast, and most parts of the code are 
+optimised for faste execution. We describe here the optimisations performed for the Matrix
+Factorisation algorithm
 (http://sifter.org/~simon/journal/20061211.html). When using this model,
-we get an utility score for a user and an item by computing a dot
-product between their representation in a latent space (vectors of
+we get a utility score for a user and an item by computing a dot
+product between their representations in a latent space (vectors of
 floats).
 
 .. code-block:: python
@@ -143,9 +143,9 @@ the utility score of user1 liking item1 is 17.44. The scores do not mean
 a lot by themselves in isolation, but we can tell if the user would like
 item1 more than item2 (higher score means bigger utility, more "me like this").
 	
-Because we want to compute scores for all the items, we multiply user vector with
-an item matrix (bunch of vectors). As an output we get a vector of
-length the same as the number of items. 
+Because we want to compute scores for all the items, we multiply the user vector with
+an item matrix (bunch of vectors). As an output we get a vector of 
+the same length as the number of items. 
 
 .. code-block:: python
 
@@ -161,28 +161,28 @@ Here we see that user1 likes an item at position 0 of the array more
 than any other item. We do vector matrix multiplication just because it
 is about 10x faster than going one item by one item and computing a dot
 product. Numpy with CPU level optimisations is really efficient and we
-want to harnest that power.
+want to harness that power.
 
-Because we use matrices, we have a technical challenge that the indexes
-for apps should start from 0, and better there should be no gaps between
-ids (saving memory). It looks simple in the beginning, but gets slightly
+The challenge when using matrices is that the indexes of the rows should correspond to the items to be recommended,
+moreover ideally they should start from 0, and there should be no gaps between
+ids (saving memory). While this looks simple in the beginning, it gets slightly
 more complicated when one considers such scenarios:
 
-1. The item data is dynamic, and some items go away, while others are added. This create problems of gaps within the matrices.
-2. We rebuild models (user and item representations) at different frequencies for different models. This can create problems that some model has more items than others.
-3. Aggregator averages two scoring vectors, therefore these should be of equal length
+1. The item data is dynamic, and some items go away, while others are added. This creates problems of gaps within the matrices.
+2. We rebuild models (user and item representations) at different frequencies for different models. This can create problems so that some model has more items than others.
+3. Aggregators average two scoring vectors, therefore these should be of equal length
 
 Id Map
 ~~~~~~
 
 Or solution to this problems is the following: First, we store an item model 
-as serialised (pickled) python dictionary (see XXX code). We store
+as a serialised (pickled) python dictionary (see XXX code). We store the
 user model in the database together with other user information. Usually
-we have much more users than items in the system. Therefore, it can be that
+we have much more users than items in the system, therefore it can be that the
 user matrix is very big and we can not store it in memory. On the other hand,
-we can load user model (or compute it) when a user comes to the system. So if the user
+we can load the user model (or compute it) when a user comes to the system. So if the user
 has not been recently using the system, the first request will be non-personalised.
-Then we will load or compute a user model and consequent recommendations will be
+Then we will load or compute a user model and consequently recommendations will be
 personalised. In the code block bellow we have an item model as a dictionary:
 
 .. code-block:: python
@@ -193,7 +193,7 @@ personalised. In the code block bellow we have an item model as a dictionary:
      "item5": array([[  3.1,   3.1,   2.1]])}
 
 This representation occupies up to 3 times more space in a relational database than saving
-just an float array as BLOB, however, we get simplicity and flexibility of having item
+just an float array as BLOB, however, we get simplicity and the flexibility of having the item
 ids as they appear in the system.
 
 Each Module loads all the arrays for each of the predictors into memory.
@@ -206,7 +206,7 @@ displayed above ("item1", "item2", "item5") and another one:
     {"item1": array([[  0.9,   0.9,   0.2]]),
      "item3": array([[  0.1,   0.1,   0.1]])}
 
-Next, it constructs a single one-to-one IdMap that maps these string ids, to an internal
+Next, we construct a single one-to-one IdMap that maps these string ids, to an internal
 integer id. This internal id represents a row in the matrix. In our case we would have a
 double dictionary mapping:
 
@@ -234,12 +234,12 @@ For each of the predictor we construct an item matrix using the IdMap:
 
 If some item is missing in the loaded data ("item3" for model1), we simply put zeros there. 
 Now, each Module contains consistent IdMap for all the predictors within the Module. 
-Next, module constructs filters and rerankers using the same IdMap that also are unique for each Module.
+Next, the module constructs filters and rerankers using the same IdMap that also are unique for each Module.
 
 Extensions and Generality
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The above described system could be a building block for a simple and effective recsys system. 
+The above described system could be a building block for a simple and effective recommendation system. 
 We have a limit on the number of items in the catalogue. To mitigate this problem we could use 
 (beatifull new result) ALSH http://arxiv.org/abs/1405.5869
 Basically instead of using full item matrix, we would divide items into buckets based on ALSH,
@@ -247,7 +247,7 @@ and perform above defined operations for several buckets. Here only reranker sho
 last and combine all the results from many buckets into a sigle answer.
 
 Matrix Factorisation is not the only method we can serve. In fact, many methods could be fit
-into such serving system (popularity, random, personalised popularity). 
+into such serving system (popularity, personalised popularity). 
 Other methods that are very different could reimplement the getScores(user) interface.
 The filters and rerankers would still be the same and save some coding time.
 
