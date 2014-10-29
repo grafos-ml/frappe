@@ -1,4 +1,14 @@
-### Bugfix on fill users (HEAD, master)
+### Pass user model to local cache (HEAD, master)
+>Wed, 29 Oct 2014 17:26:15 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Bugfix on fill users
 >Wed, 29 Oct 2014 17:24:18 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

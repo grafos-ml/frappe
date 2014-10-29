@@ -458,7 +458,7 @@ class MySQLMapDummy:
 class UserMatrix:
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_user_array(index):
         if not User.get_user_by_id(index+1).has_more_than(2):  # Index+1 = User ID
             raise KeyError("User %d static recommendation doesn't exist" % (index+1))
