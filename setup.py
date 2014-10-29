@@ -2,7 +2,7 @@
 #! -*- encoding: utf-8 -*-
 
 __author__ = "joaonrb"
-VERSION = "2.1.2"
+VERSION = "2.1.3"
 
 try:
     import testfm

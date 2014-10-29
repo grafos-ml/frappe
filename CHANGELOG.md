@@ -1,4 +1,34 @@
-### Fix tests (HEAD, master)
+### Bugfix on fill users (HEAD, master)
+>Wed, 29 Oct 2014 15:57:57 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### more ignores
+>Mon, 27 Oct 2014 11:02:07 +0100
+
+>Author: mumas (linas.baltrunas@gmail.com)
+
+>Commiter: mumas (linas.baltrunas@gmail.com)
+
+
+
+
+### a bit changed documentations
+>Mon, 27 Oct 2014 11:01:25 +0100
+
+>Author: mumas (linas.baltrunas@gmail.com)
+
+>Commiter: mumas (linas.baltrunas@gmail.com)
+
+
+
+
+### Fix tests (origin/develop, develop)
 >Mon, 27 Oct 2014 10:36:50 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +38,7 @@
 
 
 
-### Fix popularity (origin/master, origin/HEAD)
+### Fix popularity
 >Fri, 24 Oct 2014 14:36:13 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -48,7 +78,7 @@
 
 
 
-### Test suit for regions (origin/develop, develop)
+### Test suit for regions
 >Wed, 22 Oct 2014 12:30:37 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -388,7 +418,7 @@
 
 
 
-### Add Funcionality to client (tag: v2.1, origin/inventory_upgrade)
+### Add Funcionality to client (tag: v2.1)
 >Tue, 14 Oct 2014 15:29:59 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -608,7 +638,7 @@
 
 
 
-### ... (origin/feature_cache_decorator)
+### ...
 >Wed, 1 Oct 2014 20:15:46 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)

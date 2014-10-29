@@ -554,7 +554,10 @@ class FillTool(object):
 
         if len(locale_query) > 0:
             for ur in UserLocale.objects.filter(locale_query):
-                del user_locales[ur.locale_id][ur.user_id]
+                try:
+                    del user_locales[ur.locale_id][ur.user_id]
+                except KeyError:
+                    pass
         UserLocale.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_locales.values())))
 
 
