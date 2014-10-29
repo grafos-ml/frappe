@@ -1,4 +1,14 @@
-### New Models for version 3 (HEAD, v3_develop)
+### starting model predictor (HEAD, v3_develop)
+>Wed, 29 Oct 2014 15:51:52 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### New Models for version 3
 >Wed, 29 Oct 2014 12:29:38 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

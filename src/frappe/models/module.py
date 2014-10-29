@@ -271,7 +271,8 @@ class Module(models.Model):
         :return: A list with recommendation
         """
         recommendations = {
-            predictor_id: self.get_predictor(self.pk, predictor_id) for predictor_id in self.get_predictors(self.pk)
+            predictor_id: self.get_predictor(self.pk, predictor_id)(user, size)
+            for predictor_id in self.get_predictors(self.pk)
         }
         recommendation = self.aggregate(recommendations)
         for rfilter in self.get_filters(self.pk):
