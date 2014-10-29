@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -43,12 +43,12 @@ INSTALLED_APPS = ([
     "django.contrib.staticfiles",
 ] if DEBUG else []) + [
     "corsheaders",
-    "recommendation",
-    "recommendation.api",
-    "recommendation.filter_owned",
-    "recommendation.language",
-    "recommendation.simple_logging",
-    "recommendation.diversity"
+    "frappe",
+    #"recommendation.api",
+    #"recommendation.filter_owned",
+    #"recommendation.language",
+    #"recommendation.simple_logging",
+    #"recommendation.diversity"
 ]
 
 if int(os.environ.get("FRAPPE_TEST", 0)):
@@ -78,9 +78,9 @@ MIDDLEWARE_CLASSES = (
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-ROOT_URLCONF = "recommendation.urls"
+ROOT_URLCONF = "frappe.urls"
 
-WSGI_APPLICATION = "recommendation.wsgi.application"
+WSGI_APPLICATION = "frappe.wsgi.application"
 
 
 # Database
@@ -160,22 +160,4 @@ CACHES = {
         "LOCATION": "django_default_cache",
         "OPTIONS": {"MAX_ENTRIES": 10000000}
     }
-}
-# Settings for the recommendation
-
-RECOMMENDATION_SETTINGS = {
-    "default": {
-        "core": "recommendation.core.TensorCoFiController",
-        "filters": [
-            "recommendation.filter_none.filters.FilterNoneItems",
-            "recommendation.filter_owned.filters.FilterOwned",
-            "recommendation.language.filters.SimpleRegionFilter",
-            "recommendation.simple_logging.filters.SimpleLogFilter",
-        ],
-        "rerankers": [
-            "recommendation.diversity.rerankers.SimpleDiversityReRanker"
-        ]
-    },
-    "logger": "recommendation.simple_logging.decorators.LogEvent"
-    #"logger": "recommendation.decorators.NoLogger"
 }

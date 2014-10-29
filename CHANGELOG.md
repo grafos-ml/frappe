@@ -1,9 +1,49 @@
-### half way for module (HEAD, v3_develop)
+### New Models for version 3 (HEAD, v3_develop)
+>Wed, 29 Oct 2014 12:29:38 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Update tutorial.rst
+>Tue, 28 Oct 2014 17:00:03 +0100
+
+>Author: Alexandros Karatzoglou (alexandros.karatzoglou@gmail.com)
+
+>Commiter: Alexandros Karatzoglou (alexandros.karatzoglou@gmail.com)
+
+
+
+
+### Update tutorial.rst
+>Tue, 28 Oct 2014 16:59:20 +0100
+
+>Author: Alexandros Karatzoglou (alexandros.karatzoglou@gmail.com)
+
+>Commiter: Alexandros Karatzoglou (alexandros.karatzoglou@gmail.com)
+
+
+
+
+### half way for module
 >Tue, 28 Oct 2014 16:54:02 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
 
 >Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Update tutorial.rst
+>Tue, 28 Oct 2014 16:35:41 +0100
+
+>Author: Alexandros Karatzoglou (alexandros.karatzoglou@gmail.com)
+
+>Commiter: Alexandros Karatzoglou (alexandros.karatzoglou@gmail.com)
 
 
 
@@ -36,6 +76,16 @@
 >Commiter: João Nuno (joaonrb@gmail.com)
 
 
+
+
+### extensions added
+>Tue, 28 Oct 2014 10:47:31 +0100
+
+>Author: Linas (linas.baltrunas@gmail.com)
+
+>Commiter: Linas (linas.baltrunas@gmail.com)
+
+extensions added
 
 
 ### minor
@@ -148,7 +198,7 @@ removed line numbers as otherwise the code is not displayed
 
 
 
-### Fix tests (origin/master, origin/develop, origin/HEAD, master, develop)
+### Fix tests (origin/develop, master, develop)
 >Mon, 27 Oct 2014 10:36:50 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -538,7 +588,7 @@ removed line numbers as otherwise the code is not displayed
 
 
 
-### Add Funcionality to client (tag: v2.1, origin/inventory_upgrade)
+### Add Funcionality to client (tag: v2.1)
 >Tue, 14 Oct 2014 15:29:59 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -758,7 +808,7 @@ removed line numbers as otherwise the code is not displayed
 
 
 
-### ... (origin/feature_cache_decorator)
+### ...
 >Wed, 1 Oct 2014 20:15:46 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
