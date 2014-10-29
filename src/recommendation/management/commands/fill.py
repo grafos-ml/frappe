@@ -528,15 +528,12 @@ class FillTool(object):
                 else:
                     region_query = region_query | Q(region_id=region_id, user_id__in=map(lambda x: users[x].pk, ueis))
                     user_regions[region_id] = {
-                        users[user_eid]: UserRegion(user_id=users[user_eid].pk, region_id=region_id)
+                        users[user_eid].pk: UserRegion(user_id=users[user_eid].pk, region_id=region_id)
                         for user_eid in ueis
                     }
         if len(region_query) > 0:
-            for ur in UserRegion.objects.filter(region_query):
-                try:
-                    del user_regions[ur.region_id][ur.user_id]
-                except KeyError:
-                    pass
+            for ur in UserRegion.objects.filter(region_query).distinct():
+                del user_regions[ur.region_id][ur.user_id]
         UserRegion.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_regions.values())))
 
         locale_query = Q()
@@ -551,16 +548,13 @@ class FillTool(object):
                 else:
                     locale_query = locale_query | Q(locale_id=locale_id, user_id__in=map(lambda x: users[x].pk, ueis))
                     user_locales[locale_id] = {
-                        users[user_eid]: UserLocale(user_id=users[user_eid].pk, locale_id=locale_id)
+                        users[user_eid].pk: UserLocale(user_id=users[user_eid].pk, locale_id=locale_id)
                         for user_eid in ueis
                     }
 
         if len(locale_query) > 0:
-            for ur in UserLocale.objects.filter(locale_query):
-                try:
-                    del user_locales[ur.locale_id][ur.user_id]
-                except KeyError:
-                    pass
+            for ur in UserLocale.objects.filter(locale_query).distinct():
+                del user_locales[ur.locale_id][ur.user_id]
         UserLocale.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_locales.values())))
 
 
