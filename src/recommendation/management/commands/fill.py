@@ -533,7 +533,10 @@ class FillTool(object):
                     }
         if len(region_query) > 0:
             for ur in UserRegion.objects.filter(region_query):
-                del user_regions[ur.region_id][ur.user_id]
+                try:
+                    del user_regions[ur.region_id][ur.user_id]
+                except KeyError:
+                    pass
         UserRegion.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_regions.values())))
 
         locale_query = Q()

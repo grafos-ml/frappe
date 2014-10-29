@@ -1,4 +1,14 @@
 ### Bugfix on fill users (HEAD, master)
+>Wed, 29 Oct 2014 16:04:04 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Bugfix on fill users (origin/master, origin/HEAD)
 >Wed, 29 Oct 2014 15:57:57 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
