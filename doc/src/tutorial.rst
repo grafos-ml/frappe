@@ -79,6 +79,8 @@ Overview of the serving system
 
 General Flow
 ~~~~~~~~~~~~
+.. note:: This is a draft of the architecture. Any comments on possible problems, better solutions and other ideas are welcome either via github issues or @linasTw at twitter.
+
 
 While implementing the recommendations serving engine we had to make some architectural choices.
 For example, we do the recommendation computations on-line instead of precomputing recommendations
