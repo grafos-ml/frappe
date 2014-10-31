@@ -675,10 +675,12 @@ class Popularity(TestFMPopularity):
 
     @staticmethod
     def load_to_cache():
+        model = Popularity(n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         pop = Matrix.objects.filter(name="popularity").order_by("-id")[0]
+        model.recommendation = pop.numpy
         Popularity.load_popularity.lock_this(
             Popularity.load_popularity.cache.set
-        )(Popularity.load_popularity.key(), pop, Popularity.load_popularity.timeout)
+        )(Popularity.load_popularity.key(), model, Popularity.load_popularity.timeout)
 
     @staticmethod
     def get_model():

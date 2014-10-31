@@ -165,7 +165,9 @@ CACHES = {
         "BACKEND": "uwsgicache.UWSGICache"
     },
     "local": {
-        "BACKEND": "uwsgicache.UWSGICache"
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "django_default_cache",
+        "OPTIONS": {"MAX_ENTRIES": 10000000}
     }
 }
 # Settings for the recommendation

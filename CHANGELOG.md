@@ -1,4 +1,14 @@
-### Predictor for tensorCoFi half way. (HEAD, develop)
+### Change memcached to uwsgi (HEAD, develop)
+>Fri, 31 Oct 2014 12:42:30 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Predictor for tensorCoFi half way.
 >Fri, 31 Oct 2014 12:32:35 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
