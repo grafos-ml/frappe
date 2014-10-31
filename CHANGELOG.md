@@ -1,4 +1,14 @@
-### starting model predictor (HEAD, v3_develop)
+### Predictor for tensorCoFi half way. (HEAD, v3_develop)
+>Fri, 31 Oct 2014 11:41:37 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### starting model predictor
 >Wed, 29 Oct 2014 15:51:52 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -14,6 +24,26 @@
 >Author: João Nuno (joaonrb@gmail.com)
 
 >Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Update tutorial.rst (origin/v3_develop)
+>Wed, 29 Oct 2014 12:08:58 +0100
+
+>Author: Linas (linas.baltrunas@gmail.com)
+
+>Commiter: Linas (linas.baltrunas@gmail.com)
+
+
+
+
+### spell
+>Tue, 28 Oct 2014 17:07:32 +0100
+
+>Author: mumas (linas.baltrunas@gmail.com)
+
+>Commiter: mumas (linas.baltrunas@gmail.com)
 
 
 
@@ -208,7 +238,7 @@ removed line numbers as otherwise the code is not displayed
 
 
 
-### Fix tests (origin/develop, master, develop)
+### Fix tests
 >Mon, 27 Oct 2014 10:36:50 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

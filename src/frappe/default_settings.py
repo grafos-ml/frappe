@@ -161,3 +161,4 @@ CACHES = {
         "OPTIONS": {"MAX_ENTRIES": 10000000}
     }
 }
+import django.core.cache.backends.locmem.LocMemCache

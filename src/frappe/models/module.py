@@ -18,7 +18,6 @@ from django.utils.six import with_metaclass
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from frappe.decorators import Cached
-from frappe.models.base import Item
 
 
 class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):
@@ -50,17 +49,17 @@ class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):
         return zlib.compress(pickle.dumps(value))
 
 
-class DictField(with_metaclass(models.SubfieldBase, models.TextField)):
+class JSONField(with_metaclass(models.SubfieldBase, models.TextField)):
     """
-    Mapped structure to be saved in database.
+    JSON structure to be saved in database.
     """
 
-    description = """Python dictionary field."""
+    description = """Json field."""
     __metaclass__ = models.SubfieldBase
 
     def to_python(self, value):
         """
-        Convert the value from the database to python dictionary.
+        Convert the value from the database to json.
 
         :param value: String from database.
         :return: A python objects.
@@ -143,7 +142,7 @@ class Predictor(models.Model):
 
     identifier = models.CharField(_("identifier"), max_length=255)
     python_class = models.CharField(_("python class"), max_length=255)
-    kwargs = DictField(_("kwargs"), default={})
+    kwargs = JSONField(_("kwargs"), default={})
     data = models.ManyToManyField(AlgorithmData, verbose_name=_("data"))
 
     class Meta:
@@ -194,7 +193,7 @@ class Module(models.Model):
     """
 
     identifier = models.CharField(_("identifier"), max_length=255)
-    mapped_items = DictField(_("item mapping"), default={})
+    listed_items = JSONField(_("items"), default={})
     predictors = models.ManyToManyField(Predictor, verbose_name=_("predictors"), related_name="modules",
                                         through="PredictorWithAggregator")
     filters = models.ManyToManyField(PythonObject, verbose_name=_("filters"), related_name="module_as_filter",
