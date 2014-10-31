@@ -89,7 +89,7 @@ class Cached(object):
             return result
         decorated.lock_this = self.lock_this
         decorated.cache = self.cache
-        decorated.key = "%s_%s" % (function.__name__, "%s")
+        decorated.key = lambda *a: "_".join(itertools.chain([function.__name__], map(lambda x: str(x), a)))
         decorated.timeout = self.timeout
         return decorated
 

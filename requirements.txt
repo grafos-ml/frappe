@@ -1,7 +1,4 @@
 django
-#pymysql
-#cymysql
-#django-cymysql
 mysql-python
 django-cors-headers
 # Test.fm fails when installing from requirements file. TO fix in Test.fm project.
@@ -14,6 +11,7 @@ python-memcached
 pytz
 six==1.4.1
 uwsgi
+django-uwsgi-cache
 
 # For scripts
 docopt

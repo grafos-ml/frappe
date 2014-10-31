@@ -1,4 +1,14 @@
-### Pass user model to local cache (HEAD, master)
+### Predictor for tensorCoFi half way. (HEAD, develop)
+>Fri, 31 Oct 2014 12:32:35 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Pass user model to local cache (origin/master, origin/develop, origin/HEAD, master)
 >Wed, 29 Oct 2014 17:26:15 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -18,7 +28,7 @@
 
 
 
-### Bugfix on fill users (origin/master, origin/HEAD)
+### Bugfix on fill users
 >Wed, 29 Oct 2014 16:04:04 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -58,7 +68,7 @@
 
 
 
-### Fix tests (origin/develop, develop)
+### Fix tests
 >Mon, 27 Oct 2014 10:36:50 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

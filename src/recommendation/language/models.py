@@ -82,7 +82,7 @@ class Locale(models.Model):
             for user_id, genres in users.items():
                 Locale.get_user_locales.lock_this(
                     Locale.get_user_locales.cache.set
-                )(Locale.get_user_locales.key % user_id, genres, Locale.get_user_locales.timeout)
+                )(Locale.get_user_locales.key(user_id), genres, Locale.get_user_locales.timeout)
 
         items = {}
         with click.progressbar(ItemLocale.objects.all().values_list("item_id", "locale_id"),
@@ -95,7 +95,7 @@ class Locale(models.Model):
             for item_id, genres in items.items():
                 Locale.get_item_locales.lock_this(
                     Locale.get_item_locales.cache.set
-                )(Locale.get_item_locales.key % item_id, genres, Locale.get_item_locales.timeout)
+                )(Locale.get_item_locales.key(item_id), genres, Locale.get_item_locales.timeout)
 
 
 class ItemLocale(models.Model):
@@ -182,7 +182,7 @@ class Region(models.Model):
             for region in bar:
                 Region.get_regions.lock_this(
                     Region.get_regions.cache.set
-                )(Region.get_regions.key % region.pk, region, Region.get_regions.timeout)
+                )(Region.get_regions.key(region.pk), region, Region.get_regions.timeout)
         users = {}
         with click.progressbar(UserRegion.objects.all().values_list("user_id", "region_id"),
                                label="Loading user regions to cache") as bar:
@@ -194,7 +194,7 @@ class Region(models.Model):
             for user, regions in users.items():
                 Region.get_user_regions.lock_this(
                     Region.get_user_regions.cache.set
-                )(Region.get_user_regions.key % user, regions, Region.get_user_regions.timeout)
+                )(Region.get_user_regions.key(user), regions, Region.get_user_regions.timeout)
         items = np.zeros((Region.objects.aggregate(max=models.Max("pk"))["max"],
                           Item.objects.aggregate(max=models.Max("pk"))["max"]))
         with click.progressbar(ItemRegion.objects.all().values_list("item_id", "region_id"),
@@ -204,7 +204,7 @@ class Region(models.Model):
         for i in range(items.shape[0]):
             Region.get_item_list_by_region.lock_this(
                 Region.get_item_list_by_region.cache.set
-            )(Region.get_item_list_by_region.key % (i+1), items[i, :], Region.get_item_list_by_region.timeout)
+            )(Region.get_item_list_by_region.key(i+1), items[i, :], Region.get_item_list_by_region.timeout)
 
 
 class UserRegion(models.Model):

@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -159,6 +159,13 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "django_default_cache",
         "OPTIONS": {"MAX_ENTRIES": 10000000}
+    }
+} if False else {
+    "default": {
+        "BACKEND": "uwsgicache.UWSGICache"
+    },
+    "local": {
+        "BACKEND": "uwsgicache.UWSGICache"
     }
 }
 # Settings for the recommendation

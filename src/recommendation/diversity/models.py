@@ -70,7 +70,7 @@ class Genre(models.Model):
             for genre in bar:
                 Genre.get_genre_by_id.lock_this(
                     cache.set
-                )(Genre.get_genre_by_id.key % genre.pk, genre, Genre.get_genre_by_id.timeout)
+                )(Genre.get_genre_by_id.key(genre.pk), genre, Genre.get_genre_by_id.timeout)
 
         Genre.get_all_genres()
 
@@ -122,7 +122,7 @@ class ItemGenre(models.Model):
             for item_id, genre in bar:
                 ItemGenre.get_genre_by_item.lock_this(
                     cache.set
-                )(ItemGenre.get_genre_by_item.key % item_id, genre, ItemGenre.get_genre_by_item.timeout)
+                )(ItemGenre.get_genre_by_item.key(item_id), genre, ItemGenre.get_genre_by_item.timeout)
 
     @staticmethod
     def load_item(item):

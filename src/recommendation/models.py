@@ -142,10 +142,10 @@ class Item(models.Model):
         """
         Item.get_item_by_external_id.lock_this(
             Item.get_item_by_external_id.cache.set
-        )(Item.get_item_by_external_id.key % self.external_id, self, Item.get_item_by_external_id.timeout)
+        )(Item.get_item_by_external_id.key(self.external_id), self, Item.get_item_by_external_id.timeout)
         Item.get_item_external_id_by_id.lock_this(
             Item.get_item_external_id_by_id.cache.set
-        )(Item.get_item_external_id_by_id.key % self.pk, self.external_id, Item.get_item_external_id_by_id.timeout)
+        )(Item.get_item_external_id_by_id.key(self.pk), self.external_id, Item.get_item_external_id_by_id.timeout)
 
     def del_item_from_cache(self):
         """
@@ -153,10 +153,10 @@ class Item(models.Model):
         """
         Item.get_item_by_external_id.lock_this(
             Item.get_item_by_external_id.cache.delete
-        )(Item.get_item_by_external_id.key % self.external_id)
+        )(Item.get_item_by_external_id.key(self.external_id))
         Item.get_item_external_id_by_id.lock_this(
             Item.get_item_external_id_by_id.cache.delete
-        )(Item.get_item_external_id_by_id.key % self.pk)
+        )(Item.get_item_external_id_by_id.key(self.pk))
 
     class Meta:
         verbose_name = _("item")
@@ -288,10 +288,11 @@ class User(models.Model):
             for user in bar:
                 User.get_user_by_id.lock_this(
                     User.get_user_by_id.cache.set
-                )(User.get_user_by_id.key % user.pk, user, User.get_user_by_id.timeout)
-            User.get_user_id_by_external_id.lock_this(
-                User.get_user_id_by_external_id.cache.set
-            )(User.get_user_id_by_external_id.key % user.external_id, user.pk, User.get_user_id_by_external_id.timeout)
+                )(User.get_user_by_id.key(user.pk), user, User.get_user_by_id.timeout)
+                User.get_user_id_by_external_id.lock_this(
+                    User.get_user_id_by_external_id.cache.set
+                )(User.get_user_id_by_external_id.key(user.external_id), user.pk,
+                  User.get_user_id_by_external_id.timeout)
         lenght = Inventory.objects.all().count()
         with click.progressbar(range(0, lenght, 100000),
                                label="Loading owned items to cache") as bar:
@@ -309,7 +310,7 @@ class User(models.Model):
             for ueid, items in inventory.items():
                 User.get_user_items.lock_this(
                     User.get_user_items.cache.set
-                )(User.get_user_items.key % ueid, items, User.get_user_items.timeout)
+                )(User.get_user_items.key(ueid), items, User.get_user_items.timeout)
 
     def load_user(self):
         """
@@ -317,10 +318,10 @@ class User(models.Model):
         """
         User.get_user_by_id.lock_this(
             User.get_user_by_id.cache.set
-        )(User.get_user_by_id.key % self.pk, self, User.get_user_by_id.timeout)
+        )(User.get_user_by_id.key(self.pk), self, User.get_user_by_id.timeout)
         User.get_user_id_by_external_id.lock_this(
             User.get_user_id_by_external_id.cache.set
-        )(User.get_user_id_by_external_id.key % self.external_id, self.pk, User.get_user_id_by_external_id.timeout)
+        )(User.get_user_id_by_external_id.key(self.external_id), self.pk, User.get_user_id_by_external_id.timeout)
         User.get_user_items(self.pk)
 
     def delete_user(self):
@@ -329,34 +330,34 @@ class User(models.Model):
         """
         User.get_user_by_id.lock_this(
             User.get_user_by_id.cache.delete
-        )(User.get_user_by_id.key % self.external_id)
+        )(User.get_user_by_id.key(self.external_id))
         User.get_user_id_by_external_id.lock_this(
             User.get_user_id_by_external_id.cache.delete
-        )(User.get_user_id_by_external_id.key % self.external_id)
+        )(User.get_user_id_by_external_id.key(self.external_id))
         User.get_user_items.lock_this(
             User.get_user_items.cache.delete
-        )(User.get_user_items.key % self.external_id)
+        )(User.get_user_items.key(self.external_id))
 
     def load_item(self, entry):
         """
         Load a single inventory entry
         """
         cache = User.get_user_items.cache
-        entries = cache.get(User.get_user_items.key % self.pk, {})
+        entries = cache.get(User.get_user_items.key(self.pk), {})
         entries[entry.item_id] = entry.is_dropped
-        cache.set(User.get_user_items.key % self.pk, entries)
+        cache.set(User.get_user_items.key(self.pk), entries)
 
     def delete_item(self, entry):
         """
         Load a single inventory entry
         """
         cache = User.get_user_items.cache
-        entries = cache.get(User.get_user_items.key % self.pk, {})
+        entries = cache.get(User.get_user_items.key(self.pk), {})
         try:
             del entries[entry.item.pk]
         except KeyError:
             pass
-        cache.set(User.get_user_items.key % self.pk, entries)
+        cache.set(User.get_user_items.key(self.pk), entries)
 
 
 @receiver(post_save, sender=User)
@@ -458,7 +459,7 @@ class MySQLMapDummy:
 class UserMatrix:
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached(lock_id=0)
     def get_user_array(index):
         if not User.get_user_by_id(index+1).has_more_than(2):  # Index+1 = User ID
             raise KeyError("User %d static recommendation doesn't exist" % (index+1))
@@ -473,7 +474,7 @@ class UserMatrix:
                 dec = UserMatrix.get_user_array
                 dec.lock_this(
                     dec.cache.set
-                )(dec.key % index, value, dec.timeout)
+                )(dec.key(index), value, dec.timeout)
         except User.DoesNotExist:
             pass
 
@@ -481,7 +482,7 @@ class UserMatrix:
         dec = UserMatrix.get_user_array
         dec.lock_this(
             dec.cache.delete
-        )(dec.key % index)
+        )(dec.key(index))
 
 
 class FactorsContainer:
@@ -674,7 +675,10 @@ class Popularity(TestFMPopularity):
 
     @staticmethod
     def load_to_cache():
-        return Popularity.load_popularity()
+        pop = Matrix.objects.filter(name="popularity").order_by("-id")[0]
+        Popularity.load_popularity.lock_this(
+            Popularity.load_popularity.cache.set
+        )(Popularity.load_popularity.key(), pop, Popularity.load_popularity.timeout)
 
     @staticmethod
     def get_model():

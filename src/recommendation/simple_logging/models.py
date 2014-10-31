@@ -88,7 +88,7 @@ class LogEntry(models.Model):
         """
         LogEntry.get_logs_for.lock_this(
             LogEntry.get_logs_for.cache.set
-        )(LogEntry.get_logs_for.key % user.pk,
+        )(LogEntry.get_logs_for.key(user.pk),
           list(LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]),
           LogEntry.get_logs_for.timeout)
 
