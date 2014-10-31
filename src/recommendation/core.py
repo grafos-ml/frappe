@@ -226,7 +226,7 @@ class TensorCoFiController(IController):
         Return the popular items
         :return: list
         """
-        return Popularity.get_model()
+        return Popularity.get_model().recommendation
 
 
 class NotEnoughItemsToCompute(Exception):

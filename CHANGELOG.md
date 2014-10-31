@@ -1,4 +1,14 @@
-### Change memcached to uwsgi (HEAD, develop)
+### Change to use 3 cache. uwsgi cache only for user factors (HEAD, develop)
+>Fri, 31 Oct 2014 15:31:07 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change memcached to uwsgi (origin/develop)
 >Fri, 31 Oct 2014 12:42:30 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -18,7 +28,7 @@
 
 
 
-### Pass user model to local cache (origin/master, origin/develop, origin/HEAD, master)
+### Pass user model to local cache (origin/master, origin/HEAD, master)
 >Wed, 29 Oct 2014 17:26:15 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

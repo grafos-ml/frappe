@@ -159,12 +159,11 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "django_default_cache",
         "OPTIONS": {"MAX_ENTRIES": 10000000}
-    }
-} if False else {
-    "default": {
-        "BACKEND": "uwsgicache.UWSGICache"
     },
-    "local": {
+    "userfactors": {
+        "BACKEND": "uwsgicache.UWSGICache",
+        "LOCATION": "userfactors"
+    } if not DEBUG else {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "django_default_cache",
         "OPTIONS": {"MAX_ENTRIES": 10000000}

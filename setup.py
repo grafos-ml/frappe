@@ -41,6 +41,7 @@ setup(
         "python-memcached",
         #"django-uwsgi-cache",
         "uwsgi",
+        "django-uwsgi-cache",
         "docopt",
         "django-docopt-command",
         "click"
