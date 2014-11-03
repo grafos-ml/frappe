@@ -1,4 +1,14 @@
-### Predictor for tensorCoFi half way. (HEAD, v3_develop)
+### Finish TensorCoFiPredictor (HEAD, v3_develop)
+>Mon, 3 Nov 2014 16:30:25 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Predictor for tensorCoFi half way.
 >Fri, 31 Oct 2014 11:41:37 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

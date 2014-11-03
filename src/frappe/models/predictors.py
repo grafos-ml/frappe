@@ -4,26 +4,36 @@ Models for predictors
 """
 __author__ = "joaonrb"
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-import json
-import zlib
-import numpy as np
-from six import string_types
 from django.db import models
+from django.utils.translation import ugettext as _
+from frappe.decorators import Cached
 from frappe.models.base import User
 from frappe.models.module import PythonObjectField
-from django.utils.translation import ugettext as _
-from django.utils.six import with_metaclass
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
-from frappe.decorators import Cached
 
 
-class TensorArrayForUser(models.Model):
+class UserFactors(models.Model):
     """
     Tensor for users
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, verbose_name=_("user"))
+    array = PythonObjectField(_("array"))
+
+    class Meta:
+        verbose_name = _("user factors")
+        verbose_name_plural = _("user factors")
+
+    def __str__(self):
+        return self.array
+
+    def __unicode__(self):
+        return self.array
+
+    @staticmethod
+    @Cached()
+    def get_user_factors(user_id):
+        """
+        Return user factor array
+        :param user_id:
+        :return:
+        """
+        return UserFactors.objects.get(user_id=user_id)
