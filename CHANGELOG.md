@@ -1,4 +1,14 @@
-### Update documentation for cache changes (HEAD, develop)
+### Bigger slug to avoid truncate (HEAD, master)
+>Mon, 3 Nov 2014 11:08:17 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Update documentation for cache changes (origin/master, origin/develop, origin/HEAD, develop)
 >Fri, 31 Oct 2014 17:03:11 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Change to use 3 cache. uwsgi cache only for user factors (origin/develop)
+### Change to use 3 cache. uwsgi cache only for user factors
 >Fri, 31 Oct 2014 15:31:07 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -38,7 +48,7 @@
 
 
 
-### Pass user model to local cache (origin/master, origin/HEAD, master)
+### Pass user model to local cache
 >Wed, 29 Oct 2014 17:26:15 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
