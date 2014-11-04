@@ -1,4 +1,14 @@
-### Recommendation api view (HEAD, v3_develop)
+### Imported some tests to from version 2. User, items and inventory model tests. (HEAD, v3_develop)
+>Tue, 4 Nov 2014 12:21:52 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Recommendation api view
 >Tue, 4 Nov 2014 11:57:05 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

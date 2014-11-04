@@ -16,7 +16,7 @@ Options:
 
 import os
 import sys
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "recommendation.default_settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "frappe.default_settings")
 os.environ.setdefault("FRAPPE_TEST", "1")
 import django
 django.setup()
@@ -26,9 +26,7 @@ from docopt import docopt
 UNIT_OPTS = [
     "tests/unit/",
     "--with-doctest",
-    "recommendation/util.py",
-    "recommendation/core.py",
-    "recommendation/models.py"
+    "frappe/models/base.py"
 ]
 INTEGRATION_OPTS = ["tests/integration/"]
 
