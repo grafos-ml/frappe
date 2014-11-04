@@ -4,6 +4,8 @@ Models for core recommendation slots
 """
 __author__ = "joaonrb"
 
+import random
+import itertools
 from django.utils.translation import ugettext as _
 from django.db import models
 from django.conf import settings
@@ -35,3 +37,24 @@ class FrappeSlot(models.Model):
         """
         return FrappeSlot.objects.get(slot=slot).module_id
 
+    @staticmethod
+    def update_modules():
+        """
+        Update slots positions for modules
+        """
+        modules = {}
+        sum_of_scores = 0.
+        for module_id, frequency_score in Module.objects.filter(active=True).values_list("pk", "frequency_score"):
+            modules[module_id] = frequency_score*MAX_FRAPPE_SLOTS
+            sum_of_scores += frequency_score
+
+        slots = itertools.chain(*([module_id]*int(score/sum_of_scores) for module_id, score in modules.items()))
+        random.shuffle(slots)
+        db_slots = {slot.pk: slot for slot in FrappeSlot.objects.all()}
+        for i in xrange(MAX_FRAPPE_SLOTS):
+            module_id = slots[i]
+            try:
+                db_slots[i].module_id = module_id
+            except KeyError:
+                db_slots[i] = FrappeSlot(slot=i, module_id=module_id)
+        FrappeSlot.objects.bulk_create(db_slots.items())

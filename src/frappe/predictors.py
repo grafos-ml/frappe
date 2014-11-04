@@ -8,10 +8,9 @@ __author__ = "joaonrb"
 import pandas as pd
 import numpy as np
 from abc import ABCMeta, abstractmethod
-from frappe.decorators import Cached
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity
-from frappe.models import Inventory, Module, Predictor, AlgorithmData, UserFactors, User, Item
+from frappe.models import Inventory, Predictor, AlgorithmData, UserFactors
 
 
 class IPredictor(object):

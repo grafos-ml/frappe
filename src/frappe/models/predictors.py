@@ -16,7 +16,7 @@ class UserFactors(models.Model):
     Tensor for users
     """
     user = models.ForeignKey(User, verbose_name=_("user"))
-    array = PythonObjectField(_("array"))
+    array = PythonObjectField(_("array"), blank=True)
 
     class Meta:
         verbose_name = _("user factors")

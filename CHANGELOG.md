@@ -1,4 +1,14 @@
-### Add active to module model (HEAD, v3_develop)
+### Add commands (HEAD, v3_develop)
+>Tue, 4 Nov 2014 17:40:15 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add active to module model
 >Tue, 4 Nov 2014 14:13:48 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

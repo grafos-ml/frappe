@@ -47,7 +47,7 @@ class PythonObject(models.Model):
     """
 
     identifier = models.CharField(_("identifier"), max_length=255)
-    obj = PythonObjectField(_("object"))
+    obj = PythonObjectField(_("object"), blank=True)
 
     class Meta:
         verbose_name = _("python object")
@@ -78,8 +78,8 @@ class Predictor(models.Model):
 
     identifier = models.CharField(_("identifier"), max_length=255)
     python_class = models.CharField(_("python class"), max_length=255)
-    kwargs = JSONField(_("kwargs"), default={})
-    data = models.ManyToManyField(AlgorithmData, verbose_name=_("data"))
+    kwargs = JSONField(_("kwargs"), default={}, blank=True)
+    data = models.ManyToManyField(AlgorithmData, verbose_name=_("data"), blank=True)
 
     class Meta:
         verbose_name = _("predictor")
@@ -120,7 +120,7 @@ class Predictor(models.Model):
 def check_predictor(sender, instance, using, **kwarg):
     class_parts = instance.python_class.split(".")
     module, cls = ".".join(class_parts[:-1]), class_parts[-1]
-    getattr(__import__(module), cls)(**json.loads(instance.kwargs))
+    assert hasattr(__import__(module), cls), "Class %s doesn't exist" % instance.python_class
 
 
 class Module(models.Model):
@@ -129,7 +129,7 @@ class Module(models.Model):
     """
 
     identifier = models.CharField(_("identifier"), max_length=255)
-    listed_items = JSONField(_("items"), default={})
+    listed_items = JSONField(_("items"), default={}, blank=True)
     predictors = models.ManyToManyField(Predictor, verbose_name=_("predictors"), related_name="modules",
                                         through="PredictorWithAggregator")
     filters = models.ManyToManyField(PythonObject, verbose_name=_("filters"), related_name="module_as_filter",
