@@ -87,13 +87,17 @@ WSGI_APPLICATION = "frappe.wsgi.application"
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "ffos",
-        "USER": "root",
-        "PASSWORD": os.environ.get("FRAPPE_PASSWORD", ""),
-        "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost"),
-        "TEST_CHARSET": "utf8",
-        "TEST_COLLATION": "utf8_general_ci",
+    #    "ENGINE": "django.db.backends.mysql",
+    #    "NAME": "ffos",
+    #    "USER": "root",
+    #    "PASSWORD": os.environ.get("FRAPPE_PASSWORD", ""),
+    #    "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost"),
+    #    "TEST_CHARSET": "utf8",
+    #    "TEST_COLLATION": "utf8_general_ci",
+    #},
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "ffos.sqlite3",
+        "ATOMIC_REQUESTS": True
     }
 }
 
@@ -161,4 +165,3 @@ CACHES = {
         "OPTIONS": {"MAX_ENTRIES": 10000000}
     }
 }
-import django.core.cache.backends.locmem.LocMemCache

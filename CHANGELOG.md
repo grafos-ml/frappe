@@ -1,4 +1,14 @@
-### Finish TensorCoFiPredictor (HEAD, v3_develop)
+### Finish PopularityPredictor (HEAD, v3_develop)
+>Tue, 4 Nov 2014 11:30:43 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finish TensorCoFiPredictor (origin/v3_develop)
 >Mon, 3 Nov 2014 16:30:25 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -38,7 +48,7 @@
 
 
 
-### Update tutorial.rst (origin/v3_develop)
+### Update tutorial.rst
 >Wed, 29 Oct 2014 12:08:58 +0100
 
 >Author: Linas (linas.baltrunas@gmail.com)

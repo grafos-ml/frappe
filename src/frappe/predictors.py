@@ -49,6 +49,59 @@ class IPredictor(object):
         """
 
 
+class PopularityPredictor(IPredictor):
+    """
+    Predictor based on popularity algorithm
+    """
+    def __init__(self, model, predictor_id):
+        self.model = model
+        self.predictor_id = predictor_id
+
+    @staticmethod
+    def load_predictor(predictor, module):
+        item_list = module.listed_items
+
+        item_factors = predictor.data.all().order_by("-timestamp")[0]
+        model = np.zeros((len(item_list)), np.float32)
+        for i, item in enumerate(item_list.data):
+            try:
+                model[i] = item_factors[item]
+            except KeyError:
+                pass
+
+        algorithm = PopularityPredictor(model, predictor.pk)
+        return algorithm
+
+    def __call__(self, user, size):
+        return self.model
+
+    def train(self, *args, **kwargs):
+        columns = ["users", "items", "user_id", "item_id"]
+        ivs = Inventory.objects.all().values_list("user__external_id", "item__external_id", "user_id", "item_id")
+        inventory = pd.DataFrame(zip(columns, zip(*ivs)))
+        data = []
+        data_map = {}
+        for column in columns:
+            unique_data = inventory[column].unique()
+            data_map[column] = pd.Series(xrange(len(unique_data)), unique_data)
+            data.append(map(lambda x: data_map[column][x], inventory[column].values))
+
+        data.append(inventory.get("rating", np.ones((len(inventory),)).tolist()))
+        algorithm = Popularity(*args, **kwargs)
+        algorithm.fit(np.array(data, dtype=np.float32).transpose())
+
+        # Save to database
+        data = {}
+        for item_eid, imid in data_map["items"].iteritems():
+            try:
+                data[item_eid] = algorithm._counts[imid]
+            except KeyError:
+                pass
+
+        d = AlgorithmData.objects.create(data=data)
+        Predictor.get_predictor(self.predictor_id).data.add(d)
+
+
 class TensorCoFiPredictor(IPredictor):
     """
     Predictor based on tensorCoFi algorithm
@@ -82,7 +135,7 @@ class TensorCoFiPredictor(IPredictor):
 
         item_factors = predictor.data.filter(model_id=TensorCoFiPredictor.ITEM_MATRIX).order_by("-timestamp")[0]
         model = np.zeros((len(item_list), predictor.kwargs["n_factors"]), dtype=np.float32)
-        for i, item in enumerate(item_list):
+        for i, item in enumerate(item_list.data):
             try:
                 model[i, :] = item_factors[item]
             except KeyError:
@@ -96,7 +149,7 @@ class TensorCoFiPredictor(IPredictor):
         return PyTensorCoFi.get_not_mapped_recommendation(user)
 
     def train(self, *args, **kwargs):
-        columns = ["users", "items"]
+        columns = ["users", "items", "user_id", "item_id"]
         ivs = Inventory.objects.all().values_list("user__external_id", "item__external_id", "user_id", "item_id")
         inventory = pd.DataFrame(zip(columns, zip(*ivs)))
         data = []
@@ -119,15 +172,15 @@ class TensorCoFiPredictor(IPredictor):
         for user_eid, umid in self.data_map["users"].iteritems():
             user_id = users_ids[user_eid]
             if user_id in users:
-                users[user_id].array = self.factors[0][umid]
+                users[user_id].array = algorithm.factors[0][umid]
                 to_save.append(users[user_id])
             else:
-                to_save.append(UserFactors(user_id=user_id, array=self.factors[0][umid]))
+                to_save.append(UserFactors(user_id=user_id, array=algorithm.factors[0][umid]))
         UserFactors.objects.bulk_create(to_save)
 
         data = {}
         for item_eid, imid in self.data_map["items"].iteritems():
-            data[item_eid] = self.factors[1][imid]
+            data[item_eid] = algorithm.factors[1][imid]
 
         d = AlgorithmData.objects.create(data=data, model_id=TensorCoFiPredictor.ITEM_MATRIX)
         Predictor.get_predictor(self.predictor_id).data.add(d)
