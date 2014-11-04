@@ -1,4 +1,14 @@
-### Finish PopularityPredictor (HEAD, v3_develop)
+### Recommendation api view (HEAD, v3_develop)
+>Tue, 4 Nov 2014 11:57:05 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finish PopularityPredictor
 >Tue, 4 Nov 2014 11:30:43 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
