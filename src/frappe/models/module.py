@@ -4,78 +4,14 @@ Models for Module configuration of frappe system.
 """
 __author__ = "joaonrb"
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 import json
-import zlib
 import numpy as np
-from six import string_types
 from django.db import models
 from django.utils.translation import ugettext as _
-from django.utils.six import with_metaclass
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from frappe.decorators import Cached
-
-
-class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):
-    """
-    Mapped structure to be saved in database.
-    """
-
-    description = """Python object field."""
-    __metaclass__ = models.SubfieldBase
-
-    def to_python(self, value):
-        """
-        Convert the value from the database to python like object
-
-        :param value: String from database.
-        :return: A python objects.
-        """
-        if isinstance(value, string_types) and value:
-            return pickle.loads(zlib.decompress(value))
-        return value
-
-    def get_prep_value(self, value):
-        """
-        Prepare the value from python like object to database like value.
-
-        :param value: Matrix to keep in database
-        :return: Pickled object.
-        """
-        return zlib.compress(pickle.dumps(value))
-
-
-class JSONField(with_metaclass(models.SubfieldBase, models.TextField)):
-    """
-    JSON structure to be saved in database.
-    """
-
-    description = """Json field."""
-    __metaclass__ = models.SubfieldBase
-
-    def to_python(self, value):
-        """
-        Convert the value from the database to json.
-
-        :param value: String from database.
-        :return: A python objects.
-        """
-        if isinstance(value, string_types) and value:
-            return json.loads(value)
-        return value
-
-    def get_prep_value(self, value):
-        """
-        Prepare the value from python dictionary to database like value.
-
-        :param value: Matrix to keep in database
-        :return: Pickled object.
-        """
-        return json.dumps(value)
+from frappe.models.fields import PythonObjectField, JSONField
 
 
 class AlgorithmData(models.Model):
@@ -200,6 +136,7 @@ class Module(models.Model):
                                      through="Filter")
     rerankers = models.ManyToManyField(PythonObject, verbose_name=_("re-rankers"), related_name="module_as_reranker",
                                        through="ReRanker")
+    frequency_score = models.IntegerField(_("frequency score"))
 
     class Meta:
         verbose_name = _("module")

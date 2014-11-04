@@ -12,7 +12,8 @@ __author__ = "joaonrb"
 from django.http import HttpResponse
 from django.views.generic.base import View
 from rest_framework.renderers import JSONRenderer
-from frappe.models import Module, User
+from frappe.models import User
+from frappe.core import RecommendationCore as core
 
 
 class RecommendationAPI(View):
@@ -38,6 +39,6 @@ class RecommendationAPI(View):
         """
 
         # Here is the decorator for recommendation
-        recommendation = Module.pick_module(user_eid).predict_scores(User.get_user_by_external_id(user_eid),
-                                                                     int(recommendation_size))
+        recommendation = core.pick_module(user_eid).predict_scores(User.get_user_by_external_id(user_eid),
+                                                                   int(recommendation_size))
         return self.render_to_json({"user": user_eid, "recommendations": recommendation})

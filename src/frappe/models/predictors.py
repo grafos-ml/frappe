@@ -8,7 +8,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from frappe.decorators import Cached
 from frappe.models.base import User
-from frappe.models.module import PythonObjectField
+from frappe.models.fields import PythonObjectField
 
 
 class UserFactors(models.Model):

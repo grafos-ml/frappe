@@ -1,4 +1,14 @@
-### Imported some tests to from version 2. User, items and inventory model tests. (HEAD, v3_develop)
+### Change module. Add core model. (HEAD, v3_develop)
+>Tue, 4 Nov 2014 14:10:15 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Imported some tests to from version 2. User, items and inventory model tests.
 >Tue, 4 Nov 2014 12:21:52 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
