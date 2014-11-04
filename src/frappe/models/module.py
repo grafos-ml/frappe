@@ -136,7 +136,8 @@ class Module(models.Model):
                                      through="Filter")
     rerankers = models.ManyToManyField(PythonObject, verbose_name=_("re-rankers"), related_name="module_as_reranker",
                                        through="ReRanker")
-    frequency_score = models.IntegerField(_("frequency score"))
+    frequency_score = models.IntegerField(_("frequency score"), default=100)
+    active = models.BooleanField(_("active"), default=True)
 
     class Meta:
         verbose_name = _("module")

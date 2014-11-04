@@ -1,4 +1,14 @@
-### Change module. Add core model. (HEAD, v3_develop)
+### Add active to module model (HEAD, v3_develop)
+>Tue, 4 Nov 2014 14:13:48 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change module. Add core model.
 >Tue, 4 Nov 2014 14:10:15 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
