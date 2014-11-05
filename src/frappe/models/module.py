@@ -23,6 +23,7 @@ class AlgorithmData(models.Model):
     model_id = models.SmallIntegerField(_("model identifier"), null=True, blank=True)
     data = PythonObjectField(_("data"))
     timestamp = models.DateTimeField(_("timestamp"), auto_now_add=True)
+    predictor = models.ForeignKey("Predictor", verbose_name="predictor", related_name="data")
 
     class Meta:
         verbose_name = _("algorithm data")
@@ -79,7 +80,6 @@ class Predictor(models.Model):
     identifier = models.CharField(_("identifier"), max_length=255)
     python_class = models.CharField(_("python class"), max_length=255)
     kwargs = JSONField(_("kwargs"), default={}, blank=True)
-    data = models.ManyToManyField(AlgorithmData, verbose_name=_("data"), blank=True)
 
     class Meta:
         verbose_name = _("predictor")
@@ -113,14 +113,14 @@ class Predictor(models.Model):
         """
         class_parts = Predictor.get_predictor(predictor_id).python_class.split(".")
         module, cls = ".".join(class_parts[:-1]), class_parts[-1]
-        return getattr(__import__(module), cls)
+        return getattr(__import__(module, fromlist=[""]), cls)
 
 
 @receiver(pre_save, sender=Predictor)
 def check_predictor(sender, instance, using, **kwarg):
     class_parts = instance.python_class.split(".")
     module, cls = ".".join(class_parts[:-1]), class_parts[-1]
-    assert hasattr(__import__(module), cls), "Class %s doesn't exist" % instance.python_class
+    assert hasattr(__import__(module, fromlist=[""]), cls), "Class %s doesn't exist" % instance.python_class
 
 
 class Module(models.Model):
@@ -173,7 +173,7 @@ class Module(models.Model):
         :param module_id:
         :return:
         """
-        return [pid for pid, in Predictor.objects.filter(modules_id=module_id).values_list("pk")]
+        return [pid for pid, in Predictor.objects.filter(modules__id=module_id).values_list("pk")]
 
     @staticmethod
     @Cached()
@@ -236,13 +236,13 @@ class PredictorWithAggregator(models.Model):
         """
         Predictor string representation.
         """
-        return "%f for %s in module %s" % (self.weight, self.predictor, self.module)
+        return "%.2f for %s in module %s" % (self.weight, self.predictor, self.module)
 
     def __unicode__(self):
         """
         Predictor string representation.
         """
-        return "%f for %s in module %s" % (self.weight, self.predictor, self.module)
+        return "%.2f for %s in module %s" % (self.weight, self.predictor, self.module)
 
 
 class Filter(models.Model):

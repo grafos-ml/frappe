@@ -1,4 +1,14 @@
-### Add commands (HEAD, v3_develop)
+### Fix tensorCoFi predictor and popularity predictor (HEAD, v3_develop)
+>Wed, 5 Nov 2014 16:32:35 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add commands (origin/v3_develop)
 >Tue, 4 Nov 2014 17:40:15 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -58,7 +68,7 @@
 
 
 
-### Finish TensorCoFiPredictor (origin/v3_develop)
+### Finish TensorCoFiPredictor
 >Mon, 3 Nov 2014 16:30:25 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

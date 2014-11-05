@@ -31,7 +31,7 @@ class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):
         :return: A python objects.
         """
         if isinstance(value, string_types) and value:
-            return pickle.loads(zlib.decompress(value))
+            return pickle.loads(str(value))
         return value
 
     def get_prep_value(self, value):
@@ -41,7 +41,7 @@ class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):
         :param value: Matrix to keep in database
         :return: Pickled object.
         """
-        return zlib.compress(pickle.dumps(value))
+        return pickle.dumps(value)
 
 
 class JSONField(with_metaclass(models.SubfieldBase, models.TextField)):
