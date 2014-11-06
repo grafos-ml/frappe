@@ -50,11 +50,9 @@ class Slot(models.Model):
 
         slots = list(itertools.chain(*([module_id]*int(score/sum_of_scores) for module_id, score in modules.items())))
         random.shuffle(slots)
-        db_slots = {slot.pk: slot for slot in Slot.objects.all()}
+        Slot.objects.all().delete()
+        db_slots = {}
         for i in xrange(MAX_FRAPPE_SLOTS):
             module_id = slots[i]
-            try:
-                db_slots[i].module_id = module_id
-            except KeyError:
-                db_slots[i] = Slot(slot=i, module_id=module_id)
+            db_slots[i] = Slot(slot=i, module_id=module_id)
         Slot.objects.bulk_create(db_slots.values())

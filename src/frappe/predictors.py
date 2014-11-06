@@ -58,11 +58,10 @@ class PopularityPredictor(IPredictor):
 
     @staticmethod
     def load_predictor(predictor, module):
-        item_list = module.listed_items
 
-        item_factors = predictor.data.all().order_by("-timestamp")[0]
-        model = np.zeros((len(item_list)), np.float32)
-        for i, item in enumerate(item_list.data):
+        item_factors = predictor.data.all().order_by("-timestamp")[0].data
+        model = np.zeros((len(module.listed_items)), np.float32)
+        for i, item in enumerate(module.listed_items):
             try:
                 model[i] = item_factors[item]
             except KeyError:
@@ -96,6 +95,15 @@ class PopularityPredictor(IPredictor):
         Predictor.get_predictor(self.predictor_id).data.add(d)
 
 
+class CachedUser(object):
+    """
+    Cache the user matrix
+    """
+
+    def __getitem__(self, user_id):
+        return UserFactors.get_user_factors(user_id).array
+
+
 class TensorCoFiPredictor(IPredictor):
     """
     Predictor based on tensorCoFi algorithm
@@ -104,42 +112,27 @@ class TensorCoFiPredictor(IPredictor):
     USER_MATRIX = 0
     ITEM_MATRIX = 1
 
-    class CachedUser(object):
-        """
-        Cache the user matrix
-        """
-
-        def __init__(self, model):
-            self._model = model
-
-        def __getitem__(self, user_id):
-            return UserFactors.get_user_factors(user_id)
-
-        def __str__(self):
-            return self._model.get_name()
-
     def __init__(self, predictor_id):
         self.factors = None
         self.predictor_id = predictor_id
 
     @staticmethod
     def load_predictor(predictor, module):
-        item_list = module.listed_items
 
         item_factors = predictor.data.filter(model_id=TensorCoFiPredictor.ITEM_MATRIX).order_by("-timestamp")[0]
-        model = np.zeros((len(item_list), predictor.kwargs.get("n_factors", 20)), dtype=np.float32)
-        for i, item in enumerate(item_list.data):
+        model = np.zeros((len(module.listed_items), predictor.kwargs.get("n_factors", 20)), dtype=np.float32)
+        for i, item in enumerate(module.listed_items):
             try:
-                model[i, :] = item_factors[item]
+                model[i, :] = item_factors.data[item]
             except KeyError:
                 pass
-
         algorithm = TensorCoFiPredictor(predictor.pk)
-        algorithm.factors = [TensorCoFiPredictor.CachedUser(algorithm), model]
+        algorithm.factors = [CachedUser(), model]
         return algorithm
 
     def __call__(self, user, size):
-        return PyTensorCoFi.get_not_mapped_recommendation(user)
+        users, items = self.factors
+        return np.squeeze(np.asarray(np.dot(users[user.pk], items.transpose())))
 
     def train(self, *args, **kwargs):
         columns = ["user", "item", "user_id", "item_id"]
@@ -159,22 +152,17 @@ class TensorCoFiPredictor(IPredictor):
 
         # Saving to the database
         users_ids = {user_eid: user_id for user_eid, i, user_id, i in ivs}
-        users = {
-            u.user_id: u for u in UserFactors.objects.filter(user__external_id=inventory["user"].unique())
-        }
+        UserFactors.objects.all().delete()
         to_save = []
         for user_eid, umid in algorithm.data_map["user"].iteritems():
             user_id = users_ids[user_eid]
-            if user_id in users:
-                users[user_id].array = algorithm.factors[0][umid]
-                to_save.append(users[user_id])
-            else:
-                to_save.append(UserFactors(user_id=user_id, array=algorithm.factors[0][umid]))
+            to_save.append(UserFactors(user_id=user_id, array=algorithm.factors[0][umid]))
         UserFactors.objects.bulk_create(to_save)
 
         data = {}
         for item_eid, imid in algorithm.data_map["item"].iteritems():
             data[item_eid] = algorithm.factors[1][imid]
 
-        d = AlgorithmData.objects.create(data=data, model_id=TensorCoFiPredictor.ITEM_MATRIX, predictor_id=self.predictor_id)
+        d = AlgorithmData.objects.create(data=data, model_id=TensorCoFiPredictor.ITEM_MATRIX,
+                                         predictor_id=self.predictor_id)
         Predictor.get_predictor(self.predictor_id).data.add(d)

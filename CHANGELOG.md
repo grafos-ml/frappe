@@ -1,4 +1,14 @@
-### Fix tensorCoFi predictor and popularity predictor (HEAD, v3_develop)
+### Working recommendations (HEAD, v3_develop)
+>Thu, 6 Nov 2014 13:23:22 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix tensorCoFi predictor and popularity predictor
 >Wed, 5 Nov 2014 16:32:35 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

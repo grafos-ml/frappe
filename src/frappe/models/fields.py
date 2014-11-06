@@ -9,6 +9,7 @@ try:
 except ImportError:
     import pickle
 import json
+import base64 as b64
 import zlib
 from six import string_types
 from django.db import models
@@ -31,7 +32,7 @@ class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):
         :return: A python objects.
         """
         if isinstance(value, string_types) and value:
-            return pickle.loads(str(value))
+            return pickle.loads(zlib.decompress(b64.b64decode(value)))
         return value
 
     def get_prep_value(self, value):
@@ -41,7 +42,7 @@ class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):
         :param value: Matrix to keep in database
         :return: Pickled object.
         """
-        return pickle.dumps(value)
+        return b64.b64encode(zlib.compress(pickle.dumps(value)))
 
 
 class JSONField(with_metaclass(models.SubfieldBase, models.TextField)):

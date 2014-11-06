@@ -4,7 +4,6 @@ Models for Module configuration of frappe system.
 """
 __author__ = "joaonrb"
 
-import json
 import numpy as np
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -12,6 +11,9 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from frappe.decorators import Cached
 from frappe.models.fields import PythonObjectField, JSONField
+from frappe.models.base import Item
+
+MAX_SORT = 1000
 
 
 class AlgorithmData(models.Model):
@@ -129,7 +131,7 @@ class Module(models.Model):
     """
 
     identifier = models.CharField(_("identifier"), max_length=255)
-    listed_items = JSONField(_("items"), default={}, blank=True)
+    listed_items = JSONField(_("items"), default=[], blank=True)
     predictors = models.ManyToManyField(Predictor, verbose_name=_("predictors"), related_name="modules",
                                         through="PredictorWithAggregator")
     filters = models.ManyToManyField(PythonObject, verbose_name=_("filters"), related_name="module_as_filter",
@@ -154,6 +156,10 @@ class Module(models.Model):
         Predictor string representation.
         """
         return self.identifier
+
+    def save(self, *args, **kwargs):
+        self.listed_items = [item_eid for item_eid, in Item.objects.all().values_list("external_id")]
+        super(Module, self).save(*args, **kwargs)
 
     @staticmethod
     @Cached()
@@ -212,11 +218,12 @@ class Module(models.Model):
             for predictor_id in self.get_predictors(self.pk)
         }
         recommendation = self.aggregate(recommendations)
-        for rfilter in self.get_filters(self.pk):
-            recommendation = rfilter(recommendation, size)
-        for reranker in self.get_re_renkers(self.pk):
-            recommendation = reranker(recommendation, size)
-        return recommendation
+        #for rfilter in self.get_filters(self.pk):
+        #    recommendation = rfilter(recommendation, size)
+        sorted_items = [self.listed_items[i] for i in np.argsort(recommendation)[::-1][:MAX_SORT]]
+        #for reranker in self.get_re_renkers(self.pk):
+        #    recommendation = reranker(recommendation, size)
+        return sorted_items[:size]
 
 
 class PredictorWithAggregator(models.Model):
