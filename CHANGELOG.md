@@ -1,4 +1,14 @@
-### Working recommendations (HEAD, v3_develop)
+### Fix sorted bottleneck (HEAD, v3_develop)
+>Thu, 6 Nov 2014 15:07:39 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Working recommendations
 >Thu, 6 Nov 2014 13:23:22 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -4,6 +4,7 @@ Models for Module configuration of frappe system.
 """
 __author__ = "joaonrb"
 
+import bottleneck
 import numpy as np
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -220,7 +221,15 @@ class Module(models.Model):
         recommendation = self.aggregate(recommendations)
         #for rfilter in self.get_filters(self.pk):
         #    recommendation = rfilter(recommendation, size)
-        sorted_items = [self.listed_items[i] for i in np.argsort(recommendation)[::-1][:MAX_SORT]]
+
+        # Bottleneck return the MAX_SORT elements with higher score but not sorted. Because of this it needs to be
+        # resorted.
+        sorted_items = [
+            self.listed_items[r[0]]
+            for r in sorted(((i, recommendation[i])
+                             for i in bottleneck.argpartsort(-recommendation, MAX_SORT)[:MAX_SORT]),
+                            key=lambda x: x[1], reverse=True)
+        ]
         #for reranker in self.get_re_renkers(self.pk):
         #    recommendation = reranker(recommendation, size)
         return sorted_items[:size]
