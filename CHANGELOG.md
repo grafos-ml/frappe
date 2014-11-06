@@ -1,4 +1,14 @@
-### Fix sorted bottleneck (HEAD, v3_develop)
+### Make set_frappe to initiate and train default module (HEAD, v3_develop)
+>Thu, 6 Nov 2014 17:50:20 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix sorted bottleneck
 >Thu, 6 Nov 2014 15:07:39 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

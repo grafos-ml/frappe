@@ -77,7 +77,6 @@ class PopularityPredictor(IPredictor):
         columns = ["user", "item", "item_id"]
         ivs = Inventory.objects.all().values_list("user__external_id", "item__external_id", "item_id")
         inventory = pd.DataFrame(dict(zip(columns, zip(*ivs))))
-        #data = []
         data_map = inventory["item"].unique()
         Popularity.get_counts = lambda self: self._counts
 
@@ -138,16 +137,7 @@ class TensorCoFiPredictor(IPredictor):
         columns = ["user", "item", "user_id", "item_id"]
         ivs = Inventory.objects.all().values_list("user__external_id", "item__external_id", "user_id", "item_id")
         inventory = pd.DataFrame(dict(zip(columns, zip(*ivs))))
-        #data = []
-        #self.data_map = {}
-        #for column in columns:
-        #    unique_data = inventory[column].unique()
-        #    self.data_map[column] = pd.Series(xrange(len(unique_data)), unique_data)
-        #    data.append(map(lambda x: self.data_map[column][x], inventory[column].values))
-
-        #data.append(inventory.get("rating", np.ones((len(inventory),)).tolist()))
         algorithm = PyTensorCoFi(*args, **kwargs)
-        #algorithm.train(np.array(data, dtype=np.float32).transpose())
         algorithm.fit(inventory)
 
         # Saving to the database

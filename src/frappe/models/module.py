@@ -118,6 +118,9 @@ class Predictor(models.Model):
         module, cls = ".".join(class_parts[:-1]), class_parts[-1]
         return getattr(__import__(module, fromlist=[""]), cls)
 
+    def train(self):
+        Predictor.get_class(self.pk)
+
 
 @receiver(pre_save, sender=Predictor)
 def check_predictor(sender, instance, using, **kwarg):
@@ -157,10 +160,6 @@ class Module(models.Model):
         Predictor string representation.
         """
         return self.identifier
-
-    def save(self, *args, **kwargs):
-        self.listed_items = [item_eid for item_eid, in Item.objects.all().values_list("external_id")]
-        super(Module, self).save(*args, **kwargs)
 
     @staticmethod
     @Cached()

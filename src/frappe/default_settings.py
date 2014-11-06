@@ -88,7 +88,7 @@ WSGI_APPLICATION = "frappe.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "ffos1",
+        "NAME": "ffos",
         "USER": "root",
         "PASSWORD": os.environ.get("FRAPPE_PASSWORD", ""),
         "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost"),
