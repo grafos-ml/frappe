@@ -59,13 +59,17 @@ class PopularityPredictor(IPredictor):
     @staticmethod
     def load_predictor(predictor, module):
 
-        item_factors = predictor.data.all().order_by("-timestamp")[0].data
-        model = np.zeros((len(module.listed_items)), np.float32)
-        for i, item in enumerate(module.listed_items):
-            try:
-                model[i] = item_factors[item]
-            except KeyError:
-                pass
+        try:
+            item_factors = predictor.data.all().order_by("-timestamp")[0].data
+        except IndexError:
+            model = None
+        else:
+            model = np.zeros((len(module.listed_items)), np.float32)
+            for i, item in enumerate(module.listed_items):
+                try:
+                    model[i] = item_factors[item]
+                except KeyError:
+                    pass
 
         algorithm = PopularityPredictor(model, predictor.pk)
         return algorithm
@@ -117,14 +121,17 @@ class TensorCoFiPredictor(IPredictor):
 
     @staticmethod
     def load_predictor(predictor, module):
-
-        item_factors = predictor.data.filter(model_id=TensorCoFiPredictor.ITEM_MATRIX).order_by("-timestamp")[0]
-        model = np.zeros((len(module.listed_items), predictor.kwargs.get("n_factors", 20)), dtype=np.float32)
-        for i, item in enumerate(module.listed_items):
-            try:
-                model[i, :] = item_factors.data[item]
-            except KeyError:
-                pass
+        try:
+            item_factors = predictor.data.filter(model_id=TensorCoFiPredictor.ITEM_MATRIX).order_by("-timestamp")[0]
+        except IndexError:
+            model = None
+        else:
+            model = np.zeros((len(module.listed_items), predictor.kwargs.get("n_factors", 20)), dtype=np.float32)
+            for i, item in enumerate(module.listed_items):
+                try:
+                    model[i, :] = item_factors.data[item]
+                except KeyError:
+                    pass
         algorithm = TensorCoFiPredictor(predictor.pk)
         algorithm.factors = [CachedUser(), model]
         return algorithm

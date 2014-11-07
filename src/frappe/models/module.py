@@ -4,7 +4,6 @@ Models for Module configuration of frappe system.
 """
 __author__ = "joaonrb"
 
-import bottleneck
 import numpy as np
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -135,7 +134,7 @@ class Module(models.Model):
     """
 
     identifier = models.CharField(_("identifier"), max_length=255)
-    listed_items = JSONField(_("items"), default=[], blank=True)
+    listed_items = PythonObjectField(_("items"), default=np.array([]), blank=True)
     predictors = models.ManyToManyField(Predictor, verbose_name=_("predictors"), related_name="modules",
                                         through="PredictorWithAggregator")
     filters = models.ManyToManyField(PythonObject, verbose_name=_("filters"), related_name="module_as_filter",
@@ -223,12 +222,8 @@ class Module(models.Model):
 
         # Bottleneck return the MAX_SORT elements with higher score but not sorted. Because of this it needs to be
         # resorted.
-        sorted_items = [
-            self.listed_items[r[0]]
-            for r in sorted(((i, recommendation[i])
-                             for i in bottleneck.argpartsort(-recommendation, MAX_SORT)[:MAX_SORT]),
-                            key=lambda x: x[1], reverse=True)
-        ]
+        top = np.argpartition(-recommendation, MAX_SORT-1)[:MAX_SORT]
+        sorted_items = self.listed_items[top[np.argsort(recommendation[top])[::-1]]]
         #for reranker in self.get_re_renkers(self.pk):
         #    recommendation = reranker(recommendation, size)
         return sorted_items[:size]

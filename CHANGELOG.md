@@ -1,4 +1,14 @@
-### Make set_frappe to initiate and train default module (HEAD, v3_develop)
+### Improve sort (HEAD, v3_develop)
+>Fri, 7 Nov 2014 12:00:53 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Make set_frappe to initiate and train default module
 >Thu, 6 Nov 2014 17:50:20 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
