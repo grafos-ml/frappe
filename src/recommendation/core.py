@@ -27,6 +27,8 @@ except KeyError:
     logger = NoLogger()
 log_event = logger
 
+MAX_SORT = 1000
+
 
 class IController(object):
     """
@@ -181,8 +183,11 @@ class IController(object):
             result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
-        result = [aid for aid, _ in filter(lambda x: x[1] != float("-inf"),
-                                           sorted(enumerate(result, start=1), key=lambda x: x[1], reverse=True))]
+        try:
+            top = np.argpartition(-result, MAX_SORT-1)[:MAX_SORT]
+        except ValueError:
+            top = np.array(range(len(result)))
+        result = list(top[np.argsort(result[top])[::-1]] + 1)
         for r in self.rerankers:
             result = r(user, result, size=n)
         return result[:n]

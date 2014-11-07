@@ -1,4 +1,14 @@
-### Bigger slug to avoid truncate (HEAD, master)
+### Improve sort (HEAD, master)
+>Fri, 7 Nov 2014 13:06:27 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Bigger slug to avoid truncate (origin/master, origin/HEAD)
 >Mon, 3 Nov 2014 11:08:17 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Update documentation for cache changes (origin/master, origin/develop, origin/HEAD, develop)
+### Update documentation for cache changes (origin/develop, develop)
 >Fri, 31 Oct 2014 17:03:11 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
