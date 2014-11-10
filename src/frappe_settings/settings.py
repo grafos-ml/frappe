@@ -120,8 +120,10 @@ CACHES = {
         "OPTIONS": {"MAX_ENTRIES": 10000000}
     },
     "owned_items": {
-        "BACKEND": "uwsgicache.UWSGICache",
-        "LOCATION": "owned_items"
+        #"BACKEND": "uwsgicache.UWSGICache",
+        #"LOCATION": "owned_items"
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": os.environ.get("FRAPPE_MEMCACHED", "127.0.0.1:11211"),
     }
 }
 CACHES["default"] = CACHES["local"]
