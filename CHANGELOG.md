@@ -1,4 +1,14 @@
 ### Fix travis (HEAD, master)
+>Mon, 10 Nov 2014 22:52:05 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix travis (origin/master, origin/HEAD)
 >Mon, 10 Nov 2014 21:34:01 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Fix user region loading (origin/master, origin/HEAD)
+### Fix user region loading
 >Mon, 10 Nov 2014 18:20:54 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

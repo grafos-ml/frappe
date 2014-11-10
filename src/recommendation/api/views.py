@@ -11,7 +11,6 @@ try:
     from uwsgidecorators import signal
 except ImportError:
     signal = lambda *args, **kwargs: lambda func: func
-
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
