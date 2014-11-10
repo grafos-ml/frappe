@@ -1,4 +1,14 @@
-### Fix user region loading (HEAD, master)
+### Fix travis (HEAD, master)
+>Mon, 10 Nov 2014 21:34:01 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix user region loading (origin/master, origin/HEAD)
 >Mon, 10 Nov 2014 18:20:54 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Change  cache (origin/master, origin/HEAD)
+### Change  cache
 >Mon, 10 Nov 2014 17:52:10 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

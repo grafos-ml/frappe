@@ -10,9 +10,8 @@ __author__ = "joaonrb"
 try:
     from uwsgidecorators import signal
 except ImportError:
-    signal = lambda func: func
+    signal = lambda *args, **kwargs: lambda func: func
 
-from django.utils.timezone import now
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
@@ -21,7 +20,6 @@ from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from recommendation.models import User, Inventory, Item
 from recommendation.core import get_controller
-from recommendation.decorators import GoToThreadQueue
 from recommendation.core import log_event
 
 JSON = "json"

@@ -18,27 +18,27 @@ except ImportError:
     warnings.warn("uWSGI lock is not active", RuntimeWarning)
     lock = i_am_the_spooler = unlock = lambda *x: None
 
-thread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
+#thread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
 clone_pool = ThreadPoolExecutor(max_workers=1)
-atexit.register(thread_pool.shutdown)
+#atexit.register(thread_pool.shutdown)
 atexit.register(clone_pool.shutdown)
 
 
-class GoToThreadQueue(object):
-    """
-    Execute in threading pool
-    """
+#class GoToThreadQueue(object):
+#    """
+#    Execute in threading pool
+#    """
 
-    def __call__(self, function):
-        """
-        The call of the view.
-        """
-        @functools.wraps(function)
-        def decorated(*args, **kwargs):
-            result = thread_pool.submit(function, *args, **kwargs)
-            return result
-            #return function(*args, **kwargs)
-        return decorated
+#    def __call__(self, function):
+#        """
+#        The call of the view.
+#        """
+#        @functools.wraps(function)
+#        def decorated(*args, **kwargs):
+#            result = thread_pool.submit(function, *args, **kwargs)
+#            return result
+#            #return function(*args, **kwargs)
+#        return decorated
 
 
 class ILogger(object):
