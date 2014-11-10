@@ -1,4 +1,14 @@
-### Change  cache (HEAD, master)
+### Fix user region loading (HEAD, master)
+>Mon, 10 Nov 2014 18:20:54 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change  cache (origin/master, origin/HEAD)
 >Mon, 10 Nov 2014 17:52:10 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -28,7 +38,7 @@
 
 
 
-### Improve sort (origin/master, origin/HEAD)
+### Improve sort
 >Fri, 7 Nov 2014 13:06:27 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

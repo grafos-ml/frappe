@@ -185,7 +185,7 @@ class Region(models.Model):
                     Region.get_regions.cache.set
                 )(Region.get_regions.key(region.pk), region, Region.get_regions.timeout)
         users = {}
-        for user_id, region_id in UserRegion.objects.all():
+        for user_id, region_id in UserRegion.objects.all().values_list("user_id", "region_id"):
         #with click.progressbar(UserRegion.objects.all().values_list("user_id", "region_id"),
         #                       label="Loading user regions to cache") as bar:
         #    for user_id, region_id in bar:
