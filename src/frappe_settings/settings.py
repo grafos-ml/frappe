@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 """
-Django settings for frappe project.
+Django settings for mozzila project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -8,39 +7,43 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-#import pymysql
-#pymysql.install_as_MySQLdb()
 
+import pymysql
+pymysql.install_as_MySQLdb()
+import logging
+try:
+    from frappe_settings.contingency import CONTINGENCY_ITEMS
+except:
+    logging.warn("Couldn't import contingency recommendation")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
+SECRET_KEY = 'qbw)c7!bc9v=17m#_-s4ldo^yuu1unism1iiw124*$&-bi&9vw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = TEMPLATE_DEBUG = False
 
-TEMPLATE_DEBUG = DEBUG
-
-MAX_THREADS = 2
-RESPONSE_TIMEOUT = 200./1000.
+TESTING_MODE = False
 
 ALLOWED_HOSTS = ["*"]
 
+MAX_THREAD = 2
+RESPONSE_TIMEOUT = 200./1000.
 
-# Application definition
+# Application definiton
 
 INSTALLED_APPS = ([
     "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
+     "django.contrib.auth",
+     "django.contrib.contenttypes",
+     "django.contrib.sessions",
+     "django.contrib.messages",
+     "django.contrib.staticfiles",
 ] if DEBUG else []) + [
     "corsheaders",
     "recommendation",
@@ -50,13 +53,6 @@ INSTALLED_APPS = ([
     "recommendation.simple_logging",
     "recommendation.diversity"
 ]
-
-if int(os.environ.get("FRAPPE_TEST", 0)):
-    INSTALLED_APPS = [
-        "django_nose",
-        #"debug_toolbar",
-        "django_coverage"
-    ] + INSTALLED_APPS
 
 MIDDLEWARE_CLASSES = (
     "pyinstrument.middleware.ProfilerMiddleware",
@@ -70,90 +66,53 @@ MIDDLEWARE_CLASSES = (
     "django.middleware.transaction.TransactionMiddleware",
     #"django.middleware.cache.UpdateCacheMiddleware",
     #"django.middleware.cache.FetchFromCacheMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    #"debug_toolbar.middleware.DebugToolbarMiddleware",
 ) if DEBUG else (
     "corsheaders.middleware.CorsMiddleware",
     #"django.middleware.common.CommonMiddleware",
+    #"pyinstrument.middleware.ProfilerMiddleware",
 )
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-ROOT_URLCONF = "recommendation.urls"
+ROOT_URLCONF = 'frappe_settings.urls'
 
-WSGI_APPLICATION = "recommendation.wsgi.application"
+WSGI_APPLICATION = 'frappe_settings.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "ffos",
-        "USER": "root",
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': "ffos",
+        "USER": os.environ.get("FRAPPE_DB_USER_NAME", "root"),
         "PASSWORD": os.environ.get("FRAPPE_PASSWORD", ""),
-        "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost"),
-        "TEST_CHARSET": "utf8",
-        "TEST_COLLATION": "utf8_general_ci",
+        "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost")
     }
 }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
-LANGUAGE_CODE = "en-en"
+LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'UTC'
 
-USE_I18N = USE_L10N = False
-USE_TZ = False
+USE_I18N = USE_L10N = USE_TZ = False
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = '/static/'
 
-# Logging
-
-# Testing
-# Nose settings
-
-TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
-NOSE_ARGS = [
-    "--with-coverage",
-    "--cover-package=recommendation",
-    "--cover-html"
-]
-#DEBUG_TOOLBAR_PATCH_SETTINGS = False
-
-DEBUG_TOOLBAR_PANELS = (
-    'debug_toolbar.panels.version.VersionDebugPanel',
-    'debug_toolbar.panels.timer.TimerDebugPanel',
-    #'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-    'debug_toolbar.panels.headers.HeaderDebugPanel',
-    'debug_toolbar.panels.profiling.ProfilingDebugPanel',
-    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-    'debug_toolbar.panels.sql.SQLDebugPanel',
-    'debug_toolbar.panels.template.TemplateDebugPanel',
-    'debug_toolbar.panels.cache.CacheDebugPanel',
-    'debug_toolbar.panels.signals.SignalDebugPanel',
-    #'debug_toolbar.panels.logger.LoggingPanel',
-)
-
-# Rest Framework Settings
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        #'rest_framework.authentication.BasicAuthentication',
-        #'rest_framework.authentication.SessionAuthentication',
-    )
-}
-
-# Caching
 
 CACHES = {
     #"default": {
     #    "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
-    #    "LOCATION": "127.0.0.1:11211",
+    #    "LOCATION": os.environ.get("FRAPPE_MEMCACHED", "127.0.0.1:11211"),
     #},
     "local": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -163,21 +122,15 @@ CACHES = {
     "owned_items": {
         "BACKEND": "uwsgicache.UWSGICache",
         "LOCATION": "owned_items"
-    } if not DEBUG else {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "django_default_cache",
-        "OPTIONS": {"MAX_ENTRIES": 10000000}
     }
 }
-
-CACHES["default"]
+CACHES["default"] = CACHES["local"]
 # Settings for the recommendation
 
 RECOMMENDATION_SETTINGS = {
     "default": {
         "core": "recommendation.core.TensorCoFiController",
         "filters": [
-            "recommendation.filter_none.filters.FilterNoneItems",
             "recommendation.filter_owned.filters.FilterOwned",
             "recommendation.language.filters.SimpleRegionFilter",
             "recommendation.simple_logging.filters.SimpleLogFilter",
@@ -187,5 +140,4 @@ RECOMMENDATION_SETTINGS = {
         ]
     },
     "logger": "recommendation.simple_logging.decorators.LogEvent"
-    #"logger": "recommendation.decorators.NoLogger"
 }

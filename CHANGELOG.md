@@ -1,4 +1,14 @@
-### Improve sort (HEAD, master)
+### Reagrup cache out of memcached (HEAD, master)
+>Mon, 10 Nov 2014 16:39:28 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Improve sort (origin/master, origin/HEAD)
 >Fri, 7 Nov 2014 13:06:27 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Bigger slug to avoid truncate (origin/master, origin/HEAD)
+### Bigger slug to avoid truncate
 >Mon, 3 Nov 2014 11:08:17 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -39,7 +39,7 @@ class Genre(models.Model):
         return self.name
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_genre_by_id(genre_id):
         """
         Return the genre belonging to that id with and extra attribute: count_items
@@ -49,7 +49,7 @@ class Genre(models.Model):
         return Genre.objects.filter(pk=genre_id).annotate(count_items=Count("items"))[0]
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_all_genres():
         """
         Get all genres

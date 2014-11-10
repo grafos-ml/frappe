@@ -16,7 +16,6 @@ from django.contrib.admin import site
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.core.cache import get_cache
 from recommendation.models import Item, User
 from recommendation.decorators import Cached
 
@@ -69,7 +68,7 @@ class LogEntry(models.Model):
         }
 
     @staticmethod
-    @Cached(lock_id=0)
+    @Cached(cache="local")
     def get_logs_for(user_id):
         """
         Get the user ids
@@ -94,8 +93,8 @@ class LogEntry(models.Model):
 
     @staticmethod
     def add_logs(user, logs):
-        cache = get_cache("default")
-        k = "get_logs_for_%d" % user.pk
+        cache = LogEntry.get_logs_for.cache
+        k = LogEntry.get_logs_for.key(user.pk)
         old_logs = LogEntry.get_logs_for(user.pk)
         logs = logs + old_logs
         cache.set(k, logs[:LOGGER_MAX_LOGS], None)
@@ -116,6 +115,6 @@ def delete_user_to_cache(sender, instance, using, **kwargs):
     """
     Add log to cache upon creation
     """
-    get_cache("default").delete("get_logs_for_%d" % instance.pk)
+    LogEntry.get_logs_for.cache.delete(LogEntry.get_logs_for.key(instance.pk))
 
 site.register([LogEntry])

@@ -121,7 +121,7 @@ class Item(models.Model):
         return Item.get_item_by_external_id(Item.get_item_external_id_by_id(item_id))
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_item_external_id_by_id(item_id):
         """
         Return item id from external_id.
@@ -129,7 +129,7 @@ class Item(models.Model):
         return Item.objects.filter(pk=item_id).values_list("external_id")[0][0]
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_item_by_external_id(external_id):
         """
         Return item from external id.
@@ -209,7 +209,7 @@ class User(models.Model):
         return unicode(self.external_id)
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_user_by_id(user_id):
         """
         Get user by their id
@@ -219,7 +219,7 @@ class User(models.Model):
         return User.objects.get(pk=user_id)
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_user_id_by_external_id(external_id):
         """
         Get the user id from external id
@@ -238,7 +238,7 @@ class User(models.Model):
         return User.get_user_by_id(User.get_user_id_by_external_id(external_id))
 
     @staticmethod
-    @Cached()
+    @Cached(cache="owned_items", lock_id=0)
     def get_user_items(user_id):
         """
         Get user items
@@ -459,7 +459,7 @@ class MySQLMapDummy:
 class UserMatrix:
 
     @staticmethod
-    @Cached(cache="userfactors")
+    @Cached(cache="local")
     def get_user_array(index):
         if not User.get_user_by_id(index+1).has_more_than(2):  # Index+1 = User ID
             raise KeyError("User %d static recommendation doesn't exist" % (index+1))
@@ -569,7 +569,6 @@ class TensorCoFi(PyTensorCoFi):
                             n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         tensor.factors = FactorsContainer(tensor)
         return tensor
-
 
     @staticmethod
     def get_model(*args, **kwargs):

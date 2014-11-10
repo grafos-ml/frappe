@@ -35,7 +35,7 @@ class Locale(models.Model):
         return u"%s%s" % (self.language_code, "-%s" % self.country_code if self.country_code else "")
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_all_locales():
         return {locale.pk: locale for locale in Locale.objects.all()}
 
@@ -50,7 +50,7 @@ class Locale(models.Model):
         return set([pk[0] for pk in User.get_user_by_id(user_id).locales.all().values_list("locale_id")])
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_items_by_locale(locale_id):
         return set([pk[0] for pk in ItemLocale.objects.filter(locale_id=locale_id).values_list("item_id")])
 
@@ -159,7 +159,7 @@ class Region(models.Model):
         return self.name
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_regions(region_id):
         return Region.objects.get(pk=region_id)
 
