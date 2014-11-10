@@ -1,4 +1,14 @@
-### Reagrup cache out of memcached (HEAD, master)
+### small fix (HEAD, master)
+>Mon, 10 Nov 2014 16:40:30 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Reagrup cache out of memcached
 >Mon, 10 Nov 2014 16:39:28 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

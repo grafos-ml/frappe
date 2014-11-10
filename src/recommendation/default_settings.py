@@ -170,7 +170,7 @@ CACHES = {
     }
 }
 
-CACHES["default"]
+CACHES["default"] = CACHES["local"]
 # Settings for the recommendation
 
 RECOMMENDATION_SETTINGS = {
