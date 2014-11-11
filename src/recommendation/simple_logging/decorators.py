@@ -9,10 +9,6 @@ __author__ = "joaonrb"
 from recommendation.simple_logging.models import LogEntry
 from recommendation.decorators import ILogger
 import functools
-try:
-    from uwsgidecorators import signal
-except ImportError:
-    signal = lambda *args, **kwargs: lambda func: func
 
 
 class LogEvent(ILogger):
@@ -33,7 +29,6 @@ class LogEvent(ILogger):
         else:
             self.do_call = self.std
 
-    @signal(3, target="mule")
     def bulk_load(self, user, recommendation):
         new_logs = [
             LogEntry(user=user, item_id=iid, type=self.log_type, value=i)

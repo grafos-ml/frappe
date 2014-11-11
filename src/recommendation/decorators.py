@@ -13,10 +13,11 @@ import warnings
 import random
 import logging
 try:
-    from uwsgi import lock, i_am_the_spooler, unlock
+    from uwsgi import lock, i_am_the_spooler, unlock, mule_msg
 except ImportError:
     warnings.warn("uWSGI lock is not active", RuntimeWarning)
     lock = i_am_the_spooler = unlock = lambda *x: None
+    mule_msg = None
 
 #thread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
 clone_pool = ThreadPoolExecutor(max_workers=1)

@@ -1,4 +1,14 @@
-### Fix Client (HEAD, master)
+### Removed threadpool for writhing database (HEAD, master)
+>Tue, 11 Nov 2014 16:35:05 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix Client
 >Tue, 11 Nov 2014 15:26:22 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

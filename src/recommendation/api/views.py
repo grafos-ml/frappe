@@ -7,10 +7,6 @@ The views for the Recommend API.
 """
 __author__ = "joaonrb"
 
-try:
-    from uwsgidecorators import signal
-except ImportError:
-    signal = lambda *args, **kwargs: lambda func: func
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
@@ -225,7 +221,6 @@ class UserItemsAPI(RecommendationAPI):
 
     @staticmethod
     #@GoToThreadQueue()
-    @signal(1, target='mule')
     @log_event(log_event.ACQUIRE)
     def insert_acquisition(user, item):
         """
@@ -244,7 +239,6 @@ class UserItemsAPI(RecommendationAPI):
 
     @staticmethod
     #@GoToThreadQueue()
-    @signal(2, target='mule')
     @log_event(log_event.REMOVE)
     def remove_item(user, item):
         """
