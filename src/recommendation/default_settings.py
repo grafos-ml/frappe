@@ -10,7 +10,6 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 #import pymysql
 #pymysql.install_as_MySQLdb()
@@ -21,12 +20,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
-MAX_THREADS = 2
 RESPONSE_TIMEOUT = 200./1000.
 
 ALLOWED_HOSTS = ["*"]
@@ -126,25 +124,25 @@ NOSE_ARGS = [
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 DEBUG_TOOLBAR_PANELS = (
-    'debug_toolbar.panels.version.VersionDebugPanel',
-    'debug_toolbar.panels.timer.TimerDebugPanel',
-    #'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-    'debug_toolbar.panels.headers.HeaderDebugPanel',
-    'debug_toolbar.panels.profiling.ProfilingDebugPanel',
-    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-    'debug_toolbar.panels.sql.SQLDebugPanel',
-    'debug_toolbar.panels.template.TemplateDebugPanel',
-    'debug_toolbar.panels.cache.CacheDebugPanel',
-    'debug_toolbar.panels.signals.SignalDebugPanel',
-    #'debug_toolbar.panels.logger.LoggingPanel',
+    "debug_toolbar.panels.version.VersionDebugPanel",
+    "debug_toolbar.panels.timer.TimerDebugPanel",
+    #"debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel",
+    "debug_toolbar.panels.headers.HeaderDebugPanel",
+    "debug_toolbar.panels.profiling.ProfilingDebugPanel",
+    "debug_toolbar.panels.request_vars.RequestVarsDebugPanel",
+    "debug_toolbar.panels.sql.SQLDebugPanel",
+    "debug_toolbar.panels.template.TemplateDebugPanel",
+    "debug_toolbar.panels.cache.CacheDebugPanel",
+    "debug_toolbar.panels.signals.SignalDebugPanel",
+    #"debug_toolbar.panels.logger.LoggingPanel",
 )
 
 # Rest Framework Settings
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        #'rest_framework.authentication.BasicAuthentication',
-        #'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        #"rest_framework.authentication.BasicAuthentication",
+        #"rest_framework.authentication.SessionAuthentication",
     )
 }
 

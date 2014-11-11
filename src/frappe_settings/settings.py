@@ -32,8 +32,7 @@ TESTING_MODE = False
 
 ALLOWED_HOSTS = ["*"]
 
-MAX_THREAD = 2
-RESPONSE_TIMEOUT = 200./1000.
+RESPONSE_TIMEOUT = 500./1000.
 
 # Application definiton
 

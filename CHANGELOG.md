@@ -1,5 +1,5 @@
-### Fix travis (HEAD, master)
->Mon, 10 Nov 2014 22:52:05 +0100
+### Clean project (HEAD, master)
+>Tue, 11 Nov 2014 12:31:45 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
 
@@ -9,6 +9,16 @@
 
 
 ### Fix travis (origin/master, origin/HEAD)
+>Mon, 10 Nov 2014 22:52:05 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix travis
 >Mon, 10 Nov 2014 21:34:01 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -9,10 +9,9 @@ import logging
 import numpy as np
 import traceback
 from django.conf import settings
-from recommendation.models import Item, User, TensorCoFi, Popularity, Inventory
+from recommendation.models import Item, User, TensorCoFi, Popularity
 from recommendation.util import initialize
 from recommendation.decorators import ContingencyProtocol
-from recommendation.filter_none.filters import FilterNoneItems
 
 try:
     RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")

@@ -6,11 +6,9 @@ A decorator to register events into log. Created on Fev 11, 2014
 
 __author__ = "joaonrb"
 
-from recommendation.simple_logging.models import LogEntry, LOGGER_MAX_LOGS
+from recommendation.simple_logging.models import LogEntry
 from recommendation.decorators import ILogger
-from recommendation.models import Item, User
 import functools
-from collections import deque
 try:
     from uwsgidecorators import signal
 except ImportError:
