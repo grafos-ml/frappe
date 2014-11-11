@@ -26,7 +26,7 @@ except:
 SECRET_KEY = 'qbw)c7!bc9v=17m#_-s4ldo^yuu1unism1iiw124*$&-bi&9vw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = TEMPLATE_DEBUG = False
+DEBUG = TEMPLATE_DEBUG = True
 
 TESTING_MODE = False
 
@@ -58,7 +58,6 @@ MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",

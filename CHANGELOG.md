@@ -1,4 +1,14 @@
-### Clean project (HEAD, master)
+### Fix Client (HEAD, master)
+>Tue, 11 Nov 2014 15:26:22 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Clean project
 >Tue, 11 Nov 2014 12:31:45 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

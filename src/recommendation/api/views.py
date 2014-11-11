@@ -235,7 +235,12 @@ class UserItemsAPI(RecommendationAPI):
         :param item: The item.
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        Inventory.objects.create(item=item, user=user)
+        try:
+            inv = Inventory.objects.get(item=item, user=user)
+            inv.is_dropped = False
+            inv.save()
+        except Inventory.DoesNotExist:
+            Inventory.objects.create(item=item, user=user)
 
     @staticmethod
     #@GoToThreadQueue()
@@ -266,8 +271,8 @@ class UserItemsAPI(RecommendationAPI):
          user and the dropped date set to null).
         """
         offset = int(request.GET.get("offset", 0))  # Offset of items
-        number_of_items = int(request.GET.get("items", 20))  # Number of items to present
-        limit = offset+number_of_items
+        number_of_items = int(request.GET.get("items", 0))  # Number of items to present
+        limit = (offset+number_of_items) or None
         user = User.get_user_by_external_id(user_external_id)
         try:
             items = [
@@ -295,7 +300,7 @@ class UserItemsAPI(RecommendationAPI):
         :return: A success response if the input was successful =p
         """
         try:
-            item_id = request.DATA["item_to_acquire"]
+            item_id = request.POST["item_to_acquire"]
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
