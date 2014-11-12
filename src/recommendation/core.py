@@ -156,7 +156,7 @@ class IController(object):
             apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
             u_factors = model.online_user_factors(apps_idx)  # New factors for this user
             TensorCoFi.user_matrix[user.pk-1] = u_factors  # store new documentation in Cache
-            return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
+            return np.squeeze(np.asarray(np.dot(u_factors, model.factors[1].transpose())))
 
     @log_event(log_event.RECOMMEND)
     def get_recommendation(self, user, n=10):

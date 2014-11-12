@@ -1,4 +1,14 @@
-### Removed threadpool for writhing database (HEAD, master)
+### fix Dynamic user array (1st time) (HEAD, master)
+>Wed, 12 Nov 2014 15:36:25 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Removed threadpool for writhing database (origin/master, origin/HEAD)
 >Tue, 11 Nov 2014 16:35:05 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -28,7 +38,7 @@
 
 
 
-### Fix travis (origin/master, origin/HEAD)
+### Fix travis
 >Mon, 10 Nov 2014 22:52:05 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
