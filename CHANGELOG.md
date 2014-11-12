@@ -1,4 +1,14 @@
-### fix Dynamic user array (1st time) (HEAD, master)
+### Change wsgi.py (HEAD, master)
+>Wed, 12 Nov 2014 16:49:27 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### fix Dynamic user array (1st time) (origin/master, origin/HEAD)
 >Wed, 12 Nov 2014 15:36:25 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Removed threadpool for writhing database (origin/master, origin/HEAD)
+### Removed threadpool for writhing database
 >Tue, 11 Nov 2014 16:35:05 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
