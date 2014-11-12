@@ -13,11 +13,16 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "frappe_settings.settings")
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
 
+from threading import Thread
 from django.conf import settings
 from recommendation.models import Item, User, TensorCoFi, Popularity
 
 
 def load_rest():
+    User.load_to_cache()
+    # Load main models
+    Popularity.load_to_cache()
+    TensorCoFi.load_to_cache()
     if "recommendation.language" in settings.INSTALLED_APPS:
         from recommendation.language.models import Locale, Region
         #Locale.load_to_cache()
@@ -29,10 +34,7 @@ def load_rest():
 
 # Load user and items
 Item.load_to_cache()
-# Load main models
-#Popularity.load_to_cache()
-#TensorCoFi.load_to_cache()
-#load_rest()
+Thread(target=load_rest).start()
 
 
 

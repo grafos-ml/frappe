@@ -1,4 +1,14 @@
-### Change wsgi.py (HEAD, master)
+### Change wsgi.py to thread cache loading (HEAD, master)
+>Wed, 12 Nov 2014 17:46:34 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change wsgi.py (origin/master, origin/HEAD)
 >Wed, 12 Nov 2014 16:49:27 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### fix Dynamic user array (1st time) (origin/master, origin/HEAD)
+### fix Dynamic user array (1st time)
 >Wed, 12 Nov 2014 15:36:25 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

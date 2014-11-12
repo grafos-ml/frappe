@@ -32,7 +32,7 @@ TESTING_MODE = False
 
 ALLOWED_HOSTS = ["*"]
 
-RESPONSE_TIMEOUT = 500./1000.
+RESPONSE_TIMEOUT = 1.5
 
 # Application definiton
 
