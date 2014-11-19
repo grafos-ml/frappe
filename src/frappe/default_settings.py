@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "(b*v9gk(w^p*%qn1lk2+h7bjg7=(arvy=xu06ahjl9&&@_(_j1"
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
@@ -43,6 +43,7 @@ INSTALLED_APPS = ([
     "django.contrib.staticfiles",
 ] if DEBUG else []) + [
     "corsheaders",
+    "rest_framework",
     "frappe",
     #"recommendation.api",
     #"recommendation.filter_owned",
@@ -88,7 +89,7 @@ WSGI_APPLICATION = "frappe.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "ffos",
+        "NAME": "ffos1",
         "USER": "root",
         "PASSWORD": os.environ.get("FRAPPE_PASSWORD", ""),
         "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost"),
@@ -130,25 +131,25 @@ NOSE_ARGS = [
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 DEBUG_TOOLBAR_PANELS = (
-    'debug_toolbar.panels.version.VersionDebugPanel',
-    'debug_toolbar.panels.timer.TimerDebugPanel',
-    #'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-    'debug_toolbar.panels.headers.HeaderDebugPanel',
-    'debug_toolbar.panels.profiling.ProfilingDebugPanel',
-    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-    'debug_toolbar.panels.sql.SQLDebugPanel',
-    'debug_toolbar.panels.template.TemplateDebugPanel',
-    'debug_toolbar.panels.cache.CacheDebugPanel',
-    'debug_toolbar.panels.signals.SignalDebugPanel',
-    #'debug_toolbar.panels.logger.LoggingPanel',
+    "debug_toolbar.panels.version.VersionDebugPanel",
+    "debug_toolbar.panels.timer.TimerDebugPanel",
+    #"debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel",
+    "debug_toolbar.panels.headers.HeaderDebugPanel",
+    "debug_toolbar.panels.profiling.ProfilingDebugPanel",
+    "debug_toolbar.panels.request_vars.RequestVarsDebugPanel",
+    "debug_toolbar.panels.sql.SQLDebugPanel",
+    "debug_toolbar.panels.template.TemplateDebugPanel",
+    "debug_toolbar.panels.cache.CacheDebugPanel",
+    "debug_toolbar.panels.signals.SignalDebugPanel",
+    #"debug_toolbar.panels.logger.LoggingPanel",
 )
 
 # Rest Framework Settings
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        #'rest_framework.authentication.BasicAuthentication',
-        #'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        #"rest_framework.authentication.BasicAuthentication",
+        #"rest_framework.authentication.SessionAuthentication",
     )
 }
 

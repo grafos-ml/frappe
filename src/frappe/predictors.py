@@ -58,7 +58,6 @@ class PopularityPredictor(IPredictor):
 
     @staticmethod
     def load_predictor(predictor, module):
-
         try:
             item_factors = predictor.data.all().order_by("-timestamp")[0].data
         except IndexError:
@@ -71,7 +70,7 @@ class PopularityPredictor(IPredictor):
                 except KeyError:
                     pass
 
-        algorithm = PopularityPredictor(model, predictor.pk)
+        algorithm = PopularityPredictor(predictor.pk, model)
         return algorithm
 
     def __call__(self, user, size):
@@ -118,6 +117,7 @@ class TensorCoFiPredictor(IPredictor):
     def __init__(self, predictor_id):
         self.factors = None
         self.predictor_id = predictor_id
+        self.__inventory__ = None
 
     @staticmethod
     def load_predictor(predictor, module):
@@ -140,16 +140,18 @@ class TensorCoFiPredictor(IPredictor):
         users, items = self.factors
         return np.squeeze(np.asarray(np.dot(users[user.pk], items.transpose())))
 
-    def train(self, *args, **kwargs):
+    def get_training(self):
         columns = ["user", "item", "user_id", "item_id"]
-        ivs = Inventory.objects.all().values_list("user__external_id", "item__external_id", "user_id", "item_id")
-        inventory = pd.DataFrame(dict(zip(columns, zip(*ivs))))
+        UserFactors.objects.all().delete()
+        self.__inventory__ = Inventory.objects.all().values_list("user__external_id", "item__external_id", "user_id", "item_id")
+        return pd.DataFrame(dict(zip(columns, zip(*self.__inventory__))))
+
+    def train(self, *args, **kwargs):
         algorithm = PyTensorCoFi(*args, **kwargs)
-        algorithm.fit(inventory)
+        algorithm.fit(self.get_training())
 
         # Saving to the database
-        users_ids = {user_eid: user_id for user_eid, i, user_id, i in ivs}
-        UserFactors.objects.all().delete()
+        users_ids = {user_eid: user_id for user_eid, i, user_id, i in self.__inventory__}
         to_save = []
         for user_eid, umid in algorithm.data_map["user"].iteritems():
             user_id = users_ids[user_eid]

@@ -52,7 +52,6 @@ class Slot(models.Model):
         random.shuffle(slots)
         Slot.objects.all().delete()
         db_slots = {}
-        print len(slots), slots
         for i in xrange(MAX_FRAPPE_SLOTS):
             module_id = slots[i]
             db_slots[i] = Slot(slot=i, module_id=module_id)

@@ -1,4 +1,14 @@
-### Improve sort (HEAD, v3_develop)
+### fix sort bug. (HEAD, v3_develop)
+>Wed, 19 Nov 2014 17:26:14 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Improve sort (origin/v3_develop)
 >Fri, 7 Nov 2014 12:00:53 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -48,7 +58,7 @@
 
 
 
-### Add commands (origin/v3_develop)
+### Add commands
 >Tue, 4 Nov 2014 17:40:15 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

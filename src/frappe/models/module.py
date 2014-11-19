@@ -133,7 +133,7 @@ class Module(models.Model):
     Module holding recommendation configuration.
     """
 
-    identifier = models.CharField(_("identifier"), max_length=255)
+    identifier = models.CharField(_("identifier"), max_length=255, unique=True)
     listed_items = PythonObjectField(_("items"), default=np.array([]), blank=True)
     predictors = models.ManyToManyField(Predictor, verbose_name=_("predictors"), related_name="modules",
                                         through="PredictorWithAggregator")
@@ -203,7 +203,7 @@ class Module(models.Model):
         :return:
         """
         weights = self.get_aggregator(self.pk)
-        return np.sum(map(lambda pid: predictions[pid]*weights[pid], predictions.keys()))
+        return np.sum(map(lambda pid: predictions[pid]*weights[pid], predictions.keys()), axis=0)
 
     def predict_scores(self, user, size):
         """

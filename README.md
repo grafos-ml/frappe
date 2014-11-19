@@ -21,4 +21,4 @@ In the package doc folder
 $ make html
 
 
-© 2014 Linas Baltrunas, Joao Baptista, Telefonica Research
+© 2014 Linas Baltrunas, João Baptista, Telefonica Research

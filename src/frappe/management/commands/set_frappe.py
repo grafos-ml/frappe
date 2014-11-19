@@ -4,7 +4,8 @@
 Frappe fill - Fill database
 
 Usage:
-  set_frappe init
+  set_frappe init <module>
+  set_frappe train <module>
   set_frappe --help
   set_frappe --version
 
@@ -18,6 +19,8 @@ __author__ = "joaonrb"
 
 import sys
 import traceback
+import logging
+import numpy as np
 from django_docopt_command import DocOptCommand
 from django.conf import settings
 from frappe.models import Module, Predictor, PredictorWithAggregator, Slot, Item
@@ -63,12 +66,17 @@ class FrappeCommand(object):
 
     def run(self):
         if self.parameters["init"]:
-            self.init()
+            self.init(self.parameters["<module>"])
+        if self.parameters["train"]:
+            self.train(self.parameters["<module>"])
 
-    def init(self):
+    def init(self, module="default"):
+        if Module.objects.filter(identifier=module).count():
+            logging.info("Module %s already exist" % module)
+            return
         predictors = []
         for name, setts in FRAPPE_SETTINGS.items():
-            items = [item_eid for item_eid, in Item.objects.all().order_by("pk").values_list("external_id")]
+            items = np.array([item_eid for item_eid, in Item.objects.all().order_by("pk").values_list("external_id")])
             module = Module.objects.create(identifier=name, listed_items=items)
             for p in setts["predictors"]:
                 predictor = Predictor.objects.create(identifier=p["identifier"], python_class=p["class"],
@@ -79,6 +87,10 @@ class FrappeCommand(object):
             # Here filters and rerankers
         Slot.update_modules()
 
-        for module, predictor in predictors:
-            print "Training", predictor
+    def train(self, module):
+        predictors = PredictorWithAggregator.objects.filter(module__identifier=module).select_related()
+        for module_predictor in predictors:
+            module, predictor = module_predictor.module, module_predictor.predictor
+            logging.info("Training %s", predictor)
             Module.get_predictor(module.pk, predictor.pk).train()
+            logging.info("Finish training %s" % predictor)
