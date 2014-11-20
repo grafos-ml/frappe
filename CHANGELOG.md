@@ -1,4 +1,14 @@
-### Finished owned items filter (HEAD, v3_develop)
+### Finish region filter (HEAD, v3_develop)
+>Thu, 20 Nov 2014 16:52:47 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finished owned items filter
 >Thu, 20 Nov 2014 15:40:43 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

@@ -23,8 +23,7 @@ class FilterOwnedItems(object):
         """
         for item in user.owned_items.values():
             try:
-                index = module.items_index[item.external_id]
-                recommendation[index] = -1000
+                recommendation[module.items_index[item.external_id]] = -1000
             except IndexError:
                 pass
         return recommendation

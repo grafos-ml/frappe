@@ -45,9 +45,8 @@ INSTALLED_APPS = ([
     "corsheaders",
     "rest_framework",
     "frappe",
-    #"recommendation.api",
-    #"recommendation.filter_owned",
-    #"recommendation.language",
+    "frappe.api",
+    "frappe.tools.region",
     #"recommendation.simple_logging",
     #"recommendation.diversity"
 ]
