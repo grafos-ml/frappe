@@ -145,7 +145,8 @@ class TensorCoFiPredictor(IPredictor):
     def get_training(self):
         columns = ["user", "item", "user_id", "item_id"]
         UserFactors.objects.all().delete()
-        self.__inventory__ = Inventory.objects.all().values_list("user__external_id", "item__external_id", "user_id", "item_id")
+        self.__inventory__ = Inventory.objects.all().values_list("user__external_id", "item__external_id", "user_id",
+                                                                 "item_id")
         return pd.DataFrame(dict(zip(columns, zip(*self.__inventory__))))
 
     def train(self, *args, **kwargs):

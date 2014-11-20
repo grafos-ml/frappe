@@ -135,6 +135,7 @@ class Module(models.Model):
 
     identifier = models.CharField(_("identifier"), max_length=255, unique=True)
     listed_items = PythonObjectField(_("items"), default=np.array([]), blank=True)
+    items_index = PythonObjectField(_("item indexes"), default={}, blank=True)
     predictors = models.ManyToManyField(Predictor, verbose_name=_("predictors"), related_name="modules",
                                         through="PredictorWithAggregator")
     filters = models.ManyToManyField(PythonObject, verbose_name=_("filters"), related_name="module_as_filter",
@@ -161,7 +162,7 @@ class Module(models.Model):
         return self.identifier
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_module(module_id):
         """
         Return module based on module id
@@ -171,7 +172,7 @@ class Module(models.Model):
         return Module.objects.get(pk=module_id)
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_predictors(module_id):
         """
         Get all predictors for this module
@@ -181,7 +182,7 @@ class Module(models.Model):
         return [pid for pid, in Predictor.objects.filter(modules__id=module_id).values_list("pk")]
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_predictor(module_id, predictor_id):
         """
         Return predictor for this module
@@ -192,12 +193,12 @@ class Module(models.Model):
         return predictor_class.load_predictor(predictor, module)
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_aggregator(module_id):
         return {agg.predictor_id: agg.weight for agg in PredictorWithAggregator.objects.filter(module_id=module_id)}
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_filters(module_id):
         """
         Return a list of filters

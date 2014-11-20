@@ -1,4 +1,14 @@
-### Fix train tensorcofi for big data. Start filters (HEAD, v3_develop)
+### Add hash item to module. (HEAD, v3_develop)
+>Thu, 20 Nov 2014 15:09:59 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix train tensorcofi for big data. Start filters
 >Thu, 20 Nov 2014 14:49:59 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
