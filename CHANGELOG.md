@@ -1,4 +1,14 @@
-### Add hash item to module. (HEAD, v3_develop)
+### Finished owned items filter (HEAD, v3_develop)
+>Thu, 20 Nov 2014 15:40:43 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Add hash item to module.
 >Thu, 20 Nov 2014 15:09:59 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

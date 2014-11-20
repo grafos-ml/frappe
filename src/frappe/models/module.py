@@ -229,7 +229,7 @@ class Module(models.Model):
         }
         recommendation = self.aggregate(recommendations)
         for rfilter in self.get_filters(self.pk):
-            recommendation = rfilter(recommendation, size)
+            recommendation = rfilter(self, user, recommendation, size)
 
         # Bottleneck return the MAX_SORT elements with higher score but not sorted. Because of this it needs to be
         # resorted.

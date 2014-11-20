@@ -12,7 +12,7 @@ class FilterOwnedItems(object):
     Filter To filter the owned items
     """
 
-    def __call__(self, user, recommendation, size=None, **kwargs):
+    def __call__(self, module, user, recommendation, *args, **kwargs):
         """
 
         :param user: User that requested the recommendation
@@ -23,7 +23,8 @@ class FilterOwnedItems(object):
         """
         for item in user.owned_items.values():
             try:
-                recommendation[item.pk-1] = -1000
+                index = module.items_index[item.external_id]
+                recommendation[index] = -1000
             except IndexError:
                 pass
         return recommendation

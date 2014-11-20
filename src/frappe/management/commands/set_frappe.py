@@ -78,7 +78,7 @@ class FrappeCommand(object):
         for name, setts in FRAPPE_SETTINGS.items():
             items = np.array([item_eid for item_eid, in Item.objects.all().order_by("pk").values_list("external_id")])
             item_index = {item: index for index, item in enumerate(items)}
-            module = Module.objects.create(identifier=name, listed_items=items, item_index=item_index)
+            module = Module.objects.create(identifier=name, listed_items=items, items_index=item_index)
             for p in setts["predictors"]:
                 predictor = Predictor.objects.create(identifier=p["identifier"], python_class=p["class"],
                                                      kwargs=p.get("kwargs", {}))
