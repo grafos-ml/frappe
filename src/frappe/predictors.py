@@ -5,9 +5,11 @@ Predictors for the frappe recommendation system
 
 __author__ = "joaonrb"
 
+import logging
 import pandas as pd
 import numpy as np
 from abc import ABCMeta, abstractmethod
+from django.db import OperationalError
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity
 from frappe.models import Inventory, Predictor, AlgorithmData, UserFactors
@@ -156,7 +158,13 @@ class TensorCoFiPredictor(IPredictor):
         for user_eid, umid in algorithm.data_map["user"].iteritems():
             user_id = users_ids[user_eid]
             to_save.append(UserFactors(user_id=user_id, array=algorithm.factors[0][umid]))
-        UserFactors.objects.bulk_create(to_save)
+        try:
+            UserFactors.objects.bulk_create(to_save)
+        except OperationalError:
+            logging.warn("To many user factors to bulk insertion. MySQL query allow 16MB per query by default.")
+            logging.info("Trying to break query in chunks")
+            for i in range(0, len(to_save), 250):
+                UserFactors.objects.bulk_create(to_save[i:i+250])
 
         data = {}
         for item_eid, imid in algorithm.data_map["item"].iteritems():

@@ -87,10 +87,13 @@ class FrappeCommand(object):
             # Here filters and rerankers
         Slot.update_modules()
 
+    def __train__(self, module_predictor):
+        module, predictor = module_predictor.module, module_predictor.predictor
+        logging.info("Training %s", predictor)
+        Module.get_predictor(module.pk, predictor.pk).train()
+        logging.info("Finish training %s" % predictor)
+
     def train(self, module):
         predictors = PredictorWithAggregator.objects.filter(module__identifier=module).select_related()
         for module_predictor in predictors:
-            module, predictor = module_predictor.module, module_predictor.predictor
-            logging.info("Training %s", predictor)
-            Module.get_predictor(module.pk, predictor.pk).train()
-            logging.info("Finish training %s" % predictor)
+            self.__train__(module_predictor)

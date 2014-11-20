@@ -196,6 +196,16 @@ class Module(models.Model):
     def get_aggregator(module_id):
         return {agg.predictor_id: agg.weight for agg in PredictorWithAggregator.objects.filter(module_id=module_id)}
 
+    @staticmethod
+    @Cached()
+    def get_filters(module_id):
+        """
+        Return a list of filters
+        :param module_id:
+        :return:
+        """
+        return [f.obj.obj for f in Filter.objects.filter(module_id=module_id)]
+
     def aggregate(self, predictions):
         """
         Aggregate all predictions in one recommendation
@@ -217,8 +227,8 @@ class Module(models.Model):
             for predictor_id in self.get_predictors(self.pk)
         }
         recommendation = self.aggregate(recommendations)
-        #for rfilter in self.get_filters(self.pk):
-        #    recommendation = rfilter(recommendation, size)
+        for rfilter in self.get_filters(self.pk):
+            recommendation = rfilter(recommendation, size)
 
         # Bottleneck return the MAX_SORT elements with higher score but not sorted. Because of this it needs to be
         # resorted.

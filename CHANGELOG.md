@@ -1,4 +1,14 @@
-### fix sort bug. (HEAD, v3_develop)
+### Fix train tensorcofi for big data. Start filters (HEAD, v3_develop)
+>Thu, 20 Nov 2014 14:49:59 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### fix sort bug. (origin/v3_develop)
 >Wed, 19 Nov 2014 17:26:14 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Improve sort (origin/v3_develop)
+### Improve sort
 >Fri, 7 Nov 2014 12:00:53 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
