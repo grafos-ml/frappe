@@ -7,10 +7,11 @@ Log based re-ranker. I reads the logs from this user and re-rank items from the 
 """
 __author__ = "joaonrb"
 
+import numpy as np
 from frappe.tools.logger.models import LogEntry
 
 
-class SimpleLogFilter(object):
+class DummyLogReRanker(object):
     """
     This first implementation of the re-ranker is intend to produce a withdraw or boost in each item "pre-recommended"
     based in the app position, the app position in previous recommendations and clicks by the user. For this task
@@ -22,28 +23,18 @@ class SimpleLogFilter(object):
     way the changes will be smother.
 
     """
-    points = (
-        lambda x, n: (x.value-n)/2.,  # LogEntry.RECOMMEND
-        lambda x, n: 0,               # LogEntry.CLICK_RECOMMENDED
-        lambda x, n: 0,               # LogEntry.INSTALL
-        lambda x, n: -10,             # LogEntry.REMOVE
-        lambda x, n: 3,               # LogEntry.CLICK
-    )
-
-    @staticmethod
-    def evaluate(log, n):
-        return SimpleLogFilter.points[log.type](log, n)
 
     def __call__(self, module, user, recommendation, size=4, **kwargs):
         """
         Calculate the new rank based on logs
         """
-        logs = LogEntry.get_logs_for(user.external_id)
-        for log in logs:
-            try:
-                recommendation[module.items_index[log.item_id]] += (self.evaluate(log, size) * 0.01)
-            except IndexError:
-                pass
+        logs = LogEntry.get_logs_for(module.id, user.external_id)
+        for item_eid, score in logs.items():
+            i0 = np.where(recommendation == item_eid)
+            i1 = i0+score
+            if i1 < 0:
+                i1 = 0
+            recommendation[i0], recommendation[i1] = recommendation[i1], recommendation[i0]
         return recommendation
 
 

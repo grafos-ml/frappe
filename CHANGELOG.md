@@ -1,4 +1,14 @@
-### Finish logger module ( mo logging and db logger) (HEAD, v3_develop)
+### Create a dummy log re-ranker (the score logic is more suitable to filter) (HEAD, v3_develop)
+>Fri, 21 Nov 2014 22:12:10 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finish logger module ( mo logging and db logger)
 >Fri, 21 Nov 2014 19:52:56 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

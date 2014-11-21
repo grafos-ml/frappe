@@ -27,6 +27,12 @@ class LogEntry(models.Model):
     """
     Log entry for the recommendation system
     """
+    points = (
+        lambda x: -(x/2.),         # LogEntry.RECOMMEND
+        lambda x: 0,               # LogEntry.INSTALL
+        lambda x: -10,             # LogEntry.REMOVE
+        lambda x: 3,               # LogEntry.CLICK
+    )
 
     RECOMMEND = 0
     ACQUIRE = 1
@@ -74,7 +80,10 @@ class LogEntry(models.Model):
         """
         Get the user ids
         """
-        return list(LogEntry.objects.filter(user_id=user_eid).order_by("-timestamp")[:LOGGER_MAX_LOGS])
+        result = {}
+        for log in LogEntry.objects.filter(user_id=user_eid).order_by("-timestamp")[:LOGGER_MAX_LOGS]:
+            result[log.item_id] = result.get(log.item_id, 0) + LogEntry.points[log.type](log.value)
+        return result
 
     @staticmethod
     def load_to_cache():
@@ -94,11 +103,12 @@ class LogEntry(models.Model):
 
     @staticmethod
     def add_logs(user, logs):
-        cache = get_cache("default")
-        k = "get_logs_for_%d" % user.pk
-        old_logs = LogEntry.get_logs_for(user.pk)
-        logs = logs + old_logs
-        cache.set(k, logs[:LOGGER_MAX_LOGS], None)
+        old_logs = LogEntry.get_logs_for()
+        for log in logs:
+            old_logs[log.item_id] = old_logs.get(log.item_id, 0) + LogEntry.points[log.type](log.value)
+        LogEntry.get_logs_for.lock_this(
+            LogEntry.get_logs_for.cache.set
+        )(LogEntry.get_logs_for.key(user.external_id), old_logs, LogEntry.get_logs_for.timeout)
 
 
 @receiver(post_save, sender=LogEntry)
