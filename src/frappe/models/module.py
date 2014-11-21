@@ -207,6 +207,16 @@ class Module(models.Model):
         """
         return [f.obj.obj for f in Filter.objects.filter(module_id=module_id)]
 
+    @staticmethod
+    @Cached(cache="local")
+    def get_rerankers(module_id):
+        """
+        Return a list of filters
+        :param module_id:
+        :return:
+        """
+        return [r.obj.obj for r in ReRanker.objects.filter(module_id=module_id)]
+
     def aggregate(self, predictions):
         """
         Aggregate all predictions in one recommendation
@@ -235,8 +245,8 @@ class Module(models.Model):
         # resorted.
         top = np.argpartition(-recommendation, MAX_SORT-1)[:MAX_SORT]
         sorted_items = self.listed_items[top[np.argsort(recommendation[top])[::-1]]]
-        #for reranker in self.get_re_renkers(self.pk):
-        #    recommendation = reranker(recommendation, size)
+        for reranker in self.get_rerankers(self.pk):
+            sorted_items = reranker(self, user, sorted_items, size)
         return sorted_items[:size]
 
 

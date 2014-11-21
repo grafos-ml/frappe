@@ -1,4 +1,14 @@
-### Cache keys from str to lambda (HEAD, v3_develop)
+### Fix log dummy reranker (HEAD, v3_develop)
+>Fri, 21 Nov 2014 22:38:49 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Cache keys from str to lambda
 >Fri, 21 Nov 2014 22:20:15 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

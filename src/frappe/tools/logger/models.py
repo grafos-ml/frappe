@@ -103,7 +103,7 @@ class LogEntry(models.Model):
 
     @staticmethod
     def add_logs(user, logs):
-        old_logs = LogEntry.get_logs_for()
+        old_logs = LogEntry.get_logs_for(user.external_id)
         for log in logs:
             old_logs[log.item_id] = old_logs.get(log.item_id, 0) + LogEntry.points[log.type](log.value)
         LogEntry.get_logs_for.lock_this(

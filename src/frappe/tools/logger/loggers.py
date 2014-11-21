@@ -90,7 +90,7 @@ class DBLogger(ILogger):
     @staticmethod
     def bulk_logging(log_type, module, user, items):
         new_logs = [
-            LogEntry(user=user, item_id=eid, type=log_type, source=module.identifier)
+            LogEntry(user=user, item_id=eid, type=log_type, source=module.identifier, value=i)
             for i, eid in enumerate(items, start=1)
         ]
         LogEntry.objects.bulk_create(new_logs)

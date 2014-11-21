@@ -28,9 +28,9 @@ class DummyLogReRanker(object):
         """
         Calculate the new rank based on logs
         """
-        logs = LogEntry.get_logs_for(module.id, user.external_id)
+        logs = LogEntry.get_logs_for(user.external_id)
         for item_eid, score in logs.items():
-            i0 = np.where(recommendation == item_eid)
+            i0 = np.where(recommendation == item_eid)[0][0]
             i1 = i0+score
             if i1 < 0:
                 i1 = 0
