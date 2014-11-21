@@ -1,4 +1,14 @@
-### Create a dummy log re-ranker (the score logic is more suitable to filter) (HEAD, v3_develop)
+### Cache keys from str to lambda (HEAD, v3_develop)
+>Fri, 21 Nov 2014 22:20:15 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Create a dummy log re-ranker (the score logic is more suitable to filter)
 >Fri, 21 Nov 2014 22:12:10 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

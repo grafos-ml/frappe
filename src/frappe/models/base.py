@@ -49,10 +49,10 @@ class Item(models.Model):
         """
         Item.get_item_by_external_id.lock_this(
             Item.get_item_by_external_id.cache.set
-        )(Item.get_item_by_external_id.key % self.external_id, self, Item.get_item_by_external_id.timeout)
+        )(Item.get_item_by_external_id.key(self.external_id), self, Item.get_item_by_external_id.timeout)
         Item.get_item_external_id_by_id.lock_this(
             Item.get_item_external_id_by_id.cache.set
-        )(Item.get_item_external_id_by_id.key % self.pk, self.external_id, Item.get_item_external_id_by_id.timeout)
+        )(Item.get_item_external_id_by_id.key(self.pk), self.external_id, Item.get_item_external_id_by_id.timeout)
 
     def del_item_from_cache(self):
         """
@@ -60,10 +60,10 @@ class Item(models.Model):
         """
         Item.get_item_by_external_id.lock_this(
             Item.get_item_by_external_id.cache.delete
-        )(Item.get_item_by_external_id.key % self.external_id)
+        )(Item.get_item_by_external_id.key(self.external_id))
         Item.get_item_external_id_by_id.lock_this(
             Item.get_item_external_id_by_id.cache.delete
-        )(Item.get_item_external_id_by_id.key % self.pk)
+        )(Item.get_item_external_id_by_id.key(self.pk))
 
     class Meta:
         verbose_name = _("item")
@@ -195,10 +195,11 @@ class User(models.Model):
             for user in bar:
                 User.get_user_by_id.lock_this(
                     User.get_user_by_id.cache.set
-                )(User.get_user_by_id.key % user.pk, user, User.get_user_by_id.timeout)
-            User.get_user_id_by_external_id.lock_this(
-                User.get_user_id_by_external_id.cache.set
-            )(User.get_user_id_by_external_id.key % user.external_id, user.pk, User.get_user_id_by_external_id.timeout)
+                )(User.get_user_by_id.key(user.pk), user, User.get_user_by_id.timeout)
+                User.get_user_id_by_external_id.lock_this(
+                    User.get_user_id_by_external_id.cache.set
+                )(User.get_user_id_by_external_id.key(user.external_id), user.pk,
+                  User.get_user_id_by_external_id.timeout)
         lenght = Inventory.objects.all().count()
         with click.progressbar(range(0, lenght, 100000),
                                label="Loading owned items to cache") as bar:
@@ -206,7 +207,7 @@ class User(models.Model):
             max_id = 0
             for i in bar:
                 for max_id, user_id, item_id, is_dropped in Inventory.objects.filter(id__gt=max_id) \
-                                                                    .order_by("pk")[i:i+100000].values_list("pk", "user_id", "item_id", "is_dropped"):
+                        .order_by("pk")[i:i+100000].values_list("pk", "user_id", "item_id", "is_dropped"):
                     try:
                         inventory[user_id][item_id] = is_dropped
                     except KeyError:
@@ -216,7 +217,7 @@ class User(models.Model):
             for ueid, items in inventory.items():
                 User.get_user_items.lock_this(
                     User.get_user_items.cache.set
-                )(User.get_user_items.key % ueid, items, User.get_user_items.timeout)
+                )(User.get_user_items.key(ueid), items, User.get_user_items.timeout)
 
     def load_user(self):
         """
@@ -224,10 +225,10 @@ class User(models.Model):
         """
         User.get_user_by_id.lock_this(
             User.get_user_by_id.cache.set
-        )(User.get_user_by_id.key % self.pk, self, User.get_user_by_id.timeout)
+        )(User.get_user_by_id.key(self.pk), self, User.get_user_by_id.timeout)
         User.get_user_id_by_external_id.lock_this(
             User.get_user_id_by_external_id.cache.set
-        )(User.get_user_id_by_external_id.key % self.external_id, self.pk, User.get_user_id_by_external_id.timeout)
+        )(User.get_user_id_by_external_id.key(self.external_id), self.pk, User.get_user_id_by_external_id.timeout)
         User.get_user_items(self.pk)
 
     def delete_user(self):
@@ -236,34 +237,34 @@ class User(models.Model):
         """
         User.get_user_by_id.lock_this(
             User.get_user_by_id.cache.delete
-        )(User.get_user_by_id.key % self.external_id)
+        )(User.get_user_by_id.key(self.external_id))
         User.get_user_id_by_external_id.lock_this(
             User.get_user_id_by_external_id.cache.delete
-        )(User.get_user_id_by_external_id.key % self.external_id)
+        )(User.get_user_id_by_external_id.key(self.external_id))
         User.get_user_items.lock_this(
             User.get_user_items.cache.delete
-        )(User.get_user_items.key % self.external_id)
+        )(User.get_user_items.key(self.external_id))
 
     def load_item(self, entry):
         """
         Load a single inventory entry
         """
         cache = User.get_user_items.cache
-        entries = cache.get(User.get_user_items.key % self.pk, {})
+        entries = cache.get(User.get_user_items.key(self.pk), {})
         entries[entry.item_id] = entry.is_dropped
-        cache.set(User.get_user_items.key % self.pk, entries)
+        cache.set(User.get_user_items.key(self.pk), entries)
 
     def delete_item(self, entry):
         """
         Load a single inventory entry
         """
         cache = User.get_user_items.cache
-        entries = cache.get(User.get_user_items.key % self.pk, {})
+        entries = cache.get(User.get_user_items.key(self.pk), {})
         try:
             del entries[entry.item.pk]
         except KeyError:
             pass
-        cache.set(User.get_user_items.key % self.pk, entries)
+        cache.set(User.get_user_items.key(self.pk), entries)
 
 
 @receiver(post_save, sender=User)
@@ -289,14 +290,11 @@ class Inventory(models.Model):
     """
     user = models.ForeignKey(User, verbose_name=_("user"))
     item = models.ForeignKey(Item, verbose_name=_("item"))
-    #acquisition_date = models.DateTimeField(_("acquisition date"))
-    #dropped_date = models.DateTimeField(_("dropped date"), null=True, blank=True)
     is_dropped = models.BooleanField(_("is dropped"), default=False)
 
     class Meta:
         verbose_name = _("owned item")
         verbose_name_plural = _("owned items")
-        #unique_together = ("user", "item")
 
     def __str__(self):
         return _("%(state)s %(item)s item for user %(user)s") % {
