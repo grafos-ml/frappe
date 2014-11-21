@@ -9,3 +9,8 @@ Command list
 
 - test:
     ...frappe/src/$ ./manage.py test ../tests/ -v2 --with-coverage --cover-package=recommendation
+
+
+Contingency plan
+
+Use nginx uwsgi_next_upstream_timeout

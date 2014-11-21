@@ -14,7 +14,8 @@ from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.negotiation import BaseContentNegotiation
 from frappe.models import User
-from frappe.core import RecommendationCore as core
+from frappe.core import RecommendationCore as Core
+from frappe.tools.logger.loggers import DBLogger
 
 
 class IgnoreClientContentNegotiation(BaseContentNegotiation):
@@ -41,7 +42,8 @@ class RecommendationAPI(APIView):
     ]
     content_negotiation_class = IgnoreClientContentNegotiation
 
-    def get(self, request, user_eid, recommendation_size=5):
+    @staticmethod
+    def get(request, user_eid, recommendation_size=5):
         """
         Get method to request recommendations
 
@@ -53,6 +55,8 @@ class RecommendationAPI(APIView):
         """
 
         # Here is the decorator for recommendation
-        recommendation = core.pick_module(user_eid).predict_scores(User.get_user_by_external_id(user_eid),
-                                                                   int(recommendation_size))
+        module = Core.pick_module(user_eid)
+        user = User.get_user_by_external_id(user_eid)
+        recommendation = module.predict_scores(user, int(recommendation_size))
+        DBLogger.recommendation(module, user, recommendation)
         return Response({"user": user_eid, "recommendations": recommendation})

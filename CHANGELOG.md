@@ -1,4 +1,14 @@
-### Finish region filter (HEAD, v3_develop)
+### Finish logger module ( mo logging and db logger) (HEAD, v3_develop)
+>Fri, 21 Nov 2014 19:52:56 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finish region filter (origin/v3_develop)
 >Thu, 20 Nov 2014 16:52:47 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -38,7 +48,7 @@
 
 
 
-### fix sort bug. (origin/v3_develop)
+### fix sort bug.
 >Wed, 19 Nov 2014 17:26:14 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

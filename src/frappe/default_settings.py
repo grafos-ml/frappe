@@ -47,7 +47,7 @@ INSTALLED_APPS = ([
     "frappe",
     "frappe.api",
     "frappe.tools.region",
-    #"recommendation.simple_logging",
+    "frappe.tools.logger",
     #"recommendation.diversity"
 ]
 
