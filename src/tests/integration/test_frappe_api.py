@@ -96,7 +96,7 @@ class TestFrappeAPI(TestCase):
 
 
     def test_recommendation_update_user(self):
-        response = self.client.post(
+        response = self.client.put(
             "/api/v2/user-items/00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b/",
             {"items_to_acquire": ["504343", "413346"]}
         )
