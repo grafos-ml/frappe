@@ -94,6 +94,19 @@ class TestFrappeAPI(TestCase):
         assert len(user.owned_items) == 3, "Owned items should be 3(%d)" % len(user.owned_items)
         assert Item.get_item_by_external_id("504343").pk in user.owned_items.keys(), "New item not in owned items"
 
+
+    def test_recommendation_update_user(self):
+        response = self.client.post(
+            "/api/v2/user-items/00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b/",
+            {"items_to_acquire": ["504343", "413346"]}
+        )
+        sleep(0.8)
+        user = User.get_user_by_external_id("00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b")
+        assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
+        assert len(user.owned_items) == 2, "Owned items should be 3(%d)" % len(user.owned_items)
+        assert Item.get_item_by_external_id("504343").pk in user.owned_items.keys(), "New item not in owned items"
+        assert Item.get_item_by_external_id("413346").pk in user.owned_items.keys(), "New item not in owned items"
+
     def test_recommendation_remove_new_item(self):
         """
         [recommendation.api.GetUserItems] Test remove old item

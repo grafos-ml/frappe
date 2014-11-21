@@ -9,7 +9,7 @@ __author__ = "joaonrb"
 from recommendation.simple_logging.models import LogEntry, LOGGER_MAX_LOGS
 from recommendation.decorators import ILogger
 from recommendation.models import Item, User
-from recommendation.decorators import GoToThreadQueue
+from recommendation.decorators import ExecuteInBackground
 import functools
 from collections import deque
 
@@ -32,7 +32,7 @@ class LogEvent(ILogger):
         else:
             self.do_call = self.std
 
-    @GoToThreadQueue()
+    @ExecuteInBackground()
     def bulk_load(self, user, recommendation):
         new_logs = [
             LogEntry(user=user, item_id=iid, type=self.log_type, value=i)

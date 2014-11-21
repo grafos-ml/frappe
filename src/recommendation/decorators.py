@@ -24,9 +24,9 @@ atexit.register(thread_pool.shutdown)
 atexit.register(clone_pool.shutdown)
 
 
-class GoToThreadQueue(object):
+class ExecuteInBackground(object):
     """
-    Execute in threading pool
+    Execute the function in background, so it can return immediatly.
     """
 
     def __call__(self, function):
@@ -43,7 +43,7 @@ class GoToThreadQueue(object):
 
 class ILogger(object):
     """
-    Logger for the recommendation system
+    Logger for the recommendation system actions.
     """
     CLICK = 0
     ACQUIRE = 0
