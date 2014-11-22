@@ -135,8 +135,8 @@ class Module(models.Model):
     """
 
     identifier = models.CharField(_("identifier"), max_length=255, unique=True)
-    listed_items = PythonObjectField(_("items"), default=np.array([]), blank=True)
-    items_index = PythonObjectField(_("item indexes"), default={}, blank=True)
+    listed_items = PythonObjectField(_("items"), blank=True)
+    items_index = PythonObjectField(_("item indexes"), blank=True)
     predictors = models.ManyToManyField(Predictor, verbose_name=_("predictors"), related_name="modules",
                                         through="PredictorWithAggregator")
     filters = models.ManyToManyField(PythonObject, verbose_name=_("filters"), related_name="module_as_filter",

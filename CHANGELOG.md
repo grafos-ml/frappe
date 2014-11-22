@@ -1,4 +1,14 @@
-### Improve filter owned items (HEAD, v3_develop)
+### Finish module command (HEAD, v3_develop)
+>Sat, 22 Nov 2014 20:05:03 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Improve filter owned items
 >Sat, 22 Nov 2014 19:51:48 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
