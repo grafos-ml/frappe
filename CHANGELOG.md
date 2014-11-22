@@ -1,4 +1,14 @@
-### Change frappe_set command to module Create module file example. (HEAD, v3_develop)
+### Fix genre in fill (HEAD, v3_develop)
+>Sat, 22 Nov 2014 19:22:01 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change frappe_set command to module Create module file example.
 >Sat, 22 Nov 2014 14:01:58 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

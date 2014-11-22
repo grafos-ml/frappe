@@ -309,9 +309,9 @@ class FillTool(object):
             json_genres = json_item.get(self.item_genres_field, None) or ()
             for json_genre in json_genres:
                 query_item_genres = \
-                    query_item_genres | Q(item_id=self.item_field, type_id=genres[json_genre].pk)
-                item_genres[(self.item_field, genres[json_genre].pk)] = \
-                    ItemGenre(item_id=self.item_field, type=genres[json_genre])
+                    query_item_genres | Q(item_id=json_item[self.item_field], type_id=genres[json_genre].pk)
+                item_genres[(json_item[self.item_field], genres[json_genre].pk)] = \
+                    ItemGenre(item_id=json_item[self.item_field], type=genres[json_genre])
         if len(query_item_genres) > 0:
             for item_genre in ItemGenre.objects.filter(query_item_genres):
                 del item_genres[item_genre.item_id, item_genre.type_id]
