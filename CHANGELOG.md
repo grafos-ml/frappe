@@ -1,4 +1,14 @@
-### Fix order of rerankers and filters Improve aggregator performance (HEAD, v3_develop)
+### Pass reranker to the modules (HEAD, v3_develop)
+>Sat, 22 Nov 2014 13:56:13 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix order of rerankers and filters Improve aggregator performance
 >Sat, 22 Nov 2014 13:55:25 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
