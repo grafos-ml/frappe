@@ -19,7 +19,7 @@ class Region(models.Model):
     """
 
     name = models.CharField(_("name"), max_length=255, unique=True)
-    slug = models.CharField(_("slug"), max_length=10, unique=True)
+    slug = models.CharField(_("slug"), max_length=25, unique=True)
     items = models.ManyToManyField(Item, verbose_name=_("items"), through="ItemRegion", blank=True, null=True)
     users = models.ManyToManyField(User, verbose_name=_("users"), through="UserRegion", blank=True, null=True)
 

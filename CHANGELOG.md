@@ -1,4 +1,14 @@
-### Fix log dummy reranker (HEAD, v3_develop)
+### Fix fill for version 3 (HEAD, v3_develop)
+>Sat, 22 Nov 2014 13:24:13 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix log dummy reranker (origin/v3_develop)
 >Fri, 21 Nov 2014 22:38:49 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -38,7 +48,7 @@
 
 
 
-### Finish region filter (origin/v3_develop)
+### Finish region filter
 >Thu, 20 Nov 2014 16:52:47 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

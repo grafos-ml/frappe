@@ -47,7 +47,7 @@ INSTALLED_APPS = ([
     "frappe.api",
     "frappe.tools.region",
     "frappe.tools.logger",
-    #"recommendation.diversity"
+    "frappe.tools.diversity"
 ]
 
 if int(os.environ.get("FRAPPE_TEST", 0)):
@@ -87,7 +87,7 @@ WSGI_APPLICATION = "frappe.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "ffos",
+        "NAME": "ffos1",
         "USER": "root",
         "PASSWORD": os.environ.get("FRAPPE_PASSWORD", ""),
         "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost"),

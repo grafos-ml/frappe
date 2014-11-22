@@ -46,8 +46,8 @@ from django.db.models import Q
 from django_docopt_command import DocOptCommand
 from django.conf import settings
 from frappe.models import Item, User, Inventory
-#from frappe.diversity.models import Genre, ItemGenre
-#from frappe.language.models import Locale, ItemLocale, Region, ItemRegion, UserRegion, UserLocale
+from frappe.tools.diversity.models import Genre, ItemGenre
+from frappe.tools.region.models import Region, ItemRegion, UserRegion
 
 
 MOZILLA_DEV_ITEMS_API = "https://marketplace-dev-cdn.allizom.org/dumped-apps/tarballs/%Y-%m-%d.tgz"
@@ -246,17 +246,15 @@ class FillTool(object):
         assert len(items) == len(objects), \
             "Size of items and size of objects are different (%d != %d)" % (len(items), len(objects))
 
-        if "frappe.diversity" in settings.INSTALLED_APPS:
+        if "frappe.tools.diversity" in settings.INSTALLED_APPS:
             #logging.debug("Preparing genres")
             db_categories = self.get_genres(categories)
             self.fill_item_genre(objects, items, db_categories)
             #logging.debug("Genres loaded")
 
-        if "frappe.language" in settings.INSTALLED_APPS:
+        if "frappe.tools.region" in settings.INSTALLED_APPS:
             #logging.debug("Preparing languages")
-            db_locales = self.get_locales(locales)
             db_regions = self.get_regions(regions)
-            self.fill_item_locale(objects, items, db_locales)
             self.fill_item_region(regions, items, db_regions)
             #logging.debug("Locales loaded")
 
@@ -293,47 +291,10 @@ class FillTool(object):
                 slug = region_names[name]["slug"]
                 if name not in regions:
                     new_regions[name] = Region(name=name, slug=slug)
-
             Region.objects.bulk_create(new_regions.values())
             for region in Region.objects.filter(name__in=new_regions):
                 regions[region.name] = region
         return regions
-
-    @staticmethod
-    def get_locales(locales_names):
-        """
-        Get locales from database and create the ones that don't exist.
-        :param locales_names:
-        :return: A dict with Locales mapped to their name
-        """
-        query_locales = Q()
-        json_locales = {}
-        for locale in locales_names:
-            try:
-                language_code, country_code = locale.split("-")
-            except ValueError:
-                language_code, country_code = locale, ""
-            if len(language_code) < 3 and len(country_code) < 3:
-                json_locales[locale] = (language_code, country_code)
-                query_locales = query_locales | Q(language_code=language_code, country_code=country_code)
-            else:
-                logging.warn("Dropped locale %s for not respecting format XX-XX or XX" % locale)
-
-        locales = {str(locale): locale for locale in Locale.objects.filter(query_locales)}
-        if len(locales) != len(locales_names):
-            new_locales = []
-            new_query = Q()
-            for json_locale in locales_names:
-                if json_locale not in locales:
-                    if json_locale in json_locales:
-                        language_code, country_code = json_locales[json_locale]
-                        new_locales.append(Locale(language_code=language_code, country_code=country_code))
-                        new_query = new_query | Q(language_code=language_code, country_code=country_code)
-
-            Locale.objects.bulk_create(new_locales)
-            for locale in Locale.objects.filter(new_query):
-                locales[str(locale)] = locale
-        return locales
 
     def fill_item_genre(self, objects, items, genres):
         """
@@ -348,35 +309,13 @@ class FillTool(object):
             json_genres = json_item.get(self.item_genres_field, None) or ()
             for json_genre in json_genres:
                 query_item_genres = \
-                    query_item_genres | Q(item_id=items[json_item[self.item_field]].pk, type_id=genres[json_genre].pk)
-                item_genres[(items[json_item[self.item_field]].pk, genres[json_genre].pk)] = \
-                    ItemGenre(item=items[json_item[self.item_field]], type=genres[json_genre])
+                    query_item_genres | Q(item_id=self.item_field, type_id=genres[json_genre].pk)
+                item_genres[(self.item_field, genres[json_genre].pk)] = \
+                    ItemGenre(item_id=self.item_field, type=genres[json_genre])
         if len(query_item_genres) > 0:
             for item_genre in ItemGenre.objects.filter(query_item_genres):
                 del item_genres[item_genre.item_id, item_genre.type_id]
         ItemGenre.objects.bulk_create(item_genres.values())
-
-    def fill_item_locale(self, objects, items, locales):
-        """
-        Fill item locales connection
-        :param items:
-        :param locales:
-        :return:
-        """
-        query_item_locales = Q()
-        item_locales = {}
-        for json_item in objects:
-            json_locales = json_item.get(self.item_locales_field, None) or ()
-            for locale in json_locales:
-                if locale in locales:
-                    query_item_locales = query_item_locales | Q(locale_id=locales[locale].pk,
-                                                                item_id=items[json_item[self.item_field]].pk)
-                    item_locales[locales[locale].pk, items[json_item[self.item_field]].pk] = \
-                        ItemLocale(locale=locales[locale], item=items[json_item[self.item_field]])
-        if len(query_item_locales) > 0:
-            for item_locale in ItemLocale.objects.filter(query_item_locales):
-                del item_locales[item_locale.locale_id, item_locale.item_id]
-        ItemLocale.objects.bulk_create(item_locales.values())
 
     @staticmethod
     def fill_item_region(objects, items, regions):
@@ -535,27 +474,6 @@ class FillTool(object):
             for ur in UserRegion.objects.filter(region_query):
                 del user_regions[ur.region_id][ur.user_id]
         UserRegion.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_regions.values())))
-
-        locale_query = Q()
-        user_locales = {}
-        db_locales = {str(locale): locale.pk for locale in Locale.objects.all()}
-        with click.progressbar(langs.items(), label="Load user locales inventory") as bar:
-            for locale, ueis in bar:
-                try:
-                    locale_id = db_locales[locale]
-                except KeyError:
-                    pass
-                else:
-                    locale_query = locale_query | Q(locale_id=locale_id, user_id__in=map(lambda x: users[x].pk, ueis))
-                    user_locales[locale_id] = {
-                        users[user_eid]: UserLocale(user_id=users[user_eid].pk, locale_id=locale_id)
-                        for user_eid in ueis
-                    }
-
-        if len(locale_query) > 0:
-            for ur in UserLocale.objects.filter(locale_query):
-                del user_locales[ur.locale_id][ur.user_id]
-        UserLocale.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_locales.values())))
 
 
 class Command(DocOptCommand):
