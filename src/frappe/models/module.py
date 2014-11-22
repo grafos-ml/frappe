@@ -5,13 +5,14 @@ Models for Module configuration of frappe system.
 __author__ = "joaonrb"
 
 import numpy as np
+
+from blist import blist
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from frappe.decorators import Cached
 from frappe.models.fields import PythonObjectField, JSONField
-from frappe.models.base import Item
 
 MAX_SORT = 1000
 
@@ -205,7 +206,7 @@ class Module(models.Model):
         :param module_id:
         :return:
         """
-        return [f.obj.obj for f in Filter.objects.filter(module_id=module_id)]
+        return blist(f.obj.obj for f in Filter.objects.filter(module_id=module_id).order_by("pk"))
 
     @staticmethod
     @Cached(cache="local")
@@ -215,7 +216,7 @@ class Module(models.Model):
         :param module_id:
         :return:
         """
-        return [r.obj.obj for r in ReRanker.objects.filter(module_id=module_id)]
+        return blist(r.obj.obj for r in ReRanker.objects.filter(module_id=module_id).order_by("pk"))
 
     def aggregate(self, predictions):
         """
@@ -224,7 +225,7 @@ class Module(models.Model):
         :return:
         """
         weights = self.get_aggregator(self.pk)
-        return np.sum(map(lambda pid: predictions[pid]*weights[pid], predictions.keys()), axis=0)
+        return np.sum(((predictions[pid]*weights[pid]) for pid in predictions), axis=0)
 
     def predict_scores(self, user, size):
         """

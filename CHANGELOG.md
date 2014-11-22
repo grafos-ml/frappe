@@ -1,4 +1,14 @@
-### Fix fill for version 3 (HEAD, v3_develop)
+### Fix order of rerankers and filters Improve aggregator performance (HEAD, v3_develop)
+>Sat, 22 Nov 2014 13:55:25 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix fill for version 3
 >Sat, 22 Nov 2014 13:24:13 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
