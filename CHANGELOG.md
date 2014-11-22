@@ -1,4 +1,14 @@
-### Fix genre in fill (HEAD, v3_develop)
+### Improve filter owned items (HEAD, v3_develop)
+>Sat, 22 Nov 2014 19:51:48 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix genre in fill
 >Sat, 22 Nov 2014 19:22:01 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

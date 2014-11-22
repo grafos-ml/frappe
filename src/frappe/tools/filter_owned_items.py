@@ -22,8 +22,5 @@ class FilterOwnedItems(object):
         :return:
         """
         for item in user.owned_items.values():
-            try:
-                recommendation[module.items_index[item.external_id]] = -1000
-            except IndexError:
-                pass
+            recommendation[module.items_index[item.external_id]] = -1000
         return recommendation
