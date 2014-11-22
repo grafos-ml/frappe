@@ -1,4 +1,14 @@
-### Pass reranker to the modules (HEAD, v3_develop)
+### Change frappe_set command to module Create module file example. (HEAD, v3_develop)
+>Sat, 22 Nov 2014 14:01:58 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Pass reranker to the modules
 >Sat, 22 Nov 2014 13:56:13 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
