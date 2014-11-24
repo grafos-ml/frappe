@@ -12,7 +12,13 @@ Nosetests
 =========
 In the package src folder
 
-$ echo yes | ./manage.py test
+Django >= 1.7 
+$ PYTHONPATH=/project/src runtests (--all | --unit | --integration)
+
+Django = 1.6.*
+$ echo yes | ./manage.py test tests/unit/ --with-doctest recommendation/util.py recommendation/core.py recommendation/models.py tests/integration/
+
+Note: Will also nee to configure env variable for database name(FRAPPE_NAME), user(FRAPPE_USER), password(FRAPPE_PASSWORD) and host(FRAPPE_HOST).
 
 Build Documentation
 ===================
