@@ -35,7 +35,7 @@ class Locale(models.Model):
         return u"%s%s" % (self.language_code, "-%s" % self.country_code if self.country_code else "")
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_all_locales():
         return {locale.pk: locale for locale in Locale.objects.all()}
 
@@ -50,7 +50,7 @@ class Locale(models.Model):
         return set([pk[0] for pk in User.get_user_by_id(user_id).locales.all().values_list("locale_id")])
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_items_by_locale(locale_id):
         return set([pk[0] for pk in ItemLocale.objects.filter(locale_id=locale_id).values_list("item_id")])
 
@@ -144,7 +144,7 @@ class Region(models.Model):
     """
 
     name = models.CharField(_("name"), max_length=255, unique=True)
-    slug = models.CharField(_("slug"), max_length=10, unique=True)
+    slug = models.CharField(_("slug"), max_length=255, unique=True)
     items = models.ManyToManyField(Item, verbose_name=_("items"), through="ItemRegion", blank=True, null=True)
     users = models.ManyToManyField(User, verbose_name=_("users"), through="UserRegion", blank=True, null=True)
 
@@ -159,7 +159,7 @@ class Region(models.Model):
         return self.name
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_regions(region_id):
         return Region.objects.get(pk=region_id)
 
@@ -178,28 +178,31 @@ class Region(models.Model):
 
     @staticmethod
     def load_to_cache():
-        with click.progressbar(Region.objects.all(), label="Loading regions to cache") as bar:
-            for region in bar:
+        for region in Region.objects.all():
+        #with click.progressbar(Region.objects.all(), label="Loading regions to cache") as bar:
+        #    for region in bar:
                 Region.get_regions.lock_this(
                     Region.get_regions.cache.set
                 )(Region.get_regions.key(region.pk), region, Region.get_regions.timeout)
         users = {}
-        with click.progressbar(UserRegion.objects.all().values_list("user_id", "region_id"),
-                               label="Loading user regions to cache") as bar:
-            for user_id, region_id in bar:
+        for user_id, region_id in UserRegion.objects.all().values_list("user_id", "region_id"):
+        #with click.progressbar(UserRegion.objects.all().values_list("user_id", "region_id"),
+        #                       label="Loading user regions to cache") as bar:
+        #    for user_id, region_id in bar:
                 try:
                     users[user_id].append(region_id)
                 except KeyError:
                     users[user_id] = [region_id]
-            for user, regions in users.items():
+        for user, regions in users.items():
                 Region.get_user_regions.lock_this(
                     Region.get_user_regions.cache.set
                 )(Region.get_user_regions.key(user), regions, Region.get_user_regions.timeout)
         items = np.zeros((Region.objects.aggregate(max=models.Max("pk"))["max"],
                           Item.objects.aggregate(max=models.Max("pk"))["max"]))
-        with click.progressbar(ItemRegion.objects.all().values_list("item_id", "region_id"),
-                               label="Loading item regions to cache") as bar:
-            for item_id, region_id in bar:
+        for item_id, region_id in ItemRegion.objects.all().values_list("item_id", "region_id"):
+        #with click.progressbar(ItemRegion.objects.all().values_list("item_id", "region_id"),
+        #                       label="Loading item regions to cache") as bar:
+        #    for item_id, region_id in bar:
                 items[region_id-1, item_id-1] = 1
         for i in range(items.shape[0]):
             Region.get_item_list_by_region.lock_this(

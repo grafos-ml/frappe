@@ -119,7 +119,7 @@ class Item(models.Model):
         return Item.get_item_by_external_id(Item.get_item_external_id_by_id(item_id))
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_item_external_id_by_id(item_id):
         """
         Return item id from external_id.
@@ -127,7 +127,7 @@ class Item(models.Model):
         return Item.objects.filter(pk=item_id).values_list("external_id")[0][0]
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_item_by_external_id(external_id):
         """
         Return item from external id.
@@ -168,8 +168,9 @@ class Item(models.Model):
 
     @staticmethod
     def load_to_cache():
-        with click.progressbar(Item.objects.all(), label="Loading items to cache") as bar:
-            for item in bar:
+        for item in Item.objects.all():
+        #with click.progressbar(Item.objects.all(), label="Loading items to cache") as bar:
+        #    for item in bar:
                 item.put_item_to_cache()
 
 
@@ -207,7 +208,7 @@ class User(models.Model):
         return unicode(self.external_id)
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_user_by_id(user_id):
         """
         Get user by their id
@@ -217,7 +218,7 @@ class User(models.Model):
         return User.objects.get(pk=user_id)
 
     @staticmethod
-    @Cached()
+    @Cached(cache="local")
     def get_user_id_by_external_id(external_id):
         """
         Get the user id from external id
@@ -236,7 +237,7 @@ class User(models.Model):
         return User.get_user_by_id(User.get_user_id_by_external_id(external_id))
 
     @staticmethod
-    @Cached()
+    @Cached(cache="owned_items", lock_id=0)
     def get_user_items(user_id):
         """
         Get user items
@@ -282,8 +283,9 @@ class User(models.Model):
 
     @staticmethod
     def load_to_cache():
-        with click.progressbar(User.objects.all(), label="Loading users to cache") as bar:
-            for user in bar:
+        for user in User.objects.all():
+        #with click.progressbar(User.objects.all(), label="Loading users to cache") as bar:
+        #    for user in bar:
                 User.get_user_by_id.lock_this(
                     User.get_user_by_id.cache.set
                 )(User.get_user_by_id.key(user.pk), user, User.get_user_by_id.timeout)
@@ -291,20 +293,22 @@ class User(models.Model):
                     User.get_user_id_by_external_id.cache.set
                 )(User.get_user_id_by_external_id.key(user.external_id), user.pk,
                   User.get_user_id_by_external_id.timeout)
+
+    @staticmethod
+    def load_owned_items():
         lenght = Inventory.objects.all().count()
-        with click.progressbar(range(0, lenght, 100000),
-                               label="Loading owned items to cache") as bar:
-            inventory = {}
-            max_id = 0
-            for i in bar:
-                for max_id, user_id, item_id, is_dropped in Inventory.objects.filter(id__gt=max_id)\
-                        .order_by("pk")[i:i+100000].values_list("pk", "user_id", "item_id", "is_dropped"):
-                    try:
-                        inventory[user_id][item_id] = is_dropped
-                    except KeyError:
-                        inventory[user_id] = {
-                            item_id: is_dropped
-                        }
+        inventory = {}
+        max_id = 0
+        for i in range(0, lenght, 100000):
+            #with click.progressbar(range(0, lenght, 100000),
+            #                       label="Loading owned items to cache") as bar:
+            #    for i in bar:
+            for max_id, user_id, item_id, is_dropped in Inventory.objects.filter(id__gt=max_id) \
+                    .order_by("pk")[i:i+100000].values_list("pk", "user_id", "item_id", "is_dropped"):
+                try:
+                    inventory[user_id][item_id] = is_dropped
+                except KeyError:
+                    inventory[user_id] = {item_id: is_dropped}
             for ueid, items in inventory.items():
                 User.get_user_items.lock_this(
                     User.get_user_items.cache.set
@@ -457,7 +461,7 @@ class MySQLMapDummy:
 class UserMatrix:
 
     @staticmethod
-    @Cached(cache="userfactors")
+    @Cached(cache="local")
     def get_user_array(index):
         if not User.get_user_by_id(index+1).has_more_than(2):  # Index+1 = User ID
             raise KeyError("User %d static recommendation doesn't exist" % (index+1))
@@ -544,10 +548,11 @@ class TensorCoFi(PyTensorCoFi):
         except IndexError:
             raise NotCached("TensorCoFi not in db")
 
-        with click.progressbar(enumerate(users.numpy),
-                               length=users.numpy.shape[0],
-                               label="Loading TensorCoFi users to cache") as bar:
-            for i, u in bar:
+        for i, u in enumerate(users.numpy):
+        #with click.progressbar(enumerate(users.numpy),
+        #                       length=users.numpy.shape[0],
+        #                       label="Loading TensorCoFi users to cache") as bar:
+        #    for i, u in bar:
                 TensorCoFi.user_matrix[i] = u
         TensorCoFi.get_item_matrix()
 

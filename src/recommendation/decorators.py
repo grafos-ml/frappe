@@ -13,37 +13,38 @@ import warnings
 import random
 import logging
 try:
-    from uwsgi import lock, i_am_the_spooler, unlock
+    from uwsgi import lock, i_am_the_spooler, unlock, mule_msg
 except ImportError:
     warnings.warn("uWSGI lock is not active", RuntimeWarning)
     lock = i_am_the_spooler = unlock = lambda *x: None
+    mule_msg = None
 
-thread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
+#thread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
 clone_pool = ThreadPoolExecutor(max_workers=1)
-atexit.register(thread_pool.shutdown)
+#atexit.register(thread_pool.shutdown)
 atexit.register(clone_pool.shutdown)
 
 
-class ExecuteInBackground(object):
-    """
-    Execute the function in background, so it can return immediatly.
-    """
+#class GoToThreadQueue(object):
+#    """
+#    Execute in threading pool
+#    """
 
-    def __call__(self, function):
-        """
-        The call of the view.
-        """
-        @functools.wraps(function)
-        def decorated(*args, **kwargs):
-            result = thread_pool.submit(function, *args, **kwargs)
-            return result
-            #return function(*args, **kwargs)
-        return decorated
+#    def __call__(self, function):
+#        """
+#        The call of the view.
+#        """
+#        @functools.wraps(function)
+#        def decorated(*args, **kwargs):
+#            result = thread_pool.submit(function, *args, **kwargs)
+#            return result
+#            #return function(*args, **kwargs)
+#        return decorated
 
 
 class ILogger(object):
     """
-    Logger for the recommendation system actions.
+    Logger for the recommendation system
     """
     CLICK = 0
     ACQUIRE = 0

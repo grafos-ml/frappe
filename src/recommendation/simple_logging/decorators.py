@@ -6,12 +6,9 @@ A decorator to register events into log. Created on Fev 11, 2014
 
 __author__ = "joaonrb"
 
-from recommendation.simple_logging.models import LogEntry, LOGGER_MAX_LOGS
+from recommendation.simple_logging.models import LogEntry
 from recommendation.decorators import ILogger
-from recommendation.models import Item, User
-from recommendation.decorators import ExecuteInBackground
 import functools
-from collections import deque
 
 
 class LogEvent(ILogger):
@@ -32,7 +29,6 @@ class LogEvent(ILogger):
         else:
             self.do_call = self.std
 
-    @ExecuteInBackground()
     def bulk_load(self, user, recommendation):
         new_logs = [
             LogEntry(user=user, item_id=iid, type=self.log_type, value=i)

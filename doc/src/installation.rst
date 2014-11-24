@@ -259,7 +259,7 @@ userfactors
 +++++++++++
 
 This kind of data is special. It will change quite often but is to big to access through the net. For this we are using
-the caching system from uwsgi that shares memory with all the python processes and has an easy way to synk with other
+the caching system from uwsgi that shares memory with all the python processes and has an easy way to sync with other
 cache nodes. The caching setings is:
 
 .. code-block:: python

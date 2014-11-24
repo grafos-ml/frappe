@@ -1,4 +1,144 @@
-### Update documentation for cache changes (HEAD, develop)
+### Change wsgi.py to thread cache loading (HEAD, master)
+>Wed, 12 Nov 2014 17:46:34 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change wsgi.py (origin/master, origin/HEAD)
+>Wed, 12 Nov 2014 16:49:27 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### fix Dynamic user array (1st time)
+>Wed, 12 Nov 2014 15:36:25 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Removed threadpool for writhing database
+>Tue, 11 Nov 2014 16:35:05 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix Client
+>Tue, 11 Nov 2014 15:26:22 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Clean project
+>Tue, 11 Nov 2014 12:31:45 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix travis
+>Mon, 10 Nov 2014 22:52:05 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix travis
+>Mon, 10 Nov 2014 21:34:01 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Fix user region loading
+>Mon, 10 Nov 2014 18:20:54 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Change  cache
+>Mon, 10 Nov 2014 17:52:10 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### small fix
+>Mon, 10 Nov 2014 16:40:30 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Reagrup cache out of memcached
+>Mon, 10 Nov 2014 16:39:28 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Improve sort
+>Fri, 7 Nov 2014 13:06:27 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Bigger slug to avoid truncate
+>Mon, 3 Nov 2014 11:08:17 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Update documentation for cache changes (origin/develop, develop)
 >Fri, 31 Oct 2014 17:03:11 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -8,7 +148,7 @@
 
 
 
-### Change to use 3 cache. uwsgi cache only for user factors (origin/develop)
+### Change to use 3 cache. uwsgi cache only for user factors
 >Fri, 31 Oct 2014 15:31:07 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -38,7 +178,7 @@
 
 
 
-### Pass user model to local cache (origin/master, origin/HEAD, master)
+### Pass user model to local cache
 >Wed, 29 Oct 2014 17:26:15 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)

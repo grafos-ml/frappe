@@ -9,10 +9,9 @@ import logging
 import numpy as np
 import traceback
 from django.conf import settings
-from recommendation.models import Item, User, TensorCoFi, Popularity, Inventory
+from recommendation.models import Item, User, TensorCoFi, Popularity
 from recommendation.util import initialize
 from recommendation.decorators import ContingencyProtocol
-from recommendation.filter_none.filters import FilterNoneItems
 
 try:
     RECOMMENDATION_SETTINGS = getattr(settings, "RECOMMENDATION_SETTINGS")
@@ -26,6 +25,8 @@ except KeyError:
     from recommendation.decorators import NoLogger
     logger = NoLogger()
 log_event = logger
+
+MAX_SORT = 1000
 
 
 class IController(object):
@@ -155,7 +156,7 @@ class IController(object):
             apps_idx = [a.pk - 1 for a in user.owned_items.values() if a.pk - 1 <= model.factors[1].shape[0]]
             u_factors = model.online_user_factors(apps_idx)  # New factors for this user
             TensorCoFi.user_matrix[user.pk-1] = u_factors  # store new documentation in Cache
-            return np.squeeze(np.asarray((u_factors * model.factors[1].transpose())))
+            return np.squeeze(np.asarray(np.dot(u_factors, model.factors[1].transpose())))
 
     @log_event(log_event.RECOMMEND)
     def get_recommendation(self, user, n=10):
@@ -181,8 +182,11 @@ class IController(object):
             result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
-        result = [aid for aid, _ in filter(lambda x: x[1] != float("-inf"),
-                                           sorted(enumerate(result, start=1), key=lambda x: x[1], reverse=True))]
+        try:
+            top = np.argpartition(-result, MAX_SORT-1)[:MAX_SORT]
+        except ValueError:
+            top = np.array(range(len(result)))
+        result = list(top[np.argsort(result[top])[::-1]] + 1)
         for r in self.rerankers:
             result = r(user, result, size=n)
         return result[:n]

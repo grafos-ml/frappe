@@ -39,7 +39,7 @@ class Genre(models.Model):
         return self.name
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_genre_by_id(genre_id):
         """
         Return the genre belonging to that id with and extra attribute: count_items
@@ -49,7 +49,7 @@ class Genre(models.Model):
         return Genre.objects.filter(pk=genre_id).annotate(count_items=Count("items"))[0]
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(cache="local")
     def get_all_genres():
         """
         Get all genres
@@ -65,9 +65,10 @@ class Genre(models.Model):
         :return:
         """
         cache = Genre.get_genre_by_id.cache
-        with click.progressbar(Genre.objects.all().annotate(count_items=Count("items")),
-                               label="Loading genres to cache") as bar:
-            for genre in bar:
+        for genre in Genre.objects.all().annotate(count_items=Count("items")):
+        #with click.progressbar(Genre.objects.all().annotate(count_items=Count("items")),
+        #                       label="Loading genres to cache") as bar:
+        #    for genre in bar:
                 Genre.get_genre_by_id.lock_this(
                     cache.set
                 )(Genre.get_genre_by_id.key(genre.pk), genre, Genre.get_genre_by_id.timeout)
@@ -111,15 +112,17 @@ class ItemGenre(models.Model):
         :return:
         """
         genres = {}
-        with click.progressbar(ItemGenre.objects.all(), label="Loading item by genres to cache") as bar:
-            for item_genre in bar:
+        for item_genre in ItemGenre.objects.all():
+        #with click.progressbar(ItemGenre.objects.all(), label="Loading item by genres to cache") as bar:
+        #    for item_genre in bar:
                 try:
                     genres[item_genre.item_id].append(item_genre.type_id)
                 except KeyError:
                     genres[item_genre.item_id] = [item_genre.type_id]
         cache = ItemGenre.get_genre_by_item.cache
-        with click.progressbar(genres.items(), label="Loading genres by item to cache") as bar:
-            for item_id, genre in bar:
+        for item_id, genre in genres.items():
+        #with click.progressbar(genres.items(), label="Loading genres by item to cache") as bar:
+        #    for item_id, genre in bar:
                 ItemGenre.get_genre_by_item.lock_this(
                     cache.set
                 )(ItemGenre.get_genre_by_item.key(item_id), genre, ItemGenre.get_genre_by_item.timeout)
