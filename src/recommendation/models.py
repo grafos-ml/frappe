@@ -11,8 +11,6 @@ import base64
 import numpy as np
 import pandas as pd
 import click
-import pandas.io.sql as psql
-from django.db import connection
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.six import with_metaclass
@@ -569,7 +567,6 @@ class TensorCoFi(PyTensorCoFi):
                             n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         tensor.factors = FactorsContainer(tensor)
         return tensor
-
 
     @staticmethod
     def get_model(*args, **kwargs):

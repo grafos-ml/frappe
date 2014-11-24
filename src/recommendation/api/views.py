@@ -7,15 +7,14 @@ The views for the Recommend API.
 """
 __author__ = "joaonrb"
 
-from django.utils.timezone import now
-from django.db.utils import IntegrityError
-from django.db import transaction
+#from django.utils.timezone import now
+from django.db import transaction, IntegrityError
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from rest_framework.renderers import JSONRenderer, XMLRenderer
 from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
-from recommendation.models import User, Inventory, Item
+from recommendation.models import User, Inventory, Item, TensorCoFi
 from recommendation.core import get_controller
 from recommendation.decorators import ExecuteInBackground
 from recommendation.core import log_event
@@ -237,18 +236,21 @@ class UserItemsAPI(RecommendationAPI):
 
     @staticmethod
     @transaction.atomic
-    def update_acquisitions(user, items):
+    def update_user_items(user, items):
         """
         Update all the user apps.
 
         :param user: The user.
-        :param item: The item.
+        :param items: The item.
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-
         Inventory.objects.find(user=user).delete()
-        for item in items:
-            Inventory.objects.create(item=item, user=user)
+        Inventory.objects.bulk_create(Inventory(item=item, user=user) for item in items)
+        User.get_user_items.lock_this(
+            User.get_user_items.cache.delete
+        )(user.pk)
+        del TensorCoFi.user_matrix[user.pk-1]
+
 
     @staticmethod
     @ExecuteInBackground()
@@ -296,7 +298,7 @@ class UserItemsAPI(RecommendationAPI):
 
     def post(self, request, user_external_id):
         """
-        Insterts a new item in the user owned items. It should have a special POST parameter (besides the csrf token or
+        Inserts a new item in the user owned items. It should have a special POST parameter (besides the csrf token or
         other token needed to the connection - to development and presentation purposes the csrf was disabled) that is
         item_to_acquire.
 
@@ -331,9 +333,9 @@ class UserItemsAPI(RecommendationAPI):
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
 
-        items = [Item.get_item_by_external_id(id) for id in items_ids]
+        items = [Item.get_item_by_external_id(iid) for iid in items_ids]
 
-        self.update_acquisitions(User.get_user_by_external_id(user_external_id), items)
+        self.update_user_items(User.get_user_by_external_id(user_external_id), items)
         return self.format_response(SUCCESS_MESSAGE)
 
     def delete(self, request, user_external_id):
