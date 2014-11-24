@@ -1,4 +1,14 @@
-### Finish module command (HEAD, v3_develop)
+### Add frappe.ini for uwsgi (HEAD, v3_develop)
+>Mon, 24 Nov 2014 12:02:44 +0100
+
+>Author: João Nuno (joaonrb@gmail.com)
+
+>Commiter: João Nuno (joaonrb@gmail.com)
+
+
+
+
+### Finish module command (origin/v3_develop)
 >Sat, 22 Nov 2014 20:05:03 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -68,7 +78,7 @@
 
 
 
-### Fix log dummy reranker (origin/v3_develop)
+### Fix log dummy reranker
 >Fri, 21 Nov 2014 22:38:49 +0100
 
 >Author: João Nuno (joaonrb@gmail.com)
