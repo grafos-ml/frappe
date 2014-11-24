@@ -241,9 +241,8 @@ Caching Configuration
 _____________________
 
 For performance reasons all the data is cached "à priori". Because of the different nature of the data, the caching
-configuration is a very important part in deployment. We can divide to 3 kinds of data. Data witch state must be
-consistent in every node, data that is to big to be stored remotely and data that is accessed a lot per request. Because
-of this we have 3 kinds of caching.
+configuration is a very important part in deployment. We can divide to 2 kinds of data. Data witch state must be
+consistent in every node and data that is to big to be stored remotely. Because of this we have 2 kinds of caching.
 
 default
 +++++++
@@ -254,34 +253,6 @@ local
 +++++
 
 A cache that can support big structures and heavy reads. We use localmemcache from django standard backends.
-
-userfactors
-+++++++++++
-
-This kind of data is special. It will change quite often but is to big to access through the net. For this we are using
-the caching system from uwsgi that shares memory with all the python processes and has an easy way to sync with other
-cache nodes. The caching setings is:
-
-.. code-block:: python
-   :linenos:
-
-       CACHES = {
-           ...
-           "userfactors": {
-               "BACKEND": "uwsgicache.UWSGICache",
-               "LOCATION": "userfactors"
-           }
-       }
-
-Also the uwsgi application server has to start with the following cache settings:
-
-.. code-block:: batch
-   :linenos:
-
-       $ uwsgi ... --cache2 name=userfactors,items=1500000,blocksize=80
-
-The block sise is 80 for the numpy array with 20 factors(float32) and the fixed size of 1500000 users.
-
 
 .. _Django: https://www.djangoproject.com/
 .. _Github: https://github.com/grafos-ml/frappe
