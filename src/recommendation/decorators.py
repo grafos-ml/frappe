@@ -25,7 +25,7 @@ clone_pool = ThreadPoolExecutor(max_workers=1)
 atexit.register(clone_pool.shutdown)
 
 
-#class GoToThreadQueue(object):
+#class ExecuteInBackground(object):
 #    """
 #    Execute in threading pool
 #    """

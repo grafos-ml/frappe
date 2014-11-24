@@ -61,11 +61,11 @@ MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    #"django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.transaction.TransactionMiddleware",
+    #"django.middleware.transaction.TransactionMiddleware",
     #"django.middleware.cache.UpdateCacheMiddleware",
     #"django.middleware.cache.FetchFromCacheMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
@@ -86,12 +86,13 @@ WSGI_APPLICATION = "recommendation.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "ffos",
-        "USER": "root",
+        "NAME": os.environ.get("FRAPPE_NAME", "ffos"),
+        "USER": os.environ.get("FRAPPE_USER", "root"),
         "PASSWORD": os.environ.get("FRAPPE_PASSWORD", ""),
-        "HOST": os.environ.get("FRAPPE_DB_NAME", "localhost"),
+        "HOST": os.environ.get("FRAPPE_HOST", "localhost"),
         "TEST_CHARSET": "utf8",
         "TEST_COLLATION": "utf8_general_ci",
+        "ATOMIC_REQUESTS": True
     }
 }
 
@@ -116,11 +117,11 @@ STATIC_URL = "/static/"
 # Nose settings
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
-NOSE_ARGS = [
-    "--with-coverage",
-    "--cover-package=recommendation",
-    "--cover-html"
-]
+#NOSE_ARGS = [
+#    "--with-coverage",
+#    "--cover-package=recommendation",
+#    "--cover-html"
+#]
 #DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 DEBUG_TOOLBAR_PANELS = (

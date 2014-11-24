@@ -94,18 +94,21 @@ class TestFrappeAPI(TestCase):
         assert len(user.owned_items) == 3, "Owned items should be 3(%d)" % len(user.owned_items)
         assert Item.get_item_by_external_id("504343").pk in user.owned_items.keys(), "New item not in owned items"
 
-
     def test_recommendation_update_user(self):
+        """
+        [recommendation.api.GetUserItems] Test update user items
+        """
         response = self.client.put(
             "/api/v2/user-items/00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b/",
-            {"items_to_acquire": ["504343", "413346"]}
+            '{"user_items": ["504343", "413346"]}',
+            content_type="application/json"
         )
         sleep(0.8)
         user = User.get_user_by_external_id("00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b")
         assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
         assert len(user.owned_items) == 2, "Owned items should be 3(%d)" % len(user.owned_items)
-        assert Item.get_item_by_external_id("504343").pk in user.owned_items.keys(), "New item not in owned items"
-        assert Item.get_item_by_external_id("413346").pk in user.owned_items.keys(), "New item not in owned items"
+        assert Item.get_item_by_external_id("504343").pk in user.owned_items, "New item not in owned items"
+        assert Item.get_item_by_external_id("413346").pk in user.owned_items, "New item not in owned items"
 
     def test_recommendation_remove_new_item(self):
         """
@@ -284,31 +287,71 @@ class TestRecommendation(TestCase):
                 measure += 1
         assert measure < (size*2./3.), "New recommendation not different enough"
 
-    def test_diversity_on_recommendation_5(self):
+    def test_user_genres_in_recommendation_size_5(self):
         """
-        [recommendation.api.GetRecommendation] Test diversity for size 5 recommendation (at least 2/3 of user genres)
+        [recommendation.api.GetRecommendation] At least 2 of the top genres in the size 5 recommendation
         """
         size = 5
         response = \
             self.client.get("/api/v2/recommend/%d/"
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
         user_id = User.get_user_id_by_external_id("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
-        user_genres = ItemGenre.genre_in(
+
+        user_genres = sorted(ItemGenre.genre_in(
             Item.get_item_by_id(item_id) for item_id in User.get_user_items(user_id)
-        )
+        ).items(), key=lambda x: x[1], reverse=True)
         recommendation_genres = ItemGenre.genre_in(
             Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
         )
-        less, more = (user_genres, recommendation_genres) if len(user_genres) < len(recommendation_genres) else \
-            (recommendation_genres, user_genres)
-        measure = 0
-        for genre in less:
-            if genre in more:
-                measure += 1
+        measure = []
+        for no, (genre, _) in enumerate(user_genres[:int(size)], start=1):
+            if genre not in recommendation_genres:
+                measure.append(no)
+        assert len(measure) < 4, "Major genres failing by index: %s" % measure
 
-        assert measure > len(less)*2./3., \
-            "Not sufficient genres in recommendation" \
-            "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))
+    def test_user_genres_in_recommendation_size_15(self):
+        """
+        [recommendation.api.GetRecommendation] At least 12 of the top genres in the size 15 recommendation
+        """
+        size = 15
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        user_id = User.get_user_id_by_external_id("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
+
+        user_genres = sorted(ItemGenre.genre_in(
+            Item.get_item_by_id(item_id) for item_id in User.get_user_items(user_id)
+        ).items(), key=lambda x: x[1], reverse=True)
+        recommendation_genres = ItemGenre.genre_in(
+            Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
+        )
+        measure = []
+        for no, (genre, _) in enumerate(user_genres[:int(size)], start=1):
+            if genre not in recommendation_genres:
+                measure.append(no)
+        assert len(measure) < 4, "Major genres failing by index: %s" % measure
+
+    def test_user_genres_in_recommendation_size_25(self):
+        """
+        [recommendation.api.GetRecommendation] At least 22 of the top genres in the size 25 recommendation
+        """
+        size = 25
+        response = \
+            self.client.get("/api/v2/recommend/%d/"
+                            "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        user_id = User.get_user_id_by_external_id("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
+
+        user_genres = sorted(ItemGenre.genre_in(
+            Item.get_item_by_id(item_id) for item_id in User.get_user_items(user_id)
+        ).items(), key=lambda x: x[1], reverse=True)
+        recommendation_genres = ItemGenre.genre_in(
+            Item.get_item_by_external_id(item_eid) for item_eid in json.loads(response.content)["recommendations"]
+        )
+        measure = []
+        for no, (genre, _) in enumerate(user_genres[:int(size)], start=1):
+            if genre not in recommendation_genres:
+                measure.append(no)
+        assert len(measure) < 4, "Major genres failing by index: %s" % measure
 
     def test_diversity_on_recommendation_15(self):
         """
@@ -334,7 +377,7 @@ class TestRecommendation(TestCase):
 
         assert measure > len(less)/2., \
             "Not sufficient genres in recommendation" \
-            "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))
+            "(user: %d, recommendation: %d, similarity: %d)" % (len(user_genres), len(recommendation_genres), measure)
 
     def test_diversity_on_recommendation_25(self):
         """
@@ -360,4 +403,4 @@ class TestRecommendation(TestCase):
 
         assert measure > len(less)*2./3., \
             "Not sufficient genres in recommendation" \
-            "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))
+            "(user: %d, recommendation: %d, similarity: %d)" % (len(user_genres), len(recommendation_genres), measure)

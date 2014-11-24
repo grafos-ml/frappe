@@ -16,7 +16,7 @@ from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from recommendation.models import User, Inventory, Item, TensorCoFi
 from recommendation.core import get_controller
-from recommendation.decorators import ExecuteInBackground
+#from recommendation.decorators import ExecuteInBackground
 from recommendation.core import log_event
 
 JSON = "json"
@@ -218,11 +218,12 @@ class UserItemsAPI(RecommendationAPI):
     http_method_names = [
         "get",
         "post",
+        "put",
         "delete"
     ]
 
     @staticmethod
-    @ExecuteInBackground()
+    #@ExecuteInBackground()
     @log_event(log_event.ACQUIRE)
     def insert_acquisition(user, item):
         """
@@ -244,16 +245,15 @@ class UserItemsAPI(RecommendationAPI):
         :param items: The item.
         :raise OperationalError: When some of the data maybe wrongly inserted into data base
         """
-        Inventory.objects.find(user=user).delete()
+        Inventory.objects.filter(user=user).delete()
         Inventory.objects.bulk_create(Inventory(item=item, user=user) for item in items)
         User.get_user_items.lock_this(
             User.get_user_items.cache.delete
-        )(user.pk)
+        )(User.get_user_items.key(user.pk))
         del TensorCoFi.user_matrix[user.pk-1]
 
-
     @staticmethod
-    @ExecuteInBackground()
+    #@ExecuteInBackground()
     @log_event(log_event.REMOVE)
     def remove_item(user, item):
         """
@@ -329,13 +329,12 @@ class UserItemsAPI(RecommendationAPI):
         :return: A success response if the input was successful =p
         """
         try:
-            items_ids = request.DATA["items_to_acquire"]
+            items_ids = request.DATA["user_items"]
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
-
+        user = User.get_user_by_external_id(user_external_id)
         items = [Item.get_item_by_external_id(iid) for iid in items_ids]
-
-        self.update_user_items(User.get_user_by_external_id(user_external_id), items)
+        self.update_user_items(user, items)
         return self.format_response(SUCCESS_MESSAGE)
 
     def delete(self, request, user_external_id):

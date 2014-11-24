@@ -39,11 +39,11 @@ class SimpleDiversity(object):
         for genre_id in Genre.get_all_genres():
             genre = Genre.get_genre_by_id(genre_id)
             try:
-                p_global = genre.count_items / number_items
+                p_global = genre.count_items / float(number_items)
             except ZeroDivisionError:
                 p_global = 0.
             try:
-                p_local = user_genres.get(genre, 0.) / user_items_count
+                p_local = user_genres.get(genre, 0.) / float(user_items_count)
             except ZeroDivisionError:
                 p_local = 0.
             self.counter[genre.pk] = int(weighted_p(p_global, p_local, alpha_constant) * size)
@@ -51,8 +51,9 @@ class SimpleDiversity(object):
     def __call__(self, recommendation, item_id):
         genres = ItemGenre.get_genre_by_item(item_id)
         dropped = 0
+        counter = self.counter.copy()
         for genre in genres:
-            self.counter[genre] -= 1
+            counter[genre] -= 1
             if self.counter[genre] < 0:
                 dropped += 1
         # Change "<" to "<=" improve greatly
