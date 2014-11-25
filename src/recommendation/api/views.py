@@ -335,7 +335,10 @@ class UserItemsAPI(RecommendationAPI):
             items_ids = request.DATA["user_items"]
         except KeyError:
             return self.format_response(PARAMETERS_IN_MISS, status=FORMAT_ERROR)
-        user = User.get_user_by_external_id(user_external_id)
+        try:
+            user = User.get_user_by_external_id(user_external_id)
+        except User.DoesNotExist:
+            user = User.objects.create(external_id=user_external_id)
         items = [Item.get_item_by_external_id(iid) for iid in items_ids]
         self.update_user_items(user, items)
         return self.format_response(SUCCESS_MESSAGE)
