@@ -19,6 +19,7 @@ from recommendation.management.commands import fill, modelcrafter
 from recommendation.models import Item, User, Inventory, Matrix, TensorCoFi, Popularity
 from recommendation.language.models import Locale, ItemLocale, UserLocale, Region, UserRegion, ItemRegion
 from recommendation.diversity.models import ItemGenre, Genre
+from recommendation.simple_logging.models import LogEntry
 
 
 class TestFrappeAPI(TestCase):
@@ -289,8 +290,10 @@ class TestRecommendation(TestCase):
 
     def test_user_genres_in_recommendation_size_5(self):
         """
-        [recommendation.api.GetRecommendation] At least 2 of the top genres in the size 5 recommendation
+        [recommendation.api.GetRecommendation] At least 3 of the top genres in the size 5 recommendation
         """
+        get_cache("default").clear()
+        LogEntry.objects.all().delete()
         size = 5
         response = \
             self.client.get("/api/v2/recommend/%d/"
@@ -307,12 +310,14 @@ class TestRecommendation(TestCase):
         for no, (genre, _) in enumerate(user_genres[:int(size)], start=1):
             if genre not in recommendation_genres:
                 measure.append(no)
-        assert len(measure) < 4, "Major genres failing by index: %s" % measure
+        assert len(measure) < 3, "Major genres failing by index: %s" % measure
 
     def test_user_genres_in_recommendation_size_15(self):
         """
         [recommendation.api.GetRecommendation] At least 12 of the top genres in the size 15 recommendation
         """
+        get_cache("default").clear()
+        LogEntry.objects.all().delete()
         size = 15
         response = \
             self.client.get("/api/v2/recommend/%d/"
@@ -335,6 +340,8 @@ class TestRecommendation(TestCase):
         """
         [recommendation.api.GetRecommendation] At least 22 of the top genres in the size 25 recommendation
         """
+        get_cache("default").clear()
+        LogEntry.objects.all().delete()
         size = 25
         response = \
             self.client.get("/api/v2/recommend/%d/"
