@@ -51,17 +51,16 @@ class SimpleDiversity(object):
     def __call__(self, recommendation, item_id):
         genres = ItemGenre.get_genre_by_item(item_id)
         dropped = 0
-        counter = self.counter.copy()
         for genre in genres:
-            counter[genre] -= 1
+            self.counter[genre] -= 1
             if self.counter[genre] < 0:
                 dropped += 1
         # Change "<" to "<=" improve greatly
         if dropped <= len(genres):
-            #recommendation.append(item)
+            # recommendation.append(item)
             return True
         return False
-        #return recommendation
+        # return recommendation
 
 
 class SimpleDiversityReRanker(object):
@@ -96,13 +95,7 @@ class SimpleDiversityReRanker(object):
         diversity = SimpleDiversity(recommendation, size, user, self.alpha_constant, self.lambda_constant)
         new_recommendation = []
         dropped_items = []
-        #for item in recommendation[:int(2*len(recommendation)/3)]:
         for item_id in recommendation:
-            #new_recommendation0 = diversity(new_recommendation, item)
-            #if len(new_recommendation0) != len(new_recommendation) + 1:
-            #    dropped_items.append(item)
-            #else:
-            #    new_recommendation = new_recommendation0
             if diversity(new_recommendation, item_id):
                 new_recommendation.append(item_id)
             else:

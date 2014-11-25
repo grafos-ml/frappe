@@ -41,6 +41,10 @@ INSTALLED_APPS = ([
     "django.contrib.staticfiles",
 ] if DEBUG else []) + [
     "corsheaders",
+    "health_check",
+    "health_check_db",
+    "health_check_cache",
+    "health_check_storage",
     "recommendation",
     "recommendation.api",
     "recommendation.filter_owned",
@@ -160,12 +164,12 @@ CACHES = {
         "OPTIONS": {"MAX_ENTRIES": 10000000}
     },
     "owned_items": {
-        "BACKEND": "uwsgicache.UWSGICache",
-        "LOCATION": "owned_items"
-    } if not DEBUG else {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "django_default_cache",
-        "OPTIONS": {"MAX_ENTRIES": 10000000}
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": "127.0.0.1:11211",
+    #} if not DEBUG else {
+    #    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    #    "LOCATION": "django_default_cache",
+    #    "OPTIONS": {"MAX_ENTRIES": 10000000}
     }
 }
 

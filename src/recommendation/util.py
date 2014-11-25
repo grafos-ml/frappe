@@ -2,12 +2,12 @@
 """
 Util tools for the system
 """
-
-__author__ = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 import sys
 if sys.version_info >= (3, 0):
     basestring = unicode = str
+
+__author__ = "joaonrb"
 
 
 def initialize(cls):

@@ -10,6 +10,7 @@ Diversification models necessary to apply the diversification to a recommendatio
 __author__ = "joaonrb"
 
 import click
+from blist import blist
 from itertools import chain
 from collections import Counter
 from django.utils.translation import ugettext as _
@@ -102,7 +103,7 @@ class ItemGenre(models.Model):
         :param item_id:
         :return:
         """
-        return [item_genre.type.pk for item_genre in ItemGenre.objects.filter(item_id=item_id)]
+        return blist([item_genre.type.pk for item_genre in ItemGenre.objects.filter(item_id=item_id)])
 
     @staticmethod
     def load_to_cache():

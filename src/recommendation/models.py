@@ -3,14 +3,12 @@
 Models for the base of the recommendation system. The base of the recommendation system makes uses of the user, item
 amd connection between them.
 """
-__author__ = "joaonrb"
-
-
+from __future__ import division, absolute_import, print_function
 import sys
 import base64
 import numpy as np
 import pandas as pd
-import click
+# import click
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.utils.six import with_metaclass
@@ -22,6 +20,8 @@ from testfm.models.baseline_model import Popularity as TestFMPopularity
 from recommendation.decorators import Cached
 if sys.version_info >= (3, 0):
     basestring = unicode = str
+
+__author__ = "joaonrb"
 
 
 class NPArrayField(with_metaclass(models.SubfieldBase, models.TextField)):
@@ -299,7 +299,7 @@ class User(models.Model):
         lenght = Inventory.objects.all().count()
         inventory = {}
         max_id = 0
-        for i in range(0, lenght, 100000):
+        for i in xrange(0, lenght, 100000):
             #with click.progressbar(range(0, lenght, 100000),
             #                       label="Loading owned items to cache") as bar:
             #    for i in bar:
@@ -643,7 +643,7 @@ class Popularity(TestFMPopularity):
             self.get_user_column(): MySQLMapDummy(),
             self.get_item_column(): MySQLMapDummy()
         }
-        self.popularity_recommendation = []
+        self.popularity_recommendation = None
 
     def fit(self, training_data):
         """
@@ -652,11 +652,7 @@ class Popularity(TestFMPopularity):
         :return:
         """
         super(Popularity, self).fit(training_data)
-        self.popularity_recommendation = []
-        for i in range(self.n_items):
-            self.popularity_recommendation.append(self._counts.get(i+1, 0.0))
-
-        self.popularity_recommendation = np.array(self.popularity_recommendation)
+        self.popularity_recommendation = np.array([self._counts.get(i+1, 0.0) for i in xrange(self.n_items)])
 
     @property
     def recommendation(self):
@@ -665,7 +661,7 @@ class Popularity(TestFMPopularity):
     @recommendation.setter
     def recommendation(self, value):
         self.popularity_recommendation = value.tolist()
-        self._counts = {i+1: value[i] for i in range(self.n_items)}
+        self._counts = {i+1: value[i] for i in xrange(self.n_items)}
 
     @staticmethod
     @Cached(cache="local")

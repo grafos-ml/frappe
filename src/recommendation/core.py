@@ -2,9 +2,7 @@
 """
 The core module for the recommendation system. Here is defined the flow for a recommendation request and settings.
 """
-
-__author__ = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 import logging
 import numpy as np
 import traceback
@@ -24,6 +22,9 @@ try:
 except KeyError:
     from recommendation.decorators import NoLogger
     logger = NoLogger()
+
+__author__ = "joaonrb"
+
 log_event = logger
 
 MAX_SORT = 1000
@@ -182,10 +183,7 @@ class IController(object):
             result = self.get_alternative_recommendation(user)
         for f in self.filters:
             result = f(user, result, size=n)
-        try:
-            top = np.argpartition(-result, MAX_SORT-1)[:MAX_SORT]
-        except ValueError:
-            top = np.array(range(len(result)))
+        top = np.argpartition(-result, MAX_SORT-1)[:MAX_SORT]
         result = list(top[np.argsort(result[top])[::-1]] + 1)
         for r in self.rerankers:
             result = r(user, result, size=n)

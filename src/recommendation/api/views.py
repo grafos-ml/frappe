@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-
 """
 Created at Fev 19, 2014
 
 The views for the Recommend API.
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 #from django.utils.timezone import now
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse
@@ -18,6 +17,10 @@ from recommendation.models import User, Inventory, Item, TensorCoFi
 from recommendation.core import get_controller
 #from recommendation.decorators import ExecuteInBackground
 from recommendation.core import log_event
+from health_check.plugins import BaseHealthCheckBackend
+
+__author__ = "joaonrb"
+
 
 JSON = "json"
 XML = "xml"

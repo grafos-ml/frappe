@@ -7,7 +7,7 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'mozzila.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
-    
+    url(r'^health/', include('health_check.urls')),
     url(r"^api/v2/", include("recommendation.api.urls")),
     #url(r'^admin/', include(admin.site.urls)),
 )

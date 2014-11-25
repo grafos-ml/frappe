@@ -45,6 +45,9 @@ INSTALLED_APPS = ([
      "django.contrib.staticfiles",
 ] if DEBUG else []) + [
     "corsheaders",
+    "health_check",
+    "health_check_db",
+    "health_check_cache",
     "recommendation",
     "recommendation.api",
     "recommendation.filter_owned",

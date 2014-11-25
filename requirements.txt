@@ -12,7 +12,7 @@ pytz
 six==1.4.1
 uwsgi
 django-uwsgi-cache
-
+django-health-check
 # For scripts
 docopt
 django-docopt-command

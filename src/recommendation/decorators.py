@@ -1,7 +1,6 @@
 #! -*- encoding: utf-8 -*-
 
-__author__ = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 import os
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from django.conf import settings
@@ -18,6 +17,9 @@ except ImportError:
     warnings.warn("uWSGI lock is not active", RuntimeWarning)
     lock = i_am_the_spooler = unlock = lambda *x: None
     mule_msg = None
+
+__author__ = "joaonrb"
+
 
 #thread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
 clone_pool = ThreadPoolExecutor(max_workers=1)
