@@ -17,3 +17,6 @@ django-uwsgi-cache
 docopt
 django-docopt-command
 click
+
+# For logging errors
+raven==5.1.1
