@@ -15,10 +15,11 @@ In the package src folder
 Django >= 1.7 
 $ PYTHONPATH=/project/src runtests (--all | --unit | --integration)
 
-Django = 1.6.*
-$ echo yes | ./manage.py test tests/unit/ --with-doctest recommendation/util.py recommendation/core.py recommendation/models.py tests/integration/
-
-Note: Will also nee to configure env variable for database name(FRAPPE_NAME), user(FRAPPE_USER), password(FRAPPE_PASSWORD) and host(FRAPPE_HOST).
+Note: Will also need to configure env variable for:
+ - FRAPPE_NAME for database name
+ - FRAPPE_USER for user
+ - FRAPPE_PASSWORD for password
+ - FRAPPE_HOST for host
 
 Build Documentation
 ===================
