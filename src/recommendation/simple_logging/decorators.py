@@ -4,11 +4,12 @@ A decorator to register events into log. Created on Fev 11, 2014
 
 """
 
-__author__ = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 from recommendation.simple_logging.models import LogEntry
 from recommendation.decorators import ILogger
 import functools
+
+__author__ = "joaonrb"
 
 
 class LogEvent(ILogger):

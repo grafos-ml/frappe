@@ -6,7 +6,6 @@ The views for the Recommend API.
 """
 
 from __future__ import division, absolute_import, print_function
-#from django.utils.timezone import now
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
@@ -15,9 +14,8 @@ from rest_framework.parsers import JSONParser, XMLParser
 from rest_framework.views import APIView
 from recommendation.models import User, Inventory, Item, TensorCoFi
 from recommendation.core import get_controller
-#from recommendation.decorators import ExecuteInBackground
+# from recommendation.decorators import ExecuteInBackground
 from recommendation.core import log_event
-from health_check.plugins import BaseHealthCheckBackend
 
 __author__ = "joaonrb"
 

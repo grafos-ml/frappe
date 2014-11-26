@@ -7,9 +7,11 @@ Implementation of the simple diversity for
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 from recommendation.diversity.models import Genre, ItemGenre
+
+__author__ = "joaonrb"
 
 
 def weighted_p(p_global, p_local, alpha):

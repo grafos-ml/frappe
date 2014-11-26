@@ -34,20 +34,22 @@ Pinocchio does this part. He give me his word.
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 
 """
-__author__ = "joaonrb"
 
-# Configure here the Django settings file location
-DJANGO_SETTINGS = "firefox.settings"
-CRON_JOB_NAME = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 import sys
 import os
 from pkg_resources import resource_filename
 sys.path.append(resource_filename(__name__, "/../"))
 
+# Configure here the Django settings file location
+DJANGO_SETTINGS = "firefox.settings"
+CRON_JOB_NAME = "joaonrb"
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from recommendation.models import TensorCoFi, Popularity
 from django.core.management.base import BaseCommand, CommandError
+
+__author__ = "joaonrb"
+
 
 
 class ModelCrafterError(Exception):

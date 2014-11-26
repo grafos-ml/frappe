@@ -7,8 +7,8 @@ Diversification models necessary to apply the diversification to a recommendatio
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 import click
 from itertools import chain
 from collections import Counter
@@ -20,6 +20,8 @@ from django.dispatch import receiver
 from django.contrib import admin
 from recommendation.models import Item
 from recommendation.decorators import Cached
+
+__author__ = "joaonrb"
 
 
 class Genre(models.Model):

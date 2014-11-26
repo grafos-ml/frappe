@@ -1,13 +1,15 @@
-#-*- coding: utf-8 -*-
+#! -*- coding: utf-8 -*-
 """
 Created on September 1, 2014
 
 Log based re-ranker. I reads the logs from this user and re-rank items from the original recommendation order.
 
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 from recommendation.simple_logging.models import LogEntry
+
+__author__ = "joaonrb"
 
 
 class SimpleLogFilter(object):

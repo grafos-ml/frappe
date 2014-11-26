@@ -2,15 +2,16 @@
 """
 The locale models moudle. It must contain the locale
 """
-__author__ = "joaonrb"
 
-
+from __future__ import division, absolute_import, print_function
 import click
 from django.db import models
 from django.utils.translation import ugettext as _
 import numpy as np
 from recommendation.models import Item, User
 from recommendation.decorators import Cached
+
+__author__ = "joaonrb"
 
 
 class Locale(models.Model):

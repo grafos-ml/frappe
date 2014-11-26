@@ -3,12 +3,13 @@
 Filter items that don't exist in database
 """
 
-__author__ = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 import numpy as np
 from django.db import models
 from recommendation.decorators import Cached
 from recommendation.models import Item
+
+__author__ = "joaonrb"
 
 
 class FilterNoneItems(object):

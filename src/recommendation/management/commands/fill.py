@@ -27,8 +27,8 @@ Options:
   -h --help                        Show this screen.
   --version                        Show version.
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 import os
 import sys
 import traceback
@@ -48,6 +48,8 @@ from django.conf import settings
 from recommendation.models import Item, User, Inventory
 from recommendation.diversity.models import Genre, ItemGenre
 from recommendation.language.models import Locale, ItemLocale, Region, ItemRegion, UserRegion, UserLocale
+
+__author__ = "joaonrb"
 
 
 MOZILLA_DEV_ITEMS_API = "https://marketplace-dev-cdn.allizom.org/dumped-apps/tarballs/%Y-%m-%d.tgz"

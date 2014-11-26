@@ -13,7 +13,7 @@ Options:
   --repeat-url           Use the same url concurrently.
   -v --version           Show version.
 """
-
+from __future__ import division, absolute_import, print_function
 import os
 import sys
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "recommendation.default_settings")

@@ -2,11 +2,13 @@
 """
 The filters for the locale functionality
 """
-__author__ = 'joaonrb'
 
+from __future__ import division, absolute_import, print_function
 import numpy as np
 from itertools import chain
 from recommendation.language.models import Locale, Region
+
+__author__ = "joaonrb"
 
 
 class SimpleLocaleFilter(object):
