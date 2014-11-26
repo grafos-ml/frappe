@@ -36,22 +36,22 @@ class Locale(models.Model):
         return u"%s%s" % (self.language_code, "-%s" % self.country_code if self.country_code else "")
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_all_locales():
         return {locale.pk: locale for locale in Locale.objects.all()}
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_item_locales(item_id):
         return set([pk[0] for pk in Item.get_item_by_id(item_id).locales.all().values_list("locale_id")])
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_user_locales(user_id):
         return set([pk[0] for pk in User.get_user_by_id(user_id).locales.all().values_list("locale_id")])
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_items_by_locale(locale_id):
         return set([pk[0] for pk in ItemLocale.objects.filter(locale_id=locale_id).values_list("item_id")])
 
@@ -160,17 +160,17 @@ class Region(models.Model):
         return self.name
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_regions(region_id):
         return Region.objects.get(pk=region_id)
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_user_regions(user_id):
         return [region_id for region_id, in UserRegion.objects.filter(user_id=user_id).values_list("region_id")]
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_item_list_by_region(region_id):
         items = np.zeros((Item.objects.aggregate(max=models.Max("pk"))["max"]))
         for item, in ItemRegion.objects.filter(region_id=region_id).values_list("item_id"):

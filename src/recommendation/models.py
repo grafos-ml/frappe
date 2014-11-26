@@ -119,7 +119,7 @@ class Item(models.Model):
         return Item.get_item_by_external_id(Item.get_item_external_id_by_id(item_id))
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_item_external_id_by_id(item_id):
         """
         Return item id from external_id.
@@ -127,7 +127,7 @@ class Item(models.Model):
         return Item.objects.filter(pk=item_id).values_list("external_id")[0][0]
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_item_by_external_id(external_id):
         """
         Return item from external id.
@@ -208,7 +208,7 @@ class User(models.Model):
         return unicode(self.external_id)
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_user_by_id(user_id):
         """
         Get user by their id
@@ -218,7 +218,7 @@ class User(models.Model):
         return User.objects.get(pk=user_id)
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_user_id_by_external_id(external_id):
         """
         Get the user id from external id
@@ -461,7 +461,7 @@ class MySQLMapDummy:
 class UserMatrix:
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_user_array(index):
         if not User.get_user_by_id(index+1).has_more_than(2):  # Index+1 = User ID
             raise KeyError("User %d static recommendation doesn't exist" % (index+1))
@@ -557,7 +557,7 @@ class TensorCoFi(PyTensorCoFi):
         TensorCoFi.get_item_matrix()
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_item_matrix():
         try:
             items = Matrix.objects.filter(name="tensorcofi", model_id=1).order_by("-id")[0]
@@ -566,7 +566,7 @@ class TensorCoFi(PyTensorCoFi):
         return items.numpy
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_model_from_cache(*args, **kwargs):
         tensor = TensorCoFi(n_users=User.objects.aggregate(max=models.Max("pk"))["max"],
                             n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
@@ -664,7 +664,7 @@ class Popularity(TestFMPopularity):
         self._counts = {i+1: value[i] for i in xrange(self.n_items)}
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def load_popularity():
         model = Popularity(n_items=Item.objects.aggregate(max=models.Max("pk"))["max"])
         pop = Matrix.objects.filter(name="popularity").order_by("-id")[0]

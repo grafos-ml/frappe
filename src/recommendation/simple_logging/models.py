@@ -70,7 +70,7 @@ class LogEntry(models.Model):
         }
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_logs_for(user_id):
         """
         Get the user ids
