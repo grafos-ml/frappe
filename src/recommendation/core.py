@@ -1,6 +1,6 @@
 #! -*- encoding: utf-8 -*-
 """
-The core module for the recommendation system. Here is defined the flow for a recommendation request and settings.
+The core module for the recommendation system. Here is defined the flow for a recommendation request and recommendation.settings.
 """
 from __future__ import division, absolute_import, print_function
 import logging
@@ -262,7 +262,7 @@ default_recommendation = RECOMMENDATION_ENGINES["default"]
 
 class ControllerNotDefined(Exception):
     """
-    Exception for when controller is not defined on settings
+    Exception for when controller is not defined on recommendation.settings
     """
     pass
 

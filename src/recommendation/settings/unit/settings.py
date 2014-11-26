@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-frappe - settings.unit
+frappe - recommendation.settings.unit
 joaonrb, 26 November 2014
 
-Unit test settings
+Unit test recommendation.settings
 """
 
 from __future__ import division, absolute_import, print_function

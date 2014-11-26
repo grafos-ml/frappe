@@ -21,7 +21,7 @@ except ImportError:
 __author__ = "joaonrb"
 
 
-#thread_pool = ThreadPoolExecutor(max_workers=getattr(settings, "MAX_THREADS", 2))
+#thread_pool = ThreadPoolExecutor(max_workers=getattr(recommendation.settings, "MAX_THREADS", 2))
 clone_pool = ThreadPoolExecutor(max_workers=1)
 #atexit.register(thread_pool.shutdown)
 atexit.register(clone_pool.shutdown)

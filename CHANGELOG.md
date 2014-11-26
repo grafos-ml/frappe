@@ -648,7 +648,7 @@
 
 
 
-### Set default settings
+### Set default recommendation.settings
 >Mon, 13 Oct 2014 20:48:09 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -1805,7 +1805,7 @@ Use:
 
 
 
-### Change settings in log to improve. Improve Thread fill log cache
+### Change recommendation.settings in log to improve. Improve Thread fill log cache
 >Mon, 8 Sep 2014 16:03:01 +0200
 
 >Author: João Nuno (joaonrb@gmail.com)
@@ -1975,7 +1975,7 @@ Use:
 
 
 
-### [FIX] Fix production settings and features
+### [FIX] Fix production recommendation.settings and features
 >Tue, 2 Sep 2014 12:41:53 +0200
 
 >Author: joaonrb (joaonrb@gmail.com)
@@ -2515,7 +2515,7 @@ Use:
 
 
 
-### Change the recommendation settings to the default and update the changes in the documentation.
+### Change the recommendation recommendation.settings to the default and update the changes in the documentation.
 >Mon, 11 Aug 2014 17:41:47 +0200
 
 >Author: joaonrb (joaonrb@gmail.com)
@@ -2752,7 +2752,7 @@ Use:
 
 >Commiter: joaonrb (joaonrb@gmail.com)
 
-Also returned the settings to example state.
+Also returned the recommendation.settings to example state.
 
 
 
@@ -3006,7 +3006,7 @@ Also returned the settings to example state.
 
 
 
-### change settings
+### change recommendation.settings
 >Thu, 3 Apr 2014 14:50:32 +0200
 
 >Author: joaonrb (joaonrb@gmail.com)
@@ -3316,7 +3316,7 @@ Also returned the settings to example state.
 
 
 
-### [FEATURE] Created a way to register rerankers and filters in settings
+### [FEATURE] Created a way to register rerankers and filters in recommendation.settings
 >Fri, 21 Mar 2014 20:34:14 +0100
 
 >Author: joaonrb (joaonrb@gmail.com)
@@ -4016,7 +4016,7 @@ Some documentation has been improved as well.
 
 
 
-### [MINOR] Prepare the settings to work with the 3 different environments that we develop. My personal computer, Amaris computer and Mozilla server.
+### [MINOR] Prepare the recommendation.settings to work with the 3 different environments that we develop. My personal computer, Amaris computer and Mozilla server.
 >Thu, 16 Jan 2014 10:11:04 +0100
 
 >Author: joaonrb (joaonrb@gmail.com)
@@ -4361,7 +4361,7 @@ The documentation is yet to be changed for this new features and changes.
 
 >Commiter: joaonrb (joaonrb@gmail.com)
 
-[BUGFIX] Minor changes done in settings.py, data.py, scripts.loaddata.py and models.py. Most of them for bugs detected in tests.
+[BUGFIX] Minor changes done in recommendation.settings.py, data.py, scripts.loaddata.py and models.py. Most of them for bugs detected in tests.
 
 
 
@@ -4385,7 +4385,7 @@ that the data base wouldn't allow null. This is a problem because
 the data files structure lack documentation. It's fix for now, at
 least for this data files.
 
-[MINOR] ffos.settings A middleware for transactions were added.
+[MINOR] ffos.recommendation.settings A middleware for transactions were added.
 
 
 
@@ -4396,7 +4396,7 @@ least for this data files.
 
 >Commiter: joaonrb (joaonrb@gmail.com)
 
-[MINOR] ffos app added to the installed app in django settings.py
+[MINOR] ffos app added to the installed app in django recommendation.settings.py
 
 
 
@@ -4421,7 +4421,7 @@ least for this data files.
 
 [FEATURE] Bootstrap framework. It presented to make the front-end pretier. The icons and javascript files may not be used.
 
-[FEATURE] Django configuration files  (settings.py, url.py, etc...). None change was made since the deploy.
+[FEATURE] Django configuration files  (recommendation.settings.py, url.py, etc...). None change was made since the deploy.
 
 
 

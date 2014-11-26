@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-frappe - settings.integration
+frappe - recommendation.settings.unit
 joaonrb, 26 November 2014
 
 Documentation TODO

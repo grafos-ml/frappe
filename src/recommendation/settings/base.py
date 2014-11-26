@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-frappe - settings
+frappe - recommendation.settings
 joaonrb, 26 November 2014
 
-Django base settings for frappe project.
+Django base recommendation.settings for frappe project.
 
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
+For the full list of recommendation.settings and their values, see
+https://docs.djangoproject.com/en/1.7/ref/recommendation.settings/
 """
 
 from __future__ import division, absolute_import, print_function
@@ -54,18 +54,18 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = "recommendation.urls"
 
-WSGI_APPLICATION = "settings.wsgi.application"
+WSGI_APPLICATION = "recommendation.settings.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
+# https://docs.djangoproject.com/en/1.7/ref/recommendation.settings/#databases
 
 DATABASES = {
     "default": databases.INTEGRATION
 }
 
 # Cache
-# https://docs.djangoproject.com/en/1.7/ref/settings/#caches
+# https://docs.djangoproject.com/en/1.7/ref/recommendation.settings/#caches
 
 CACHES = {
     "default": caches.LOCAL,
@@ -73,7 +73,7 @@ CACHES = {
 }
 
 # Logging
-# https://docs.djangoproject.com/en/1.7/ref/settings/#logging
+# https://docs.djangoproject.com/en/1.7/ref/recommendation.settings/#logging
 
 LOGGING = logs.LOGGING
 
@@ -97,7 +97,7 @@ REST_FRAMEWORK = {
 }
 
 
-# Frappe settings
+# Frappe recommendation.settings
 
 RECOMMENDATION_SETTINGS = {
     "default": {

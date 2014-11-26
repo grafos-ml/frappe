@@ -43,13 +43,13 @@ therefore, these items will not likely be ever recommended.
 
 
 After finished implementing the filter it must be registered to the system. 
-You should edit settings.py and modify *RECOMMENDATION_SETTINGS* variable by registering the new filter
+You should edit recommendation.settings.py and modify *RECOMMENDATION_SETTINGS* variable by registering the new filter
 with the other filters.
 
 .. code-block:: python
    :linenos:
 
-   # settings.py
+   # recommendation.settings.py
 
    RECOMMENDATION_SETTINGS = {
         "default": {

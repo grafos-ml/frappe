@@ -108,7 +108,7 @@ in the View without the need for a manual update.</p>
 <p>Two different declaration styles are included below:</p>
 <ul>
 <li>one binds methods and properties directly onto the controller using <code>this</code>:
-<code>ng-controller=&quot;SettingsController1 as settings&quot;</code></li>
+<code>ng-controller=&quot;SettingsController1 as recommendation.settings&quot;</code></li>
 <li>one injects <code>$scope</code> into the controller:
 <code>ng-controller=&quot;SettingsController2&quot;</code></li>
 </ul>
@@ -141,7 +141,7 @@ inheritance masking primitives.</li>
       name="index.html"
       language="html"
       type="html">
-      <pre><code>&lt;div id=&quot;ctrl-as-exmpl&quot; ng-controller=&quot;SettingsController1 as settings&quot;&gt;&#10;  Name: &lt;input type=&quot;text&quot; ng-model=&quot;settings.name&quot;/&gt;&#10;  [ &lt;a href=&quot;&quot; ng-click=&quot;settings.greet()&quot;&gt;greet&lt;/a&gt; ]&lt;br/&gt;&#10;  Contact:&#10;  &lt;ul&gt;&#10;    &lt;li ng-repeat=&quot;contact in settings.contacts&quot;&gt;&#10;      &lt;select ng-model=&quot;contact.type&quot;&gt;&#10;         &lt;option&gt;phone&lt;/option&gt;&#10;         &lt;option&gt;email&lt;/option&gt;&#10;      &lt;/select&gt;&#10;      &lt;input type=&quot;text&quot; ng-model=&quot;contact.value&quot;/&gt;&#10;      [ &lt;a href=&quot;&quot; ng-click=&quot;settings.clearContact(contact)&quot;&gt;clear&lt;/a&gt;&#10;      | &lt;a href=&quot;&quot; ng-click=&quot;settings.removeContact(contact)&quot;&gt;X&lt;/a&gt; ]&#10;    &lt;/li&gt;&#10;    &lt;li&gt;[ &lt;a href=&quot;&quot; ng-click=&quot;settings.addContact()&quot;&gt;add&lt;/a&gt; ]&lt;/li&gt;&#10; &lt;/ul&gt;&#10;&lt;/div&gt;</code></pre>
+      <pre><code>&lt;div id=&quot;ctrl-as-exmpl&quot; ng-controller=&quot;SettingsController1 as recommendation.settings&quot;&gt;&#10;  Name: &lt;input type=&quot;text&quot; ng-model=&quot;settings.name&quot;/&gt;&#10;  [ &lt;a href=&quot;&quot; ng-click=&quot;settings.greet()&quot;&gt;greet&lt;/a&gt; ]&lt;br/&gt;&#10;  Contact:&#10;  &lt;ul&gt;&#10;    &lt;li ng-repeat=&quot;contact in settings.contacts&quot;&gt;&#10;      &lt;select ng-model=&quot;contact.type&quot;&gt;&#10;         &lt;option&gt;phone&lt;/option&gt;&#10;         &lt;option&gt;email&lt;/option&gt;&#10;      &lt;/select&gt;&#10;      &lt;input type=&quot;text&quot; ng-model=&quot;contact.value&quot;/&gt;&#10;      [ &lt;a href=&quot;&quot; ng-click=&quot;settings.clearContact(contact)&quot;&gt;clear&lt;/a&gt;&#10;      | &lt;a href=&quot;&quot; ng-click=&quot;settings.removeContact(contact)&quot;&gt;X&lt;/a&gt; ]&#10;    &lt;/li&gt;&#10;    &lt;li&gt;[ &lt;a href=&quot;&quot; ng-click=&quot;settings.addContact()&quot;&gt;add&lt;/a&gt; ]&lt;/li&gt;&#10; &lt;/ul&gt;&#10;&lt;/div&gt;</code></pre>
     </div>
   
     <div class="runnable-example-file" 

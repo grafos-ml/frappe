@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-frappe - settings
+frappe - recommendation.settings
 joaonrb, 26 November 2014
 
-Logging settings.
+Logging recommendation.settings.
 """
 
 from __future__ import division, absolute_import, print_function

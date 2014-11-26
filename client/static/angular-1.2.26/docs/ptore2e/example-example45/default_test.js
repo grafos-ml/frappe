@@ -8,7 +8,7 @@ describe("", function() {
   var switchElem = element(by.css('[ng-switch]'));
   var select = element(by.model('selection'));
 
-  it('should start in settings', function() {
+  it('should start in recommendation.settings', function() {
     expect(switchElem.getText()).toMatch(/Settings Div/);
   });
   it('should change to home', function() {

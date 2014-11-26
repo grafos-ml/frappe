@@ -11,9 +11,9 @@ describe("", function() {
         .getAttribute('value')).toBe('John Smith');
 
     var firstRepeat =
-        container.element(by.repeater('contact in settings.contacts').row(0));
+        container.element(by.repeater('contact in recommendation.settings.contacts').row(0));
     var secondRepeat =
-        container.element(by.repeater('contact in settings.contacts').row(1));
+        container.element(by.repeater('contact in recommendation.settings.contacts').row(1));
 
     expect(firstRepeat.element(by.model('contact.value')).getAttribute('value'))
         .toBe('408 555 1212');
@@ -28,7 +28,7 @@ describe("", function() {
 
     container.element(by.linkText('add')).click();
 
-    expect(container.element(by.repeater('contact in settings.contacts').row(2))
+    expect(container.element(by.repeater('contact in recommendation.settings.contacts').row(2))
         .element(by.model('contact.value'))
         .getAttribute('value'))
         .toBe('yourname@example.org');

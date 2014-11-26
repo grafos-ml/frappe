@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-frappe - settings
+frappe - recommendation.settings
 joaonrb, 26 November 2014
 
-Frappe database settings
+Frappe database recommendation.settings
 """
 
 from __future__ import division, absolute_import, print_function

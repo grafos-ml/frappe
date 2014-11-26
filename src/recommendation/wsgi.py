@@ -31,7 +31,7 @@ if "recommendation.language" in settings.INSTALLED_APPS:
     Region.load_to_cache()
 
 
-#if "recommendation.simple_logging" in settings.INSTALLED_APPS:
+#if "recommendation.simple_logging" in recommendation.settings.INSTALLED_APPS:
 #    print("Loading logs to cache...")
 #    from recommendation.simple_logging.models import LogEntry
 #    LogEntry.load_to_cache()

@@ -41,8 +41,8 @@ import os
 from pkg_resources import resource_filename
 sys.path.append(resource_filename(__name__, "/../"))
 
-# Configure here the Django settings file location
-DJANGO_SETTINGS = "firefox.settings"
+# Configure here the Django recommendation.settings file location
+DJANGO_SETTINGS = "firefox.recommendation.settings"
 CRON_JOB_NAME = "joaonrb"
 os.environ["DJANGO_SETTINGS_MODULE"] = DJANGO_SETTINGS
 from recommendation.models import TensorCoFi, Popularity

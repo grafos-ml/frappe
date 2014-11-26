@@ -44,12 +44,12 @@ _____________
 
 For a moment we have a very manual installation process. This will be replaced with pip style installs any time soon.
 
-1. First you need to add recommendation module to the installed apps in Django settings of the main project:
+1. First you need to add recommendation module to the installed apps in Django recommendation.settings of the main project:
 
 .. code-block:: python
    :linenos:
 
-       # settings.py
+       # recommendation.settings.py
 
        INSTALLED_APPS = (
             ...  # A ton of cool Django apps
@@ -93,7 +93,7 @@ You will also to change the wsgi.py file to import the application variable from
        # wsgi.py
 
        import os
-       os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_django_app.settings")
+       os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_django_app.recommendation.settings")
 
        from recommendation.wsgi import application
 
@@ -150,7 +150,7 @@ special case for Mozilla FireFox OS App store apps api.
        # Call mozilla app api from today
        $ ./manage.py fill items --mozilla dev today
 
-       # Call fill from path with mozilla settings
+       # Call fill from path with mozilla recommendation.settings
        $ ./manage.py fill users --mozilla recommender/package/path/src/bin/data/user
 
 4. To retrieve recommendations a recommendation model (statistical representation of your data) must be built.
@@ -189,8 +189,8 @@ And voilá, you got your self a recommendation system for your precious little w
 For example, to generate JSON response just point your web browser to this
 `link <http://localhost:8000/api/v2/recommend/5/002c50b7dae6a30ded5372ae1033da43bba90b4d477733375994791e758fbee0.json>`_.
 
-.. note:: This is the example settings for the firefox dummy data that the developer is working with. The module firefox
- is a working example with a mysql DB that I am working locally. If you change the db settings in firefox module you can
+.. note:: This is the example recommendation.settings for the firefox dummy data that the developer is working with. The module firefox
+ is a working example with a mysql DB that I am working locally. If you change the db recommendation.settings in firefox module you can
  use the script manager_firefox.py that is installed with setup and avoid major deployment.
 
 Plugin Installations
@@ -200,7 +200,7 @@ To remove the "statiness" of the recommendations you can always install new plug
 with some pretty neat plugins. Installed in the same way any Django app is installed. Just keep in mind one thing. In
 case of re-rankers and filters, your system should do some actions before others. For instance, you may want
 that your recommendation have always a big diversity in genre but that don't send every time the same items. Because of
-that you also have to use a special settings environment called RECOMMENDATION_SETTINGS. This variable is a dictionary,
+that you also have to use a special recommendation.settings environment called RECOMMENDATION_SETTINGS. This variable is a dictionary,
 much like a static configuration. You also have a default standard and might have more to use in special situations. Basically, it
 a core engine(the structure that request the recommendation and use the filters and re-rankers), A list of filters and
 another list for re-rankers. Typically, the filters will execute first and re-rankers after and the execute in the same
@@ -210,7 +210,7 @@ decorator that will record the events in some way.
 .. code-block:: python
    :linenos:
 
-       # settings.py
+       # recommendation.settings.py
 
        INSTALLED_APPS = (
             ...  # A ton of cool Django apps
