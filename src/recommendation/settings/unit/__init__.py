@@ -7,7 +7,7 @@ Documentation TODO
 """
 
 from __future__ import division, absolute_import, print_function
-# The remaining imports here
+from recommendation.settings.unit import settings
 
 __author__ = "joaonrb"
 

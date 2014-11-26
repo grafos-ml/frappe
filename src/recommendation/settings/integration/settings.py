@@ -7,6 +7,6 @@ Integration test recommendation.settings
 """
 
 from __future__ import division, absolute_import, print_function
-from settings.base import *
+from recommendation.settings.base import *
 
 __author__ = "joaonrb"

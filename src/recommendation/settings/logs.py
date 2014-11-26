@@ -7,7 +7,7 @@ Logging recommendation.settings.
 """
 
 from __future__ import division, absolute_import, print_function
-import logging
+import logging.handlers
 
 __author__ = "joaonrb"
 
@@ -27,10 +27,15 @@ LOGGING = {
         },
     },
     "handlers": {
+        "console": {
+            "()": logging.StreamHandler,
+            "formatter": "simple",
+        },
         "syslog": {
+            "class": "mozilla_logger.log.UnicodeHandler",
             "facility": logging.handlers.SysLogHandler.LOG_LOCAL7,
             "formatter": "simple",
-         },
+        },
         "sentry": {
             "level": "ERROR",
             "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",

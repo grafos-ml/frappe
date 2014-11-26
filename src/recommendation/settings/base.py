@@ -10,8 +10,8 @@ https://docs.djangoproject.com/en/1.7/ref/recommendation.settings/
 """
 
 from __future__ import division, absolute_import, print_function
-from settings import databases, caches, logs
-from settings.contingency import CONTINGENCY_ITEMS
+from recommendation.settings import databases, caches, logs
+from recommendation.settings.contingency import CONTINGENCY_ITEMS
 
 __author__ = "joaonrb"
 

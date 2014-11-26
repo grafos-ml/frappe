@@ -19,4 +19,5 @@ django-docopt-command
 click
 
 # For logging errors
+mozilla-logger
 raven==5.1.1
