@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 from __future__ import division, absolute_import, print_function
 from settings import databases, caches, logs
+from settings.contingency import CONTINGENCY_ITEMS
 
 __author__ = "joaonrb"
 
@@ -113,3 +114,9 @@ RECOMMENDATION_SETTINGS = {
     },
     "logger": "recommendation.simple_logging.decorators.LogEvent"
 }
+
+# Contingency plan
+
+CONTINGENCY_ITEMS = CONTINGENCY_ITEMS
+
+RESPONSE_TIMEOUT = 1/3
