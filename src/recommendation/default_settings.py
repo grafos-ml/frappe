@@ -9,6 +9,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import logging
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 #import pymysql
@@ -50,7 +51,8 @@ INSTALLED_APPS = ([
     "recommendation.filter_owned",
     "recommendation.language",
     "recommendation.simple_logging",
-    "recommendation.diversity"
+    "recommendation.diversity",
+    "raven.contrib.django",
 ]
 
 if int(os.environ.get("FRAPPE_TEST", 0)):
@@ -114,8 +116,6 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = "/static/"
-
-# Logging
 
 # Testing
 # Nose settings
@@ -191,4 +191,49 @@ RECOMMENDATION_SETTINGS = {
     },
     "logger": "recommendation.simple_logging.decorators.LogEvent"
     #"logger": "recommendation.decorators.NoLogger"
+}
+
+
+SYSLOG_TAG = 'http_app_frappe'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'root': {
+        'level': 'WARNING',
+        'handlers': ['sentry'],
+    },
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s %(name)s:%(levelname)s %(hostname)s {0}: '
+                      '%(message)s :%(pathname)s:%(lineno)s'.format(SYSLOG_TAG)
+        },
+    },
+    'handlers': {
+        'syslog': {
+            'facility': logging.handlers.SysLogHandler.LOG_LOCAL7,
+            'formatter': 'simple',
+        },
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console', 'syslog'],
+            'propagate': False,
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'syslog'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'syslog'],
+            'propagate': False,
+        },
+    },
 }
