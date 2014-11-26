@@ -65,7 +65,6 @@ class TestFill(TestCase):
             Item.objects.all().delete()
         User.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_fill_production_items(self):
         """

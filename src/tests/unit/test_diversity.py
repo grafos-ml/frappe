@@ -77,7 +77,6 @@ class TestLanguageFilter(TestCase):
         User.objects.all().delete()
         Genre.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_items_language_cache(self):
         """

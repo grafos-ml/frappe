@@ -10,3 +10,8 @@ from __future__ import division, absolute_import, print_function
 from recommendation.settings.base import *
 
 __author__ = "joaonrb"
+
+
+INSTALLED_APPS = ("django_nose",) + INSTALLED_APPS
+
+TEST_RUNNER = "django_nose.NoseTestSuiteRunner"

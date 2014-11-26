@@ -12,8 +12,12 @@ from recommendation.settings.base import *
 __author__ = "joaonrb"
 
 
+INSTALLED_APPS = ("django_nose",) + INSTALLED_APPS
+
 DATABASES = {
     "default": databases.UNIT
 }
 
 CACHES["owned_items"] = caches.LOCAL
+
+TEST_RUNNER = "django_nose.NoseTestSuiteRunner"

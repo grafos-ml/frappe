@@ -61,7 +61,6 @@ class TestFilterOwnedItems(TestCase):
         Item.objects.all().delete()
         User.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_filter_owned(self):
         """

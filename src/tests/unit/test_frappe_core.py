@@ -90,7 +90,6 @@ class TestTensorCoFiController(TestCase):
         User.objects.all().delete()
         Matrix.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     @ut.skipIf("default" not in RECOMMENDATION_SETTINGS, "Default recommendation is not defined")
     def test_check_std_recommendation(self):

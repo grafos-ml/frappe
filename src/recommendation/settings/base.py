@@ -44,7 +44,7 @@ INSTALLED_APPS = (
 
 
 MIDDLEWARE_CLASSES = (
-    "corsheaders.middleware.CorsMiddleware"
+    "corsheaders.middleware.CorsMiddleware",
 )
 
 

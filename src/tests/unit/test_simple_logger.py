@@ -67,7 +67,6 @@ class TestSimpleLoggerDecorator(TestCase):
         Item.objects.all().delete()
         User.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_recommendation_logging(self):
         """

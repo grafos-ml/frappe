@@ -7,7 +7,7 @@ __author__ = "joaonrb"
 import sys
 import numpy as np
 from django.core.cache import get_cache
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase
 from recommendation.models import Matrix, Item, User, Inventory
 if sys.version_info >= (3, 0):
     from functools import reduce
@@ -56,7 +56,6 @@ class TestNPArrayField(TestCase):
         """
         Matrix.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_input_array_field(self):
         """
@@ -136,7 +135,6 @@ class TestItems(TestCase):
         """
         Item.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_get_item_by_external_id(self):
         """
@@ -181,7 +179,6 @@ class TestUser(TestCase):
         Item.objects.all().delete()
         User.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_get_item_by_external_id(self):
         """

@@ -100,7 +100,6 @@ class TestLanguageFilter(TestCase):
         Item.objects.all().delete()
         User.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_users_language_cache(self):
         """
@@ -197,7 +196,6 @@ class TestRegionFilter(TestCase):
         Item.objects.all().delete()
         User.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_users_region_cache(self):
         """

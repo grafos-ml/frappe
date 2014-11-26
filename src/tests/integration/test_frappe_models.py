@@ -64,7 +64,6 @@ class TestModels(TestCase):
         Inventory.objects.all().delete()
         Matrix.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_fit(self):
         """
