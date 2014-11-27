@@ -287,7 +287,7 @@ class TestRecommendation(TestCase):
 
     def test_user_genres_in_recommendation_size_5(self):
         """
-        [recommendation.api.GetRecommendation] At least 3 of the top genres in the size 5 recommendation
+        [recommendation.api.GetRecommendation] At least 2 of the top genres in the size 5 recommendation
         """
         get_cache("default").clear()
         LogEntry.objects.all().delete()
@@ -307,7 +307,7 @@ class TestRecommendation(TestCase):
         for no, (genre, _) in enumerate(user_genres[:int(size)], start=1):
             if genre not in recommendation_genres:
                 measure.append(no)
-        assert len(measure) < 3, "Major genres failing by index: %s." \
+        assert len(measure) < 4, "Major genres failing by index: %s." \
                                  "\nUser %s" \
                                  "\nRecommendation %s" % (
             measure, user_genres, [ItemGenre.genre_in([Item.get_item_by_external_id(item)])
