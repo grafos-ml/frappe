@@ -2,15 +2,17 @@
 """
 The locale models moudle. It must contain the locale
 """
-__author__ = "joaonrb"
 
-
+from __future__ import division, absolute_import, print_function
 import click
 from django.db import models
 from django.utils.translation import ugettext as _
 import numpy as np
 from frappe.models import Item, User, Module
 from frappe.decorators import Cached
+
+
+__author__ = "joaonrb"
 
 
 class Region(models.Model):

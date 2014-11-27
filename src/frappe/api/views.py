@@ -7,8 +7,7 @@ Created at Nov 4, 2014
 The views for the Recommend API.
 """
 
-__author__ = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
@@ -16,6 +15,8 @@ from rest_framework.negotiation import BaseContentNegotiation
 from frappe.models import User
 from frappe.core import RecommendationCore as Core
 from frappe.tools.logger.loggers import DBLogger
+
+__author__ = "joaonrb"
 
 
 class IgnoreClientContentNegotiation(BaseContentNegotiation):

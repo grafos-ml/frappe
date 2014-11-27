@@ -7,8 +7,7 @@ Models for the logging system
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 """
 
-__author__ = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 import os
 from django.conf import settings
 from django.utils.translation import ugettext as _
@@ -19,6 +18,8 @@ from django.dispatch import receiver
 from django.core.cache import get_cache
 from frappe.models import Item, User
 from frappe.decorators import Cached
+
+__author__ = "joaonrb"
 
 LOGGER_MAX_LOGS = 10 if int(os.environ.get("FRAPPE_TEST", 0)) else getattr(settings, "LOGGER_MAX_LOGS", 50)
 

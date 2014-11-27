@@ -3,14 +3,16 @@
 Models for the base of the recommendation system. The base of the recommendation system makes uses of the user, item
 amd connection between them.
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 import click
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from frappe.decorators import Cached
+
+__author__ = "joaonrb"
 
 
 class Item(models.Model):

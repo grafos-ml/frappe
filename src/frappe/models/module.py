@@ -2,17 +2,17 @@
 """
 Models for Module configuration of frappe system.
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 import numpy as np
-
-from blist import blist
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from frappe.decorators import Cached
 from frappe.models.fields import PythonObjectField, JSONField
+
+__author__ = "joaonrb"
 
 MAX_SORT = 1000
 
@@ -206,7 +206,7 @@ class Module(models.Model):
         :param module_id:
         :return:
         """
-        return blist(f.obj.obj for f in Filter.objects.filter(module_id=module_id).order_by("pk"))
+        return [f.obj.obj for f in Filter.objects.filter(module_id=module_id).order_by("pk")]
 
     @staticmethod
     @Cached(cache="local")
@@ -216,7 +216,7 @@ class Module(models.Model):
         :param module_id:
         :return:
         """
-        return blist(r.obj.obj for r in ReRanker.objects.filter(module_id=module_id).order_by("pk"))
+        return [r.obj.obj for r in ReRanker.objects.filter(module_id=module_id).order_by("pk")]
 
     def aggregate(self, predictions):
         """

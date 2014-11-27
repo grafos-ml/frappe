@@ -7,11 +7,12 @@ Implementation of the simple diversity for
 .. moduleauthor:: joaonrb <joaonrb@gmail.com>
 
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 import numpy as np
 from frappe.tools.diversity.models import Genre, ItemGenre
-from blist import blist
+
+__author__ = "joaonrb"
 
 
 def weighted_p(p_global, p_local, alpha):
@@ -96,7 +97,7 @@ class SimpleDiversityReRanker(object):
         """
         diversity = SimpleDiversity(recommendation, size, user, self.alpha_constant, self.lambda_constant)
         new_recommendation = np.empty((size,), dtype=recommendation.dtype)
-        dropped_items = blist()
+        dropped_items = []
         index = 0
         iterator = iter(recommendation)
         while index < size:

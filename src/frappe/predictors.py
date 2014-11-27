@@ -3,8 +3,7 @@
 Predictors for the frappe recommendation system
 """
 
-__author__ = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 import logging
 import pandas as pd
 import numpy as np
@@ -13,6 +12,8 @@ from django.db import OperationalError
 from testfm.models.tensorcofi import PyTensorCoFi
 from testfm.models.baseline_model import Popularity
 from frappe.models import Inventory, Predictor, AlgorithmData, UserFactors
+
+__author__ = "joaonrb"
 
 
 class IPredictor(object):

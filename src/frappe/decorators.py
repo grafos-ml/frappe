@@ -1,7 +1,6 @@
 #! -*- encoding: utf-8 -*-
 
-__author__ = "joaonrb"
-
+from __future__ import division, absolute_import, print_function
 from django.core.cache import get_cache
 import functools
 import itertools
@@ -11,6 +10,8 @@ try:
 except ImportError:
     warnings.warn("uWSGI lock is not active", RuntimeWarning)
     lock = i_am_the_spooler = unlock = lambda *x: None
+
+__author__ = "joaonrb"
 
 
 class Cached(object):

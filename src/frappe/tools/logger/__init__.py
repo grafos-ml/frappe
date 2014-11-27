@@ -5,10 +5,12 @@ Created on September 1, 2014
 Log based re-ranker. I reads the logs from this user and re-rank items from the original recommendation order.
 
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 import numpy as np
 from frappe.tools.logger.models import LogEntry
+
+__author__ = "joaonrb"
 
 
 class DummyLogReRanker(object):

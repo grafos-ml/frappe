@@ -2,8 +2,8 @@
 """
 Models for core recommendation slots
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 import random
 import itertools
 from django.utils.translation import ugettext as _
@@ -11,6 +11,8 @@ from django.db import models
 from django.conf import settings
 from frappe.models.module import Module
 from frappe.decorators import Cached
+
+__author__ = "joaonrb"
 
 MAX_FRAPPE_SLOTS = getattr(settings, "MAX_FRAPPE_SLOTS", 100)
 

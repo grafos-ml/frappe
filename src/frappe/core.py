@@ -2,12 +2,13 @@
 """
 Frappe core. This is the place were the request meet the backend
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 from django.conf import settings
 from frappe.models.core import Slot
 from frappe.models.module import Module
 
+__author__ = "joaonrb"
 
 MAX_FRAPPE_SLOTS = getattr(settings, "MAX_FRAPPE_SLOTS", 100)
 

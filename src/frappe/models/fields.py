@@ -2,8 +2,8 @@
 """
 Models special fields
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 try:
     import cPickle as pickle
 except ImportError:
@@ -14,6 +14,8 @@ import zlib
 from six import string_types
 from django.db import models
 from django.utils.six import with_metaclass
+
+__author__ = "joaonrb"
 
 
 class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):

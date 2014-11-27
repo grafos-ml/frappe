@@ -2,10 +2,11 @@
 """
 Module Loggers
 """
-__author__ = "joaonrb"
 
 from abc import ABCMeta, abstractmethod
 from frappe.tools.logger.models import LogEntry
+
+__author__ = "joaonrb"
 
 
 class ILogger(object):

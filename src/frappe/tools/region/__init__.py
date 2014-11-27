@@ -2,10 +2,12 @@
 """
 The filters for the locale functionality
 """
-__author__ = "joaonrb"
 
+from __future__ import division, absolute_import, print_function
 import numpy as np
 from frappe.tools.region.models import Region
+
+__author__ = "joaonrb"
 
 
 class SimpleRegionFilter(object):
