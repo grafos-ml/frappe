@@ -25,7 +25,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name="frappe",
     version=VERSION,
-    description="Frappe recommendation system backend.",
+    description="Frappe is recommendation system backend.",
     author="Linas Baltrunas",
     author_email="linas@tid.com",
     packages=find_packages("src"),
@@ -38,7 +38,7 @@ setup(
     include_package_data=True,
     install_requires=REQUIREMENTS,
     long_description=README,
-    url = "https://github.com/grafos-ml/frappe",
-    download_url = "https://github.com/grafos-ml/frappe/archive/v%s.tar.gz" % VERSION,
-    keywords = ["recommendation"],
+    url="https://github.com/grafos-ml/frappe",
+    download_url="https://github.com/grafos-ml/frappe/archive/v%s.tar.gz" % VERSION,
+    keywords=["recommendation"],
 )
