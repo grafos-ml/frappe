@@ -151,39 +151,6 @@ Example::
             ]
         }
 
-Go to the Application place in FF Store
----------------------------------------
-
-This functionality allow to record useful information about a specific app. It can record a simple click, a click from
-a recommendation, and a click from anonymous users.
-
-
-*URL*::
-
-    http://domain.com/apu/v2/<click or recommended>/<user external id or anonymous>/<app external id>/
-
-
-GET Request
-+++++++++++
-
-If the source is *recommended* it has to have a GET parameter called rank. This parameter is used to classify the
-position were the app had in that recommendation.
-
-+----------------+---------------+------------------------------------------------+
-|                |               |                                                |
-| Parameter Name | Type          | Description                                    |
-|                |               |                                                |
-+================+===============+================================================+
-|                |               |                                                |
-| rank           | Integer       | The position of the app in the recommendation. |
-|                |               |                                                |
-+----------------+---------------+------------------------------------------------+
-
-Example::
-
-    http://domain.com/api/v2/recommended/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/457282/?rank=4
-
-
 Item/App Detail
 ---------------
 
@@ -566,3 +533,15 @@ Example::
         "status": 200,
         "message": "done"
     }
+
+Health
+------
+
+The health API return 200 if everything is ok or a 500 if some resource is unreachable. For this we use the
+`django-health-check`_.
+
+Example::
+
+   http://domain.com/health
+
+.. _django-health-check: https://github.com/KristianOellegaard/django-health-check

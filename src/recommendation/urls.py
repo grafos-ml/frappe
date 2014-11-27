@@ -11,6 +11,6 @@ plugin_dir.register(CheckOwnedItemsCacheBackend)
 
 urlpatterns = patterns(
     "",
-    url(r'^health/', include('health_check.urls')),
+    url(r"^health", include("health_check.urls")),
     url(r"^api/v2/", include("recommendation.api.urls")),
 )

@@ -54,28 +54,25 @@ For a moment we have a very manual installation process. This will be replaced w
        INSTALLED_APPS = (
             ...  # A ton of cool Django apps
             # Apps need for the recommendation
-            "django.contrib.admin",
-            "django.contrib.auth",
-            "django.contrib.contenttypes",
-            "django.contrib.sessions",
-            "django.contrib.staticfiles",
+            "corsheaders",
+            "health_check",
+            "health_check_db",
+            "health_check_cache",
+            "health_check_storage",
+
             # Recommendation apps
             "recommendation",
             "recommendation.api",
             "recommendation.filter_owned",
             "recommendation.language",
             "recommendation.simple_logging",
+            "recommendation.diversity",
        )
 
        # Middleware needed
-       MIDDLEWARE_CLASSES = [
-            "django.contrib.sessions.middleware.SessionMiddleware",
-            "django.middleware.common.CommonMiddleware",
-            "django.contrib.auth.middleware.AuthenticationMiddleware",
-            "django.middleware.transaction.TransactionMiddleware",
-            "django.middleware.cache.UpdateCacheMiddleware",
-            "django.middleware.cache.FetchFromCacheMiddleware",
-       ]
+       MIDDLEWARE_CLASSES = (
+            "corsheaders.middleware.CorsMiddleware",
+       )
 
        # Need to have a default cache and a robust cache engine.
        CACHES = {
