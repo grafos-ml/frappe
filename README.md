@@ -12,7 +12,6 @@ Nosetests
 =========
 In the package src folder
 
-Django >= 1.7 
 $ PYTHONPATH=/project/src runtests (--all | --unit | --integration)
 
 Note: Will also need to configure env variable for:
