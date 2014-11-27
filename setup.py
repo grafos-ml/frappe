@@ -16,6 +16,9 @@ from setuptools import find_packages
 with open(os.path.join(os.path.dirname(__file__), "README.md")) as readme:
     README = readme.read()
 
+with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as requirements:
+    REQUIREMENTS = [requirement.strip() for requirement in requirements if requirement[0] != "#"]
+
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
@@ -33,19 +36,7 @@ setup(
     scripts = ["scripts/sb"],
     license="copyright.txt",
     include_package_data=True,
-    install_requires=[
-        "django",
-        "pymysql",
-        "django-cors-headers",
-        "djangorestframework",
-        "python-memcached",
-        #"django-uwsgi-cache",
-        "uwsgi",
-        "django-uwsgi-cache",
-        "docopt",
-        "django-docopt-command",
-        "click"
-    ],
+    install_requires=REQUIREMENTS,
     long_description=README,
     url = "https://github.com/grafos-ml/frappe",
     download_url = "https://github.com/grafos-ml/frappe/archive/v%s.tar.gz" % VERSION,

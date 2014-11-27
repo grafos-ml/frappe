@@ -108,7 +108,7 @@ And last file the urls.py on your project to:
 
        from django.conf.urls import patterns, include, url
 
-       urlpatterns = patterns('', url(r'^', include("recommendation.urls")))
+       urlpatterns = patterns("", url(r"^", include("recommendation.urls")))
 
 2. Next, you need to create the Django modules using.
 
@@ -186,7 +186,8 @@ And voilá, you got your self a recommendation system for your precious little w
 
        $ ./manage.py runserver
 
-    Open firefox browser at http://127.0.0.1:8000/
+
+Open firefox browser at http://127.0.0.1:8000/api/v2/recommendation_size/user_external_id/
 
 
 5. Now you can try to access also the REST API. The full documentation of APIs can be found through the Table of Content.
@@ -233,7 +234,7 @@ decorator that will record the events in some way.
                 "recommendation.simple_logging.filters.SimpleLogFilter",
                 ],
             "rerankers": [
-                #"recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
+                "recommendation.diversity.rerankers.simple.SimpleDiversityReRanker"
             ]
         },
         "logger": "recommendation.simple_logging.decorators.LogEvent"
@@ -251,12 +252,14 @@ consistent in every node and data that is to big to be stored remotely. Because 
 default
 +++++++
 
-A distributed cache. We use memcached for now.
-
-local
-+++++
-
 A cache that can support big structures and heavy reads. We use localmemcache from django standard backends.
+
+owned_items
++++++++++++
+
+A distributed cache among processes. Owned items are a sets of data that must remain with the same state independent
+of the process that handles the request.
+
 
 .. _Django: https://www.djangoproject.com/
 .. _Github: https://github.com/grafos-ml/frappe
