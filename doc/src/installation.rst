@@ -80,6 +80,13 @@ For a moment we have a very manual installation process. This will be replaced w
        # Need to have a default cache and a robust cache engine.
        CACHES = {
             "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+                "LOCATION": "django_default_cache",
+                "OPTIONS": {
+                    "MAX_ENTRIES": 10000000
+                }
+            },
+            "owned_items": {
                 "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
                 "LOCATION": "127.0.0.1:11211",
             }
