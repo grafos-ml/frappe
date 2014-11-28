@@ -14,7 +14,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.negotiation import BaseContentNegotiation
 from frappe.models import User
 from frappe.core import RecommendationCore as Core
-from frappe.tools.logger.loggers import DBLogger
+from frappe.tools.logger.loggers import DBLogger, NoLogging
 
 __author__ = "joaonrb"
 
@@ -54,10 +54,10 @@ class RecommendationAPI(APIView):
         :param recommendation_size: Number of recommendations that are requested.
         :return: A HTTP response with a list of recommendations.
         """
+        logger = NoLogging if "nolog" in request.GET else DBLogger
 
-        # Here is the decorator for recommendation
         module = Core.pick_module(user_eid)
         user = User.get_user_by_external_id(user_eid)
         recommendation = module.predict_scores(user, int(recommendation_size))
-        DBLogger.recommendation(module, user, recommendation)
+        logger.recommendation(module, user, recommendation)
         return Response({"user": user_eid, "recommendations": recommendation})

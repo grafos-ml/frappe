@@ -163,7 +163,7 @@ class Module(models.Model):
         return self.identifier
 
     @staticmethod
-    @Cached()
+    @Cached(cache="module")
     def get_module(module_id):
         """
         Return module based on module id
