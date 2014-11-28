@@ -22,7 +22,7 @@ LOGGING = {
     },
     "formatters": {
         "simple": {
-            "format": "%(asctime)s %(name)s:%(levelname)s %(hostname)s {0}: "
+            "format": "%(asctime)s %(name)s:%(levelname)s {0}: "
                       "%(message)s :%(pathname)s:%(lineno)s".format(SYSLOG_TAG)
         },
     },
