@@ -57,7 +57,7 @@ class RecommendationAPI(APIView):
         logger = NoLogging if "nolog" in request.GET else DBLogger
 
         module = Core.pick_module(user_eid)
-        user = User.get_user_by_external_id(user_eid)
+        user = User.get_user(user_eid)
         recommendation = module.predict_scores(user, int(recommendation_size))
         logger.recommendation(module, user, recommendation)
         return Response({"user": user_eid, "recommendations": recommendation})

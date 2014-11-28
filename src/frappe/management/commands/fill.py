@@ -237,9 +237,9 @@ class FillTool(object):
                         regions[region["name"]]["items"].append(item_eid)
                     except KeyError:
                         regions[region["name"]] = {"slug": region["slug"], "items": [item_eid]}
-        #logging.debug("Items ready to be saved")
+        logging.debug("Items ready to be saved")
         Item.objects.bulk_create(new_items.values())
-        #logging.debug("%d new items saved with bulk_create" % len(new_items))
+        logging.debug("%d new items saved with bulk_create" % len(new_items))
 
         items.update({item.external_id: item for item in Item.objects.filter(external_id__in=json_items.keys())})
 
@@ -368,32 +368,28 @@ class FillTool(object):
                     user_id = str(obj[self.user_field])
                     for item in obj.get(self.user_items_field, ()):
                         item_id = str(item[self.user_item_identifier_field])
-                        user_item = user_id, self.user_item_dropped_field in item
-                        try:
+                        user_item = user_id
+                        if item_id in user_item:
                             user_items[item_id].append(user_item)
-                        except KeyError:
+                        else:
                             user_items[item_id] = [user_item]
                     size += 1
                     json_users.append(user_id)
                     if "region" in obj:
-                        try:
+                        if obj["region"] in regions:
                             regions[obj["region"]].append(user_id)
-                        except KeyError:
+                        else:
                             regions[obj["region"]] = [user_id]
-                    if "lang" in obj:
-                        try:
-                            langs[obj["lang"]].append(user_id)
-                        except KeyError:
-                            langs[obj["lang"]] = [user_id]
-        logging.debug("Done!")
+        logging.debug("User loaded from files!")
         users = {user.external_id: user for user in User.objects.filter(external_id__in=json_users)}
         new_users = {}
         for user_eid in json_users:
             if user_eid not in users:
                 new_users[user_eid] = User(external_id=user_eid)
         del json_users
-        #logging.debug("Users ready to be saved")
+        logging.debug("Users ready to be saved")
         User.objects.bulk_create(new_users.values())
+        logging.debug("Users saved to database")
         for user in User.objects.filter(external_id__in=new_users.keys()):
             users[user.external_id] = user
 
@@ -402,11 +398,10 @@ class FillTool(object):
 
         if "frappe.language" in settings.INSTALLED_APPS:
             self.fill_user_locale(users, regions, langs)
-        #logging.debug("%d new users saved with bulk_create" % len(new_users))
+        logging.debug("%d new users saved with bulk_create" % len(new_users))
 
-        #logging.debug("Preparing items")
-        items = {ieid: iid for ieid, iid in Item.objects.filter(external_id__in=user_items).values_list("external_id",
-                                                                                                        "id")}
+        logging.debug("Preparing items")
+        items = set(ieid for ieid, in Item.objects.filter(external_id__in=user_items).values_list("external_id"))
         r = range(0, len(user_items), 300)
         n = len(r)
         user_items = user_items.items()
@@ -415,7 +410,7 @@ class FillTool(object):
             for user_item in bar:
                 self.fill_inventory(users, items, user_item)
                 del user_item
-        #logging.debug("Items loaded")
+        logging.debug("Items loaded")
 
     @staticmethod
     def fill_inventory(users, items, user_items):
@@ -428,17 +423,14 @@ class FillTool(object):
         inventory = {}
         inventory_query = Q()
         for item_eid, user_inv in user_items:
-            try:
-                item_id = items[item_eid]
-            except KeyError:
+            if item_eid not in items:
                 logging.warn("Item with external_id %s does not exist!" % item_eid)
             else:
                 users_ids = []
-                for user_eid, is_dropped in user_inv:
-                    user_id = users[user_eid].pk
-                    inventory[item_id, user_id] = Inventory(item_id=item_id, user_id=user_id, is_dropped=is_dropped)
-                    users_ids.append(user_id)
-                inventory_query = inventory_query | Q(item_id=item_id, user_id__in=users_ids)
+                for user_eid in user_inv:
+                    inventory[item_eid, user_eid] = Inventory(item_id=item_eid, user_id=user_eid)
+                    users_ids.append(user_eid)
+                inventory_query = inventory_query | Q(item_id=item_eid, user_id__in=users_ids)
         if len(inventory_query) > 0:
             to_delete = Q()
             for inv in Inventory.objects.filter(inventory_query):

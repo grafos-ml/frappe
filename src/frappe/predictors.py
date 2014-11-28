@@ -80,13 +80,13 @@ class PopularityPredictor(IPredictor):
         return self.model
 
     def train(self, *args, **kwargs):
-        columns = ["user", "item", "item_id"]
-        ivs = Inventory.objects.all().values_list("user__external_id", "item__external_id", "item_id")
+        columns = ["user", "item"]
+        ivs = Inventory.objects.all().values_list("user_id", "item_id")
         inventory = pd.DataFrame(dict(zip(columns, zip(*ivs))))
         data_map = inventory["item"].unique()
         Popularity.get_counts = lambda self: self._counts
 
-        algorithm = Popularity(*args, **kwargs)
+        algorithm = Popularity(normalize=False, *args, **kwargs)
         algorithm.fit(inventory)
         # Save to database
         data = {}
@@ -155,11 +155,9 @@ class TensorCoFiPredictor(IPredictor):
         algorithm.fit(self.get_training())
 
         # Saving to the database
-        users_ids = {user_eid: user_id for user_eid, i, user_id, i in self.__inventory__}
         to_save = []
         for user_eid, umid in algorithm.data_map["user"].iteritems():
-            user_id = users_ids[user_eid]
-            to_save.append(UserFactors(user_id=user_id, array=algorithm.factors[0][umid]))
+            to_save.append(UserFactors(user_id=user_eid, array=algorithm.factors[0][umid]))
         try:
             UserFactors.objects.bulk_create(to_save)
         except OperationalError:
