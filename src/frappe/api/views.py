@@ -61,3 +61,15 @@ class RecommendationAPI(APIView):
         recommendation = module.predict_scores(user, int(recommendation_size))
         logger.recommendation(module, user, recommendation)
         return Response({"user": user_eid, "recommendations": recommendation})
+
+
+class ItemAPI(APIView):
+    """
+    Api for items in system
+    """
+
+    renderer_classes = [JSONRenderer]
+    http_method_names = [
+        "get"
+    ]
+    content_negotiation_class = IgnoreClientContentNegotiation
