@@ -23,9 +23,10 @@ os.environ.setdefault("FRAPPE_TEST", "1")
 UNIT_OPTS = [
     "tests/unit/",
     "--with-doctest",
-    "recommendation/util.py",
-    "recommendation/core.py",
-    "recommendation/models.py"
+    "frappe/core.py",
+    "frappe/decorators.py",
+    "frappe/predictors.py",
+    "frappe/models"
 ]
 INTEGRATION_OPTS = ["tests/integration/"]
 
@@ -34,18 +35,18 @@ def main():
     opts = docopt(__doc__, version="Frappé tests 1.0")
     if opts["--travis"]:
         os.environ.setdefault("REUSE_DB", "1")
-    if os.environ["TRAVIS_BRANCH"] == "master":
-        opts["--integration"] = True
-    opts["--unit"] = True
+        if os.environ["TRAVIS_BRANCH"] == "master":
+            opts["--integration"] = True
+        opts["--unit"] = True
     if opts["--all"]:
         opts["--integration"] = opts["--unit"] = True
     sys.argv = sys.argv[:1]
     OPTIONS = []
     if opts["--unit"]:
-        os.environ["DJANGO_SETTINGS_MODULE"] = "recommendation.settings.unit.settings"
+        os.environ["DJANGO_SETTINGS_MODULE"] = "frappe.settings.unit.settings"
     OPTIONS += UNIT_OPTS
     if opts["--integration"]:
-        os.environ["DJANGO_SETTINGS_MODULE"] = "recommendation.settings.integration.settings"
+        os.environ["DJANGO_SETTINGS_MODULE"] = "frappe.settings.integration.settings"
     OPTIONS += INTEGRATION_OPTS
     import django
     if django.VERSION > (1, 6):

@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-frappe - recommendation.settings.integration
+frappe - frappe.settings.integration
 joaonrb, 26 November 2014
 
 Documentation TODO
 """
 
 from __future__ import division, absolute_import, print_function
-# The remaining imports here
+from frappe.settings.integration import settings
 
 __author__ = "joaonrb"
 

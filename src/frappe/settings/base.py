@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-frappe - recommendation.settings
+frappe - frappe.settings
 joaonrb, 26 November 2014
 
-Django base recommendation.settings for frappe project.
+Django base settings for frappe project.
 
-For the full list of recommendation.settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/recommendation.settings/
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 from __future__ import division, absolute_import, print_function
@@ -18,9 +18,9 @@ __author__ = "joaonrb"
 
 SECRET_KEY = "v_7*)d&6w-td^-_)b!w*gd(aflalbzjcbu)4%hqh4$zrp4y_&o"
 
-DEBUG = False
+DEBUG = True
 
-TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -28,6 +28,16 @@ ALLOWED_HOSTS = ["*"]
 # Applications
 
 INSTALLED_APPS = (
+    # Django apps
+    "django.contrib.admin",
+    "django.contrib.sites",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+
+    # Apps for Frappé
     "corsheaders",
     "rest_framework",
     "health_check",
@@ -38,13 +48,19 @@ INSTALLED_APPS = (
     "frappe.api",
     "frappe.tools.region",
     "frappe.tools.logger",
-    "frappe.tools.diversity"
+    "frappe.tools.diversity",
     "raven.contrib.django",
 )
 
 
 MIDDLEWARE_CLASSES = (
-    "corsheaders.middleware.CorsMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware"
 )
 
 
@@ -58,14 +74,14 @@ WSGI_APPLICATION = "frappe.settings.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/1.7/ref/recommendation.settings/#databases
+# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
 DATABASES = {
     "default": databases.INTEGRATION
 }
 
 # Cache
-# https://docs.djangoproject.com/en/1.7/ref/recommendation.settings/#caches
+# https://docs.djangoproject.com/en/1.7/ref/settings/#caches
 
 CACHES = {
     "default": caches.LOCAL,
@@ -73,7 +89,7 @@ CACHES = {
 }
 
 # Logging
-# https://docs.djangoproject.com/en/1.7/ref/recommendation.settings/#logging
+# https://docs.djangoproject.com/en/1.7/ref/settings/#logging
 
 LOGGING = logs.LOGGING
 
@@ -89,6 +105,11 @@ USE_I18N = False
 USE_L10N = False
 
 USE_TZ = False
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.7/howto/static-files/
+
+STATIC_URL = "/static/"
 
 # Rest Framework Settings
 

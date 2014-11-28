@@ -41,7 +41,7 @@ class Genre(models.Model):
         return self.name
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(timeout=60*60)
     def get_genre_by_id(genre_id):
         """
         Return the genre belonging to that id with and extra attribute: count_items
@@ -51,7 +51,7 @@ class Genre(models.Model):
         return Genre.objects.filter(pk=genre_id).annotate(count_items=Count("items"))[0]
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(timeout=60*60)
     def get_all_genres():
         """
         Get all genres
@@ -96,7 +96,7 @@ class ItemGenre(models.Model):
         return _("%(item)s's %(genre)s") % {"genre": self.type.name, "item": self.item_id}
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_genre_by_item(item_eid):
         """
         Get genres list for a specific item

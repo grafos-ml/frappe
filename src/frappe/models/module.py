@@ -70,7 +70,7 @@ class PythonObject(models.Model):
         return self.identifier
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_object(object_id):
         return PythonObject.objects.get(pk=object_id).obj
 
@@ -101,7 +101,7 @@ class Predictor(models.Model):
         return self.identifier
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_predictor(predictor_id):
         """
         Return the predictor
@@ -109,7 +109,7 @@ class Predictor(models.Model):
         return Predictor.objects.get(pk=predictor_id)
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_class(predictor_id):
         """
         Get this predictor class
@@ -163,7 +163,7 @@ class Module(models.Model):
         return self.identifier
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_module(module_id):
         """
         Return module based on module id
@@ -173,7 +173,7 @@ class Module(models.Model):
         return Module.objects.get(pk=module_id)
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_predictors(module_id):
         """
         Get all predictors for this module
@@ -183,7 +183,7 @@ class Module(models.Model):
         return [pid for pid, in Predictor.objects.filter(modules__id=module_id).values_list("pk")]
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_predictor(module_id, predictor_id):
         """
         Return predictor for this module
@@ -194,12 +194,12 @@ class Module(models.Model):
         return predictor_class.load_predictor(predictor, module)
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_aggregator(module_id):
         return {agg.predictor_id: agg.weight for agg in PredictorWithAggregator.objects.filter(module_id=module_id)}
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_filters(module_id):
         """
         Return a list of filters
@@ -209,7 +209,7 @@ class Module(models.Model):
         return [f.obj.obj for f in Filter.objects.filter(module_id=module_id).order_by("pk")]
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_rerankers(module_id):
         """
         Return a list of filters

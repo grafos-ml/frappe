@@ -11,7 +11,12 @@ python-memcached
 pytz
 six==1.4.1
 uwsgi
+django-health-check
 # For scripts
 docopt
 django-docopt-command
 click
+
+# For logging errors
+mozilla-logger
+raven==5.1.1

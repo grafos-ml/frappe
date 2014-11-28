@@ -53,7 +53,6 @@ class TestItems(TestCase):
         """
         Item.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_get_item_by_external_id(self):
         """
@@ -98,7 +97,6 @@ class TestUser(TestCase):
         Item.objects.all().delete()
         User.objects.all().delete()
         get_cache("default").clear()
-        get_cache("local").clear()
 
     def test_get_item_by_external_id(self):
         """

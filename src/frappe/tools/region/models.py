@@ -36,17 +36,17 @@ class Region(models.Model):
         return self.name
 
     @staticmethod
-    @Cached(cache="local", timeout=60*60)
+    @Cached(timeout=60*60)
     def get_regions(region_id):
         return Region.objects.get(pk=region_id)
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_user_regions(user_id):
         return [region_id for region_id, in UserRegion.objects.filter(user_id=user_id).values_list("region_id")]
 
     @staticmethod
-    @Cached(cache="local")
+    @Cached()
     def get_item_list_by_region(module_id, region_id):
         module = Module.get_module(module_id)
         items = np.zeros((len(module.listed_items)), dtype=np.bool)

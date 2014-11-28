@@ -7,7 +7,7 @@ Unit test recommendation.settings
 """
 
 from __future__ import division, absolute_import, print_function
-from recommendation.settings.base import *
+from frappe.settings.base import *
 
 __author__ = "joaonrb"
 
