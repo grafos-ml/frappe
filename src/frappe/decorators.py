@@ -37,6 +37,12 @@ class Cached(object):
         decorated.cache = self.cache
         decorated.key = lambda *a: "_".join(itertools.chain([function.__name__], map(lambda x: str(x), a)))
         decorated.timeout = self.timeout
+
+        def update(key, obj):
+            decorated.lock_this(  # Use lock if defined in cache decorator
+                decorated.cache.set
+            )(decorated.key(*key), obj, decorated.timeout)
+        decorated.update = update
         return decorated
 
     def reload(self, key, result):
