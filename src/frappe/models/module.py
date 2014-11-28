@@ -183,7 +183,7 @@ class Module(models.Model):
         return [pid for pid, in Predictor.objects.filter(modules__id=module_id).values_list("pk")]
 
     @staticmethod
-    @Cached()
+    @Cached(timeout=60*60*24)
     def get_predictor(module_id, predictor_id):
         """
         Return predictor for this module
@@ -194,12 +194,12 @@ class Module(models.Model):
         return predictor_class.load_predictor(predictor, module)
 
     @staticmethod
-    @Cached()
+    @Cached(timeout=60*60*24)
     def get_aggregator(module_id):
         return {agg.predictor_id: agg.weight for agg in PredictorWithAggregator.objects.filter(module_id=module_id)}
 
     @staticmethod
-    @Cached()
+    @Cached(timeout=60*60*24)
     def get_filters(module_id):
         """
         Return a list of filters
@@ -209,7 +209,7 @@ class Module(models.Model):
         return [f.obj.obj for f in Filter.objects.filter(module_id=module_id).order_by("pk")]
 
     @staticmethod
-    @Cached()
+    @Cached(timeout=60*60*24)
     def get_rerankers(module_id):
         """
         Return a list of filters
