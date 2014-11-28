@@ -5,6 +5,7 @@ Models for Module configuration of frappe system.
 
 from __future__ import division, absolute_import, print_function
 import numpy as np
+import logging
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.db.models.signals import pre_save
@@ -234,10 +235,12 @@ class Module(models.Model):
         :param size: Size of requested recommendation
         :return: A list with recommendation
         """
-        recommendations = {
-            predictor_id: self.get_predictor(self.pk, predictor_id)(user, size)
-            for predictor_id in self.get_predictors(self.pk)
-        }
+        recommendations = {}
+        for predictor_id in self.get_predictors(self.pk):
+            try:
+                recommendations[predictor_id] = self.get_predictor(self.pk, predictor_id)(user, size)
+            except Exception as e:
+                logging.debug("predictor %s failed to deliver result for %s with %s", predictor_id, user, e)
         recommendation = self.aggregate(recommendations)
         for rfilter in self.get_filters(self.pk):
             recommendation = rfilter(self, user, recommendation, size)
