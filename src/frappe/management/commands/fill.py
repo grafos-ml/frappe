@@ -39,7 +39,6 @@ import tarfile
 import json
 import errno
 import shutil
-import click
 import itertools
 from datetime import date, timedelta, datetime
 from django.db.models import Q
@@ -207,36 +206,35 @@ class FillTool(object):
         categories = set([])
         locales = set([])
         regions = {}
-        with click.progressbar(json_items.items(), label="Loading items") as bar:
-            for item_eid, json_item in bar:
-                if item_eid not in items:
-                    try:
-                        name = json_item["name"][json_item["default_locale"]]
-                    except (KeyError, TypeError):
-                        name = json_item.get("name", "NO NAME")
-                    except UnicodeEncodeError as e:
-                        logging.error(e)
-                        name = "NO NAME"
-                    new_items[item_eid] = Item(external_id=item_eid, name=name)
+        for item_eid, json_item in json_items.items():
+            if item_eid not in items:
+                try:
+                    name = json_item["name"][json_item["default_locale"]]
+                except (KeyError, TypeError):
+                    name = json_item.get("name", "NO NAME")
+                except UnicodeEncodeError as e:
+                    logging.error(e)
+                    name = "NO NAME"
+                new_items[item_eid] = Item(external_id=item_eid, name=name)
 
-                # In case of json[self.item_genres_field] = None
-                json_categories = json_item.get(self.item_genres_field, None) or ()
-                if isinstance(json_categories, basestring):
-                    categories.add(json_categories)
-                else:
-                    categories = categories.union(json_item[self.item_genres_field])
+            # In case of json[self.item_genres_field] = None
+            json_categories = json_item.get(self.item_genres_field, None) or ()
+            if isinstance(json_categories, basestring):
+                categories.add(json_categories)
+            else:
+                categories = categories.union(json_item[self.item_genres_field])
 
-                # In case of json[self.item_locales_field] = None
-                json_locales = json_item.get(self.item_locales_field, None) or ()
-                if isinstance(json_locales, basestring):
-                    locales.add(json_locales)
+            # In case of json[self.item_locales_field] = None
+            json_locales = json_item.get(self.item_locales_field, None) or ()
+            if isinstance(json_locales, basestring):
+                locales.add(json_locales)
+            else:
+                locales = locales.union(json_locales)
+            for region in json_item.get("regions", None) or ():
+                if "items" in regions[region["name"]]:
+                    regions[region["name"]]["items"].append(item_eid)
                 else:
-                    locales = locales.union(json_locales)
-                for region in json_item.get("regions", None) or ():
-                    try:
-                        regions[region["name"]]["items"].append(item_eid)
-                    except KeyError:
-                        regions[region["name"]] = {"slug": region["slug"], "items": [item_eid]}
+                    regions[region["name"]] = {"slug": region["slug"], "items": [item_eid]}
         logging.debug("Items ready to be saved")
         Item.objects.bulk_create(new_items.values())
         logging.debug("%d new items saved with bulk_create" % len(new_items))
@@ -247,16 +245,16 @@ class FillTool(object):
             "Size of items and size of objects are different (%d != %d)" % (len(items), len(objects))
 
         if "frappe.tools.diversity" in settings.INSTALLED_APPS:
-            #logging.debug("Preparing genres")
+            logging.debug("Preparing genres")
             db_categories = self.get_genres(categories)
             self.fill_item_genre(objects, items, db_categories)
-            #logging.debug("Genres loaded")
+            logging.debug("Genres loaded")
 
         if "frappe.tools.region" in settings.INSTALLED_APPS:
-            #logging.debug("Preparing languages")
+            logging.debug("Preparing regions")
             db_regions = self.get_regions(regions)
             self.fill_item_region(regions, items, db_regions)
-            #logging.debug("Locales loaded")
+            logging.debug("Regions loaded")
 
     @staticmethod
     def get_genres(genres_names):
@@ -327,15 +325,13 @@ class FillTool(object):
         """
         query_item_regions = Q()
         item_regions = {}
-        with click.progressbar(objects.items(), label="Loading item regions") as bar:
-            for region_eid, item in bar:
-                region_id = regions[region_eid].pk
-                item_regions[region_id] = {
-                    items[item_eid].pk: ItemRegion(region_id=region_id, item_id=items[item_eid].pk)
-                    for item_eid in item["items"]
-                }
-                query_item_regions = query_item_regions | Q(region_id=region_id, item_id__in=item_regions[region_id])
-
+        for region_eid, item in objects.items():
+            region_id = regions[region_eid].pk
+            item_regions[region_id] = {
+                items[item_eid].pk: ItemRegion(region_id=region_id, item_id=items[item_eid].pk)
+                for item_eid in item["items"]
+            }
+            query_item_regions = query_item_regions | Q(region_id=region_id, item_id__in=item_regions[region_id])
         if len(query_item_regions) > 0:
             for item_region in ItemRegion.objects.filter(query_item_regions):
                 del item_regions[item_region.region_id][item_region.item_id]
@@ -362,24 +358,23 @@ class FillTool(object):
         json_users = []
         regions = {}
         langs = {}
-        with click.progressbar(objects, label="Loading users to memory") as bar:
-            for obj in bar:
-                if self.user_file_identifier_field in obj:
-                    user_id = str(obj[self.user_field])
-                    for item in obj.get(self.user_items_field, ()):
-                        item_id = str(item[self.user_item_identifier_field])
-                        user_item = user_id
-                        if item_id in user_item:
-                            user_items[item_id].append(user_item)
-                        else:
-                            user_items[item_id] = [user_item]
-                    size += 1
-                    json_users.append(user_id)
-                    if "region" in obj:
-                        if obj["region"] in regions:
-                            regions[obj["region"]].append(user_id)
-                        else:
-                            regions[obj["region"]] = [user_id]
+        for obj in objects:
+            if self.user_file_identifier_field in obj:
+                user_id = str(obj[self.user_field])
+                for item in obj.get(self.user_items_field, ()):
+                    item_id = str(item[self.user_item_identifier_field])
+                    user_item = user_id
+                    if item_id in user_item:
+                        user_items[item_id].append(user_item)
+                    else:
+                        user_items[item_id] = [user_item]
+                size += 1
+                json_users.append(user_id)
+                if "region" in obj:
+                    if obj["region"] in regions:
+                        regions[obj["region"]].append(user_id)
+                    else:
+                        regions[obj["region"]] = [user_id]
         logging.debug("User loaded from files!")
         users = {user.external_id: user for user in User.objects.filter(external_id__in=json_users)}
         new_users = {}
@@ -403,13 +398,11 @@ class FillTool(object):
         logging.debug("Preparing items")
         items = set(ieid for ieid, in Item.objects.filter(external_id__in=user_items).values_list("external_id"))
         r = range(0, len(user_items), 300)
-        n = len(r)
         user_items = user_items.items()
         user_items = [user_items[i:i+300] for i in r]
-        with click.progressbar(user_items, length=n, label="Load items for user inventory") as bar:
-            for user_item in bar:
-                self.fill_inventory(users, items, user_item)
-                del user_item
+        for user_item in user_items:
+            self.fill_inventory(users, items, user_item)
+            del user_item
         logging.debug("Items loaded")
 
     @staticmethod
@@ -450,18 +443,17 @@ class FillTool(object):
         region_query = Q()
         user_regions = {}
         db_regions = {region.slug: region.pk for region in Region.objects.all()}
-        with click.progressbar(regions.items(), label="Load user regions inventory") as bar:
-            for region, ueis in bar:
-                try:
-                    region_id = db_regions[region]
-                except KeyError:
-                    pass
-                else:
-                    region_query = region_query | Q(region_id=region_id, user_id__in=map(lambda x: users[x].pk, ueis))
-                    user_regions[region_id] = {
-                        users[user_eid]: UserRegion(user_id=users[user_eid].pk, region_id=region_id)
-                        for user_eid in ueis
-                    }
+        for region, ueis in regions.items():
+            try:
+                region_id = db_regions[region]
+            except KeyError:
+                pass
+            else:
+                region_query = region_query | Q(region_id=region_id, user_id__in=map(lambda x: users[x].pk, ueis))
+                user_regions[region_id] = {
+                    users[user_eid]: UserRegion(user_id=users[user_eid].pk, region_id=region_id)
+                    for user_eid in ueis
+                }
         if len(region_query) > 0:
             for ur in UserRegion.objects.filter(region_query):
                 del user_regions[ur.region_id][ur.user_id]
