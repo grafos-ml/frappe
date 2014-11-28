@@ -5,11 +5,8 @@ amd connection between them.
 """
 
 from __future__ import division, absolute_import, print_function
-import click
 from django.db import models
 from django.utils.translation import ugettext as _
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
 from frappe.decorators import Cached
 
 __author__ = "joaonrb"
