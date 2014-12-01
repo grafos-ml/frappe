@@ -5,6 +5,7 @@ amd connection between them.
 """
 
 from __future__ import division, absolute_import, print_function
+import logging
 from django.db import models
 from django.utils.translation import ugettext as _
 from frappe.decorators import Cached
@@ -41,7 +42,8 @@ class Item(models.Model):
     def load_to_cache():
         items = Item.objects.all()
         for item in items:
-            Item.get_item.update((item.external_id,), item)
+            Item.get_item.set((item.external_id,), item)
+        logging.debug("%d items loaded" % len(items))
 
 
 class User(models.Model):
@@ -101,7 +103,8 @@ class User(models.Model):
     def load_to_cache():
         users = User.objects.all()
         for user in users:
-            User.get_user.update((user.external_id,), user)
+            User.get_user.set((user.external_id,), user)
+        logging.debug("%d users loaded" % len(users))
 
 
 class Inventory(models.Model):
@@ -132,4 +135,5 @@ class Inventory(models.Model):
             else:
                 users[user_id] = [item_id]
         for user, items in users.items():
-            User.get_user_items.update((user,), items)
+            User.get_user_items.set((user,), items)
+        logging.debug("%d owned items loaded" % len(inventory))
