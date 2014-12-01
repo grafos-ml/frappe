@@ -9,13 +9,14 @@ The views for the Recommend API.
 
 from __future__ import division, absolute_import, print_function
 from django.core.paginator import Paginator, EmptyPage
+from django.db import transaction, IntegrityError
 from rest_framework.pagination import PaginationSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.negotiation import BaseContentNegotiation
-from frappe.models import User, Inventory
+from frappe.models import Item, User, Inventory
 from frappe.core import RecommendationCore as Core
 from frappe.tools.logger.loggers import DBLogger, NoLogging
 from frappe.api.serializers import UserSerializer
@@ -84,17 +85,44 @@ class UserItemsAPI(APIView):
             per_page = int(request.GET.get("page_size", 20))
             page_no = int(request.GET.get("page", 1))
         except ValueError:
-            return Response({"detail": "Bad request"}, status=400)
+            return Response({"detail": "Bad request."}, status=400)
         objects = tuple(item for item, in Inventory.objects.filter(user_id=user_eid).values_list("item_id"))
         try:
             paginator = Paginator(objects, per_page=per_page)
             page = paginator.page(page_no)
         except EmptyPage:
-            return Response({"detail": "Not found"}, status=403)
+            return Response({"detail": "Not found."}, status=403)
         serializer = PaginationSerializer(instance=page, context={'request': request})
         result = serializer.data
         result["user"] = user_eid
         return Response(result)
+
+    @staticmethod
+    @transaction.atomic
+    def acquire_item(user, item):
+        Inventory.objects.create(user=user, item=item)
+        User.get_user_items.set((user.external_id,), User.get_user_items(user.external_id)+[item.external_id])
+
+    @staticmethod
+    def post(request, user_eid):
+        logger = NoLogging if request.POST.get("nolog", False) else DBLogger
+        try:
+            user = User.get_user(user_eid)
+        except User.DoesNotExist:
+            return Response({"detail": "User with external id %s not found." % user_eid}, status=404)
+        try:
+            item_eid = request.POST.get("item")
+        except KeyError:
+            return Response({"detail": "Missing item parameter."}, status=400)
+        try:
+            item = Item.get_item(item_eid)
+        except Item.DoesNotExist:
+            return Response({"detail": "Item with external id %s not found." % item_eid}, status=404)
+        if item_eid in user.owned_items:
+            return Response({"detail": "User %s already has item %s." % (user_eid, item_eid)})
+        UserItemsAPI.acquire_item(user, item)
+        logger.acquire(user, [item])
+        return Response({"detail": "Done"})
 
 
 ########################################################################################################################

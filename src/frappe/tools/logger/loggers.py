@@ -16,8 +16,9 @@ class ILogger(object):
     def recommendation(self, module, user, recommendation):
         """
         log some event
-        :param args:
-        :param kwargs:
+        :param module:
+        :param user:
+        :param recommendation:
         :return:
         """
 
@@ -25,7 +26,6 @@ class ILogger(object):
     def click(self, user, item):
         """
         Log a click in an item
-        :param module:
         :param user:
         :param item:
         :return:
@@ -35,7 +35,6 @@ class ILogger(object):
     def acquire(self, user, items):
         """
         Log and acquire item
-        :param module:
         :param user:
         :param items:
         :return:
@@ -45,7 +44,6 @@ class ILogger(object):
     def drop(self, user, items):
         """
         Log dropping an item
-        :param module:
         :param user:
         :param items:
         :return:
