@@ -105,13 +105,13 @@ class UserItemsAPI(APIView):
 
     @staticmethod
     def post(request, user_eid):
-        logger = NoLogging if request.POST.get("nolog", False) else DBLogger
+        logger = NoLogging if request.DATA.get("nolog", False) else DBLogger
         try:
             user = User.get_user(user_eid)
         except User.DoesNotExist:
             return Response({"detail": "User with external id %s not found." % user_eid}, status=404)
         try:
-            item_eid = request.POST.get("item")
+            item_eid = request.DATA.get("item")
         except KeyError:
             return Response({"detail": "Missing item parameter."}, status=400)
         try:
