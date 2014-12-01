@@ -283,6 +283,7 @@ class FillTool(object):
                 if name not in regions:
                     new_regions[name] = Region(name=name, slug=slug)
             Region.objects.bulk_create(new_regions.values())
+            logging.debug("%d new regions created" % len(new_regions))
             for region in Region.objects.filter(name__in=new_regions):
                 regions[region.name] = region
         return regions
@@ -307,6 +308,8 @@ class FillTool(object):
             for item_genre in ItemGenre.objects.filter(query_item_genres):
                 del item_genres[item_genre.item_id, item_genre.type_id]
         ItemGenre.objects.bulk_create(item_genres.values())
+        logging.debug("%d new genres created" % len(item_genres))
+
 
     @staticmethod
     def fill_item_region(objects, items, regions):
@@ -327,7 +330,9 @@ class FillTool(object):
         if len(query_item_regions) > 0:
             for item_region in ItemRegion.objects.filter(query_item_regions):
                 del item_regions[item_region.region_id][item_region.item_id]
-        ItemRegion.objects.bulk_create(itertools.chain(*(ir.values() for ir in item_regions.values())))
+        item_regions = itertools.chain(*(ir.values() for ir in item_regions.values()))
+        ItemRegion.objects.bulk_create(item_regions)
+        logging.debug("%d regions added to items" % len(item_regions))
 
     def clean_tmp(self):
         """
@@ -448,7 +453,9 @@ class FillTool(object):
         if len(region_query) > 0:
             for ur in UserRegion.objects.filter(region_query):
                 del user_regions[ur.region_id][ur.user_id]
-        UserRegion.objects.bulk_create(itertools.chain(*(ur.values() for ur in user_regions.values())))
+        user_regions = itertools.chain(*(ur.values() for ur in user_regions.values()))
+        UserRegion.objects.bulk_create(user_regions)
+        logging.debug("%d regions added to users" % len(user_regions))
 
 
 class Command(DocOptCommand):
