@@ -1,6 +1,6 @@
 # -*- encoding=utf-8 -*-
 """
-The locale models moudle. It must contain the locale
+The locale models module. It must contain the locale
 """
 
 from __future__ import division, absolute_import, print_function

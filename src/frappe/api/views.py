@@ -10,11 +10,13 @@ The views for the Recommend API.
 from __future__ import division, absolute_import, print_function
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.negotiation import BaseContentNegotiation
 from frappe.models import User
 from frappe.core import RecommendationCore as Core
 from frappe.tools.logger.loggers import DBLogger, NoLogging
+from frappe.api.serializers import UserSerializer
 
 __author__ = "joaonrb"
 
@@ -63,13 +65,19 @@ class RecommendationAPI(APIView):
         return Response({"user": user_eid, "recommendations": recommendation})
 
 
-class ItemAPI(APIView):
+class UserListAPI(ListAPIView):
     """
-    Api for items in system
+    Api for list users in system
     """
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    paginate_by = 20
+    paginate_by_param = "page_size"
+    max_paginate_by = 100
 
     renderer_classes = [JSONRenderer]
     http_method_names = [
-        "get"
+        "get",
     ]
     content_negotiation_class = IgnoreClientContentNegotiation
