@@ -88,7 +88,7 @@ class User(models.Model):
         """
         return {
             item_id: Item.get_item(item_id)
-            for item_id in User.get_user_items(self.pk)
+            for item_id in User.get_user_items(self.external_id)
         }
 
     def has_more_than(self, n):
