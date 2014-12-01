@@ -4,7 +4,7 @@ The locale models moudle. It must contain the locale
 """
 
 from __future__ import division, absolute_import, print_function
-import click
+import logging
 from django.db import models
 from django.utils.translation import ugettext as _
 import numpy as np
@@ -42,47 +42,25 @@ class Region(models.Model):
 
     @staticmethod
     @Cached()
-    def get_user_regions(user_id):
-        return [region_id for region_id, in UserRegion.objects.filter(user_id=user_id).values_list("region_id")]
+    def get_user_regions(user_eid):
+        return [region_id for region_id, in UserRegion.objects.filter(user_id=user_eid).values_list("region_id")]
 
     @staticmethod
     @Cached()
     def get_item_list_by_region(module_id, region_id):
         module = Module.get_module(module_id)
-        items = np.zeros((len(module.listed_items)), dtype=np.bool)
+        items = np.zeros((len(module.listed_items)), dtype=np.bool)  # When sum to a number array bool array is 1 and 0
         for item_id, in ItemRegion.objects.filter(region_id=region_id).values_list("item_id"):
-            items[module.items_index[Item.get_item_external_id_by_id(item_id)]] = True
+            items[module.items_index[item_id]] = True
         return items
 
     @staticmethod
     def load_to_cache():
-        with click.progressbar(Region.objects.all(), label="Loading regions to cache") as bar:
-            for region in bar:
-                Region.get_regions.lock_this(
-                    Region.get_regions.cache.set
-                )(Region.get_regions.key(region.pk), region, Region.get_regions.timeout)
-        users = {}
-        with click.progressbar(UserRegion.objects.all().values_list("user_id", "region_id"),
-                               label="Loading user regions to cache") as bar:
-            for user_id, region_id in bar:
-                try:
-                    users[user_id].append(region_id)
-                except KeyError:
-                    users[user_id] = [region_id]
-            for user, regions in users.items():
-                Region.get_user_regions.lock_this(
-                    Region.get_user_regions.cache.set
-                )(Region.get_user_regions.key(user), regions, Region.get_user_regions.timeout)
-        items = np.zeros((Region.objects.aggregate(max=models.Max("pk"))["max"],
-                          Item.objects.aggregate(max=models.Max("pk"))["max"]))
-        with click.progressbar(ItemRegion.objects.all().values_list("item_id", "region_id"),
-                               label="Loading item regions to cache") as bar:
-            for item_id, region_id in bar:
-                items[region_id-1, item_id-1] = 1
-        for i in range(items.shape[0]):
-            Region.get_item_list_by_region.lock_this(
-                Region.get_item_list_by_region.cache.set
-            )(Region.get_item_list_by_region.key(i+1), items[i, :], Region.get_item_list_by_region.timeout)
+        regions = Region.objects.all()
+        for region in regions:
+            Region.get_regions.set(region.pk, region)
+            logging.debug("Region %s loaded to cache" % region.name)
+        logging.debug("%d regions loaded" % len(regions))
 
 
 class UserRegion(models.Model):
@@ -90,7 +68,7 @@ class UserRegion(models.Model):
     User regions
     """
 
-    user = models.ForeignKey(User, verbose_name=_("user"), related_name="regions")
+    user = models.ForeignKey(User, verbose_name=_("user"), related_name="regions", to_field="external_id")
     region = models.ForeignKey(Region, verbose_name=_("region"))
 
     class Meta:
@@ -99,10 +77,22 @@ class UserRegion(models.Model):
         unique_together = ("user", "region")
 
     def __str__(self):
-        return "%s for %s" % (self.region, self.user)
+        return "%s for %s" % (self.region, self.user_id)
 
     def __unicode__(self):
-        return u"%s for %s" % (self.region, self.user)
+        return u"%s for %s" % (self.region, self.user_id)
+
+    @staticmethod
+    def load_to_cache():
+        users = {}
+        for user_id, region_id in UserRegion.objects.all().values_list("user_id", "region_id"):
+            if user_id in users:
+                users[user_id].append(region_id)
+            else:
+                users[user_id] = [region_id]
+        for user_eid, regions in users.items():
+            Region.get_user_regions.set((user_eid,), regions)
+        logging.debug("%d regions loaded to users" % len(users))
 
 
 class ItemRegion(models.Model):
@@ -110,7 +100,7 @@ class ItemRegion(models.Model):
     User regions
     """
 
-    item = models.ForeignKey(Item, verbose_name=_("item"), related_name="regions")
+    item = models.ForeignKey(Item, verbose_name=_("item"), related_name="regions", to_field="external_id")
     region = models.ForeignKey(Region, verbose_name=_("region"))
 
     class Meta:
@@ -119,10 +109,10 @@ class ItemRegion(models.Model):
         unique_together = ("item", "region")
 
     def __str__(self):
-        return "%s for %s" % (self.region, self.item)
+        return "%s for %s" % (self.region, self.item_id)
 
     def __unicode__(self):
-        return u"%s for %s" % (self.region, self.item)
+        return u"%s for %s" % (self.region, self.item_id)
 
 from django.contrib import admin
 admin.site.register([Region, ItemRegion, UserRegion])

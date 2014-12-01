@@ -21,9 +21,9 @@ class SimpleRegionFilter(object):
         """
         Call the filter
         """
-        user_regions = tuple(Region.get_item_list_by_region(module.pk, region)
-                             for region in Region.get_user_regions(user.pk))
-        if len(user_regions) > 0:
+        user_regions = tuple(Region.get_item_list_by_region(module.pk, region) for region in Region.get_user_regions(
+            user.external_id))
+        if len(user_regions):
             # Turns a array of boolean to an array of integer with the items with no region connection with -1000
             recommendation += ((np.sum(user_regions, axis=0)-1)*1000)
         return recommendation
