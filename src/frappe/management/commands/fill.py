@@ -204,7 +204,6 @@ class FillTool(object):
         items = {item.external_id: item for item in Item.objects.filter(external_id__in=json_items.keys())}
         new_items = {}
         categories = set([])
-        locales = set([])
         regions = {}
         for item_eid, json_item in json_items.items():
             if item_eid not in items:
@@ -224,14 +223,8 @@ class FillTool(object):
             else:
                 categories = categories.union(json_item[self.item_genres_field])
 
-            # In case of json[self.item_locales_field] = None
-            json_locales = json_item.get(self.item_locales_field, None) or ()
-            if isinstance(json_locales, basestring):
-                locales.add(json_locales)
-            else:
-                locales = locales.union(json_locales)
             for region in json_item.get("regions", None) or ():
-                if "items" in regions[region["name"]]:
+                if region["name"] in regions:
                     regions[region["name"]]["items"].append(item_eid)
                 else:
                     regions[region["name"]] = {"slug": region["slug"], "items": [item_eid]}
@@ -325,11 +318,10 @@ class FillTool(object):
         """
         query_item_regions = Q()
         item_regions = {}
-        for region_eid, item in objects.items():
-            region_id = regions[region_eid].pk
+        for region_slug, item in objects.items():
+            region_id = regions[region_slug].pk
             item_regions[region_id] = {
-                items[item_eid].pk: ItemRegion(region_id=region_id, item_id=items[item_eid].pk)
-                for item_eid in item["items"]
+                item_eid: ItemRegion(region_id=region_id, item_id=item_eid) for item_eid in item["items"]
             }
             query_item_regions = query_item_regions | Q(region_id=region_id, item_id__in=item_regions[region_id])
         if len(query_item_regions) > 0:
@@ -357,7 +349,6 @@ class FillTool(object):
         user_items = {}
         json_users = []
         regions = {}
-        langs = {}
         for obj in objects:
             if self.user_file_identifier_field in obj:
                 user_id = str(obj[self.user_field])
@@ -392,7 +383,7 @@ class FillTool(object):
             "Size of loaded objects and users in db is not the same (%d != %d)" % (len(users), size)
 
         if "frappe.language" in settings.INSTALLED_APPS:
-            self.fill_user_locale(users, regions, langs)
+            self.fill_user_locale(users, regions)
         logging.debug("%d new users saved with bulk_create" % len(new_users))
 
         logging.debug("Preparing items")
@@ -439,7 +430,7 @@ class FillTool(object):
         Inventory.objects.bulk_create(inventory.values())
 
     @staticmethod
-    def fill_user_locale(users, regions, langs):
+    def fill_user_locale(users, regions):
         region_query = Q()
         user_regions = {}
         db_regions = {region.slug: region.pk for region in Region.objects.all()}
@@ -449,9 +440,9 @@ class FillTool(object):
             except KeyError:
                 pass
             else:
-                region_query = region_query | Q(region_id=region_id, user_id__in=map(lambda x: users[x].pk, ueis))
+                region_query = region_query | Q(region_id=region_id, user_id__in=ueis)
                 user_regions[region_id] = {
-                    users[user_eid]: UserRegion(user_id=users[user_eid].pk, region_id=region_id)
+                    users[user_eid]: UserRegion(user_id=user_eid, region_id=region_id)
                     for user_eid in ueis
                 }
         if len(region_query) > 0:
