@@ -89,6 +89,7 @@ class TestUser(TestCase):
                 Inventory.objects.create(user=user, item_id=item)
         Item.load_to_cache()
         User.load_to_cache()
+        Inventory.load_to_cache()
 
     @classmethod
     def teardown_class(cls, *args, **kwargs):
@@ -114,7 +115,8 @@ class TestUser(TestCase):
         """
         [frappe base models User] Test user items
         """
-        for u in USERS:
-            user = User.get_user(u["external_id"])
-            for i in u["items"]:
-                assert i in user.owned_items, "Item %s is not in user %s" % (i, user.external_id)
+        with self.assertNumQueries(0):
+            for u in USERS:
+                user = User.get_user(u["external_id"])
+                for i in u["items"]:
+                    assert i in user.owned_items, "Item %s is not in user %s" % (i, user.external_id)
