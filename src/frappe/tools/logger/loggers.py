@@ -22,7 +22,7 @@ class ILogger(object):
         """
 
     @abstractmethod
-    def click(self, module, user, item):
+    def click(self, user, item):
         """
         Log a click in an item
         :param module:
@@ -32,7 +32,7 @@ class ILogger(object):
         """
 
     @abstractmethod
-    def acquire(self, module, user, items):
+    def acquire(self, user, items):
         """
         Log and acquire item
         :param module:
@@ -42,7 +42,7 @@ class ILogger(object):
         """
 
     @abstractmethod
-    def drop(self, module, user, items):
+    def drop(self, user, items):
         """
         Log dropping an item
         :param module:
@@ -68,15 +68,15 @@ class NoLogging(ILogger):
         pass
 
     @classmethod
-    def click(cls, module, user, item):
+    def click(cls, user, item):
         pass
 
     @classmethod
-    def acquire(cls, module, user, items):
+    def acquire(cls, user, items):
         pass
 
     @classmethod
-    def drop(cls, module, user, items):
+    def drop(cls, user, items):
         pass
 
     def __str__(self):
@@ -91,7 +91,7 @@ class DBLogger(ILogger):
     @staticmethod
     def bulk_logging(log_type, module, user, items):
         new_logs = [
-            LogEntry(user=user, item_id=eid, type=log_type, source=module.identifier, value=i)
+            LogEntry(user=user, item_id=eid, type=log_type, source=module, value=i)
             for i, eid in enumerate(items, start=1)
         ]
         LogEntry.objects.bulk_create(new_logs)
@@ -99,20 +99,20 @@ class DBLogger(ILogger):
 
     @classmethod
     def recommendation(cls, module, user, recommendation):
-        cls.bulk_logging(LogEntry.RECOMMEND, module, user, recommendation)
+        cls.bulk_logging(LogEntry.RECOMMEND, module.identifier, user, recommendation)
 
     @classmethod
-    def click(cls, module, user, item):
-        log = LogEntry.objects.create(user=user, item_id=item, type=LogEntry.CLICK, source=module.identifier)
+    def click(cls, user, item):
+        log = LogEntry.objects.create(user=user, item_id=item, type=LogEntry.CLICK, source="NOMODULE")
         LogEntry.add_logs(user, (log,))
 
     @classmethod
-    def acquire(cls, module, user, items):
-        cls.bulk_logging(LogEntry.ACQUIRE, module, user, items)
+    def acquire(cls, user, items):
+        cls.bulk_logging(LogEntry.ACQUIRE, "NOMODULE", user, items)
 
     @classmethod
-    def drop(cls, module, user, items):
-        cls.bulk_logging(LogEntry.DROP, module, user, items)
+    def drop(cls, user, items):
+        cls.bulk_logging(LogEntry.DROP, "NOMODULE", user, items)
 
     def __str__(self):
         return "database logging"
