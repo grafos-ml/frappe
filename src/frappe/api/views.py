@@ -8,12 +8,14 @@ The views for the Recommend API.
 """
 
 from __future__ import division, absolute_import, print_function
+from django.core.paginator import Paginator, EmptyPage
+from rest_framework.pagination import PaginationSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.negotiation import BaseContentNegotiation
-from frappe.models import User
+from frappe.models import User, Inventory
 from frappe.core import RecommendationCore as Core
 from frappe.tools.logger.loggers import DBLogger, NoLogging
 from frappe.api.serializers import UserSerializer
@@ -65,6 +67,40 @@ class RecommendationAPI(APIView):
         return Response({"user": user_eid, "recommendations": recommendation})
 
 
+class UserItemsAPI(APIView):
+
+    renderer_classes = [JSONRenderer]
+    http_method_names = [
+        "get",
+        "post",
+        "put",
+        "delete"
+    ]
+    content_negotiation_class = IgnoreClientContentNegotiation
+
+    @staticmethod
+    def get(request, user_eid):
+        try:
+            per_page = int(request.GET.get("page_size", 20))
+            page_no = int(request.GET.get("page", 1))
+        except ValueError:
+            return Response({"detail": "Bad request"}, status=400)
+        objects = tuple(item for item, in Inventory.objects.filter(user_id=user_eid).values_list("item_id"))
+        try:
+            paginator = Paginator(objects, per_page=per_page)
+            page = paginator.page(page_no)
+        except EmptyPage:
+            return Response({"detail": "Not found"}, status=403)
+        serializer = PaginationSerializer(instance=page, context={'request': request})
+        result = serializer.data
+        result["user"] = user_eid
+        return Response(result)
+
+
+########################################################################################################################
+####################################################### Util API #######################################################
+########################################################################################################################
+
 class UserListAPI(ListAPIView):
     """
     Api for list users in system
@@ -81,3 +117,4 @@ class UserListAPI(ListAPIView):
         "get",
     ]
     content_negotiation_class = IgnoreClientContentNegotiation
+
