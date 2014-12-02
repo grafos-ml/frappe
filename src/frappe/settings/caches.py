@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#! -*- coding: utf-8 -*-
 """
 frappe - recommendation.settings
 joaonrb, 26 November 2014

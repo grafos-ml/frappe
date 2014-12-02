@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#! -*- coding: utf-8 -*-
 """
 frappe - frappe.cache
 joaonrb, 28 November 2014

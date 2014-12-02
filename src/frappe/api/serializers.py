@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#! -*- coding: utf-8 -*-
 """
 frappe - frappe.api
 joaonrb, 01 December 2014

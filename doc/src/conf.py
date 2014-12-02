@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#! -*- coding: utf-8 -*-
 #
 # FireFox OS Store documentation build configuration file, created by
 # sphinx-quickstart on Wed Nov 27 14:55:25 2013.

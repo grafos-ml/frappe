@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#! -*- coding: utf-8 -*-
 """
 .. module:: ffos.recommendation.api.urls
     :platform: Unix, Windows

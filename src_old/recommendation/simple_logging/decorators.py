@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#! -*- coding: utf-8 -*-
 """
 A decorator to register events into log. Created on Fev 11, 2014
 
