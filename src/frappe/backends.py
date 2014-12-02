@@ -39,3 +39,16 @@ class CheckOwnedItemsCacheBackend(BaseHealthCheckBackend):
             return True
         except InvalidCacheBackendError:
             raise ServiceUnavailable("Owned_items Cache unavailable")
+
+
+class CheckModuleCacheBackend(BaseHealthCheckBackend):
+
+    def check_status(self):
+        try:
+            cache = get_cache("module")
+            cache.set("health", True)
+            if not cache.get("health"):
+                raise ServiceUnavailable("Module Cache not storing values")
+            return True
+        except InvalidCacheBackendError:
+            raise ServiceUnavailable("Module Cache unavailable")

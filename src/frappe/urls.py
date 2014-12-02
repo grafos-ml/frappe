@@ -1,12 +1,13 @@
 #! -*- coding: utf-8 -*-
 from django.conf.urls import patterns, include, url
 from health_check.plugins import plugin_dir
-from frappe.backends import CheckDefaultCacheBackend, CheckOwnedItemsCacheBackend
+from frappe.backends import CheckDefaultCacheBackend, CheckOwnedItemsCacheBackend, CheckModuleCacheBackend
 from django.contrib import admin
 admin.autodiscover()
 
 plugin_dir.register(CheckDefaultCacheBackend)
 plugin_dir.register(CheckOwnedItemsCacheBackend)
+plugin_dir.register(CheckModuleCacheBackend)
 
 urlpatterns = patterns(
     "",
