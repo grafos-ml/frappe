@@ -96,7 +96,7 @@ class LogEntry(models.Model):
         """
         Load a single user to cache
         """
-        LogEntry.get_logs_for.set((user.pk,),
+        LogEntry.get_logs_for.set((user.external_id,),
                                   list(LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]))
 
     @staticmethod

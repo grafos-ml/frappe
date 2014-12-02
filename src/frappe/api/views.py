@@ -135,7 +135,7 @@ class UserItemsAPI(APIView):
             except Item.DoesNotExist:
                 logging.debug("Can't add item %s to user %s (may not exist in db)" % (user.external_id, item))
         Inventory.objects.bulk_create(inventory)
-        User.get_user_items.set((user.external_id,), items)
+        User.get_user_items.set((user.external_id,), len(user.owned_items))
         UserFactors.drop_factors(user.external_id)
         return inventory
 
@@ -160,6 +160,7 @@ class UserItemsAPI(APIView):
     @staticmethod
     def drop_item(user, item):
         Inventory.objects.filter(user=user, item=item).delete()
+
         User.get_user_items.set((user.external_id,), User.get_user_items(user.external_id)+[item.external_id])
 
     @staticmethod
@@ -179,6 +180,33 @@ class UserItemsAPI(APIView):
             return Response({"detail": "Item with external id %s not found." % item_eid}, status=404)
         UserItemsAPI.drop_item(user, item)
         logger.drop(user, [item])
+        return Response({"detail": "Done"})
+
+
+class ClickAPI(APIView):
+
+    renderer_classes = [JSONRenderer]
+    http_method_names = [
+        "post",
+    ]
+    content_negotiation_class = IgnoreClientContentNegotiation
+
+    @staticmethod
+    def get(request, user_eid):
+        logger = NoLogging if request.DATA.get("nolog", False) else DBLogger
+        try:
+            user = User.get_user(user_eid)
+        except User.DoesNotExist:
+            return Response({"detail": "User with external id %s not found." % user_eid}, status=404)
+        try:
+            item_eid = request.DATA.get("item")
+        except KeyError:
+            return Response({"detail": "Missing item parameter."}, status=400)
+        try:
+            item = Item.get_item(item_eid)
+        except Item.DoesNotExist:
+            return Response({"detail": "Item with external id %s not found." % item_eid}, status=404)
+        logger.click(user, item)
         return Response({"detail": "Done"})
 
 # #################################################################################################################### #
