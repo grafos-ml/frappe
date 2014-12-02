@@ -42,14 +42,18 @@ class UserFactors(models.Model):
         """
         return UserFactors.objects.get(user_id=user_id)
 
+    @staticmethod
+    def drop_factors(user_eid):
+        UserFactors.objects.filter(user_id=user_eid).delete()
+        UserFactors.get_user_factors.set((user_eid,), None)
+
 
 @receiver(post_save, sender=Inventory)
 def reset_user_factors_on_save(sender, instance, created, raw, using, update_fields, *args, **kwargs):
     """
     Reset user factors when
     """
-    UserFactors.objects.filter(user_id=instance.user_id).delete()
-    UserFactors.get_user_factors.set((instance.user_id,), None)
+    UserFactors.drop_factors(instance.user_id)
 
 
 @receiver(post_delete, sender=Inventory)
@@ -57,5 +61,4 @@ def reset_user_factors_on_delete(sender, instance, using, **kwargs):
     """
     Reset user factors when
     """
-    UserFactors.objects.filter(user_id=instance.user_id).delete()
-    UserFactors.get_user_factors.set((instance.user_id,), None)
+    UserFactors.drop_factors(instance.user_id)

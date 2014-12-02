@@ -8,15 +8,16 @@ The views for the Recommend API.
 """
 
 from __future__ import division, absolute_import, print_function
+import logging
 from django.core.paginator import Paginator, EmptyPage
-from django.db import transaction, IntegrityError
+from django.db import transaction
 from rest_framework.pagination import PaginationSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.negotiation import BaseContentNegotiation
-from frappe.models import Item, User, Inventory
+from frappe.models import Item, User, Inventory, UserFactors
 from frappe.core import RecommendationCore as Core
 from frappe.tools.logger.loggers import DBLogger, NoLogging
 from frappe.api.serializers import UserSerializer
@@ -98,7 +99,6 @@ class UserItemsAPI(APIView):
         return Response(result)
 
     @staticmethod
-    @transaction.atomic
     def acquire_item(user, item):
         Inventory.objects.create(user=user, item=item)
         User.get_user_items.set((user.external_id,), User.get_user_items(user.external_id)+[item.external_id])
@@ -124,10 +124,43 @@ class UserItemsAPI(APIView):
         logger.acquire(user, [item])
         return Response({"detail": "Done"})
 
+    @staticmethod
+    @transaction.atomic
+    def acquire_items(user, items):
+        Inventory.objects.filter(user=user).delete()
+        inventory = []
+        for item in items:
+            try:
+                inventory.append(Inventory(user=user, item=Item.get_item(item)))
+            except Item.DoesNotExist:
+                logging.debug("Can't add item %s to user %s (may not exist in db)" % (user.external_id, item))
+        Inventory.objects.bulk_create(inventory)
+        User.get_user_items.set((user.external_id,), items)
+        UserFactors.drop_factors(user.external_id)
+        return inventory
 
-########################################################################################################################
-####################################################### Util API #######################################################
-########################################################################################################################
+    @staticmethod
+    def put(request, user_eid):
+        logger = NoLogging if request.DATA.get("nolog", False) else DBLogger
+        try:
+            user = User.get_user(user_eid)
+        except User.DoesNotExist:
+            return Response({"detail": "User with external id %s not found." % user_eid}, status=404)
+        try:
+            items = request.DATA.get("items")
+        except KeyError:
+            return Response({"detail": "Missing items parameter."}, status=400)
+        inventory = UserItemsAPI.acquire_items(user, items)
+
+        # Don't log removed items
+        logger.acquire(user, [entry.item_id for entry in inventory])
+        logging.debug("Deleted items were not logged on update user %s" % user_eid)
+        return Response({"detail": "Done"})
+
+
+# #################################################################################################################### #
+# ###################################################### Util API #################################################### #
+# #################################################################################################################### #
 
 class UserListAPI(ListAPIView):
     """
