@@ -13,17 +13,17 @@
     "filters": [
         {
             "identifier": "Filter Owned",
-            "class": "frappe.tools.filter_owned_items.FilterOwnedItems"
+            "class": "frappe.contrib.filter_owned_items.FilterOwnedItems"
         },
         {
             "identifier": "Filter Region",
-            "class": "frappe.tools.region.SimpleRegionFilter"
+            "class": "frappe.contrib.region.SimpleRegionFilter"
         }
     ],
     "rerankers": [
         {
             "identifier": "Diversity Re-Ranker",
-            "class": "frappe.tools.diversity.SimpleDiversityReRanker",
+            "class": "frappe.contrib.diversity.SimpleDiversityReRanker",
             "kwargs": {
                 "alpha_constant": 0.8,
                 "lambda_constant": 1.0
@@ -31,7 +31,7 @@
         },
         {
             "identifier": "Log Re-Ranker",
-            "class": "frappe.tools.logger.DummyLogReRanker"
+            "class": "frappe.contrib.logger.DummyLogReRanker"
         }
     ]
 }

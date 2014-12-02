@@ -37,9 +37,9 @@ INSTALLED_APPS = (
     "health_check_storage",
     "frappe",
     "frappe.api",
-    "frappe.tools.region",
-    "frappe.tools.logger",
-    "frappe.tools.diversity",
+    "frappe.contrib.region",
+    "frappe.contrib.logger",
+    "frappe.contrib.diversity",
     "raven.contrib.django",
 )
 

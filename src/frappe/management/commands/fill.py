@@ -45,8 +45,8 @@ from django.db.models import Q
 from django_docopt_command import DocOptCommand
 from django.conf import settings
 from frappe.models import Item, User, Inventory
-from frappe.tools.diversity.models import Genre, ItemGenre
-from frappe.tools.region.models import Region, ItemRegion, UserRegion
+from frappe.contrib.diversity.models import Genre, ItemGenre
+from frappe.contrib.region.models import Region, ItemRegion, UserRegion
 
 
 MOZILLA_DEV_ITEMS_API = "https://marketplace-dev-cdn.allizom.org/dumped-apps/tarballs/%Y-%m-%d.tgz"
@@ -237,13 +237,13 @@ class FillTool(object):
         assert len(items) == len(objects), \
             "Size of items and size of objects are different (%d != %d)" % (len(items), len(objects))
 
-        if "frappe.tools.diversity" in settings.INSTALLED_APPS:
+        if "frappe.contrib.diversity" in settings.INSTALLED_APPS:
             logging.debug("Preparing genres")
             db_categories = self.get_genres(categories)
             self.fill_item_genre(objects, items, db_categories)
             logging.debug("Genres loaded")
 
-        if "frappe.tools.region" in settings.INSTALLED_APPS:
+        if "frappe.contrib.region" in settings.INSTALLED_APPS:
             logging.debug("Preparing regions")
             db_regions = self.get_regions(regions)
             self.fill_item_region(regions, items, db_regions)
@@ -310,13 +310,13 @@ class FillTool(object):
         ItemGenre.objects.bulk_create(item_genres.values())
         logging.debug("%d new genres created" % len(item_genres))
 
-
     @staticmethod
     def fill_item_region(objects, items, regions):
         """
         Fill item locales connection
+        :param objects:
         :param items:
-        :param locales:
+        :param regions:
         :return:
         """
         query_item_regions = Q()
@@ -330,7 +330,7 @@ class FillTool(object):
         if len(query_item_regions) > 0:
             for item_region in ItemRegion.objects.filter(query_item_regions):
                 del item_regions[item_region.region_id][item_region.item_id]
-        item_regions = itertools.chain(*(ir.values() for ir in item_regions.values()))
+        item_regions = tuple(itertools.chain(*(ir.values() for ir in item_regions.values())))
         ItemRegion.objects.bulk_create(item_regions)
         logging.debug("%d regions added to items" % len(item_regions))
 

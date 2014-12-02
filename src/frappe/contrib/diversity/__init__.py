@@ -10,7 +10,7 @@ Implementation of the simple diversity for
 
 from __future__ import division, absolute_import, print_function
 import numpy as np
-from frappe.tools.diversity.models import Genre, ItemGenre
+from frappe.contrib.diversity.models import Genre, ItemGenre
 
 __author__ = "joaonrb"
 
@@ -110,12 +110,12 @@ class SimpleDiversityReRanker(object):
                 index += 1
             else:
                 dropped_items.append(item)
-        #for item_id in recommendation:
-        #    if diversity(new_recommendation, item_id):
-        #        new_recommendation.append(item_id)
-        #    else:
-        #        dropped_items.append(item_id)
-        #    if len(new_recommendation) > size:
-        #        break
+        # for item_id in recommendation:
+        #     if diversity(new_recommendation, item_id):
+        #         new_recommendation.append(item_id)
+        #     else:
+        #         dropped_items.append(item_id)
+        #     if len(new_recommendation) > size:
+        #         break
         return np.concatenate((new_recommendation, dropped_items,
                                recommendation[index+len(dropped_items):])).astype(recommendation.dtype)

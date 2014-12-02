@@ -8,7 +8,7 @@ Log based re-ranker. I reads the logs from this user and re-rank items from the 
 
 from __future__ import division, absolute_import, print_function
 import numpy as np
-from frappe.tools.logger.models import LogEntry
+from frappe.contrib.logger.models import LogEntry
 
 __author__ = "joaonrb"
 

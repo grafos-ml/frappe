@@ -96,20 +96,15 @@ class LogEntry(models.Model):
         """
         Load a single user to cache
         """
-        LogEntry.get_logs_for.lock_this(
-            LogEntry.get_logs_for.cache.set
-        )(LogEntry.get_logs_for.key % user.pk,
-          list(LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]),
-          LogEntry.get_logs_for.timeout)
+        LogEntry.get_logs_for.set((user.pk,),
+                                  list(LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]))
 
     @staticmethod
     def add_logs(user, logs):
         old_logs = LogEntry.get_logs_for(user.external_id)
         for log in logs:
             old_logs[log.item_id] = old_logs.get(log.item_id, 0) + LogEntry.points[log.type](log.value)
-        LogEntry.get_logs_for.lock_this(
-            LogEntry.get_logs_for.cache.set
-        )(LogEntry.get_logs_for.key(user.external_id), old_logs, LogEntry.get_logs_for.timeout)
+        LogEntry.get_logs_for.set((user.external_id, ), old_logs)
 
 
 @receiver(post_save, sender=LogEntry)
@@ -127,6 +122,6 @@ def delete_user_to_cache(sender, instance, using, **kwargs):
     """
     Add log to cache upon creation
     """
-    get_cache("default").delete("get_logs_for_%d" % instance.pk)
+    LogEntry.get_logs_for.set((instance.external_id, ), None)
 
 site.register([LogEntry])

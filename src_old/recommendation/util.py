@@ -1,6 +1,6 @@
 #! -*- encoding: utf-8 -*-
 """
-Util tools for the system
+Util contrib for the system
 """
 
 __author__ = "joaonrb"

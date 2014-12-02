@@ -19,7 +19,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.negotiation import BaseContentNegotiation
 from frappe.models import Item, User, Inventory, UserFactors
 from frappe.core import RecommendationCore as Core
-from frappe.tools.logger.loggers import DBLogger, NoLogging
+from frappe.contrib.logger.loggers import DBLogger, NoLogging
 from frappe.api.serializers import UserSerializer
 
 __author__ = "joaonrb"
@@ -157,10 +157,34 @@ class UserItemsAPI(APIView):
         logging.debug("Deleted items were not logged on update user %s" % user_eid)
         return Response({"detail": "Done"})
 
+    @staticmethod
+    def drop_item(user, item):
+        Inventory.objects.filter(user=user, item=item).delete()
+        User.get_user_items.set((user.external_id,), User.get_user_items(user.external_id)+[item.external_id])
+
+    @staticmethod
+    def delete(request, user_eid):
+        logger = NoLogging if request.DATA.get("nolog", False) else DBLogger
+        try:
+            user = User.get_user(user_eid)
+        except User.DoesNotExist:
+            return Response({"detail": "User with external id %s not found." % user_eid}, status=404)
+        try:
+            item_eid = request.DATA.get("item")
+        except KeyError:
+            return Response({"detail": "Missing item parameter."}, status=400)
+        try:
+            item = Item.get_item(item_eid)
+        except Item.DoesNotExist:
+            return Response({"detail": "Item with external id %s not found." % item_eid}, status=404)
+        UserItemsAPI.drop_item(user, item)
+        logger.drop(user, [item])
+        return Response({"detail": "Done"})
 
 # #################################################################################################################### #
 # ###################################################### Util API #################################################### #
 # #################################################################################################################### #
+
 
 class UserListAPI(ListAPIView):
     """

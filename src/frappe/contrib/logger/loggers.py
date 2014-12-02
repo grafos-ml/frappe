@@ -4,7 +4,7 @@ Module Loggers
 """
 
 from abc import ABCMeta, abstractmethod
-from frappe.tools.logger.models import LogEntry
+from frappe.contrib.logger.models import LogEntry
 
 __author__ = "joaonrb"
 

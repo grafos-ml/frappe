@@ -136,7 +136,7 @@ class ItemGenre(models.Model):
 
     @staticmethod
     def genre_in(item_list):
-        return Counter(chain(*(ItemGenre.get_genre_by_item(item.external_id) for item in item_list)))
+        return Counter(chain(*(ItemGenre.get_genre_by_item(item_eid) for item_eid in item_list)))
 
 
 @receiver(post_save, sender=Item)

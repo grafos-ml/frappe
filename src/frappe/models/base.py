@@ -81,17 +81,15 @@ class User(models.Model):
         :param user_id: User id
         :return: A list of user items in inventory
         """
-        return [entry.item_id for entry in Inventory.objects.filter(user_id=user_id)]
+        query = Inventory.objects.filter(user_id=user_id).order_by("pk").values_list("item_id")
+        return {item_id: index for index, (item_id,) in enumerate(query)}
 
     @property
     def owned_items(self):
         """
         Get the owned items from cache. Key item id and value the inventory register
         """
-        return {
-            item_id: Item.get_item(item_id)
-            for item_id in User.get_user_items(self.external_id)
-        }
+        return User.get_user_items(self.external_id)
 
     def has_more_than(self, n):
         """
