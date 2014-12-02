@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+#! -*- coding: utf-8 -*-
 """
 Created on September 1, 2014
 
@@ -32,7 +32,10 @@ class DummyLogReRanker(object):
         """
         logs = LogEntry.get_logs_for(user.external_id)
         for item_eid, score in logs.items():
-            i0 = np.where(recommendation == item_eid)[0][0]
+            try:
+                i0 = np.where(recommendation == item_eid)[0][0]
+            except IndexError:  # When Item not in recommendation
+                continue
             i1 = i0+score
             if i1 < 0:
                 i1 = 0
