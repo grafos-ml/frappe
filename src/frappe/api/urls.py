@@ -16,6 +16,7 @@ from frappe.api import views
 urlpatterns = patterns("",
     url(r"^recommend/(?P<recommendation_size>[0-9]+)/(?P<user_eid>\w[\w/-]*)/$", views.RecommendationAPI.as_view(),
         name="recommendation_api"),
+    url(r"^click/$", views.ClickAPI.as_view(), name="click_api"),
     url(r"^users/$", views.UserListAPI.as_view(), name="users_api"),
     url(r"^user/(?P<user_eid>\w[\w/-]*)/$", views.UserItemsAPI.as_view(), name="user_items_api")
 )

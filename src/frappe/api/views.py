@@ -101,7 +101,9 @@ class UserItemsAPI(APIView):
     @staticmethod
     def acquire_item(user, item):
         Inventory.objects.create(user=user, item=item)
-        User.get_user_items.set((user.external_id,), User.get_user_items(user.external_id)+[item.external_id])
+        user_items = User.get_user_items(user.external_id)
+        user_items.update({item.external_id: len(user_items)})
+        User.get_user_items.set((user.external_id,), user_items)
 
     @staticmethod
     def post(request, user_eid):
@@ -121,7 +123,7 @@ class UserItemsAPI(APIView):
         if item_eid in user.owned_items:
             return Response({"detail": "User %s already has item %s." % (user_eid, item_eid)})
         UserItemsAPI.acquire_item(user, item)
-        logger.acquire(user, [item])
+        logger.acquire(user, [item.external_id])
         return Response({"detail": "Done"})
 
     @staticmethod
@@ -178,7 +180,7 @@ class UserItemsAPI(APIView):
             item = Item.get_item(item_eid)
         except Item.DoesNotExist:
             return Response({"detail": "Item with external id %s not found." % item_eid}, status=404)
-        UserItemsAPI.drop_item(user, item)
+        UserItemsAPI.drop_item(user, item.external_id)
         logger.drop(user, [item])
         return Response({"detail": "Done"})
 
@@ -192,8 +194,12 @@ class ClickAPI(APIView):
     content_negotiation_class = IgnoreClientContentNegotiation
 
     @staticmethod
-    def get(request, user_eid):
+    def post(request):
         logger = NoLogging if request.DATA.get("nolog", False) else DBLogger
+        try:
+            user_eid = request.DATA.get("user")
+        except KeyError:
+            return Response({"detail": "Missing user parameter."}, status=400)
         try:
             user = User.get_user(user_eid)
         except User.DoesNotExist:
@@ -206,7 +212,7 @@ class ClickAPI(APIView):
             item = Item.get_item(item_eid)
         except Item.DoesNotExist:
             return Response({"detail": "Item with external id %s not found." % item_eid}, status=404)
-        logger.click(user, item)
+        logger.click(user, item.external_id)
         return Response({"detail": "Done"})
 
 # #################################################################################################################### #
