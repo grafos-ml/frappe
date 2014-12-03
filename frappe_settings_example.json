@@ -31,7 +31,8 @@
         },
         {
             "identifier": "Log Re-Ranker",
-            "class": "frappe.contrib.logger.DummyLogReRanker"
+            "class": "frappe.contrib.logger.DummyLogReRanker",
+            "by_score": true
         }
     ]
 }

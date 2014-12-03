@@ -15,8 +15,7 @@ from django.contrib.admin import site
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.core.cache import get_cache
-from frappe.models import Item, User
+from frappe.models import Item, User, Module
 from frappe.decorators import Cached
 
 __author__ = "joaonrb"
@@ -77,13 +76,14 @@ class LogEntry(models.Model):
 
     @staticmethod
     @Cached(lock_id=0)
-    def get_logs_for(user_eid):
+    def get_logs_for(module_id, user_eid):
         """
         Get the user ids
         """
+        module = Module.get_module(module_id)
         result = {}
         for log in LogEntry.objects.filter(user_id=user_eid).order_by("-timestamp")[:LOGGER_MAX_LOGS]:
-            result[log.item_id] = result.get(log.item_id, 0) + LogEntry.points[log.type](log.value)
+            result[module.items_index[log.item_id]] = result.get(log.item_id, 0) + LogEntry.points[log.type](log.value)
         return result
 
     @staticmethod
@@ -100,11 +100,12 @@ class LogEntry(models.Model):
                                   list(LogEntry.objects.filter(user=user).order_by("-timestamp")[:LOGGER_MAX_LOGS]))
 
     @staticmethod
-    def add_logs(user, logs):
-        old_logs = LogEntry.get_logs_for(user.external_id)
+    def add_logs(module, user, logs):
+        old_logs = LogEntry.get_logs_for(module.pk, user.external_id)
         for log in logs:
-            old_logs[log.item_id] = old_logs.get(log.item_id, 0) + LogEntry.points[log.type](log.value)
-        LogEntry.get_logs_for.set((user.external_id, ), old_logs)
+            old_logs[module.items_index[log.item_id]] = \
+                old_logs.get(log.item_id, 0) + LogEntry.points[log.type](log.value)
+        LogEntry.get_logs_for.set((module.pk, user.external_id, ), old_logs)
 
 
 @receiver(post_save, sender=LogEntry)

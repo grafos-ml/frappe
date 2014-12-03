@@ -8,6 +8,7 @@ Log based re-ranker. I reads the logs from this user and re-rank items from the 
 
 from __future__ import division, absolute_import, print_function
 import numpy as np
+from scipy import sparse
 from frappe.contrib.logger.models import LogEntry
 
 __author__ = "joaonrb"
@@ -30,14 +31,11 @@ class DummyLogReRanker(object):
         """
         Calculate the new rank based on logs
         """
-        logs = LogEntry.get_logs_for(user.external_id)
-        for item_eid, score in logs.items():
-            try:
-                i0 = np.where(recommendation == item_eid)[0][0]
-            except IndexError:  # When Item not in recommendation
-                continue
-            i1 = i0+score
-            if i1 < 0:
-                i1 = 0
-            recommendation[i0], recommendation[i1] = recommendation[i1], recommendation[i0]
+        logs = LogEntry.get_logs_for(module.pk, user.external_id)
+        if len(logs):
+            indices, data = zip(*logs.items())
+            log_matrix = sparse.csr_matrix((data, indices, [0, 2]), shape=(1, len(recommendation)), dtype=np.int8)
+            recommendation = np.sum((recommendation, log_matrix)).__array__()
+            recommendation.shape = (recommendation.shape[1],)
+            return recommendation
         return recommendation

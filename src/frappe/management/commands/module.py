@@ -8,12 +8,14 @@ Usage:
   module delete [--verbose <level>] <module>
   module train [--verbose <level>] <module>
   module reloadslots [--verbose <level>]
-  module edit  [--verbose <level>] add (filter | reranker) <identifier> <class> [<args>] [<kwargs>] <module>
+  module edit  [--verbose <level>] add (filter | reranker) <identifier> <class> [<args>] [<kwargs>] [--by-score]
+  <module>
   module edit  [--verbose <level>] remove (filter | reranker) <identifier> <module>
   module --help
   module --version
 
 Options:
+  --by-score                       For re-ranker only. If the re-ranker works on scores.
   -m --module=<path>               Pass a json file with settings for the module.
   -v --verbose=<level>             Set verbose mode from 1 to 3 [default: 2].
   -h --help                        Show this screen.
@@ -119,7 +121,7 @@ class FrappeCommand(object):
                         logging.debug("Filter %s added to module %s" % (conf["identifier"], self.module_identifier))
                     elif self.parameters["reranker"]:
                         logging.info("Re-Ranker %s created" % conf["identifier"])
-                        ReRanker.objects.create(module=self.module, obj=obj)
+                        ReRanker.objects.create(module=self.module, obj=obj, by_score=self.parameters["--by-score"])
                         logging.debug("Re-Ranker %s added to module %s" % (conf["identifier"], self.module_identifier))
                     else:
                         print __doc__
@@ -177,7 +179,7 @@ class FrappeCommand(object):
             for r in self.settings["rerankers"]:
                 obj = self.__to_python__(r)
                 logging.info("Re-Ranker %s created" % r["identifier"])
-                ReRanker.objects.create(module=self.module, obj=obj)
+                ReRanker.objects.create(module=self.module, obj=obj, by_score=r.get("by_score", False))
                 logging.debug("Re-Ranker %s added to module %s" % (r["identifier"], self.module_identifier))
         elif self.module_identifier:
             logging.warn("Module %s was not initiated" % self.module_identifier)

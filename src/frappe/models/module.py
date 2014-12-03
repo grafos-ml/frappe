@@ -213,11 +213,21 @@ class Module(models.Model):
     @Cached(timeout=60*60*24)
     def get_rerankers(module_id):
         """
-        Return a list of filters
+        Return a list of re-rankers by external_id
         :param module_id:
         :return:
         """
-        return [r.obj.obj for r in ReRanker.objects.filter(module_id=module_id).order_by("pk")]
+        return [r.obj.obj for r in ReRanker.objects.filter(module_id=module_id, by_score=False).order_by("pk")]
+
+    @staticmethod
+    @Cached(timeout=60*60*24)
+    def get_score_rerankers(module_id):
+        """
+        Return a list of re-rankers by score
+        :param module_id:
+        :return:
+        """
+        return [r.obj.obj for r in ReRanker.objects.filter(module_id=module_id, by_score=True).order_by("pk")]
 
     def aggregate(self, predictions):
         """
@@ -244,6 +254,8 @@ class Module(models.Model):
         recommendation = self.aggregate(recommendations)
         for rfilter in self.get_filters(self.pk):
             recommendation = rfilter(self, user, recommendation, size)
+        for reranker in self.get_score_rerankers(self.pk):
+            recommendation = reranker(self, user, recommendation, size)
 
         # Bottleneck return the MAX_SORT elements with higher score but not sorted. Because of this it needs to be
         # resorted.
@@ -300,6 +312,7 @@ class ReRanker(models.Model):
 
     obj = models.ForeignKey(PythonObject, verbose_name=_("re-ranker object"))
     module = models.ForeignKey(Module, verbose_name=_("module"))
+    by_score = models.BooleanField(_("re-rank by score?"), default=False)
 
     class Meta:
         verbose_name = _("re-ranker")

@@ -89,15 +89,15 @@ class DBLogger(ILogger):
     @staticmethod
     def bulk_logging(log_type, module, user, items):
         new_logs = [
-            LogEntry(user=user, item_id=eid, type=log_type, source=module, value=i)
+            LogEntry(user=user, item_id=eid, type=log_type, source=getattr(module, "identifier", "NOMODULE"), value=i)
             for i, eid in enumerate(items, start=1)
         ]
         LogEntry.objects.bulk_create(new_logs)
-        LogEntry.add_logs(user, new_logs)
+        LogEntry.add_logs(module, user, new_logs)
 
     @classmethod
     def recommendation(cls, module, user, recommendation):
-        cls.bulk_logging(LogEntry.RECOMMEND, module.identifier, user, recommendation)
+        cls.bulk_logging(LogEntry.RECOMMEND, module, user, recommendation)
 
     @classmethod
     def click(cls, user, item):
@@ -106,11 +106,11 @@ class DBLogger(ILogger):
 
     @classmethod
     def acquire(cls, user, items):
-        cls.bulk_logging(LogEntry.ACQUIRE, "NOMODULE", user, items)
+        cls.bulk_logging(LogEntry.ACQUIRE, None, user, items)
 
     @classmethod
     def drop(cls, user, items):
-        cls.bulk_logging(LogEntry.DROP, "NOMODULE", user, items)
+        cls.bulk_logging(LogEntry.DROP, None, user, items)
 
     def __str__(self):
         return "database logging"
