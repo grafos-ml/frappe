@@ -23,6 +23,5 @@ class FilterOwnedItems(object):
         :param kwargs: Extra parameters
         :return:
         """
-        for item_eid in user.owned_items:
-            recommendation[module.items_index[item_eid]] = -1000
+        recommendation[[module.items_index[item_eid] for item_eid in user.owned_items]] -= 1000
         return recommendation
