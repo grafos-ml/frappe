@@ -136,12 +136,12 @@ class TensorCoFiPredictor(IPredictor):
                 except KeyError:
                     pass
         algorithm = TensorCoFiPredictor(predictor.pk)
-        algorithm.factors = [CachedUser(), model]
+        algorithm.factors = [CachedUser(), model.transpose()]  # Transpose on saving to save time
         return algorithm
 
     def __call__(self, user, size):
         users, items = self.factors
-        return np.squeeze(np.asarray(np.dot(users[user.pk], items.transpose())))
+        return np.squeeze(np.asarray(np.dot(users[user.pk], items)))
 
     def get_training(self):
         columns = ["user", "item", "user_id", "item_id"]
