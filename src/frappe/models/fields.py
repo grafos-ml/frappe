@@ -30,6 +30,16 @@ class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):
         """
         Convert the value from the database to python like object
 
+        >>> print(PythonObjectField().to_python('{"bool": true, "list": ["list", 1, 1.0], "number": 123,'
+        ... '"string": "something"}'))
+        Traceback (most recent call last):
+            ...
+        TypeError: Incorrect padding
+
+        >>> print(PythonObjectField().to_python("eJzTSCkw5ApWT8rPz1HnKjDi8jQw5CoOVs/JLC4B8o25NHIKTLjSjbkSPQ25Et2AGCiZV5"
+        ... "qblFoElDbl8jQ0MgapLy4pysxLBwqZAQ0rzs9NLcmA8M25ivUAWBQb8w=="))
+        {'list': ['list', 1, 1.0], 'bool': True, 'number': 123, 'string': 'something'}
+
         :param value: String from database.
         :return: A python objects.
         """
@@ -40,6 +50,10 @@ class PythonObjectField(with_metaclass(models.SubfieldBase, models.TextField)):
     def get_prep_value(self, value):
         """
         Prepare the value from python like object to database like value.
+
+        >>> print(PythonObjectField().get_prep_value({"number": 123, "string": "something", "list": ["list", 1, 1.],
+        ... "bool": True}))
+        eJzTSCkw5ApWT8rPz1HnKjDi8jQw5CoOVs/JLC4B8o25NHIKTLjSjbkSPQ25Et2AGCiZV5qblFoElDbl8jQ0MgapLy4pysxLBwqZAQ0rzs9NLcmA8M25ivUAWBQb8w==
 
         :param value: Matrix to keep in database
         :return: Pickled object.
@@ -59,6 +73,10 @@ class JSONField(with_metaclass(models.SubfieldBase, models.TextField)):
         """
         Convert the value from the database to json.
 
+        >>> print(JSONField().to_python('{"list": ["list", 1, 1.0], "number": 123, "string": "something",'
+        ... '"bool": true}'))
+        {u'bool': True, u'list': [u'list', 1, 1.0], u'number': 123, u'string': u'something'}
+
         :param value: String from database.
         :return: A python objects.
         """
@@ -69,6 +87,10 @@ class JSONField(with_metaclass(models.SubfieldBase, models.TextField)):
     def get_prep_value(self, value):
         """
         Prepare the value from python dictionary to database like value.
+
+        >>> print(JSONField().get_prep_value({"number": 123, "string": "something", "list": ["list", 1, 1.],
+        ... "bool": True}))
+        {"bool": true, "list": ["list", 1, 1.0], "number": 123, "string": "something"}
 
         :param value: Matrix to keep in database
         :return: Pickled object.
