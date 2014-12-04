@@ -35,7 +35,7 @@ class SimpleDiversity(object):
         number_items = len(items)
 
         user_items = user.owned_items
-        user_genres = ItemGenre.genre_in((item for item in user_items.values()))
+        user_genres = ItemGenre.genre_in(user_items)
         user_items_count = len(user_items)
 
         self.counter = {}

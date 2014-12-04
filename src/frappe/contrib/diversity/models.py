@@ -100,7 +100,7 @@ class ItemGenre(models.Model):
     def get_genre_by_item(item_eid):
         """
         Get genres list for a specific item
-        :param item_id:
+        :param item_eid:
         :return:
         """
         return [item_genre.type.pk for item_genre in ItemGenre.objects.filter(item_id=item_eid)]

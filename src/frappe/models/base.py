@@ -74,7 +74,7 @@ class User(models.Model):
         return User.objects.get(external_id=external_id)
 
     @staticmethod
-    @Cached()
+    @Cached(60*60)
     def get_user_items(user_id):
         """
         Get user items
@@ -82,7 +82,7 @@ class User(models.Model):
         :return: A list of user items in inventory
         """
         query = Inventory.objects.filter(user_id=user_id).order_by("pk").values_list("item_id")
-        return {item_id: index for index, (item_id,) in enumerate(query)}
+        return set([item_id for item_id, in query])
 
     @property
     def owned_items(self):
@@ -133,5 +133,5 @@ class Inventory(models.Model):
             else:
                 users[user_id] = [item_id]
         for user, items in users.items():
-            User.get_user_items.set((user,), items)
+            User.get_user_items.set((user,), set(items))
         logging.debug("%d owned items loaded" % len(inventory))
