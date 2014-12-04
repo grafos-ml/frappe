@@ -39,6 +39,14 @@ class IPredictor(object):
         Train a model based on database data. It save the module data into predictor data.
         """
 
+    @staticmethod
+    @abstractmethod
+    def load_to_cache():
+        """
+        Load what it needs to cache
+        :return:
+        """
+
     @abstractmethod
     def __call__(self, user, size):
         """
@@ -98,6 +106,10 @@ class PopularityPredictor(IPredictor):
         self.model = data
         d = AlgorithmData.objects.create(data=data, predictor_id=self.predictor_id)
         Predictor.get_predictor(self.predictor_id).data.add(d)
+
+    @staticmethod
+    def load_to_cache():
+        pass
 
 
 class CachedUser(object):
@@ -173,3 +185,8 @@ class TensorCoFiPredictor(IPredictor):
         d = AlgorithmData.objects.create(data=data, model_id=TensorCoFiPredictor.ITEM_MATRIX,
                                          predictor_id=self.predictor_id)
         Predictor.get_predictor(self.predictor_id).data.add(d)
+
+    @staticmethod
+    def load_to_cache():
+        for factors in UserFactors.objects.all():
+            UserFactors.get_user_factors.set((factors.user_id,), factors)

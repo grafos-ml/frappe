@@ -21,7 +21,7 @@ from frappe.decorators import Cached
 
 __author__ = "joaonrb"
 
-LOGGER_MAX_LOGS = 10 if int(os.environ.get("FRAPPE_TEST", 0)) else getattr(settings, "LOGGER_MAX_LOGS", 50)
+LOGGER_MAX_LOGS = 10 if int(os.environ.get("FRAPPE_TEST", 0)) else getattr(settings, "LOGGER_MAX_LOGS", 500)
 
 
 class LogEntry(models.Model):
@@ -76,7 +76,7 @@ class LogEntry(models.Model):
         }
 
     @staticmethod
-    @Cached(lock_id=0)
+    @Cached(lock_id=0, timeout=60*60)
     def get_logs_for(user_eid):
         """
         Get the user ids

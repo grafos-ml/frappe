@@ -195,12 +195,12 @@ class Module(models.Model):
         return predictor_class.load_predictor(predictor, module)
 
     @staticmethod
-    @Cached(timeout=60*60*24)
+    @Cached(timeout=60*60)
     def get_aggregator(module_id):
         return {agg.predictor_id: agg.weight for agg in PredictorWithAggregator.objects.filter(module_id=module_id)}
 
     @staticmethod
-    @Cached(timeout=60*60*24)
+    @Cached(timeout=60*60)
     def get_filters(module_id):
         """
         Return a list of filters
@@ -252,6 +252,13 @@ class Module(models.Model):
         for reranker in self.get_rerankers(self.pk):
             sorted_items = reranker(self, user, sorted_items, size)
         return sorted_items[:size]
+
+    @staticmethod
+    def load_to_cache():
+        for module in Module.objects.filter(active=True):
+            Module.get_module.set((module.pk,), module)
+            for predictor_id in Module.get_predictors(module.pk):
+                Module.get_predictor(module.pk, predictor_id)
 
 
 class PredictorWithAggregator(models.Model):
