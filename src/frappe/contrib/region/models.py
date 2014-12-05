@@ -58,7 +58,7 @@ class Region(models.Model):
     def load_to_cache():
         regions = Region.objects.all()
         for region in regions:
-            Region.get_regions.set(region.pk, region)
+            Region.get_regions.set((region.pk,), region)
             logging.debug("Region %s loaded to cache" % region.name)
         logging.debug("%d regions loaded" % len(regions))
 

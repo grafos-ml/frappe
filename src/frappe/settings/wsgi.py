@@ -25,3 +25,10 @@ logging.debug("Users items loaded to cache")
 
 Module.load_to_cache()
 logging.debug("Module loaded to cache")
+
+from django.conf import settings
+
+if "frappe.contrib.region" in settings.INSTALLED_APPS:
+    from frappe.contrib.region.models import Region, UserRegion
+    Region.load_to_cache()
+    UserRegion.load_to_cache()
