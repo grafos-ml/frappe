@@ -9,7 +9,6 @@ Diversification models necessary to apply the diversification to a recommendatio
 """
 
 from __future__ import division, absolute_import, print_function
-import logging
 from itertools import chain
 from collections import Counter
 from django.utils.translation import ugettext as _
@@ -71,7 +70,6 @@ class Genre(models.Model):
         for genre in genres:
             Genre.get_genre_by_id.set((genre.pk,), genre)
             genres_ids.append(genre.pk)
-            logging.debug("Genre %s added to cache" % genre.name)
         Genre.get_all_genres.set((), genres_ids)
 
 
@@ -118,7 +116,6 @@ class ItemGenre(models.Model):
                 genres[item_genre.item_id] = [item_genre.type_id]
         for item_eid, genre in genres.items():
             ItemGenre.get_genre_by_item.set((item_eid,), genre)
-
 
     @staticmethod
     def load_item(item):

@@ -4,7 +4,6 @@ The locale models module. It must contain the locale
 """
 
 from __future__ import division, absolute_import, print_function
-import logging
 from django.db import models
 from django.utils.translation import ugettext as _
 import numpy as np
@@ -59,8 +58,6 @@ class Region(models.Model):
         regions = Region.objects.all()
         for region in regions:
             Region.get_regions.set((region.pk,), region)
-            logging.debug("Region %s loaded to cache" % region.name)
-        logging.debug("%d regions loaded" % len(regions))
 
 
 class UserRegion(models.Model):
@@ -92,7 +89,6 @@ class UserRegion(models.Model):
                 users[user_id] = [region_id]
         for user_eid, regions in users.items():
             Region.get_user_regions.set((user_eid,), regions)
-        logging.debug("%d regions loaded to users" % len(users))
 
 
 class ItemRegion(models.Model):
