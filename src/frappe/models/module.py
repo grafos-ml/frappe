@@ -195,12 +195,12 @@ class Module(models.Model):
         return predictor_class.load_predictor(predictor, module)
 
     @staticmethod
-    @Cached(timeout=60*60)
+    @Cached(timeout=60*60*24)
     def get_aggregator(module_id):
         return {agg.predictor_id: agg.weight for agg in PredictorWithAggregator.objects.filter(module_id=module_id)}
 
     @staticmethod
-    @Cached(timeout=60*60)
+    @Cached(timeout=60*60*24)
     def get_filters(module_id):
         """
         Return a list of filters
@@ -259,6 +259,9 @@ class Module(models.Model):
             Module.get_module.set((module.pk,), module)
             for predictor_id in Module.get_predictors(module.pk):
                 Module.get_predictor(module.pk, predictor_id)
+            Module.get_aggregator(module.pk)
+            Module.get_filters(module.pk)
+            Module.get_rerankers(module.pk)
 
 
 class PredictorWithAggregator(models.Model):
