@@ -12,14 +12,11 @@ import tarfile
 import tempfile
 from datetime import date, timedelta, datetime
 from pkg_resources import resource_filename
-from django.db import connection
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.core.cache import get_cache
 import frappe
 from frappe.management.commands import fill
-from frappe.models import Item, User, Inventory
-from frappe.contrib.region.models import Region, ItemRegion, UserRegion
-from frappe.contrib.diversity.models import ItemGenre, Genre
+from frappe.models import Item
 
 
 PRODUCTION_SERVER = 'https://marketplace.cdn.mozilla.net/dumped-apps/tarballs/%Y-%m-%d.tgz'
@@ -42,25 +39,10 @@ def count_files(path):
     return count
 
 
-class TestFill(TestCase):
+class TestFill(TransactionTestCase):
 
     @classmethod
     def teardown(cls, *args, **kwargs):
-        ItemRegion.objects.all().delete()
-        UserRegion.objects.all().delete()
-        Region.objects.all().delete()
-        ItemGenre.objects.all().delete()
-        Genre.objects.all().delete()
-        # This for sqlite delete
-        if connection.vendor == "sqlite":
-            while Inventory.objects.all().count() != 0:
-                Inventory.objects.filter(pk__in=Inventory.objects.all()[:100]).delete()
-            while Item.objects.all().count() != 0:
-                Item.objects.filter(pk__in=Item.objects.all()[:100]).delete()
-        else:
-            Inventory.objects.all().delete()
-            Item.objects.all().delete()
-        User.objects.all().delete()
         get_cache("default").clear()
         get_cache("owned_items").clear()
         get_cache("module").clear()
@@ -101,7 +83,7 @@ class TestFill(TestCase):
         [production.commands] Test fill users after production items.
         """
         try:
-            path = resource_filename(recommendation.__name__, "/")
+            path = resource_filename(frappe.__name__, "/")
             fill.FillTool({"items": True, "--mozilla": True, "prod": True}).load()
             fill.FillTool({"users": True, "--mozilla": True, "<path>": path+"data/user"}).load()
         except Exception as e:

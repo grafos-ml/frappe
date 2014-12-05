@@ -71,53 +71,55 @@ class FrappeCommand(object):
                 self.module = Module.objects.get(identifier=self.module_identifier)
             except Module.DoesNotExist:
                 pass
-        if self.parameters["--module"]:
+        if self.parameters.get("--module", None):
             with open(self.parameters["--module"], "r") as f:
                 self.settings = json.load(f)
         else:
             self.settings = DEFAULT_SETTINGS
-        if self.parameters["--verbose"] == 2:
+        if self.parameters.get("--verbose", 1) == 2:
             logging.getLogger().setLevel(logging.INFO)
-        elif self.parameters["--verbose"] == 3:
+        elif self.parameters.get("--verbose", 1) == 3:
             logging.getLogger().setLevel(logging.DEBUG)
 
     def run(self):
-        if self.parameters["init"]:
+        if self.parameters.get("init", None):
             self.init()
             self.reset()
             self.module.save()
             self.add_predictors()
             self.add_filter()
             self.add_re_ranker()
-        elif self.parameters["delete"]:
+        elif self.parameters.get("delete", None):
             self.module.delete()
-        elif self.parameters["train"]:
+        elif self.parameters.get("train", None):
             self.train()
-        elif self.parameters["reloadslots"]:
+        elif self.parameters.get("reloadslots", None):
             self.load_slots()
-        elif self.parameters["edit"]:
-            if self.parameters["remove"]:
-                if self.parameters["filter"]:
-                    Filter.objects.filter(module=self.module, identifier=self.parameters["<identifier>"]).delete()
-                elif self.parameters["reranker"]:
-                    ReRanker.objects.filter(module=self.module, identifier=self.parameters["<identifier>"]).delete()
+        elif self.parameters.get("edit", None):
+            if self.parameters.get("remove", None):
+                if self.parameters.get("filter", None):
+                    Filter.objects.filter(module=self.module,
+                                          identifier=self.parameters.get("<identifier>", None)).delete()
+                elif self.parameters.get("reranker", None):
+                    ReRanker.objects.filter(module=self.module,
+                                            identifier=self.parameters.get("<identifier>", None)).delete()
                 else:
                     print __doc__
                     return
-            elif self.parameters["add"]:
+            elif self.parameters.get("add", None):
                 if self.module:
                     conf = {
-                        "identifier": self.parameters["<identifier>"],
-                        "class": self.parameters["<class>"],
-                        "args": self.parameters["<args>"] or (),
-                        "kwargs": self.parameters["<kwargs>"] or {}
+                        "identifier": self.parameters.get("<identifier>", None),
+                        "class": self.parameters.get("<class>", None),
+                        "args": self.parameters.get("<args>", None) or (),
+                        "kwargs": self.parameters.get("<kwargs>", None) or {}
                     }
                     obj = self.__to_python__(conf)
-                    if self.parameters["filter"]:
+                    if self.parameters.get("filter", None):
                         logging.debug("Filter %s created" % conf["identifier"])
                         Filter.objects.create(module=self.module, obj=obj)
                         logging.debug("Filter %s added to module %s" % (conf["identifier"], self.module_identifier))
-                    elif self.parameters["reranker"]:
+                    elif self.parameters.get("reranker", None):
                         logging.info("Re-Ranker %s created" % conf["identifier"])
                         ReRanker.objects.create(module=self.module, obj=obj)
                         logging.debug("Re-Ranker %s added to module %s" % (conf["identifier"], self.module_identifier))

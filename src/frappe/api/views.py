@@ -96,6 +96,8 @@ class UserItemsAPI(APIView):
         serializer = PaginationSerializer(instance=page, context={'request': request})
         result = serializer.data
         result["user"] = user_eid
+        result["items"] = result["results"]
+        del result["results"]
         return Response(result)
 
     @staticmethod
@@ -162,8 +164,10 @@ class UserItemsAPI(APIView):
     @staticmethod
     def drop_item(user, item):
         Inventory.objects.filter(user=user, item=item).delete()
-
-        User.get_user_items.set((user.external_id,), User.get_user_items(user.external_id)+[item.external_id])
+        items = User.get_user_items(user.external_id)
+        logging.error(items)
+        items.remove(item.external_id)
+        User.get_user_items.set((user.external_id,), items)
 
     @staticmethod
     def delete(request, user_eid):
@@ -180,7 +184,7 @@ class UserItemsAPI(APIView):
             item = Item.get_item(item_eid)
         except Item.DoesNotExist:
             return Response({"detail": "Item with external id %s not found." % item_eid}, status=404)
-        UserItemsAPI.drop_item(user, item.external_id)
+        UserItemsAPI.drop_item(user, item)
         logger.drop(user, [item])
         return Response({"detail": "Done"})
 
