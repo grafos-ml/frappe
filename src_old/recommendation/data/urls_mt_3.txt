@@ -1,3 +1,0 @@
-http://localhost:9090/api/v2/recommend/5/00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/
-http://localhost:9090/api/v2/recommend/5/0097bf7bbf0ccdb92180fe7a5610d4d36fb2bf53aeedf28db232dcfe7fdecb56/
-http://localhost:9090/api/v2/recommend/5/0033597455692156e68dfdc2fc3936595b560834d1a0d68d8606e23779f454e1/

@@ -15,7 +15,6 @@ from django.contrib.admin import site
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.core.cache import get_cache
 from frappe.models import Item, User
 from frappe.decorators import Cached
 

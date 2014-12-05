@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 from __future__ import division, absolute_import, print_function
 from frappe.settings import databases, caches, logs
-from frappe.settings.contingency import CONTINGENCY_ITEMS
 
 __author__ = "joaonrb"
 
@@ -102,9 +101,3 @@ STATIC_URL = "/static/"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ()
 }
-
-# Contingency plan
-
-CONTINGENCY_ITEMS = CONTINGENCY_ITEMS
-
-RESPONSE_TIMEOUT = 1/3

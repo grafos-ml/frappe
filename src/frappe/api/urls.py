@@ -11,7 +11,13 @@
 __author__ = "joaonrb"
 
 from django.conf.urls import patterns, url
+from health_check.plugins import plugin_dir
+from frappe.backends import CheckDefaultCacheBackend, CheckOwnedItemsCacheBackend, CheckModuleCacheBackend
 from frappe.api import views
+
+plugin_dir.register(CheckDefaultCacheBackend)
+plugin_dir.register(CheckOwnedItemsCacheBackend)
+plugin_dir.register(CheckModuleCacheBackend)
 
 urlpatterns = patterns("",
     url(r"^recommend/(?P<recommendation_size>[0-9]+)/(?P<user_eid>\w[\w/-]*)/$", views.RecommendationAPI.as_view(),

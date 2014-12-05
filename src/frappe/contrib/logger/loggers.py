@@ -5,6 +5,7 @@ Module Loggers
 
 from abc import ABCMeta, abstractmethod
 from frappe.contrib.logger.models import LogEntry
+from frappe.decorators import ExecuteInBackGround
 
 __author__ = "joaonrb"
 
@@ -81,13 +82,11 @@ class NoLogging(ILogger):
         return "No logging"
 
 
-class DBLogger(ILogger):
-    """
-    Log to database
-    """
+class BulkLogging(object):
 
-    @staticmethod
-    def bulk_logging(log_type, module, user, items):
+    __name__ = "bulk_logging"
+
+    def __call__(self, log_type, module, user, items):
         new_logs = [
             LogEntry(user=user, item_id=eid, type=log_type, source=module, value=i)
             for i, eid in enumerate(items, start=1)
@@ -95,9 +94,17 @@ class DBLogger(ILogger):
         LogEntry.objects.bulk_create(new_logs)
         LogEntry.add_logs(user, new_logs)
 
+
+class DBLogger(ILogger):
+    """
+    Log to database
+    """
+
+    bulk_logging = ExecuteInBackGround(BulkLogging())
+
     @classmethod
     def recommendation(cls, module, user, recommendation):
-        cls.bulk_logging(LogEntry.RECOMMEND, module.identifier, user, recommendation)
+        cls.bulk_logging(cls(), LogEntry.RECOMMEND, module.identifier, user, recommendation)
 
     @classmethod
     def click(cls, user, item):
@@ -106,11 +113,12 @@ class DBLogger(ILogger):
 
     @classmethod
     def acquire(cls, user, items):
-        cls.bulk_logging(LogEntry.ACQUIRE, "NOMODULE", user, items)
+        cls.bulk_logging(cls(), LogEntry.ACQUIRE, "NOMODULE", user, items)
 
     @classmethod
     def drop(cls, user, items):
-        cls.bulk_logging(LogEntry.DROP, "NOMODULE", user, items)
+        cls.bulk_logging(cls(), LogEntry.DROP, "NOMODULE", user, items)
 
-    def __str__(self):
+    @classmethod
+    def __str__(cls):
         return "database logging"
