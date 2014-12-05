@@ -9,7 +9,7 @@ Diversification models necessary to apply the diversification to a recommendatio
 """
 
 from __future__ import division, absolute_import, print_function
-import click
+import logging
 from itertools import chain
 from collections import Counter
 from django.utils.translation import ugettext as _
@@ -66,15 +66,13 @@ class Genre(models.Model):
 
         :return:
         """
-        cache = Genre.get_genre_by_id.cache
-        with click.progressbar(Genre.objects.all().annotate(count_items=Count("items")),
-                               label="Loading genres to cache") as bar:
-            for genre in bar:
-                Genre.get_genre_by_id.lock_this(
-                    cache.set
-                )(Genre.get_genre_by_id.key(genre.pk), genre, Genre.get_genre_by_id.timeout)
-
-        Genre.get_all_genres()
+        genres = Genre.objects.all().annotate(count_items=Count("items"))
+        genres_ids = []
+        for genre in genres:
+            Genre.get_genre_by_id.set((genre.pk,), genre)
+            genres_ids.append(genre.pk)
+            logging.debug("Genre %s added to cache" % genre.name)
+        Genre.get_all_genres.set((), genres_ids)
 
 
 class ItemGenre(models.Model):
@@ -113,18 +111,14 @@ class ItemGenre(models.Model):
         :return:
         """
         genres = {}
-        with click.progressbar(ItemGenre.objects.all(), label="Loading item by genres to cache") as bar:
-            for item_genre in bar:
-                try:
-                    genres[item_genre.item_id].append(item_genre.type_id)
-                except KeyError:
-                    genres[item_genre.item_id] = [item_genre.type_id]
-        cache = ItemGenre.get_genre_by_item.cache
-        with click.progressbar(genres.items(), label="Loading genres by item to cache") as bar:
-            for item_eid, genre in bar:
-                ItemGenre.get_genre_by_item.lock_this(
-                    cache.set
-                )(ItemGenre.get_genre_by_item.key(item_eid), genre, ItemGenre.get_genre_by_item.timeout)
+        for item_genre in ItemGenre.objects.all():
+            if item_genre.item_id in genres:
+                genres[item_genre.item_id].append(item_genre.type_id)
+            else:
+                genres[item_genre.item_id] = [item_genre.type_id]
+        for item_eid, genre in genres.items():
+            ItemGenre.get_genre_by_item.set((item_eid,), genre)
+
 
     @staticmethod
     def load_item(item):

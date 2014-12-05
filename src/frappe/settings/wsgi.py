@@ -32,3 +32,8 @@ if "frappe.contrib.region" in settings.INSTALLED_APPS:
     from frappe.contrib.region.models import Region, UserRegion
     Region.load_to_cache()
     UserRegion.load_to_cache()
+
+if "frappe.contrib.diversity" in settings.INSTALLED_APPS:
+    from frappe.contrib.diversity.models import Genre, ItemGenre
+    Genre.load_to_cache()
+    ItemGenre.load_to_cache()
