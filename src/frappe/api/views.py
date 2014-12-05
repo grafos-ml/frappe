@@ -165,8 +165,8 @@ class UserItemsAPI(APIView):
     def drop_item(user, item):
         Inventory.objects.filter(user=user, item=item).delete()
         items = User.get_user_items(user.external_id)
-        logging.error(items)
-        items.remove(item.external_id)
+        if item in items:
+            items.remove(item.external_id)
         User.get_user_items.set((user.external_id,), items)
 
     @staticmethod
