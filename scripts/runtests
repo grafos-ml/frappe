@@ -44,10 +44,10 @@ def main():
     OPTIONS = []
     if opts["--unit"]:
         os.environ["DJANGO_SETTINGS_MODULE"] = "frappe.settings.unit.settings"
-    OPTIONS += UNIT_OPTS
+        OPTIONS += UNIT_OPTS
     if opts["--integration"]:
         os.environ["DJANGO_SETTINGS_MODULE"] = "frappe.settings.integration.settings"
-    OPTIONS = INTEGRATION_OPTS + OPTIONS
+        OPTIONS = INTEGRATION_OPTS + OPTIONS
     import django
     if django.VERSION > (1, 6):
         django.setup()
