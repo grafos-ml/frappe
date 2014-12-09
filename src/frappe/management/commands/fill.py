@@ -425,11 +425,7 @@ class FillTool(object):
             for inv in Inventory.objects.filter(inventory_query):
                 item_user = inv.item_id, inv.user_id
                 if item_user in inventory:
-                    tmp_inv = inventory[item_user]
-                    if inv.is_dropped != tmp_inv.is_dropped:
-                        to_delete = to_delete | Q(user_id=inv.user_id, item_id=inv.item_id)
-                    else:
-                        del inventory[item_user]
+                    del inventory[item_user]
             if len(to_delete) > 0:
                 Inventory.objects.filter(to_delete).delete()
         Inventory.objects.bulk_create(inventory.values())

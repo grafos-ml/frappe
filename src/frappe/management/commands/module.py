@@ -200,7 +200,7 @@ class FrappeCommand(object):
     def __train__(self, module_predictor):
         module, predictor = module_predictor.module, module_predictor.predictor
         logging.debug("Training %s", predictor)
-        Module.get_predictor(module.pk, predictor.pk).train()
+        Predictor.get_class(predictor.id)(predictor.id).train()
         logging.debug("Finish training %s" % predictor)
 
     def train(self):

@@ -7,6 +7,7 @@ Documentation TODO
 """
 
 from __future__ import division, absolute_import, print_function
+from frappe.models import *
 import json
 import pandas as pd
 import numpy as np
@@ -18,10 +19,9 @@ from django.core.cache import get_cache
 from testfm.evaluation import Evaluator
 from testfm.models.tensorcofi import PyTensorCoFi
 import frappe
-from frappe.management.commands import fill, module
-from frappe.models import Item, User, Inventory
 from frappe.contrib.region.models import Region, UserRegion, ItemRegion
 from frappe.contrib.diversity.models import ItemGenre, Genre
+from frappe.management.commands import fill, module
 
 __author__ = "joaonrb"
 
@@ -43,9 +43,6 @@ class TestFrappeAPI(TestCase):
         path = resource_filename(frappe.__name__, "/")
         fill.FillTool({"items": True, "--mozilla": True, "prod": True}).load()
         fill.FillTool({"users": True, "--mozilla": True, "<path>": path+"data/user"}).load()
-        module.FrappeCommand({"init": True, "--module": path+"../../frappe_settings_example.json", "<module>": "test"})
-        module.FrappeCommand({"train": True, "<module>": "test"})
-        module.FrappeCommand({"reloadslots": True})
 
         cls.client = Client()
 
@@ -115,7 +112,7 @@ class TestFrappeAPI(TestCase):
         assert len(User.get_user("003b6424db7d4abf8b3b7ff4cc3e36a12dded2cca7f0486a3def2d3a613383b6").owned_items) == 2,\
             "Owned items should be 2"
 
-'''
+
 class TestRecommendation(TestCase):
     """
     Test suite for recommendation system
@@ -133,9 +130,10 @@ class TestRecommendation(TestCase):
         path = resource_filename(frappe.__name__, "/")
         fill.FillTool({"items": True, "--mozilla": True, "prod": True}).load()
         fill.FillTool({"users": True, "--mozilla": True, "<path>": path+"data/user"}).load()
-        module.FrappeCommand({"init": True, "--module": path+"../../frappe_settings_example.json", "<module>": "test"})
-        module.FrappeCommand({"train": True, "<module>": "test"})
-        module.FrappeCommand({"reloadslots": True})
+        module.FrappeCommand({"init": True, "--module": path+"../../frappe_settings_example.json",
+                              "<module>": "test"}).run()
+        module.FrappeCommand({"train": True, "<module>": "test"}).run()
+        module.FrappeCommand({"reloadslots": True}).run()
         cls.client = Client()
 
     @classmethod
@@ -148,6 +146,9 @@ class TestRecommendation(TestCase):
         ItemRegion.objects.all().delete()
         UserRegion.objects.all().delete()
         Region.objects.all().delete()
+        Slot.objects.all().delete()
+        PredictorWithAggregator.objects.all().delete()
+        Module.objects.all().delete()
         Inventory.objects.all().delete()
         User.objects.all().delete()
         Item.objects.all().delete()
@@ -185,6 +186,7 @@ class TestRecommendation(TestCase):
         response = \
             self.client.get("/api/v2/recommend/%d/"
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        sleep(0.8)
 
         rec0 = json.loads(response.content)["recommendations"]
         response = \
@@ -196,7 +198,7 @@ class TestRecommendation(TestCase):
         for item in rec1:
             if item in rec0:
                 measure += 1
-        assert measure < (size/2.), "New recommendation not different enough"
+        assert measure < (size/2.), "New recommendation not different enough. Measure(%s)" % measure
 
     def test_liveliness_of_recommendation_size_15(self):
         """
@@ -206,6 +208,7 @@ class TestRecommendation(TestCase):
         response = \
             self.client.get("/api/v2/recommend/%d/"
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        sleep(0.8)
 
         rec0 = json.loads(response.content)["recommendations"]
         response = \
@@ -217,7 +220,7 @@ class TestRecommendation(TestCase):
         for item in rec1:
             if item in rec0:
                 measure += 1
-        assert measure < (size/2.), "New recommendation not different enough"
+        assert measure < (size/2.), "New recommendation not different enough. Measure(%s)" % measure
 
     def test_liveliness_of_recommendation_size_25(self):
         """
@@ -227,6 +230,7 @@ class TestRecommendation(TestCase):
         response = \
             self.client.get("/api/v2/recommend/%d/"
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
+        sleep(0.8)
 
         rec0 = json.loads(response.content)["recommendations"]
         response = \
@@ -238,7 +242,7 @@ class TestRecommendation(TestCase):
         for item in rec1:
             if item in rec0:
                 measure += 1
-        assert measure < (size*2./3.), "New recommendation not different enough"
+        assert measure < (size*2./3.), "New recommendation not different enough. Measure(%s)" % measure
 
     def test_diversity_on_recommendation_5(self):
         """
@@ -292,12 +296,12 @@ class TestRecommendation(TestCase):
         """
         [recommendation.api.GetRecommendation] Test diversity for size 25 recommendation (at least 2/3 of user genres)
         """
-        size = 2501
+        size = 25
         response = \
             self.client.get("/api/v2/recommend/%d/"
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
         user = User.get_user("00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961")
-        user_genres = ItemGenre.genre_in(Item.get_item_by_id(item_id) for item_id in user.owned_items)
+        user_genres = ItemGenre.genre_in(Item.get_item(item_eid) for item_eid in user.owned_items)
         recommendation_genres = ItemGenre.genre_in(
             Item.get_item(item_eid) for item_eid in json.loads(response.content)["recommendations"]
         )
@@ -311,5 +315,4 @@ class TestRecommendation(TestCase):
         assert measure > len(less)*2./3., \
             "Not sufficient genres in recommendation" \
             "(user: %d, recommendation: %d)" % (len(user_genres), len(recommendation_genres))
-'''
 

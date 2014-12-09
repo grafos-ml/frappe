@@ -238,9 +238,12 @@ class Module(models.Model):
         recommendations = {}
         for predictor_id in self.get_predictors(self.pk):
             try:
-                recommendations[predictor_id] = self.get_predictor(self.pk, predictor_id)(user, size)
+                predictor = self.get_predictor(self.pk, predictor_id)
+                prediction = predictor(user, size)
             except Exception as e:
                 logging.debug("predictor %s failed to deliver result for %s with %s", predictor_id, user, e)
+            else:
+                recommendations[predictor_id] = prediction
         recommendation = self.aggregate(recommendations)
         for rfilter in self.get_filters(self.pk):
             recommendation = rfilter(self, user, recommendation, size)

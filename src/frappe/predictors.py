@@ -69,10 +69,11 @@ class PopularityPredictor(IPredictor):
 
     @staticmethod
     def load_predictor(predictor, module):
+        algorithm = PopularityPredictor(predictor.pk)
         try:
             item_factors = predictor.data.all().order_by("-timestamp")[0].data
-        except IndexError:
-            model = None
+        except IndexError as e:
+            logging.debug("################################## %s %s" % (e, e.message))
         else:
             model = np.zeros((len(module.listed_items)), np.float32)
             for i, item in enumerate(module.listed_items):
@@ -80,8 +81,8 @@ class PopularityPredictor(IPredictor):
                     model[i] = item_factors[item]
                 except KeyError:
                     pass
-
-        algorithm = PopularityPredictor(predictor.pk, model)
+            logging.debug("model. %s" % model)
+            algorithm.model = model
         return algorithm
 
     def __call__(self, user, size):
@@ -103,7 +104,7 @@ class PopularityPredictor(IPredictor):
                 data[item_eid] = algorithm.get_counts()[item_eid]
             except KeyError:
                 pass
-        self.model = data
+        logging.debug(data)
         d = AlgorithmData.objects.create(data=data, predictor_id=self.predictor_id)
         Predictor.get_predictor(self.predictor_id).data.add(d)
 
@@ -136,10 +137,11 @@ class TensorCoFiPredictor(IPredictor):
 
     @staticmethod
     def load_predictor(predictor, module):
+        algorithm = TensorCoFiPredictor(predictor.pk)
         try:
             item_factors = predictor.data.filter(model_id=TensorCoFiPredictor.ITEM_MATRIX).order_by("-timestamp")[0]
         except IndexError:
-            model = None
+            pass
         else:
             model = np.zeros((len(module.listed_items), predictor.kwargs.get("n_factors", 20)), dtype=np.float32)
             for i, item in enumerate(module.listed_items):
@@ -147,8 +149,7 @@ class TensorCoFiPredictor(IPredictor):
                     model[i, :] = item_factors.data[item]
                 except KeyError:
                     pass
-        algorithm = TensorCoFiPredictor(predictor.pk)
-        algorithm.factors = [CachedUser(), model.transpose()]  # Transpose on saving to save time
+            algorithm.factors = [CachedUser(), model.transpose()]  # Transpose on saving to save time
         return algorithm
 
     def __call__(self, user, size):
