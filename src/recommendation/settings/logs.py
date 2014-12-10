@@ -7,10 +7,12 @@ Logging recommendation.settings.
 """
 
 from __future__ import division, absolute_import, print_function
+from os import getenv
 import logging.handlers
 
 __author__ = "joaonrb"
 
+HOSTNAME = getenv('HOSTNAME')
 SYSLOG_TAG = "http_app_frappe"
 
 LOGGING = {
@@ -20,10 +22,10 @@ LOGGING = {
         "level": "WARNING",
         "handlers": ["sentry"],
     },
-    "formatters": {
-        "simple": {
-            "format": "%(asctime)s %(name)s:%(levelname)s {0}: "
-                      "%(message)s :%(pathname)s:%(lineno)s".format(SYSLOG_TAG)
+    'formatters': {
+        'simple': {
+            "format": "{0} {1}: %(name)s:%(levelname)s %(message)s "
+            ":%(pathname)s:%(lineno)s".format(HOSTNAME, SYSLOG_TAG)
         },
     },
     "handlers": {
@@ -42,6 +44,11 @@ LOGGING = {
             },
         },
     "loggers": {
+        "django": {
+            "level": "DEBUG",
+            "handlers": ["console", "syslog"],
+            "propagate": False,
+        },
         "django.db.backends": {
             "level": "ERROR",
             "handlers": ["console", "syslog"],
