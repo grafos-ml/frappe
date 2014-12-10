@@ -84,14 +84,16 @@ class TestFrappeAPI(TestCase):
         """
         [recommendation.api.GetUserItems] Test acquire new item
         """
+        user = User.get_user_by_external_id("00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b")
+        items = user.owned_items
         response = self.client.post(
             "/api/v2/user-items/00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b/",
             {"item_to_acquire": "504343"}
         )
         sleep(0.8)
-        user = User.get_user_by_external_id("00504e6196ab5fa37ae7450dad99d031a80c50ef4b762c15151a2e4e92c64e0b")
         assert response.status_code == 200, "Request failed. Status code %d." % response.status_code
-        assert len(user.owned_items) == 3, "Owned items should be 3(%d)" % len(user.owned_items)
+        assert len(user.owned_items) == len(items)+1, "Owned items should be %d(%d)" % (len(items)+1,
+                                                                                        len(user.owned_items))
         assert Item.get_item_by_external_id("504343").pk in user.owned_items.keys(), "New item not in owned items"
 
     def test_recommendation_update_user(self):
@@ -420,3 +422,15 @@ class TestRecommendation(TestCase):
         assert measure > len(less)*2./3., \
             "Not sufficient genres in recommendation" \
             "(user: %d, recommendation: %d, similarity: %d)" % (len(user_genres), len(recommendation_genres), measure)
+
+    def test_filter_owned(self):
+        """
+        [recommendation.api.GetRecommendation] Test filter owned item
+        """
+        size = 50
+        for user in User.objects.all():
+            response = self.client.get("/api/v2/recommend/%d/%s/" %(size, user.external_id))
+            recommendation = json.loads(response.content)["recommendations"]
+            for item in user.owned_items.values():
+                self.assertNotIn(item.external_id, recommendation, "User %s item %s is in recommendation" % (
+                    user.external_id, item.external_id))
