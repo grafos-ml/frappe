@@ -11,6 +11,7 @@ from __future__ import division, absolute_import, print_function
 import logging
 from django.core.paginator import Paginator, EmptyPage
 from django.db import transaction
+from django.db.models import Count
 from rest_framework.pagination import PaginationSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -229,7 +230,7 @@ class UserListAPI(ListAPIView):
     Api for list users in system
     """
 
-    queryset = User.objects.all()
+    queryset = User.objects.all().annotate(items_count=Count("items"))
     serializer_class = UserSerializer
     paginate_by = 20
     paginate_by_param = "page_size"

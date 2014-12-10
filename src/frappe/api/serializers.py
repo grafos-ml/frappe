@@ -14,3 +14,4 @@ __author__ = "joaonrb"
 
 class UserSerializer(serializers.Serializer):
     external_id = serializers.CharField(max_length=255)
+    items_count = serializers.IntegerField(max_value=50000, min_value=0)
