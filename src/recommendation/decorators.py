@@ -2,6 +2,7 @@
 
 from __future__ import division, absolute_import, print_function
 import os
+from traceback import format_exc
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from django.conf import settings
 from django.core.cache import get_cache
@@ -135,9 +136,13 @@ class ContingencyProtocol(object):
             future = clone_pool.submit(function, self, user, n)
             try:
                 result = future.result(getattr(settings, "RESPONSE_TIMEOUT", 150./1000.))
-            except (TimeoutError, Exception):
+            except TimeoutError:
                 future.cancel()
-                logging.log(logging.ERROR, "TimeOut error: Contingency Protocol delivered the recommendation")
+                logging.error("TimeOut error: Contingency Protocol delivered the recommendation")
+                result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
+            except Exception:
+                future.cancel()
+                logging.error(format_exc())
                 result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
             return result
         return decorated
