@@ -2,7 +2,6 @@
 
 from __future__ import division, absolute_import, print_function
 import os
-from traceback import format_exc
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from django.conf import settings
 from django.core.cache import get_cache
@@ -12,6 +11,8 @@ import itertools
 import warnings
 import random
 import logging
+import sys
+import traceback
 try:
     from uwsgi import lock, i_am_the_spooler, unlock, mule_msg
 except ImportError:
@@ -22,9 +23,27 @@ except ImportError:
 __author__ = "joaonrb"
 
 
-#thread_pool = ThreadPoolExecutor(max_workers=getattr(recommendation.settings, "MAX_THREADS", 2))
-clone_pool = ThreadPoolExecutor(max_workers=1)
-#atexit.register(thread_pool.shutdown)
+class ThreadPoolExecutorStackTraced(ThreadPoolExecutor):
+
+    def submit(self, fn, *args, **kwargs):
+        """Submits the wrapped function instead of `fn`"""
+
+        return super(ThreadPoolExecutorStackTraced, self).submit(
+            self._function_wrapper, fn, *args, **kwargs)
+
+    def _function_wrapper(self, fn, *args, **kwargs):
+        """Wraps `fn` in order to preserve the traceback of any kind of
+        raised exception
+
+        """
+        try:
+            return fn(*args, **kwargs)
+        except Exception:
+            raise sys.exc_info()[0](traceback.format_exc())
+
+# thread_pool = ThreadPoolExecutor(max_workers=getattr(recommendation.settings, "MAX_THREADS", 2))
+clone_pool = ThreadPoolExecutorStackTraced(max_workers=1)
+# atexit.register(thread_pool.shutdown)
 atexit.register(clone_pool.shutdown)
 
 
@@ -142,7 +161,7 @@ class ContingencyProtocol(object):
                 result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
             except Exception:
                 future.cancel()
-                logging.error(format_exc())
+                logging.error(traceback.format_exc())
                 result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
             return result
         return decorated
