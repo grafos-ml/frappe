@@ -30,9 +30,6 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = (
     "corsheaders",
     "health_check",
-    #"health_check_db",
-    #"health_check_cache",
-    #"health_check_storage",
     "recommendation",
     "recommendation.api",
     "recommendation.filter_owned",
