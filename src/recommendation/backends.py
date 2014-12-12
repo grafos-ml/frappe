@@ -10,6 +10,8 @@ from health_check.plugins import BaseHealthCheckBackend
 from health_check.backends.base import ServiceUnavailable
 from django.core.cache import get_cache
 from django.core.cache.backends.base import InvalidCacheBackendError
+from django.db import OperationalError
+from recommendation.models import Item
 
 __author__ = "joaonrb"
 
@@ -39,3 +41,13 @@ class CheckOwnedItemsCacheBackend(BaseHealthCheckBackend):
         except InvalidCacheBackendError:
             raise ServiceUnavailable("Owned_items Cache unavailable")
 
+
+class CheckDatabaseCacheBackend(BaseHealthCheckBackend):
+
+    def check_status(self):
+        try:
+            items = Item.objects.all()[0]
+            if items != None:
+                return True
+        except OperationalError:
+            raise ServiceUnavailable("Database unavailable")
