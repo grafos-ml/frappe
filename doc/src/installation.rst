@@ -56,9 +56,6 @@ For a moment we have a very manual installation process. This will be replaced w
             # Apps need for the recommendation
             "corsheaders",
             "health_check",
-            "health_check_db",
-            "health_check_cache",
-            "health_check_storage",
 
             # Recommendation apps
             "recommendation",
