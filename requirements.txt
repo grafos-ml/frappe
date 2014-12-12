@@ -1,22 +1,22 @@
-django
-mysql-python
-django-cors-headers
+Django==1.7.1
+MySQL-python==1.2.5
+django-cors-headers==0.13
 # Test.fm fails when installing from requirements file. TO fix in Test.fm project.
 #https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
-djangorestframework
+djangorestframework==2.4.2
 futures==2.1.6
 pandas==0.14.1
-python-dateutil
-python-memcached
-pytz
+python-dateutil==2.2
+python-memcached==1.53
+pytz==2014.7
 six==1.4.1
-uwsgi
-django-health-check
+uWSGI==2.0.8
+django-health-check==1.0
 # For scripts
-docopt
-django-docopt-command
-click
+docopt==0.6.2
+django-docopt-command==0.2.0
+click==3.3
 
 # For logging errors
-mozilla-logger
+mozilla-logger==0.2
 raven==5.1.1
