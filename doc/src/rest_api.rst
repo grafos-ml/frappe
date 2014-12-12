@@ -360,6 +360,57 @@ Example::
         "message": "done"
     }
 
+
+PUT Request
++++++++++++
+
+This method is used to update a set of items. It works by deleting all user items and installing the ones passed in put.
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| user_items     | List          | List of external ids for items.           |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+Response:
+
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| Parameter Name | Type          | Description                               |
+|                |               |                                           |
++================+===============+===========================================+
+|                |               |                                           |
+| status         | Number        | The response status.                      |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+|                |               |                                           |
+| message        | Text          | Some message with information.            |
+|                |               |                                           |
++----------------+---------------+-------------------------------------------+
+
+
+Example::
+
+    Put:
+    {
+        "user_items": [
+            "453746",
+            "463842",
+            "461344",
+            "408212"
+        ]
+    }
+
+    Response:
+    {
+        "status": 200,
+        "message": "done"
+    }
+
 DELETE Request
 ++++++++++++++
 
