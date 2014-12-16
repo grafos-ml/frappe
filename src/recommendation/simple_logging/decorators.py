@@ -32,7 +32,6 @@ class LogEvent(ILogger):
             self.do_call = self.std
 
     def bulk_load(self, user, recommendation):
-        connection.close()
         new_logs = [
             LogEntry(user=user, item_id=iid, type=self.log_type, value=i)
             for i, iid in enumerate(recommendation, start=1)
@@ -46,6 +45,7 @@ class LogEvent(ILogger):
         """
         @functools.wraps(function)
         def decorated(*args, **kwargs):
+            connection.close()
             user = kwargs["user"]
             result = function(*args, **kwargs)
             self.bulk_load(user, result)
