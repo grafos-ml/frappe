@@ -20,7 +20,7 @@ INTEGRATION = {
     "HOST": os.environ.get("FRAPPE_HOST", "localhost"),
     "TEST_CHARSET": "utf8",
     "TEST_COLLATION": "utf8_general_ci",
-    "ATOMIC_REQUESTS": True
+    #"ATOMIC_REQUESTS": True
 }
 
 UNIT = {

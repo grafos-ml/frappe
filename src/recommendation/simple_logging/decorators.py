@@ -7,7 +7,6 @@ A decorator to register events into log. Created on Fev 11, 2014
 from __future__ import division, absolute_import, print_function
 from recommendation.simple_logging.models import LogEntry
 from recommendation.decorators import ILogger
-from django.db import connection
 import functools
 
 __author__ = "joaonrb"
@@ -45,7 +44,6 @@ class LogEvent(ILogger):
         """
         @functools.wraps(function)
         def decorated(*args, **kwargs):
-            connection.close()
             user = kwargs["user"]
             result = function(*args, **kwargs)
             self.bulk_load(user, result)

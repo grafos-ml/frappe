@@ -16,6 +16,7 @@ from recommendation.models import User, Inventory, Item, TensorCoFi
 from recommendation.core import get_controller
 # from recommendation.decorators import ExecuteInBackground
 from recommendation.core import log_event
+# from django.db import connection
 
 __author__ = "joaonrb"
 
@@ -149,7 +150,7 @@ class UserRecommendationAPI(RecommendationAPI):
         :param number_of_recommendations: Number of recommendations that are requested.
         :return: A HTTP response with a list of recommendations.
         """
-
+        # connection.close()
         # Here is the decorator for recommendation
         recommended_apps = \
             get_controller().get_external_id_recommendations(user_external_id, int(number_of_recommendations))
