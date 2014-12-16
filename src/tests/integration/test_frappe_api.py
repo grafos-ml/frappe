@@ -247,7 +247,7 @@ class TestRecommendation(TestCase):
 
     def test_liveliness_of_recommendation_size_15(self):
         """
-        [recommendation.api.GetRecommendation] Test liveliness for size 15 recommendation (at least 8 different items)
+        [recommendation.api.GetRecommendation] Test liveliness for size 15 recommendation (at least 5 different items)
         """
         size = 15
         response = \
@@ -264,7 +264,7 @@ class TestRecommendation(TestCase):
         for item in rec1:
             if item in rec0:
                 measure += 1
-        assert measure < (size/2.), "New recommendation not different enough"
+        assert measure < (size*2/3.), "New recommendation not different enough"
 
     def test_liveliness_of_recommendation_size_25(self):
         """
