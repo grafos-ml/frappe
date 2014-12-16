@@ -234,6 +234,7 @@ class TestRecommendation(TestCase):
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
 
         rec0 = json.loads(response.content)["recommendations"]
+        sleep(0.8)
         response = \
             self.client.get("/api/v2/recommend/%d/"
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
@@ -255,6 +256,7 @@ class TestRecommendation(TestCase):
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
 
         rec0 = json.loads(response.content)["recommendations"]
+        sleep(0.8)
         response = \
             self.client.get("/api/v2/recommend/%d/"
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
@@ -276,6 +278,7 @@ class TestRecommendation(TestCase):
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
 
         rec0 = json.loads(response.content)["recommendations"]
+        sleep(0.8)
         response = \
             self.client.get("/api/v2/recommend/%d/"
                             "00b65a359307654a7deee7c71a7563d2816d6b7e522377a66aaefe8848da5961/" % size)
