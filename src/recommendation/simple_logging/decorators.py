@@ -7,6 +7,7 @@ A decorator to register events into log. Created on Fev 11, 2014
 from __future__ import division, absolute_import, print_function
 from recommendation.simple_logging.models import LogEntry
 from recommendation.decorators import ILogger
+from django.db import connection
 import functools
 
 __author__ = "joaonrb"
@@ -31,6 +32,7 @@ class LogEvent(ILogger):
             self.do_call = self.std
 
     def bulk_load(self, user, recommendation):
+        connection.close()
         new_logs = [
             LogEntry(user=user, item_id=iid, type=self.log_type, value=i)
             for i, iid in enumerate(recommendation, start=1)
