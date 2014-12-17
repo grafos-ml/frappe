@@ -8,7 +8,7 @@ from __future__ import division, absolute_import, print_function
 import logging
 import traceback
 from recommendation.simple_logging.models import LogEntry
-from recommendation.decorators import ILogger, ExecuteInBackground
+from recommendation.decorators import ILogger
 import functools
 
 __author__ = "joaonrb"
@@ -32,7 +32,7 @@ class LogEvent(ILogger):
         else:
             self.do_call = self.std
 
-    @ExecuteInBackground()
+    #@ExecuteInBackground()
     def bulk_load(self, user, recommendation):
         try:
             new_logs = [

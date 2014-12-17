@@ -194,13 +194,6 @@ class IController(object):
         """
         Returns the recommendations with a list of external_is's
 
-        >>> class TestController(IController):
-        ...     pass
-        >>> TestController().get_external_id_recommendations(object(), n=10)
-        Traceback (most recent call last):
-        ...
-        NotImplementedError
-
         :param user: Same parameters that get_app_significance
         :param n:
         :return: Item external id list

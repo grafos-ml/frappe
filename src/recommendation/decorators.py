@@ -1,19 +1,19 @@
 #! -*- encoding: utf-8 -*-
 
 from __future__ import division, absolute_import, print_function
-import os
+#import os
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
-from django.conf import settings
+#from django.conf import settings
 from django.core.cache import get_cache
 import functools
-import atexit
+#import atexit
 import itertools
 import warnings
-import random
-import logging
+#import random
+#import logging
 import sys
 import traceback
-import recommendation.settings
+#import recommendation.settings
 try:
     from uwsgi import lock, i_am_the_spooler, unlock, mule_msg
 except ImportError:
@@ -42,27 +42,27 @@ class ThreadPoolExecutorStackTraced(ThreadPoolExecutor):
         except Exception:
             raise sys.exc_info()[0](traceback.format_exc())
 
-thread_pool = ThreadPoolExecutor(max_workers=getattr(recommendation.settings, "MAX_THREADS", 2))
+#thread_pool = ThreadPoolExecutor(max_workers=getattr(recommendation.settings, "MAX_THREADS", 2))
 # clone_pool = ThreadPoolExecutorStackTraced(max_workers=1)
-atexit.register(thread_pool.shutdown)
+#atexit.register(thread_pool.shutdown)
 # atexit.register(clone_pool.shutdown)
 
 
-class ExecuteInBackground(object):
-    """
-    Execute in threading pool
-    """
+#class ExecuteInBackground(object):
+#    """
+#    Execute in threading pool
+#    """
 
-    def __call__(self, function):
-        """
-        The call of the view.
-        """
-        @functools.wraps(function)
-        def decorated(*args, **kwargs):
-            result = thread_pool.submit(function, *args, **kwargs)
-            return result
-            #return function(*args, **kwargs)
-        return decorated
+#    def __call__(self, function):
+#        """
+#        The call of the view.
+#        """
+#        @functools.wraps(function)
+#        def decorated(*args, **kwargs):
+#            result = thread_pool.submit(function, *args, **kwargs)
+#            return result
+#            #return function(*args, **kwargs)
+#        return decorated
 
 
 class ILogger(object):
