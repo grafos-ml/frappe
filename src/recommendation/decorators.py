@@ -43,9 +43,9 @@ class ThreadPoolExecutorStackTraced(ThreadPoolExecutor):
             raise sys.exc_info()[0](traceback.format_exc())
 
 thread_pool = ThreadPoolExecutor(max_workers=getattr(recommendation.settings, "MAX_THREADS", 2))
-clone_pool = ThreadPoolExecutorStackTraced(max_workers=1)
+# clone_pool = ThreadPoolExecutorStackTraced(max_workers=1)
 atexit.register(thread_pool.shutdown)
-atexit.register(clone_pool.shutdown)
+# atexit.register(clone_pool.shutdown)
 
 
 class ExecuteInBackground(object):
@@ -139,48 +139,48 @@ class Cached(object):
         return decorated
 
 
-class ContingencyProtocol(object):
-    """
-    Execute in threading pool
-    """
-    def __init__(self):
-        self.__name__ = "ContingencyProtocol"
-        self.decorator = self.no_contingency if int(os.environ.get("FRAPPE_TEST", 0)) else self.with_contingency
+# class ContingencyProtocol(object):
+#    """
+#    Execute in threading pool
+#    """
+#    def __init__(self):
+#        self.__name__ = "ContingencyProtocol"
+#        self.decorator = self.no_contingency if int(os.environ.get("FRAPPE_TEST", 0)) else self.with_contingency
 
-    def with_contingency(self, function):
-        """
-        The call of the view.
-        """
+#    def with_contingency(self, function):
+#        """
+#        The call of the view.
+#        """
 
-        def decorated(self, user, n=10):
-            future = clone_pool.submit(function, self, user, n)
-            try:
-                result = future.result(getattr(settings, "RESPONSE_TIMEOUT", 150./1000.))
-            except TimeoutError:
-                future.cancel()
-                logging.error("TimeOut error: Contingency Protocol delivered the recommendation")
-                result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
-            except Exception:
-                future.cancel()
-                logging.error(traceback.format_exc())
-                result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
-            return result
-        return decorated
+#        def decorated(self, user, n=10):
+#            future = clone_pool.submit(function, self, user, n)
+#            try:
+#                result = future.result(getattr(settings, "RESPONSE_TIMEOUT", 150./1000.))
+#            except TimeoutError:
+#                future.cancel()
+#                logging.error("TimeOut error: Contingency Protocol delivered the recommendation")
+#                result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
+#            except Exception:
+#                future.cancel()
+#                logging.error(traceback.format_exc())
+#                result = random.sample(getattr(settings, "CONTINGENCY_ITEMS", SAMPLE), n)
+#            return result
+#        return decorated
 
-    def no_contingency(self, function):
-        """
-        The call of the view.
-        """
+#    def no_contingency(self, function):
+#        """
+#        The call of the view.
+#        """
+#
+#        def decorated(self, user, n=10):
+#            return function(self, user, n)
+#        return decorated
 
-        def decorated(self, user, n=10):
-            return function(self, user, n)
-        return decorated
-
-    def __call__(self, function):
-        """
-        The call of the view.
-        """
-        return self.decorator(function)
+#    def __call__(self, function):
+#        """
+#        The call of the view.
+#        """
+#        return self.decorator(function)
 
 SAMPLE = ["364927",
           "409126",
