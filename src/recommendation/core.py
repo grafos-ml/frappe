@@ -273,6 +273,8 @@ def get_controller(name="default"):
     :param name: The name of the controller
     :return: A controller or raise NotImplemented exception
     """
+    from django import db
+    db.close_connection()
     try:
         return RECOMMENDATION_ENGINES[name]
     except KeyError:
