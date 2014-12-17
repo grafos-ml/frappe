@@ -5,6 +5,8 @@ A decorator to register events into log. Created on Fev 11, 2014
 """
 
 from __future__ import division, absolute_import, print_function
+import logging
+import traceback
 from recommendation.simple_logging.models import LogEntry
 from recommendation.decorators import ILogger, ExecuteInBackground
 import functools
@@ -32,12 +34,17 @@ class LogEvent(ILogger):
 
     @ExecuteInBackground()
     def bulk_load(self, user, recommendation):
-        new_logs = [
-            LogEntry(user=user, item_id=iid, type=self.log_type, value=i)
-            for i, iid in enumerate(recommendation, start=1)
-        ]
-        LogEntry.objects.bulk_create(new_logs)
-        LogEntry.add_logs(user, new_logs)
+        try:
+            new_logs = [
+                LogEntry(user=user, item_id=iid, type=self.log_type, value=i)
+                for i, iid in enumerate(recommendation, start=1)
+            ]
+            LogEntry.objects.bulk_create(new_logs)
+            LogEntry.add_logs(user, new_logs)
+        except Exception:
+            logging.error(logging.error(traceback.format_exc()))
+        else:
+            logging.debug("Recommendation logged for user %s" % user.external_id)
 
     def log_recommendation(self, function):
         """
