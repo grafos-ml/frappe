@@ -2,7 +2,7 @@
 
 from __future__ import division, absolute_import, print_function
 #import os
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
+from concurrent.futures import ThreadPoolExecutor  # , TimeoutError
 #from django.conf import settings
 from django.core.cache import get_cache
 import functools
