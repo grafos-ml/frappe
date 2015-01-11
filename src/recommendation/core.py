@@ -198,7 +198,11 @@ class IController(object):
         :param n:
         :return: Item external id list
         """
-        user = User.get_user_by_external_id(user)
+        try:
+            user = User.get_user_by_external_id(user)
+        except IndexError:
+            logging.info("User %s not exist. Is going to be created")
+            user = User.objects.create(external_id=user)
         result = self.get_recommendation(user=user, n=n)
         return [Item.get_item_external_id_by_id(r) for r in result]
 
