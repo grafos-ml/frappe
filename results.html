@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Performance &mdash; Frappe 2.1.4 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Frappe 2.1.4 documentation" href="index.html"/>
+        <link rel="next" title="Changelog" href="changelog.html"/>
+        <link rel="prev" title="Demo Client" href="client.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> Frappe</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#getting-started">Getting Started</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial for Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#make-a-filter">Make a filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#overview-of-the-serving-system">Overview of the serving system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rest_api.html">RESTFul API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#recommendation-api">Recommendation API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#data-types">Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#request-recommendations">Request Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#item-app-detail">Item/App Detail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#user-items-api">User Items API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#user-api">User API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#health">Health</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">Demo Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="client.html#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client.html#todo">TODO</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Performance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#response-times">Response Times</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">2.1.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">2.0.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">2.0.2</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Frappe</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Performance</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/results.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="performance">
+<h1>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h1>
+<p>Some results over computing performance and result accuracy.</p>
+<div class="section" id="response-times">
+<h2>Response Times<a class="headerlink" href="#response-times" title="Permalink to this headline">¶</a></h2>
+<p>Tests on performance were made with Mozilla data set deployed on uwsgi with 4 processes and nginx proxy. The script
+run to get the performance is under the project on directory folders and the user_reco_url.txt is a file with all users
+url for recommend 5 items with the Frappe rest api.</p>
+<div class="section" id="data">
+<h3>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h3>
+<p><strong>Items</strong>: 5279</p>
+<p><strong>Users</strong>: 91946</p>
+<p><strong>Entries</strong>: 1470331</p>
+</div>
+<div class="section" id="machine">
+<h3>Machine<a class="headerlink" href="#machine" title="Permalink to this headline">¶</a></h3>
+<p><strong>OS</strong>: Ubuntu 12.04 Server</p>
+<p><strong>Processor</strong>: Intel(R) Xeon(R) CPU E5-2680 0 &#64; 2.70GHz x 2</p>
+<p><strong>Memory</strong>: 16GB</p>
+</div>
+<div class="section" id="results">
+<h3>Results<a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26</pre></div></td><td class="code"><div class="highlight"><pre>  <span class="c"># 2014-Oct-15</span>
+
+  <span class="nv">$ </span>sb -f ~/frappe/mozzila/user_reco_url.txt <span class="m">10000</span> -c <span class="m">32</span> -p 32
+
+  N                                  10000
+  Mean<span class="o">(</span><span class="nb">time</span><span class="o">)</span>                         99.982 ms
+  Standard deviation<span class="o">(</span><span class="nb">time</span><span class="o">)</span>           24.486 ms
+  Percentile 50%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>               <span class="m">116</span> ms
+  Percentile 66%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>               <span class="m">116</span> ms
+  Percentile 75%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>               <span class="m">117</span> ms
+  Percentile 90%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>               <span class="m">118</span> ms
+  Percentile 95%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>               <span class="m">119</span> ms
+  Percentile 96%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>               <span class="m">120</span> ms
+  Percentile 97%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>               <span class="m">120</span> ms
+  Percentile 98%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>               <span class="m">122</span> ms
+  Percentile 99%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>               <span class="m">134</span> ms
+  Percentile 100%<span class="o">(</span><span class="nb">time</span><span class="o">)</span>              <span class="m">219</span> ms
+
+  <span class="nv">$ </span>siege <span class="o">[</span>-c4 -c8 -c16 -c32 -c64<span class="o">]</span> -t1m -b -i -f user_reco_url.txt
+
+         Date <span class="p">&amp;</span> Time,  Trans,  Elap Time,  Data Trans,  Resp Time,  Trans Rate,  Throughput,  Concurrent,    OKAY,   Failed
+ 2014-10-21 06:02:29,   2343,      29.24,           0,       0.05,       80.13,        0.00,        4.00,    2343,       0
+ 2014-10-21 06:03:25,   2087,      29.35,           0,       0.11,       71.11,        0.00,        7.98,    2087,       0
+ 2014-10-21 06:04:42,   2388,      29.90,           0,       0.20,       79.87,        0.00,       15.93,    2388,       0
+ 2014-10-21 06:00:36,   2321,      29.70,           0,       0.41,       78.15,        0.00,       31.77,    2321,       0
+ 2014-10-21 06:07:32,   2286,      29.08,           0,       0.80,       78.61,        0.00,       63.03,    2286,       0
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="client.html" class="btn btn-neutral" title="Demo Client"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, Linas Baltrunas and João Baptista.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

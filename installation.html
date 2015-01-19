@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; Frappe 2.1.4 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Frappe 2.1.4 documentation" href="index.html"/>
+        <link rel="next" title="Tutorial for Developers" href="tutorial.html"/>
+        <link rel="prev" title="Welcome to Frappe’s documentation!" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> Frappe</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial for Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#make-a-filter">Make a filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#overview-of-the-serving-system">Overview of the serving system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rest_api.html">RESTFul API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#recommendation-api">Recommendation API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#data-types">Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#request-recommendations">Request Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#item-app-detail">Item/App Detail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#user-items-api">User Items API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#user-api">User API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#health">Health</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">Demo Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="client.html#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client.html#todo">TODO</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="results.html">Performance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="results.html#response-times">Response Times</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">2.1.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">2.0.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">2.0.2</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Frappe</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Installation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/installation.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="installation">
+<span id="installation-and-configuration"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>For now Frappe is dependent of a few tools in order to work properly.
+First, the production server is likely to run with multiple python processes. To increase performance cache is used.
+This cache need to be accessible to all processes, so local cache is no good. We currently using <tt class="docutils literal"><span class="pre">Memcached</span></tt>. You can use
+other as long it has the standard django cache interface.</p>
+<p>Other thing is the lock to cache.For this we use the locks available in uwsgi. Because of this, the use of <tt class="docutils literal"><span class="pre">uwsgi</span></tt> is
+a requisite.</p>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>First thing, you will need to install the python module test.fm independently of the rest:</p>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="nv">$ </span>pip install https://github.com/grafos-ml/test.fm/archive/v1.0.4.tar.gz
+</pre></div>
+</td></tr></table></div>
+<p>Then run the setup on the package agfter donload it from <a class="reference external" href="https://github.com/grafos-ml/frappe">Github</a>:</p>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="nv">$ </span>./setup.py install
+</pre></div>
+</td></tr></table></div>
+<p>Or using pip from the link:</p>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="nv">$ </span>pip install frappe
+</pre></div>
+</td></tr></table></div>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<p>For a moment we have a very manual installation process. This will be replaced with pip style installs any time soon.</p>
+<ol class="arabic simple">
+<li>First you need to add recommendation module to the installed apps in Django recommendation.settings of the main project:</li>
+</ol>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="c"># recommendation.settings.py</span>
+
+    <span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
+         <span class="o">...</span>  <span class="c"># A ton of cool Django apps</span>
+         <span class="c"># Apps need for the recommendation</span>
+         <span class="s">&quot;corsheaders&quot;</span><span class="p">,</span>
+         <span class="s">&quot;health_check&quot;</span><span class="p">,</span>
+
+         <span class="c"># Recommendation apps</span>
+         <span class="s">&quot;recommendation&quot;</span><span class="p">,</span>
+         <span class="s">&quot;recommendation.api&quot;</span><span class="p">,</span>
+         <span class="s">&quot;recommendation.filter_owned&quot;</span><span class="p">,</span>
+         <span class="s">&quot;recommendation.language&quot;</span><span class="p">,</span>
+         <span class="s">&quot;recommendation.simple_logging&quot;</span><span class="p">,</span>
+         <span class="s">&quot;recommendation.diversity&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c"># Middleware needed</span>
+    <span class="n">MIDDLEWARE_CLASSES</span> <span class="o">=</span> <span class="p">(</span>
+         <span class="s">&quot;corsheaders.middleware.CorsMiddleware&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c"># Need to have a default cache and a robust cache engine.</span>
+    <span class="n">CACHES</span> <span class="o">=</span> <span class="p">{</span>
+         <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&quot;BACKEND&quot;</span><span class="p">:</span> <span class="s">&quot;django.core.cache.backends.locmem.LocMemCache&quot;</span><span class="p">,</span>
+             <span class="s">&quot;LOCATION&quot;</span><span class="p">:</span> <span class="s">&quot;django_default_cache&quot;</span><span class="p">,</span>
+             <span class="s">&quot;OPTIONS&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s">&quot;MAX_ENTRIES&quot;</span><span class="p">:</span> <span class="mi">10000000</span>
+             <span class="p">}</span>
+         <span class="p">},</span>
+         <span class="s">&quot;owned_items&quot;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s">&quot;BACKEND&quot;</span><span class="p">:</span> <span class="s">&quot;django.core.cache.backends.memcached.MemcachedCache&quot;</span><span class="p">,</span>
+             <span class="s">&quot;LOCATION&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1:11211&quot;</span><span class="p">,</span>
+         <span class="p">}</span>
+     <span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>You will also to change the wsgi.py file to import the application variable from recommendation wsgi.py:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="c"># wsgi.py</span>
+
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&quot;DJANGO_SETTINGS_MODULE&quot;</span><span class="p">,</span> <span class="s">&quot;your_django_app.recommendation.settings&quot;</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">recommendation.wsgi</span> <span class="kn">import</span> <span class="n">application</span>
+</pre></div>
+</td></tr></table></div>
+<p>And last file the urls.py on your project to:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="kn">import</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">include</span><span class="p">,</span> <span class="n">url</span>
+
+    <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">(</span><span class="s">r&quot;^&quot;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s">&quot;recommendation.urls&quot;</span><span class="p">)))</span>
+</pre></div>
+</td></tr></table></div>
+<ol class="arabic simple" start="2">
+<li>Next, you need to create the Django modules using.</li>
+</ol>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="nv">$ </span>./manage.py syncdb
+</pre></div>
+</td></tr></table></div>
+<p>3. Now you have to fill the database with applications and user data. Frappe ships with a fill command to help this
+task. This command allow to load items or users fro json files in some directory or use a api. This api should
+return a tarball file with the item or user files. The command is configurable with options some options and a
+special case for Mozilla FireFox OS App store apps api.</p>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31</pre></div></td><td class="code"><div class="highlight"><pre>    Frappe fill - Fill database
+
+    Usage:
+       fill <span class="o">(</span>items<span class="p">|</span>users<span class="o">)</span> &lt;path&gt; <span class="o">[</span>options<span class="o">]</span>
+       fill <span class="o">(</span>items<span class="p">|</span>users<span class="o">)</span> --webservice<span class="o">=</span>&lt;url&gt; <span class="o">[</span>options<span class="o">]</span>
+       fill items --mozilla <span class="o">(</span>dev <span class="p">|</span> prod<span class="o">)</span> <span class="o">[</span>today <span class="p">|</span> yesterday <span class="p">|</span> &lt;date&gt;<span class="o">]</span> <span class="o">[</span>--verbose<span class="o">]</span>
+       fill <span class="o">(</span>items<span class="p">|</span>users<span class="o">)</span> --mozilla &lt;path&gt; <span class="o">[</span>--verbose<span class="o">]</span>
+       fill --help
+       fill --version
+
+    Options:
+       -i --item<span class="o">=</span>&lt;field&gt;                Item identifier in file <span class="o">[</span>default: external_id<span class="o">]</span>.
+       -u --user<span class="o">=</span>&lt;field&gt;                User identifier in file <span class="o">[</span>default: external_id<span class="o">]</span>.
+       --item-file-identifier<span class="o">=</span>&lt;field&gt;   Field that identify item json file <span class="o">[</span>default: item<span class="o">]</span>.
+       --user-file-identifier<span class="o">=</span>&lt;field&gt;   File that identify user json file <span class="o">[</span>default: user<span class="o">]</span>.
+       --item-genres<span class="o">=</span>&lt;field&gt;            Field in items <span class="k">for</span> genres <span class="o">[</span>default: genres<span class="o">]</span>.
+       --item-locales<span class="o">=</span>&lt;field&gt;           Field in items <span class="k">for</span> locales <span class="o">[</span>default: locales<span class="o">]</span>.
+       --user-items<span class="o">=</span>&lt;field&gt;             Field in user <span class="k">for</span> user items <span class="o">[</span>default: items<span class="o">]</span>.
+       --user-item-identifier<span class="o">=</span>&lt;field&gt;   Field to identify item in user inventory <span class="o">[</span>default: external_id<span class="o">]</span>.
+       --user-item-acquired<span class="o">=</span>&lt;field&gt;     Field to identify item acquisition date <span class="o">[</span>default: acquired<span class="o">]</span>.
+       --user-item-dropped<span class="o">=</span>&lt;field&gt;      Field to identify item acquisition date <span class="o">[</span>default: dropped<span class="o">]</span>.
+       --date-format<span class="o">=</span>&lt;field&gt;            Field to date format <span class="o">[</span>default: %Y-%m-%dT%H:%M:%S<span class="o">]</span>
+       -v --verbose                     Set verbose mode.
+       -h --help                        Show this screen.
+       --version                        Show version.
+
+    <span class="c"># Call mozilla app api from today</span>
+    <span class="nv">$ </span>./manage.py fill items --mozilla dev today
+
+    <span class="c"># Call fill from path with mozilla recommendation.settings</span>
+    <span class="nv">$ </span>./manage.py fill users --mozilla recommender/package/path/src/bin/data/user
+</pre></div>
+</td></tr></table></div>
+<p>4. To retrieve recommendations a recommendation model (statistical representation of your data) must be built.
+To have it built you have to run the script:</p>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="nv">$ </span>./manage.py modelcrafter train tensorcofi  <span class="c"># For tensorcofi model</span>
+    <span class="nv">$ </span>./manage.py modelcrafter train popularity  <span class="c"># For Popularity</span>
+</pre></div>
+</td></tr></table></div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This models are static and represent popularity recommendation and tensorCoFi (TF) factor matrix for the user and
+item population at the moment they are build. Because of that, it doesn&#8217;t make sense to build any model with no
+users or items in the database. Also, you will want to rebuild the models once in a while, as the users and items
+will be added and new connections between user and item are created.</p>
+</div>
+<p>In reality, you will need some data about users and items in your system. The popularity model is used when the system has few
+information about a user. And the TF in case that the system has some (&gt;3 apps installed) info about the user.</p>
+<p>This script is shipping with the recommendation framework and builds this matrix. You will want to continue to build
+the matrix for new users and items to be included. Keep that in mind.</p>
+<p>And voilá, you got your self a recommendation system for your precious little web site. It&#8217;s a bit static though.</p>
+<div class="highlight-bash"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="nv">$ </span>./manage.py runserver
+</pre></div>
+</td></tr></table></div>
+<p>Open firefox browser at <a class="reference external" href="http://127.0.0.1:8000/api/v2/recommendation_size/user_external_id/">http://127.0.0.1:8000/api/v2/recommendation_size/user_external_id/</a></p>
+<p>5. Now you can try to access also the REST API. The full documentation of APIs can be found through the Table of Content.
+For example, to generate JSON response just point your web browser to this
+<a class="reference external" href="http://localhost:8000/api/v2/recommend/5/002c50b7dae6a30ded5372ae1033da43bba90b4d477733375994791e758fbee0.json">link</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is the example recommendation.settings for the firefox dummy data that the developer is working with. The module firefox
+is a working example with a mysql DB that I am working locally. If you change the db recommendation.settings in firefox module you can
+use the script manager_firefox.py that is installed with setup and avoid major deployment.</p>
+</div>
+</div>
+<div class="section" id="plugin-installations">
+<h3>Plugin Installations<a class="headerlink" href="#plugin-installations" title="Permalink to this headline">¶</a></h3>
+<p>To remove the &#8220;statiness&#8221; of the recommendations you can always install new plugins. The recommendation framework ships
+with some pretty neat plugins. Installed in the same way any Django app is installed. Just keep in mind one thing. In
+case of re-rankers and filters, your system should do some actions before others. For instance, you may want
+that your recommendation have always a big diversity in genre but that don&#8217;t send every time the same items. Because of
+that you also have to use a special recommendation.settings environment called RECOMMENDATION_SETTINGS. This variable is a dictionary,
+much like a static configuration. You also have a default standard and might have more to use in special situations. Basically, it
+a core engine(the structure that request the recommendation and use the filters and re-rankers), A list of filters and
+another list for re-rankers. Typically, the filters will execute first and re-rankers after and the execute in the same
+order that they are registered in RECOMMENDATION_SETTINGS. It will also need a logger class. The logger class is a
+decorator that will record the events in some way.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="c"># recommendation.settings.py</span>
+
+    <span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
+         <span class="o">...</span>  <span class="c"># A ton of cool Django apps</span>
+         <span class="s">&quot;recommendation&quot;</span><span class="p">,</span>
+         <span class="s">&quot;recommendation.diversity&quot;</span><span class="p">,</span>  <span class="c"># First do diversity</span>
+         <span class="s">&quot;recommendation.records&quot;</span><span class="p">,</span>  <span class="c"># Than re-rank based on records</span>
+         <span class="o">...</span>
+    <span class="p">)</span>
+
+    <span class="n">RECOMMENDATION_SETTINGS</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s">&quot;core&quot;</span><span class="p">:</span> <span class="s">&quot;recommendation.core.TensorCoFiController&quot;</span><span class="p">,</span>
+         <span class="s">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
+             <span class="s">&quot;recommendation.filter_owned.filters.FilterOwned&quot;</span><span class="p">,</span>
+             <span class="s">&quot;recommendation.language.filters.SimpleLocaleFilter&quot;</span><span class="p">,</span>
+             <span class="s">&quot;recommendation.simple_logging.filters.SimpleLogFilter&quot;</span><span class="p">,</span>
+             <span class="p">],</span>
+         <span class="s">&quot;rerankers&quot;</span><span class="p">:</span> <span class="p">[</span>
+             <span class="s">&quot;recommendation.diversity.rerankers.simple.SimpleDiversityReRanker&quot;</span>
+         <span class="p">]</span>
+     <span class="p">},</span>
+     <span class="s">&quot;logger&quot;</span><span class="p">:</span> <span class="s">&quot;recommendation.simple_logging.decorators.LogEvent&quot;</span>
+ <span class="p">}</span>
+
+ <span class="n">Now</span> <span class="n">you</span> <span class="n">have</span> <span class="n">an</span> <span class="n">awesome</span> <span class="n">recommendation</span> <span class="n">system</span><span class="o">.</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="caching-configuration">
+<h3>Caching Configuration<a class="headerlink" href="#caching-configuration" title="Permalink to this headline">¶</a></h3>
+<p>For performance reasons all the data is cached &#8220;à priori&#8221;. Because of the different nature of the data, the caching
+configuration is a very important part in deployment. We can divide to 2 kinds of data. Data witch state must be
+consistent in every node and data that is to big to be stored remotely. Because of this we have 2 kinds of caching.</p>
+<div class="section" id="default">
+<h4>default<a class="headerlink" href="#default" title="Permalink to this headline">¶</a></h4>
+<p>A cache that can support big structures and heavy reads. We use localmemcache from django standard backends.</p>
+</div>
+<div class="section" id="owned-items">
+<h4>owned_items<a class="headerlink" href="#owned-items" title="Permalink to this headline">¶</a></h4>
+<p>A distributed cache among processes. Owned items are a sets of data that must remain with the same state independent
+of the process that handles the request.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial for Developers"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to Frappe’s documentation!"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, Linas Baltrunas and João Baptista.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

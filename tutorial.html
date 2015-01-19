@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorial for Developers &mdash; Frappe 2.1.4 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Frappe 2.1.4 documentation" href="index.html"/>
+        <link rel="next" title="RESTFul API" href="rest_api.html"/>
+        <link rel="prev" title="Installation" href="installation.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> Frappe</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#getting-started">Getting Started</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Tutorial for Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#make-a-filter">Make a filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview-of-the-serving-system">Overview of the serving system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rest_api.html">RESTFul API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#recommendation-api">Recommendation API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#data-types">Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#request-recommendations">Request Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#item-app-detail">Item/App Detail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#user-items-api">User Items API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#user-api">User API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rest_api.html#health">Health</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">Demo Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="client.html#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client.html#todo">TODO</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="results.html">Performance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="results.html#response-times">Response Times</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">2.1.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">2.0.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">2.0.2</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Frappe</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Tutorial for Developers</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/tutorial.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="tutorial-for-developers">
+<span id="tutorial"></span><h1>Tutorial for Developers<a class="headerlink" href="#tutorial-for-developers" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="make-a-filter">
+<h2>Make a filter<a class="headerlink" href="#make-a-filter" title="Permalink to this headline">¶</a></h2>
+<p>A filter is a callable class that can be used to implement a business logic to filter out irrelevant recommendations.
+Filters are executed after a recommendation model (such as Collaborative Filtering) made user-item utility score predictions.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">class</span> <span class="nc">SomeFilter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">recommendation</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+         <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">         :param user: An recommendation.models.User instance for the user that ask for the recommendation.</span>
+<span class="sd">         :param recommendation: An numpy.array with shape (n,) being n the number of items in the system.</span>
+<span class="sd">             The index of the array should represent the id for the item in the database and the value a</span>
+<span class="sd">             score in witch the recommendation will be evaluated.</span>
+<span class="sd">         :param size: The size of the recommendation asked.</span>
+<span class="sd">         &quot;&quot;&quot;</span>
+         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">user</span><span class="o">.</span><span class="n">owned_items</span><span class="p">:</span>
+             <span class="n">recommendation</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">pk</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&quot;-inf&quot;</span><span class="p">)</span>
+         <span class="k">return</span> <span class="n">recommendation</span>
+</pre></div>
+</td></tr></table></div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The raw recommendation come from <a class="reference external" href="https://github.com/grafos-ml/test.fm">test.fm</a> framework. Test.fm is not aware of data origin or mapping. It just
+receives items from 0 to n and users from 0 to m and delivers a list of scores where the index represent the item.
+In order to make this mapping we use SQL id. It starts in 1 so we must decrement 1 for mapping. The same goes for
+user. The incrementation occurs when turning recommendation index to MySQL ids.</p>
+</div>
+<p>Lets take a look at the filter, which removes items already owned by a user from the recommendation list.
+The idea is to take an original scores produced by an algorithm (passed as <em>recommendation</em>) and modify them
+to fit our needs. In this case, the filter traverses the list of items that the user owns and put the lowest
+possible score for that item instead of the original score. We will recommend items with the highest scores,
+therefore, these items will not likely be ever recommended.</p>
+<p>After finished implementing the filter it must be registered to the system.
+You should edit recommendation.settings.py and modify <em>RECOMMENDATION_SETTINGS</em> variable by registering the new filter
+with the other filters.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="highlight"><pre><span class="c"># recommendation.settings.py</span>
+
+<span class="n">RECOMMENDATION_SETTINGS</span> <span class="o">=</span> <span class="p">{</span>
+     <span class="s">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s">&quot;core&quot;</span><span class="p">:</span> <span class="s">&quot;recommendation.core.TensorCoFiController&quot;</span><span class="p">,</span>
+         <span class="s">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">TESTING_MODE</span> <span class="k">else</span> <span class="p">[</span>
+             <span class="o">...</span>
+             <span class="s">&quot;some_package.filters.SomeFilter&quot;</span><span class="p">,</span>
+             <span class="o">...</span>
+             <span class="p">],</span>
+         <span class="s">&quot;rerankers&quot;</span><span class="p">:</span> <span class="p">[</span>
+             <span class="o">...</span>
+         <span class="p">]</span>
+     <span class="p">},</span>
+     <span class="s">&quot;logger&quot;</span><span class="p">:</span> <span class="s">&quot;recommendation.simple_logging.decorators.LogEvent&quot;</span>
+ <span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If your filter is build in a django app and is dependent of a model of that app, you must include the app in
+the installed apps and syncdb or make sure the proper tables exist. The same goes for other django specific like
+middlewares, cache, etc...</p>
+</div>
+</div>
+<div class="section" id="overview-of-the-serving-system">
+<h2>Overview of the serving system<a class="headerlink" href="#overview-of-the-serving-system" title="Permalink to this headline">¶</a></h2>
+<p>While implementing recsys serving engine we had to make some architecture choices.
+For example, we do on-line recommendation computations instead of precomputing recommendations
+for each user and serving them. This provides flexibility, but limit us on the number
+of request per second we can serve. Currently we can respond in reasonable time for catalogue of 50K items.</p>
+<p>Here we want to overview the system and explain some design choices. The full documentation will be expanded
+in the branch (v3_develop) where implementation will take place.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="rest_api.html" class="btn btn-neutral float-right" title="RESTFul API"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral" title="Installation"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, Linas Baltrunas and João Baptista.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

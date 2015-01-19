@@ -1,0 +1,902 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>RESTFul API &mdash; Frappe 2.1.4 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Frappe 2.1.4 documentation" href="index.html"/>
+        <link rel="next" title="Demo Client" href="client.html"/>
+        <link rel="prev" title="Tutorial for Developers" href="tutorial.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> Frappe</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#getting-started">Getting Started</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial for Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#make-a-filter">Make a filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#overview-of-the-serving-system">Overview of the serving system</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">RESTFul API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recommendation-api">Recommendation API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-types">Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#request-recommendations">Request Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#item-app-detail">Item/App Detail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#user-items-api">User Items API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#user-api">User API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#health">Health</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">Demo Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="client.html#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client.html#todo">TODO</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="results.html">Performance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="results.html#response-times">Response Times</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">2.1.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">2.0.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">2.0.2</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Frappe</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>RESTFul API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/rest_api.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="restful-api">
+<span id="id1"></span><h1>RESTFul API<a class="headerlink" href="#restful-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="about">
+<h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
+<p>FireFox OS Store Recommendation webservice is a way to get apps recommendations
+considering some user experience. The system is simple, the user send some data
+its experience and receive a set of recommended apps to his profile. This
+experience can be apps already installed, apps rejected, user location, time,
+season, etc...</p>
+<p>This new version has little difference from his previous one. Mainly now you can
+use a bunch of formats for response. JSON is maintained as the default but you
+always get XML and YAML. HTML format and other just depend on plugins. I will
+research witch may needed an write them on the requirements.txt on the repo.
+In the back-end there was a huge change. All the ReST API system was imported to
+TastyPie Framework. That&#8217;s way so many things are possible now.</p>
+</div>
+<div class="section" id="recommendation-api">
+<h2>Recommendation API<a class="headerlink" href="#recommendation-api" title="Permalink to this headline">¶</a></h2>
+<p>Just a brief note about the documentation. The ReST description tables here on
+this document always start with a response or request field in the first entry.
+That&#8217;s not a name of an actual field. It&#8217;s is the type of the response. Usually
+a object or list. The entries following the first describe the elements that
+are used in it.</p>
+<p>Just to make things more clear, a example is provided following the table.</p>
+</div>
+<div class="section" id="data-types">
+<h2>Data Types<a class="headerlink" href="#data-types" title="Permalink to this headline">¶</a></h2>
+<p>Every field data type used in the request and response are described in the
+following table.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="16%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type</th>
+<th class="head">Data Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Text</td>
+<td>String</td>
+<td>Common text like names or descriptions. Ex:
+This description.</td>
+</tr>
+<tr class="row-odd"><td>Natural Number</td>
+<td>Integer</td>
+<td>Numbers commonly used to count things. Ex:
+How many times something.</td>
+</tr>
+<tr class="row-even"><td>Real Number</td>
+<td>Float</td>
+<td>Number used to measure things like distances,
+latitude, etc...</td>
+</tr>
+<tr class="row-odd"><td>Date &amp; Time</td>
+<td>String</td>
+<td>Date in format &#8216;YYYY-MM-DDTHH:MI:SS&#8217;. Note
+that its the date followed by a capital T and
+then the time.</td>
+</tr>
+<tr class="row-even"><td>List&lt;type&gt;</td>
+<td>Array</td>
+<td>List of some data type elements. The type
+in the List is the type of data of the
+elements in the list. If type is not provided
+in the documentation you should consider
+multiple data types among the elements in the
+the list. But that would never happen because
+we are really good and will never do such
+nonsense.</td>
+</tr>
+<tr class="row-odd"><td>Object</td>
+<td>Dictionary</td>
+<td>A JSON Dictionary with some fields mapping
+some values. This Values can be of any data
+type described in this table.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="request-recommendations">
+<h2>Request Recommendations<a class="headerlink" href="#request-recommendations" title="Permalink to this headline">¶</a></h2>
+<p>The request recommendation method work over ReST request in a JSON or XML.
+The response come as has a list of app IDS.</p>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/recommend/&lt;recommendation_number&gt;/&lt;user_id&gt;.&lt;format&gt;
+http://domain.com/api/v2/recommend/&lt;recommendation_number&gt;/&lt;user_id&gt;/&lt;format&gt;/
+http://domain.com/api/v2/recommend/&lt;recommendation_number&gt;/&lt;user_id&gt;/  # Default format is JSON
+</pre></div>
+</div>
+<div class="section" id="get-request">
+<h3>GET Request<a class="headerlink" href="#get-request" title="Permalink to this headline">¶</a></h3>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/recommend/120/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173.xml
+</pre></div>
+</div>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Response</td>
+<td>Object</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>external_id</td>
+<td>String</td>
+<td>The identifier of the user</td>
+</tr>
+<tr class="row-even"><td>recommendations</td>
+<td>List&lt;String&gt;</td>
+<td>A list with suggested items ids.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>XML Response:
+    &lt;root&gt;
+        &lt;user&gt;
+            0033597455692156e68dfdc2fc3936595b560834d1a0d68d8606e23779f454e1
+        &lt;/user&gt;
+        &lt;recommendations&gt;
+            &lt;list-item&gt;457282&lt;/list-item&gt;
+            &lt;list-item&gt;469837&lt;/list-item&gt;
+            &lt;list-item&gt;472640&lt;/list-item&gt;
+            &lt;list-item&gt;455346&lt;/list-item&gt;
+        &lt;/recommendations&gt;
+    &lt;/root&gt;
+
+JSON Response:
+    {
+        user: &quot;0033597455692156e68dfdc2fc3936595b560834d1a0d68d8606e23779f454e1&quot;,
+        recommendations: [
+            &quot;453746&quot;,
+            &quot;463842&quot;,
+            &quot;461344&quot;,
+            &quot;408212&quot;
+        ]
+    }
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="item-app-detail">
+<h2>Item/App Detail<a class="headerlink" href="#item-app-detail" title="Permalink to this headline">¶</a></h2>
+<p>To retrieve information about a specific application.</p>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/item/&lt;app external id&gt;.&lt;format&gt;
+http://domain.com/api/v2/item/&lt;app external id&gt;/&lt;format&gt;/
+http://domain.com/api/v2/item/&lt;app external id&gt;/  # Default format is JSON
+</pre></div>
+</div>
+<div class="section" id="id2">
+<h3>GET Request<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>The request may have a set of extra GET parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>user</td>
+<td>String</td>
+<td>An external id of the user in case is an
+installed app.</td>
+</tr>
+<tr class="row-odd"><td>rank</td>
+<td>Number</td>
+<td>The rank of the application in case of it
+source was from a recommendation.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/item/457282.json?rank=4&amp;user=006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173
+</pre></div>
+</div>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>name</td>
+<td>String</td>
+<td>The name of the app.</td>
+</tr>
+<tr class="row-odd"><td>external_id</td>
+<td>String</td>
+<td>The external id of the item.</td>
+</tr>
+<tr class="row-even"><td>details</td>
+<td>URL</td>
+<td>The URL for app details.</td>
+</tr>
+<tr class="row-odd"><td>store</td>
+<td>URI</td>
+<td>The URI to the &#8220;go to store&#8221;
+functionality.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="n">external_id</span><span class="p">:</span> <span class="s">&quot;457282&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="s">&quot;Kronometro Vulpa&quot;</span><span class="p">,</span>
+    <span class="n">store</span><span class="p">:</span> <span class="s">&quot;/api/v2/recommended/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/457282/?rank=4&quot;</span><span class="p">,</span>
+    <span class="n">details</span><span class="p">:</span> <span class="s">&quot;https://marketplace.firefox.com/api/v1/apps/app/457282/&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="user-items-api">
+<h2>User Items API<a class="headerlink" href="#user-items-api" title="Permalink to this headline">¶</a></h2>
+<p>With this API is possible to check user owned items/installed apps. This API also allow acquire or drop an item (install
+or uninstall an app) using the POST and DELETE methods.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All the <em>unsafe</em> HTTP methods require a crsf token. But in this case and since the API is not supposed to contact
+with public we will disable this functionality.</p>
+</div>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/user-items/&lt;user external id&gt;.&lt;format&gt;
+http://domain.com/api/v2/user-items/&lt;user external id&gt;/&lt;format&gt;/
+http://domain.com/api/v2/user-items/&lt;user external id&gt;/  # Default format is JSON
+</pre></div>
+</div>
+<div class="section" id="id3">
+<h3>GET Request<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>The request <em>may</em> have a set of extra GET parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Request</td>
+<td>Object</td>
+<td>User information.</td>
+</tr>
+<tr class="row-odd"><td>offset</td>
+<td>Number</td>
+<td>The number of items to drop before
+deliver in response.</td>
+</tr>
+<tr class="row-even"><td>items</td>
+<td>Number</td>
+<td>The number of items to be delivered in
+the response.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173/xml/?offset=10&amp;items=30
+http://domain.com/api/v2/user-items/006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173.json
+</pre></div>
+</div>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>user</td>
+<td>String</td>
+<td>The user external id.</td>
+</tr>
+<tr class="row-odd"><td>items</td>
+<td>List</td>
+<td>A list of owned items.</td>
+</tr>
+</tbody>
+</table>
+<p>Owned Items:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="19%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>external_id</td>
+<td>String</td>
+<td>The item external id.</td>
+</tr>
+<tr class="row-odd"><td>is_dropped</td>
+<td>Boolean</td>
+<td>Is the item was dropped by user.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="n">items</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="n">is_dropped</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+            <span class="n">external_id</span><span class="p">:</span> <span class="s">&quot;413346&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="n">user</span><span class="p">:</span> <span class="s">&quot;006a508fe63e87619db5c3db21da2c536f24e296c29d885e4b48d0b5aa561173&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="post-request">
+<h3>POST Request<a class="headerlink" href="#post-request" title="Permalink to this headline">¶</a></h3>
+<p>This method is used to acquire/install a new item/application to the user inventory. It still need a Post parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>item_to_acquire</td>
+<td>String</td>
+<td>The item external id.</td>
+</tr>
+</tbody>
+</table>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>status</td>
+<td>Number</td>
+<td>The response status.</td>
+</tr>
+<tr class="row-odd"><td>message</td>
+<td>Text</td>
+<td>Some message with information.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="s">&quot;message&quot;</span><span class="p">:</span> <span class="s">&quot;done&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="put-request">
+<h3>PUT Request<a class="headerlink" href="#put-request" title="Permalink to this headline">¶</a></h3>
+<p>This method is used to update a set of items. It works by deleting all user items and installing the ones passed in put.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>user_items</td>
+<td>List</td>
+<td>List of external ids for items.</td>
+</tr>
+</tbody>
+</table>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>status</td>
+<td>Number</td>
+<td>The response status.</td>
+</tr>
+<tr class="row-odd"><td>message</td>
+<td>Text</td>
+<td>Some message with information.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>Put:
+{
+    &quot;user_items&quot;: [
+        &quot;453746&quot;,
+        &quot;463842&quot;,
+        &quot;461344&quot;,
+        &quot;408212&quot;
+    ]
+}
+
+Response:
+{
+    &quot;status&quot;: 200,
+    &quot;message&quot;: &quot;done&quot;
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete-request">
+<h3>DELETE Request<a class="headerlink" href="#delete-request" title="Permalink to this headline">¶</a></h3>
+<p>This method is used to drop/remove a new item/application from a user inventory. It still need a parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>item_to_remove</td>
+<td>String</td>
+<td>The item external id.</td>
+</tr>
+</tbody>
+</table>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>status</td>
+<td>Number</td>
+<td>The response status.</td>
+</tr>
+<tr class="row-odd"><td>message</td>
+<td>Text</td>
+<td>Some message with information.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="s">&quot;message&quot;</span><span class="p">:</span> <span class="s">&quot;done&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="user-api">
+<h2>User API<a class="headerlink" href="#user-api" title="Permalink to this headline">¶</a></h2>
+<p>This API implements a way to list the users in system and create a new user.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All the <em>unsafe</em> HTTP methods require a crsf token. But in this case and since the API is not supposed to contact
+with public we will disable this functionality.</p>
+</div>
+<p><em>URL</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/users.&lt;format&gt;
+http://domain.com/api/v2/users/&lt;format&gt;/
+http://domain.com/api/v2/users/  # Default format is JSON
+</pre></div>
+</div>
+<div class="section" id="id4">
+<h3>GET Request<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>The request <em>may</em> have a set of extra GET parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Request</td>
+<td>Object</td>
+<td>User information.</td>
+</tr>
+<tr class="row-odd"><td>offset</td>
+<td>Number</td>
+<td>The number of users to drop before
+deliver in response.</td>
+</tr>
+<tr class="row-even"><td>users</td>
+<td>Number</td>
+<td>The number of users to be delivered in
+the response.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/api/v2/users.json?offset=10&amp;users=30
+http://domain.com/api/v2/users/xml/
+</pre></div>
+</div>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>response</td>
+<td>List</td>
+<td>A list of users items.</td>
+</tr>
+</tbody>
+</table>
+<p>User:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="19%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>external_id</td>
+<td>String</td>
+<td>The user external id.</td>
+</tr>
+<tr class="row-odd"><td>id</td>
+<td>Integer</td>
+<td>The user internal id</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="n">external_id</span><span class="p">:</span> <span class="s">&quot;00bff6c3e52abf68501dcd4b9882a76327f6182cf760d33463531bacdd52c53b&quot;</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="mi">11</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="n">external_id</span><span class="p">:</span> <span class="s">&quot;00360cca7ccdb1464cca0e42cef52753698295b4c148f86d2fa74431001477a8&quot;</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="mi">12</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="n">external_id</span><span class="p">:</span> <span class="s">&quot;0000389d24eb79b0970d3baccaff7736fd2aebc7eee5d0615779a2d3dd5824aa&quot;</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="mi">13</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>POST Request<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>This method is used to create a new user in system. It still need a Post parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>external_id</td>
+<td>String</td>
+<td>The user external id.</td>
+</tr>
+</tbody>
+</table>
+<p>Response:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="20%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>status</td>
+<td>Number</td>
+<td>The response status.</td>
+</tr>
+<tr class="row-odd"><td>message</td>
+<td>Text</td>
+<td>Some message with information.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="s">&quot;message&quot;</span><span class="p">:</span> <span class="s">&quot;done&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="health">
+<h2>Health<a class="headerlink" href="#health" title="Permalink to this headline">¶</a></h2>
+<p>The health API return 200 if everything is ok or a 500 if some resource is unreachable. For this we use the
+<a class="reference external" href="https://github.com/KristianOellegaard/django-health-check">django-health-check</a>.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>http://domain.com/health
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="client.html" class="btn btn-neutral float-right" title="Demo Client"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorial.html" class="btn btn-neutral" title="Tutorial for Developers"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, Linas Baltrunas and João Baptista.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
