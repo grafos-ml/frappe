@@ -6,7 +6,6 @@ Frappe fill - Fill database
 Usage:
   fill (items|users) <path> [options ...] [--verbose]
   fill (items|users) --webservice=<url> [options ...] [--verbose]
-  fill items --mozilla (dev | prod) [today | yesterday | <date>] [--verbose]
   fill (items|users) --mozilla <path> [--verbose]
   fill --help
   fill --version
@@ -26,34 +25,37 @@ Options:
   -v --verbose                     Set verbose mode.
   -h --help                        Show this screen.
   --version                        Show version.
-"""
 
-from __future__ import division, absolute_import, print_function
-import os
-import sys
-import traceback
-import logging
-import tempfile
-import urllib
-import tarfile
-import json
+"""
+from __future__ import absolute_import, division, print_function
+
 import errno
-import shutil
-import click
 import itertools
-from datetime import date, timedelta, datetime
+import json
+import logging
+import os
+import shutil
+import sys
+import tarfile
+import tempfile
+import traceback
+import urllib
+import urlparse
+
+import boto
+import click
+from django.conf import settings
 from django.db.models import Q
 from django_docopt_command import DocOptCommand
-from django.conf import settings
-from recommendation.models import Item, User, Inventory
+
 from recommendation.diversity.models import Genre, ItemGenre
-from recommendation.language.models import Locale, ItemLocale, Region, ItemRegion, UserRegion, UserLocale
+from recommendation.language.models import (ItemLocale, ItemRegion, Locale,
+                                            Region, UserLocale, UserRegion)
+from recommendation.models import Inventory, Item, User
+
 
 __author__ = "joaonrb"
 
-
-MOZILLA_DEV_ITEMS_API = "https://marketplace-dev-cdn.allizom.org/dumped-apps/tarballs/%Y-%m-%d.tgz"
-MOZILLA_PROD_ITEMS_API = "https://marketplace.cdn.mozilla.net/dumped-apps/tarballs/%Y-%m-%d.tgz"
 
 MOZILLA_ITEM_FILE_IDENTIFIER = "app_type"
 MOZILLA_ITEM_FIELD = "id"
@@ -88,12 +90,13 @@ class FillTool(object):
         if parameters.get("--webservice", False):
             self.tmp_dir = self.path = self.get_files(parameters["--webservice"])
         elif parameters.get("--mozilla", False):
-            if parameters.get("dev", False) or parameters.get("prod", False):
-                mozilla = MOZILLA_DEV_ITEMS_API if parameters.get("dev", False) else MOZILLA_PROD_ITEMS_API
-                url = datetime.strftime(self.get_date(), mozilla)
+            path = parameters["<path>"]
+            parts = urlparse(path)
+            if parts.scheme == 's3':
+                conn = boto.connect_s3()
+                url = conn.generate_url(300, 'GET', parts.netloc, parts.path)
                 self.tmp_dir = self.path = self.get_files(url)
             else:
-                self.path = parameters["<path>"]
                 self.use_tmp = False
             parameters["--item-file-identifier"] = MOZILLA_ITEM_FILE_IDENTIFIER
             parameters["--item"] = MOZILLA_ITEM_FIELD
@@ -149,17 +152,6 @@ class FillTool(object):
             name = os.path.splitext(tarinfo.name)
             if name[1] == ".json" and name[0][0] != ".":
                 yield tarinfo
-
-    def get_date(self):
-        """
-        Return a date passed in the pararameters
-        :return: A datetime
-        """
-        if self.parameters.get("<date>", False):
-            return datetime.strptime(self.parameters["<date>"], "%Y-%m.%d").date()
-        if self.parameters.get("today", False):
-            return date.today()
-        return date.today() - timedelta(1)
 
     def load(self):
         """
@@ -239,9 +231,9 @@ class FillTool(object):
                         regions[region["name"]]["items"].append(item_eid)
                     except KeyError:
                         regions[region["name"]] = {"slug": region["slug"], "items": [item_eid]}
-        #logging.debug("Items ready to be saved")
+        # logging.debug("Items ready to be saved")
         Item.objects.bulk_create(new_items.values())
-        #logging.debug("%d new items saved with bulk_create" % len(new_items))
+        # logging.debug("%d new items saved with bulk_create" % len(new_items))
 
         items.update({item.external_id: item for item in Item.objects.filter(external_id__in=json_items.keys())})
 
@@ -249,18 +241,18 @@ class FillTool(object):
             "Size of items and size of objects are different (%d != %d)" % (len(items), len(objects))
 
         if "recommendation.diversity" in settings.INSTALLED_APPS:
-            #logging.debug("Preparing genres")
+            # logging.debug("Preparing genres")
             db_categories = self.get_genres(categories)
             self.fill_item_genre(objects, items, db_categories)
-            #logging.debug("Genres loaded")
+            # logging.debug("Genres loaded")
 
         if "recommendation.language" in settings.INSTALLED_APPS:
-            #logging.debug("Preparing languages")
+            # logging.debug("Preparing languages")
             db_locales = self.get_locales(locales)
             db_regions = self.get_regions(regions)
             self.fill_item_locale(objects, items, db_locales)
             self.fill_item_region(regions, items, db_regions)
-            #logging.debug("Locales loaded")
+            # logging.debug("Locales loaded")
 
     @staticmethod
     def get_genres(genres_names):
@@ -455,7 +447,7 @@ class FillTool(object):
             if user_eid not in users:
                 new_users[user_eid] = User(external_id=user_eid)
         del json_users
-        #logging.debug("Users ready to be saved")
+        # logging.debug("Users ready to be saved")
         User.objects.bulk_create(new_users.values())
         for user in User.objects.filter(external_id__in=new_users.keys()):
             users[user.external_id] = user
@@ -465,20 +457,20 @@ class FillTool(object):
 
         if "recommendation.language" in settings.INSTALLED_APPS:
             self.fill_user_locale(users, regions, langs)
-        #logging.debug("%d new users saved with bulk_create" % len(new_users))
+        # logging.debug("%d new users saved with bulk_create" % len(new_users))
 
-        #logging.debug("Preparing items")
+        # logging.debug("Preparing items")
         items = {ieid: iid for ieid, iid in Item.objects.filter(external_id__in=user_items).values_list("external_id",
                                                                                                         "id")}
         r = range(0, len(user_items), 300)
         n = len(r)
         user_items = user_items.items()
-        user_items = [user_items[i:i+300] for i in r]
+        user_items = [user_items[i:i + 300] for i in r]
         with click.progressbar(user_items, length=n, label="Load items for user inventory") as bar:
             for user_item in bar:
                 self.fill_inventory(users, items, user_item)
                 del user_item
-        #logging.debug("Items loaded")
+        # logging.debug("Items loaded")
 
     @staticmethod
     def fill_inventory(users, items, user_items):
